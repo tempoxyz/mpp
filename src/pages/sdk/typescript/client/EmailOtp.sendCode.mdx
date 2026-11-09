@@ -1,0 +1,59 @@
+---
+description: "Send an email verification code for your API origin from a custom form or client."
+imageDescription: "Add email verification to your own form"
+---
+
+# `EmailOtp.Client.sendCode` [Send a verification code]
+
+Asks an issuer to email a one-time code for an API origin. The issuer is an identity service that exchanges the code for an attestation—a signed token confirming inbox access at that API.
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+
+// [!code hl:start]
+const { expiresAt, id } = await EmailOtp.Client.sendCode({
+  audience: 'https://api.example.com',
+  email: 'you@example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+```
+
+Keep `id` for [`verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode). Prefer [`prover`](/sdk/typescript/client/EmailOtp.prover) unless you need to control the form's send and verify steps yourself.
+
+## Return type
+
+`Promise<{ expiresAt: Date; id: string }>`: the code request's expiry and nonempty identifier. These come from the issuer's `expires_at` and `id` response fields. Code lifetime and delivery limits are issuer policy, not SDK defaults.
+
+## Parameters
+
+### audience
+
+- **Type:** `string`
+
+Origin of the API the attestation is for. Pass the origin, not a resource URL. This low-level helper forwards the value unchanged; derive it from a trusted target, not an arbitrary server instruction.
+
+### email
+
+- **Type:** `string`
+
+Address to receive the code. The issuer validates the address.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the issuer call. The call bypasses automatic payment handling in Machine Payments Protocol (MPP) fetch wrappers, so it never pays an issuer's `402` payment request.
+
+### issuer
+
+- **Type:** `string`
+
+Issuer you trust with the address. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1`. Trailing slashes are removed before appending `/email/otp`. This helper has no issuer allowlist—choose the issuer yourself.
+
+## Errors
+
+Throws [`EmailOtp.Client.EmailOtpError`](/sdk/typescript/client/EmailOtp.EmailOtpError) for an insecure issuer, non-success HTTP response, or malformed code-request response. A valid response needs a nonempty string `id` and a parseable string `expires_at`. Network errors propagate. Calls use JSON `POST` and don't follow redirects.

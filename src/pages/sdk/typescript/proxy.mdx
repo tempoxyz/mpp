@@ -62,6 +62,8 @@ import { createServer } from 'node:http'
 createServer(proxy.listener).listen(3000)
 ```
 
+The proxy removes `Identity-Attestation` and `Identity-Attestation-Required` from requests sent upstream, alongside payment and hop-by-hop headers. Identity verification stays at the proxy; upstream services don't receive the caller's attestation.
+
 The proxy returns two handlers:
 
 - **`fetch`** — Fetch API handler. Works with Bun, Deno, Next.js, Hono, Elysia, and SvelteKit.

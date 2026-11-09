@@ -9,18 +9,132 @@ import { SpecCard } from '../../components/SpecCard'
 
 # Identity [Verify agents and clients]
 
-Use request identity to verify which automated client sent a request, then use MPP Credentials to verify the identity that authorized a payment.
+Require a verified email, your existing identity system, or a signed agent identity before payment. Verify the MPP Credential separately to authorize payment.
+
+The `mppx` TypeScript SDK implements the Machine Payments Protocol (MPP). A Challenge asks for payment; a Credential answers with payment proof and, when present, a `source` DID identifying the payer's key, such as `did:pkh:eip155:4217:0x…` for an address on Tempo.
 
 ## Overview
 
-`mppx` supports two complementary identity layers:
+`mppx` separates request identity from payment authorization:
 
 | Layer | Verifies | Use it for |
 |---|---|---|
-| [**Request identity**](#request-identity) | The automated client or agent provider that signed an HTTP request | Bot recognition, allowlists, rate limits, and agent-specific policy |
+| [**Email OTP**](#verify-an-email-address) | Control of an email inbox, as checked by a trusted issuer | Verified-address access and domain allowlists |
+| [**Your identity system**](#use-your-identity-system) | Your API key, session, or provider lookup | Existing customer access policy |
+| [**Agent signatures**](#request-identity) | The automated client or agent provider that signed an HTTP request | Bot recognition, allowlists, and agent-specific policy |
 | [**MPP Credential**](#mpp-credential-identity) | The key in the Credential's `source` field | Payment authorization, ownership, and identity-only MPP flows |
 
-A request identity proof doesn't authorize a payment or prove the end user's identity. Apply your own policy after verifying the agent, and verify the MPP Credential separately when the request requires payment.
+Request identity doesn't authorize payment. Email OTP proves inbox access, not legal identity; an agent signature identifies the agent, not its user. Apply your own access policy and verify the MPP Credential separately.
+
+## Verify an email address
+
+Use the email OTP extension when callers need a verified address and you don't have an existing identity system. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential. The examples use Tempo's hosted issuer; you can also self-host it.
+
+```ts twoslash [server.ts]
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = EmailOtp.Server.verifier({
+  allow: (address) => address.endsWith('@example.com'),
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: [email] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ email: result.identity?.get(email)?.email }))
+}
+```
+
+Configure the matching client prover. Use your terminal or form to return the emailed code from `code`:
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function promptForCode(message: string): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [EmailOtp.Client.prover({
+    code: ({ audience, email, issuer }) =>
+      promptForCode(`Code from ${issuer} for ${email} at ${audience}:`),
+    email: 'you@example.com',
+    issuers: ['https://identity.mpp.tempo.xyz'],
+    scope: ['https://api.example.com'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Issuer
+    participant API
+    Client->>API: Request without attestation
+    API-->>Client: 401 + Identity-Attestation-Required
+    Client->>Issuer: Request code for email and API origin
+    Issuer-->>Client: Email code
+    Client->>Issuer: Exchange code
+    Issuer-->>Client: Origin-bound attestation
+    Client->>API: Request + Identity-Attestation
+    API-->>Client: 402 + Challenge
+    Client->>API: Credential + Identity-Attestation
+    API-->>Client: 200 + Receipt
+`} />
+
+- The prover only contacts allowlisted `issuers` and only sends attestations to in-scope origins matching their audience. Never trust an issuer supplied only by a server—it could relay your code to another issuer.
+- The server returns `401` for missing or invalid attestations, `403` for a verified address rejected by `allow`, and `503` when issuer keys are unavailable. Only identity success reaches payment.
+- Cached attestations are reused in memory and refreshed near expiry before payment. The prover prompts at most three times for rejected codes; paid attempts aren't resent by identity recovery.
+- For your own send/verify form, use [`sendCode`](/sdk/typescript/client/EmailOtp.sendCode), [`verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode), and [pre-obtained attestations](/sdk/typescript/client/EmailOtp.prover#use-a-custom-email-form).
+
+:::warning[Keep attestations at their audience]
+An attestation is a reusable bearer token, not a per-request signature. Use HTTPS and configure `audience` as your fixed public API origin. Derive it from the request only when the platform guarantees the host; a caller-controlled `Host` header can bypass isolation.
+
+Don't forward `Identity-Attestation` to upstream services. `mppx` strips it from cross-origin payment preparation, and its proxy strips both this request header and upstream `Identity-Attestation-Required` responses. Authenticate each hop independently.
+:::
+
+See [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) for key resolution and rejection rules, and [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover) for callbacks, expiry handling, and errors. The [Cloudflare Worker example](https://github.com/wevm/mppx/tree/main/examples/email-otp) includes a terminal prompt, a domain allowlist, and a self-hosted issuer option.
+
+## Use your identity system
+
+Use [`Identity.from`](/sdk/typescript/core/Identity.from) for API keys, sessions, SSO, or KYC checks you already operate. Return an authenticated identity, `undefined` or `null` for no identity (`401`), or throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) for an expected rejection. Other errors propagate.
+
+```ts twoslash [server.ts]
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+// [!code hl:start]
+const customer = Identity.from({
+  challenge: { 'WWW-Authenticate': 'ApiKey' },
+  verify(request) {
+    const key = request.headers.get('X-Api-Key')
+    if (!key) return undefined
+    const identity = customers.get(key)
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { code: 403 })
+    return identity
+  },
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+export const handler = mppx.charge({ amount: '0.05', identity: [customer] })
+```
+
+Read the verified customer with `result.identity?.get(customer)` in a successful handler. To accept either email or your existing system, pass `identity: [Identity.anyOf(email, customer)]`; a plain list requires both. Every `anyOf` member runs, and the first valid member wins.
 
 ## Request identity
 
@@ -31,7 +145,7 @@ Request identity uses [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.
 | [**Web Bot Auth**](#use-web-bot-auth) | Public key associated with a trusted HTTPS directory | Authority and `Signature-Agent` | General bot and agent identification |
 | [**Trusted Agent Protocol**](#use-trusted-agent-protocol) | Public key provisioned by a trusted agent provider | Authority and path | Commerce agents with explicit browse or payment intent |
 
-The client passes provers to `identity`. Each prover signs the initial request and every automatic MPP retry to the origins in its `scope`, with a fresh nonce and timestamp per attempt. Requests that carry proofs don't follow redirects. The server lists the verifiers each route requires in the route's `identity` option and checks them before it issues a Challenge or accepts a Credential. Routes without `identity` stay open.
+The client passes provers to `identity`. Each prover signs the initial request and every automatic MPP retry to the origins in its `scope`, with a fresh nonce and timestamp per attempt. Requests that carry proofs don't follow redirects. The server lists the verifiers each route requires in the route's `identity` option and checks them before it issues a Challenge or accepts a Credential. Routes without `identity` skip identity checks, not payment checks.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Agent
@@ -154,7 +268,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-On the server, resolve `keyId` only from agent providers you trust. The verifier checks the signature, request authority and path, lifetime, intent tag, and nonce. Read the verified key ID and intent with `result.identity.get(verifier)`.
+On the server, resolve `keyId` only from agent providers you trust. The verifier checks the signature, request authority and path, lifetime, intent tag, and nonce. Read the verified key ID and intent with `result.identity?.get(tap)`.
 
 ```ts twoslash [server.ts]
 import * as Tap from 'mppx/extensions/identity/tap'
@@ -184,7 +298,7 @@ export async function handler(request: Request) {
 }
 ```
 
-A route rejects an invalid proof with `401` and a missing proof or unresolved key with `403`, before it issues a Challenge. Every verifier in a route's `identity` list must verify. To accept either protocol, wrap them in `Identity.anyOf`:
+For Web Bot Auth and TAP (unlike email OTP and `Identity.from`), a route rejects an invalid proof with `401` and a missing proof or unresolved key with `403`, before it issues a Challenge. Every verifier in a route's `identity` list must verify. To accept either protocol, wrap them in `Identity.anyOf`:
 
 ```ts twoslash [server.ts]
 import type * as Tap from 'mppx/extensions/identity/tap'
@@ -209,24 +323,18 @@ Every member of `anyOf` runs, so each presented proof's nonce is consumed.
 
 Third-party identity protocols implement the `Identity.Prover` and `Identity.Verifier` types from `mppx/identity`. A prover has a `scope` and a `prove(request, context)` function that returns the signed request. A verifier has a `verify(request, context)` function that returns `missing`, `invalid`, or `valid`, and an optional `stage`: `request` (the default) runs before any `402`, and `payment` runs against the issued Challenge and the answered Credential.
 
+For custom authentication lookups, prefer [`Identity.from`](/sdk/typescript/core/Identity.from) instead of implementing verifier outcomes yourself. For a custom client protocol, implement `Identity.Prover` and keep key handling and proof validation in your protocol implementation:
+
 ```ts twoslash [identity.ts]
 import type * as Identity from 'mppx/identity'
 
-export const prover: Identity.Prover = {
-  scope: ['https://api.example.com'],
-  prove(request, { nonce }) {
-    const signed = new Request(request)
-    signed.headers.set('X-Agent-Nonce', nonce)
-    return signed
-  },
-}
+declare function signRequest(request: Request, context: Identity.ProveContext): Promise<Request>
 
-export const verifier: Identity.Verifier<{ nonce: string }> = {
-  verify(request) {
-    const nonce = request.headers.get('X-Agent-Nonce')
-    if (!nonce) return { status: 'missing' }
-    return { status: 'valid', value: { nonce } }
-  },
+export const prover: Identity.Prover = {
+  // [!code hl:start]
+  prove: (request, context) => signRequest(request, context),
+  scope: ['https://api.example.com'],
+  // [!code hl:end]
 }
 ```
 
@@ -247,13 +355,13 @@ await fetch('https://api.example.com/resource')
 
 ### Bind identity to a payment
 
-A payment-stage verifier checks a proof on the paid retry, before settlement. Its optional `challenge(request, { nonce })` hook returns headers added to the `402` once. Every offer in that response carries the same HMAC-bound identity nonce. Bind the proof to `context.nonce`, then check it in `verify(request, context)`. Several offers can use payment-stage identity when they require the same verifiers. Routes with preflight hooks cannot use payment-stage identity.
+A payment-stage verifier checks a proof on the paid retry, before settlement. Its optional `challenge(request, { nonce })` hook returns headers added to the `402` once. A `402` can list several payment offers (alternative Challenges). Each carries the same identity nonce, authenticated by the server's secret key so clients cannot alter it. Bind the proof to `context.nonce`, then check it in `verify(request, context)`. Several offers can use payment-stage identity when they require the same verifiers. Routes using payment-method preflight hooks cannot use payment-stage identity.
 
-A client prover can use `prepare(response, { challenge })` to process the `402` before the payment retry. Its `prove(request, context)` receives the selected Challenge. `retry(response)` inspects other rejected responses and can request one resend; paid attempts are never resent.
+A client prover can use `prepare(response, { challenge })` to process the `402` before the payment retry. Its `prove(request, context)` receives the selected Challenge. `retry(response)` inspects rejected responses other than `402` and can request one unpaid resend; paid attempts are never resent.
 
 ### Store nonces
 
-Identity verifiers accept the core `Store.AtomicStore`. `Store.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared atomic store so every instance claims nonces through their expiration time.
+Web Bot Auth and TAP verifiers use the core `Store.AtomicStore` to retain consumed nonces and block replay. `Store.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared atomic store so every instance claims nonces through their expiration time.
 
 ```ts [nonce-store.ts]
 import type { Store } from 'mppx'
@@ -290,7 +398,7 @@ Adapt `tryClaim` to your storage client's atomic insert-if-absent operation. It 
 
 ## MPP Credential identity
 
-After your payment method authenticates `source`, read it with `Credential.fromRequest`. Parsing alone doesn't verify identity. Private [Zone payments](/guides/private-payments) omit `source` and require separate request authentication:
+The Credential's optional `source` is a DID naming the payer's key, not a raw public key. Tempo verifies the Credential's signature or transaction against this identity. After the payment method verifies it, read `source` with `Credential.fromRequest`. Parsing alone doesn't verify identity. [Zone payments](/guides/private-payments) use a private payment environment whose Credentials omit `source`, so they require separate request authentication:
 
 ```ts twoslash [server.ts]
 // @noEmit
@@ -303,7 +411,7 @@ const clientIdentity = credential.source
 // @log: "did:pkh:eip155:4217:0x1234..."
 ```
 
-The examples below use a Tempo method that authenticates `source`, with Zone payments disabled.
+The examples below use a Tempo method that authenticates `source`, with Zone payments disabled. Unresolved job, dataset, and pipeline helpers are application code, not SDK functions.
 
 ## Zero-dollar auth
 
@@ -326,7 +434,7 @@ By default, a valid zero-dollar proof remains reusable until the Challenge expir
     Server-->>Client: (6) 200 OK
 `} />
 
-The Credential contains the client's public key and a valid signature, giving the server a verified identity to associate with the request.
+The proof Credential contains the client's `source` DID and a signature, giving the server a verified payer identity to associate with the request.
 
 For Tempo, the server rejects `transaction` and `hash` payloads for zero-amount Challenges and requires `proof`.
 
@@ -334,13 +442,13 @@ The client refuses to sign a zero-amount proof when the Challenge realm differs 
 
 ### Case study: long-running jobs
 
-A service accepts a paid request to start work, then lets the client poll for results using zero-dollar auth. The server keys workloads on the client's public key.
+A service accepts a paid request to start work, then lets the client poll for results using zero-dollar auth. The server keys workloads on the client's verified `source` DID.
 
 ::::steps
 
 ### Client submits a job (paid)
 
-The client sends a request with payment to create a new job. The Credential includes both payment proof and the client's public key.
+The client sends a request with payment to create a new job. The Credential includes payment proof and the client's `source` DID.
 
 ```ts twoslash [client.ts]
 // @noEmit
@@ -351,11 +459,11 @@ const { jobId } = await response.json()
 // @log: { jobId: "abc123" }
 ```
 
-The server records the job and associates it with the client's public key from the Credential.
+The server records the job and associates it with the verified `source` DID from the Credential.
 
-### Server stores the public key
+### Server stores the payer identity
 
-After the payment middleware verifies the Credential, extract the client's identity from the request:
+After the payment middleware verifies the Credential, extract the client's verified payer identity from the request:
 
 ```ts [server.ts]
 import { Credential } from 'mppx'
@@ -366,8 +474,8 @@ export async function handler(request: Request) {
 
   const credential = Credential.fromRequest(request)
   // [!code hl:start]
-  const pubkey = credential.source
-  const jobId = createJob({ owner: pubkey })
+  const payer = credential.source
+  const jobId = createJob({ owner: payer })
   // [!code hl:end]
 
   return result.withReceipt(Response.json({ jobId }))
@@ -404,7 +512,7 @@ A service charges once to unlock a resource, then grants repeated free access ti
 
 ### Client pays to unlock
 
-The client pays once to gain access. The server records the public key as an authorized user.
+The client pays once to gain access. The server records the verified payer DID as an authorized user.
 
 ```ts [server.ts]
 export async function unlockHandler(request: Request) {
@@ -440,13 +548,13 @@ export async function accessHandler(request: Request) {
 
 ### Case study: multi-step agent workflow
 
-An agent orchestrates a pipeline where one paid step kicks off several follow-up steps that only need identity. Each step verifies the same public key to maintain continuity across the workflow.
+An agent orchestrates a pipeline where one paid step kicks off several follow-up steps that only need identity. Each step verifies the same payer DID to maintain continuity across the workflow.
 
 ::::steps
 
 ### Agent starts the pipeline (paid)
 
-The agent pays to kick off generation. The server returns a pipeline ID tied to the agent's public key.
+The agent pays to kick off generation. The server returns a pipeline ID tied to the agent's verified payer DID.
 
 ```ts [server.ts]
 export async function createPipelineHandler(request: Request) {

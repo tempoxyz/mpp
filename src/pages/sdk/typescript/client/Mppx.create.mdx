@@ -11,6 +11,8 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
+`mppx.prepareRequest` strips `Identity-Attestation` alongside authorization and cookie headers when following a cross-origin redirect.
+
 Credential-bearing retries use `redirect: 'manual'`. Redirect responses return without forwarding the Credential and leave payment acceptance pending, as with [`Fetch.from`](/sdk/typescript/client/Fetch.from).
 
 When a paid retry returns `5xx`, `onPaymentFailed` receives `PaymentOutcomeUnknownError` with the Challenge, serialized Credential, and a transaction hash when the method can derive one. The response still returns to the caller. If the paid request throws, the hook receives the same error with the original failure as `cause`, and the original failure is thrown to the caller. Reconcile the payment before sending another Credential.
@@ -570,7 +572,7 @@ const mppx = Mppx.create({
 
 - **Type:** `readonly Identity.Prover[]`
 
-Request identity provers applied to the initial HTTP request and every automatic payment retry to origins in each prover's `scope`. Each attempt uses a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity), or include both provers when a request needs both signatures. List request signers last so they cover headers added by earlier provers.
+Request identity provers applied to the initial HTTP request and every automatic payment retry to origins in each prover's `scope`. Each attempt uses a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [email OTP](/sdk/typescript/client/EmailOtp.prover), [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity), or include both provers when a request needs both signatures. List request signers last so they cover headers added by earlier provers.
 
 :::code-group
 

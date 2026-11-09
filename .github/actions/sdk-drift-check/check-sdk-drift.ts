@@ -259,6 +259,26 @@ export function parseLink(
     };
   }
 
+  if (symbolPart.startsWith("EmailOtp.")) {
+    return {
+      link,
+      area,
+      namespace: { client: "Client", core: "EmailOtp", server: "Server" }[area],
+      member: symbolPart.slice("EmailOtp.".length),
+      entrypoint: "extensions/identity/email-otp",
+    };
+  }
+
+  if (area === "core" && symbolPart.startsWith("Identity.")) {
+    return {
+      link,
+      area,
+      namespace: "Identity",
+      member: symbolPart.slice("Identity.".length),
+      entrypoint: "identity",
+    };
+  }
+
   if (area === "core" && symbolPart.startsWith("Html.")) {
     return {
       link,
@@ -362,6 +382,11 @@ export async function getSdkExports(
     { area: "core", path: packageName },
     { area: "client", path: `${packageName}/client` },
     { area: "server", path: `${packageName}/server` },
+    {
+      area: "extensions/identity/email-otp",
+      path: `${packageName}/extensions/identity/email-otp`,
+    },
+    { area: "identity", path: `${packageName}/identity` },
     { area: "html", path: `${packageName}/html` },
     { area: "mcp-sdk/client", path: `${packageName}/mcp-sdk/client` },
     { area: "tempo", path: `${packageName}/tempo` },

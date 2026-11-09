@@ -1,0 +1,113 @@
+---
+description: "Verify your email when an API asks, then continue to payment in one client call."
+imageDescription: "Verify email and pay in one request"
+---
+
+# `EmailOtp.Client.prover` [Prove your email address]
+
+Obtains and presents origin-bound email attestations before payment. An issuer emails a one-time code and exchanges it for an attestation: a signed bearer token confirming inbox access for one API origin.
+
+## Usage
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function promptForCode(message: string): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [EmailOtp.Client.prover({
+    code: ({ audience, email, issuer }) =>
+      promptForCode(`Code from ${issuer} for ${email} at ${audience}:`),
+    email: 'you@example.com',
+    issuers: ['https://identity.mpp.tempo.xyz'],
+    scope: ['https://api.example.com'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+The API names its requirement in `Identity-Attestation-Required`, for example `email;issuer="https://identity.mpp.tempo.xyz"`. The prover matches the `email` type and an allowlisted issuer. On an unpaid `401` or `403` carrying such a requirement, the prover requests a code, prompts through your callback, exchanges the code, and resends once. A subsequent `402` asks the Machine Payments Protocol (MPP) client to create a payment Credential and retry with payment. Paid attempts are never resent by identity recovery.
+
+## Return type
+
+`Identity.Prover`, for `Mppx.create({ identity: [prover] })` or `Identity.Client.wrapFetch`.
+
+The prover keeps attestations in memory per audience, issuer, and type. Requests for the same requirement share an in-flight acquisition. It sends cached attestations only to their audience origin, within `scope`, over HTTPS (HTTP only on `localhost` or `127.0.0.1`). Requests carrying identity proofs don't follow redirects.
+
+Before payment, it withholds tokens near expiry to acquire a replacement. The margin is `max(0, min(300, floor(lifetime / 2)) - 60)` seconds, where lifetime is `exp - iat` (or remaining lifetime at load when `iat` is absent). This leaves time to verify identity before creating payment. Just-acquired tokens remain fresh for the resend window (`60` seconds); paid retries retain tokens within the server's `60`-second clock tolerance rather than dropping them after payment creation. Your server can configure a different tolerance, so avoid short lifetimes and large clock skew.
+
+## Parameters
+
+### attestations (optional)
+
+- **Type:** `readonly string[]`
+- **Default:** `[]`
+
+Pre-obtained bearer tokens. Malformed tokens throw `TypeError` at construction. The client decodes tokens for routing and expiry; only the server verifies their signature. Tokens acquired later must match the requested audience, issuer, and email type before being stored.
+
+### code
+
+- **Type:** `(parameters: { attempt: number; audience: string; email: string; error?: Error; expiresAt: Date; id: string; issuer: string }) => string | undefined | Promise<string | undefined>`
+
+Prompt through your terminal or form. `attempt` starts at `1`; `error` contains the preceding rejected-code error. `id` identifies the code request and `expiresAt` is its expiry. That request gets at most three prompts, and only issuer `400` responses trigger another prompt. Returned codes are trimmed. Return `undefined` or an empty string to decline.
+
+### email
+
+- **Type:** `string | ((parameters: { audience: string; issuer: string }) => string | undefined | Promise<string | undefined>)`
+
+Address to verify, or a callback to choose it for this API and issuer. Return `undefined` or an empty string to decline before requesting a code.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the issuer's code endpoints, not your API. The SDK unwraps MPP fetch wrappers and doesn't follow redirects, so issuer calls never pay automatically.
+
+### issuers
+
+- **Type:** `readonly string[]`
+
+Issuers allowed to receive your address and code. Trailing slashes are removed for matching. A server-supplied issuer isn't trusted automatically: a malicious issuer could relay a code to obtain an attestation for another API. Use an explicit allowlist, even with `scope: '*'`.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+API origins that may ask for and receive attestations. Prefer an explicit origin list. The audience always comes from the API response's origin, not a server-supplied audience.
+
+## Errors
+
+Issuer rejection and malformed responses throw [`EmailOtp.Client.EmailOtpError`](/sdk/typescript/client/EmailOtp.EmailOtpError). After three `400` code rejections, the last error propagates. Non-`400` failures end acquisition immediately. Callback and network errors propagate. With several acceptable issuer requirements, another successful acquisition can still permit a retry; an error surfaces when none succeeds. A declined acquisition leaves the rejected response unchanged.
+
+## Use a custom email form
+
+For a form that sends and verifies codes before the API call, use [`sendCode`](/sdk/typescript/client/EmailOtp.sendCode) and [`verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode), then pass the token through `attestations`. Keep the built-in prover for origin scoping and payment-retry handling:
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+
+declare const attestation: string
+
+const prover = EmailOtp.Client.prover({
+  // [!code hl:start]
+  attestations: [attestation],
+  code: () => undefined,
+  email: () => undefined,
+  // [!code hl:end]
+  issuers: ['https://identity.mpp.tempo.xyz'],
+  scope: ['https://api.example.com'],
+})
+```
+
+The callbacks decline automatic renewal; your form must supply a replacement after expiry. Don't implement this by attaching the token to every outgoing fetch.

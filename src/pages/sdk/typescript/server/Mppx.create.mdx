@@ -163,7 +163,13 @@ Route verification compares all application and scope metadata while excluding t
 
 ### Route identity
 
-Pass `identity` to an intent function to require [request identity](/advanced/identity#request-identity) verifiers on that route, for example `mppx.charge({ amount: '1', identity: [tap] })`. Every listed verifier must succeed before the handler issues a Challenge or accepts a Credential. Invalid proofs return `401`; missing proofs return `403`. Read verified values with `result.identity.get(verifier)`. Routes without `identity` stay open. `Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
+Pass `identity` to an intent function to require [identity verifiers](/advanced/identity#route-identity) on that route, for example `mppx.charge({ amount: '1', identity: [tap] })`. Every listed verifier must succeed before the handler issues a Challenge or accepts a Credential.
+
+- Web Bot Auth and TAP return `401` for invalid proofs and `403` for missing proofs or unresolved keys.
+- [Email OTP](/sdk/typescript/server/EmailOtp.verifier) and [`Identity.from`](/sdk/typescript/core/Identity.from) return `401` when no identity is present.
+- Read verified values with `result.identity?.get(verifier)`. Routes without `identity` don't require an identity proof; payment requirements still apply.
+
+`Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
 
 ### Validate and broadcast Credentials
 
@@ -184,7 +190,7 @@ console.log(receipt.status)
 
 ## Route identity
 
-Require identity per route with `identity: [verifier]` in an intent handler's options. Every listed verifier must succeed; use `Identity.anyOf` to accept one of several protocols. Request-stage verifiers run before a Challenge. Payment-stage verifiers add headers to the `402` and check proofs before settlement. Routes with preflight hooks do not support payment-stage identity. On a successful result, `result.identity?.get(verifier)` returns its verified value. Identity rejections return `401` or `403` on the non-success branch.
+Require identity per route with `identity: [verifier]` in an intent handler's options. Every listed verifier must succeed; use `Identity.anyOf` to accept one of several protocols. Request-stage verifiers run before a Challenge. Payment-stage verifiers add headers to the `402` and check proofs before settlement. Routes with preflight hooks do not support payment-stage identity. On a successful result, `result.identity?.get(verifier)` returns its verified value. Identity rejections use the verifier's HTTP status on the non-success branch; see the [identity reference](/sdk/typescript/server/EmailOtp.verifier#errors) for email OTP failure statuses.
 
 ```ts twoslash
 import * as Tap from 'mppx/extensions/identity/tap'

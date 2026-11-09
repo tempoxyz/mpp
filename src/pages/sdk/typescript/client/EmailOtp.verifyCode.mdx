@@ -1,0 +1,62 @@
+---
+description: "Exchange an emailed verification code for an attestation your API can verify."
+imageDescription: "Complete email verification in your own client"
+---
+
+# `EmailOtp.Client.verifyCode` [Exchange a verification code]
+
+Exchanges a code request ID and emailed code for an attestation: a signed bearer token confirming inbox access for one API origin. The issuer is the identity service that sent the code.
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+
+declare const code: string
+declare const id: string
+
+// [!code hl:start]
+const { attestation, expiresAt } = await EmailOtp.Client.verifyCode({
+  code: code.trim(),
+  id,
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+```
+
+Use the same issuer and the `id` from [`sendCode`](/sdk/typescript/client/EmailOtp.sendCode). Supply the token to [`prover`](/sdk/typescript/client/EmailOtp.prover#use-a-custom-email-form) through `attestations`, or send it in `Identity-Attestation` only to its intended API origin over HTTPS. Treat it like a session token.
+
+## Return type
+
+`Promise<{ attestation: string; expiresAt: Date }>` from the issuer's `attestation` and `expires_at` fields. The helper validates a nonempty token string and parseable expiry, not the token signature. The API's [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) authenticates it. The issuer controls the lifetime.
+
+## Parameters
+
+### code
+
+- **Type:** `string`
+
+Emailed code. This low-level helper doesn't trim it or retry; normalize user input yourself.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the issuer. The call bypasses automatic payment handling in Machine Payments Protocol (MPP) fetch wrappers, so it never pays an issuer's `402` payment request.
+
+### id
+
+- **Type:** `string`
+
+Code request ID from `sendCode`.
+
+### issuer
+
+- **Type:** `string`
+
+Trusted issuer. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1`. Trailing slashes are removed before appending `/email/verify`. This helper has no issuer allowlist.
+
+## Errors
+
+Throws [`EmailOtp.Client.EmailOtpError`](/sdk/typescript/client/EmailOtp.EmailOtpError) for an insecure issuer, non-success response (including a rejected code), or malformed attestation response. Network errors propagate. Calls use JSON `POST` and don't follow redirects. Unlike `prover`, this helper doesn't prompt again after `400`.

@@ -49,6 +49,8 @@ const mppx = Mppx.create({
 })
 ```
 
+To create a deposit address before starting the server, use [`mppx stripe address --env`](/sdk/typescript/cli#stripe-address). Pass the resulting `TEMPO_DEPOSIT_ADDRESS` in `depositAddresses: { tempo: process.env.TEMPO_DEPOSIT_ADDRESS! }` after loading `.env`.
+
 The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup. The atomic `store` must be shared by every server instance so Stripe-backed Tempo methods use one replay-protection namespace.
 
 Add a Tempo Session method through `defaultMethods().additional({ tempo: { session: {} } })`. Each on-chain Session settlement of at least one cent records its newly settled amount in Stripe before `mppx` calls your optional `onSessionSettlement` hook. `mppx` skips recording when the amount rounds down below one cent.
