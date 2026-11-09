@@ -748,7 +748,7 @@ function createWebMcpTools(): WebMcpTool[] {
       name: "mpp.open_page",
       title: "Open MPP docs page",
       description:
-        "Navigate the browser to an MPP documentation path, such as /quickstart/client, /sdk/typescript, or /advanced/discovery.",
+        "Navigate the browser to an MPP documentation path, such as /quickstart/client, /sdk/typescript, or /extensions/discovery.",
       inputSchema: {
         type: "object",
         properties: {

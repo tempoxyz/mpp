@@ -7,16 +7,13 @@ import type { PathsForPages } from 'waku/router'
 type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/_root'; render: 'static' }
   | { path: '/_slots'; render: 'static' }
-  | { path: '/advanced/discovery'; render: 'static' }
-  | { path: '/advanced/identity'; render: 'static' }
-  | { path: '/advanced/payment-hooks'; render: 'static' }
-  | { path: '/advanced/refunds'; render: 'static' }
-  | { path: '/advanced/relays'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
+  | { path: '/blog'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/mppx-identity-support'; render: 'static' }
@@ -26,7 +23,13 @@ type Page =
   | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
+  | { path: '/extensions/discovery'; render: 'static' }
+  | { path: '/extensions/identity'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
+  | { path: '/extensions/payment-hooks'; render: 'static' }
+  | { path: '/extensions/refunds'; render: 'static' }
+  | { path: '/extensions/relays'; render: 'static' }
+  | { path: '/extensions/third-party'; render: 'static' }
   | { path: '/faq'; render: 'static' }
   | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
@@ -44,6 +47,7 @@ type Page =
   | { path: '/guides/subscription-payments'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
   | { path: '/guides/webmcp-payments'; render: 'static' }
+  | { path: '/'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
   | { path: '/intents'; render: 'static' }
@@ -119,6 +123,7 @@ type Page =
   | { path: '/sdk/typescript/Html.init'; render: 'static' }
   | { path: '/sdk/typescript/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/cli'; render: 'static' }
+  | { path: '/sdk/typescript/client/Attestation.prover'; render: 'static' }
   | { path: '/sdk/typescript/client/EmailOtp.EmailOtpError'; render: 'static' }
   | { path: '/sdk/typescript/client/EmailOtp.prover'; render: 'static' }
   | { path: '/sdk/typescript/client/EmailOtp.sendCode'; render: 'static' }
@@ -143,6 +148,11 @@ type Page =
   | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/cloudflare'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.Jwks.resolver'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.decode'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.sign'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.verify'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.credentialHeader'; render: 'static' }
@@ -162,7 +172,10 @@ type Page =
   | { path: '/sdk/typescript/core/EmailOtp.Constants'; render: 'static' }
   | { path: '/sdk/typescript/core/Errors'; render: 'static' }
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Headers'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Rejection'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Status'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.anyOf'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
@@ -188,6 +201,7 @@ type Page =
   | { path: '/sdk/typescript/middlewares/hono'; render: 'static' }
   | { path: '/sdk/typescript/middlewares/nextjs'; render: 'static' }
   | { path: '/sdk/typescript/proxy'; render: 'static' }
+  | { path: '/sdk/typescript/server/Attestation.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/EmailOtp.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
@@ -221,6 +235,7 @@ type Page =
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }
   | { path: '/sdk/typescript/x402/next'; render: 'static' }
+  | { path: '/services'; render: 'static' }
   | { path: '/services'; render: 'static' }
   | { path: '/tools/wallet'; render: 'static' }
   | { path: '/use-cases/agentic-payments'; render: 'static' }

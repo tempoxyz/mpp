@@ -261,27 +261,52 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Request.toNodeListener",
     },
 
-    // Advanced features aliases
+    // Extensions aliases
     {
       source: "/authentication",
-      destination: "/advanced/identity",
+      destination: "/extensions/identity",
     },
     {
       source: "/advanced/authentication",
-      destination: "/advanced/identity",
+      destination: "/extensions/identity",
     },
-    { source: "/identity", destination: "/advanced/identity" },
+    { source: "/identity", destination: "/extensions/identity" },
     {
       source: "/protocol/discovery",
-      destination: "/advanced/discovery",
+      destination: "/extensions/discovery",
       status: 308,
     },
-    { source: "/refunds", destination: "/advanced/refunds" },
+    { source: "/refunds", destination: "/extensions/refunds" },
+    {
+      source: "/advanced/discovery",
+      destination: "/extensions/discovery",
+      status: 308,
+    },
+    {
+      source: "/advanced/identity",
+      destination: "/extensions/identity",
+      status: 308,
+    },
+    {
+      source: "/advanced/payment-hooks",
+      destination: "/extensions/payment-hooks",
+      status: 308,
+    },
+    {
+      source: "/advanced/refunds",
+      destination: "/extensions/refunds",
+      status: 308,
+    },
+    {
+      source: "/advanced/relays",
+      destination: "/extensions/relays",
+      status: 308,
+    },
 
-    // Extensions aliases
-    { source: "/awesome", destination: "/extensions" },
-    { source: "/community", destination: "/extensions" },
-    { source: "/ecosystem", destination: "/extensions" },
+    // Third-party extensions aliases
+    { source: "/awesome", destination: "/extensions/third-party" },
+    { source: "/community", destination: "/extensions/third-party" },
+    { source: "/ecosystem", destination: "/extensions/third-party" },
 
     // Services aliases
     { source: "/service", destination: "/services" },
@@ -432,6 +457,18 @@ export default defineConfig({
         ],
       },
       {
+        text: "Extensions",
+        items: [
+          { text: "Overview", link: "/extensions" },
+          { text: "Discovery", link: "/extensions/discovery" },
+          { text: "Identity", link: "/extensions/identity" },
+          { text: "Payment hooks", link: "/extensions/payment-hooks" },
+          { text: "Refunds", link: "/extensions/refunds" },
+          { text: "Relays", link: "/extensions/relays" },
+          { text: "Third-party extensions", link: "/extensions/third-party" },
+        ],
+      },
+      {
         text: "Partner Integrations",
         items: [
           {
@@ -453,16 +490,6 @@ export default defineConfig({
         ],
       },
 
-      {
-        text: "Advanced Features",
-        items: [
-          { text: "Relays", link: "/advanced/relays" },
-          { text: "Discovery", link: "/advanced/discovery" },
-          { text: "Identity", link: "/advanced/identity" },
-          { text: "Payment hooks", link: "/advanced/payment-hooks" },
-          { text: "Refunds", link: "/advanced/refunds" },
-        ],
-      },
       {
         text: "Security",
         items: [
@@ -900,6 +927,34 @@ export default defineConfig({
                 collapsed: true,
                 items: [
                   {
+                    text: "Attestation.Client.prover",
+                    link: "/sdk/typescript/client/Attestation.prover",
+                  },
+                  {
+                    text: "Attestation.Constants",
+                    link: "/sdk/typescript/core/Attestation.Constants",
+                  },
+                  {
+                    text: "Attestation.Jwks.resolver",
+                    link: "/sdk/typescript/core/Attestation.Jwks.resolver",
+                  },
+                  {
+                    text: "Attestation.Server.verifier",
+                    link: "/sdk/typescript/server/Attestation.verifier",
+                  },
+                  {
+                    text: "Attestation.decode",
+                    link: "/sdk/typescript/core/Attestation.decode",
+                  },
+                  {
+                    text: "Attestation.sign",
+                    link: "/sdk/typescript/core/Attestation.sign",
+                  },
+                  {
+                    text: "Attestation.verify",
+                    link: "/sdk/typescript/core/Attestation.verify",
+                  },
+                  {
                     text: "EmailOtp.Client.EmailOtpError",
                     link: "/sdk/typescript/client/EmailOtp.EmailOtpError",
                   },
@@ -924,8 +979,20 @@ export default defineConfig({
                     link: "/sdk/typescript/server/EmailOtp.verifier",
                   },
                   {
+                    text: "Identity.Headers",
+                    link: "/sdk/typescript/core/Identity.Headers",
+                  },
+                  {
                     text: "Identity.Rejection",
                     link: "/sdk/typescript/core/Identity.Rejection",
+                  },
+                  {
+                    text: "Identity.Status",
+                    link: "/sdk/typescript/core/Identity.Status",
+                  },
+                  {
+                    text: "Identity.anyOf",
+                    link: "/sdk/typescript/core/Identity.anyOf",
                   },
                   {
                     text: "Identity.from",
@@ -1200,7 +1267,7 @@ export default defineConfig({
       {
         text: "Resources",
         items: [
-          { text: "Extensions", link: "/extensions" },
+          { text: "Third-party extensions", link: "/extensions/third-party" },
           { text: "Brand", link: "/brand" },
         ],
       },

@@ -86,8 +86,10 @@ const paid = Mppx.compose(
 
 ## Behavior
 
-Configured methods retain their identity, currency defaults, and offer order through composition. Routes can require payment-stage identity across several offers when those offers use the same verifiers. Only the selected method's `onPaymentSuccess` hook runs.
+Configured methods retain their identity, currency defaults, and offer order through composition. Only the selected method's `onPaymentSuccess` hook runs.
 
+- **Route identity:** each verifier runs at most once per request across offers. An offer's identity rejection is returned only when no offer issues a `402`, and payment check requirements merge into one `Identity-Required` header. See [Route identity](/sdk/typescript/server/Mppx.create#route-identity).
+- **Payment checks:** every offer with an identity payment check must use the same check, and an offer with one can't share payment terms with an offer without one. `compose` throws a `TypeError` otherwise, since a Credential could reach either offer.
 - **No Credential over HTTP:** Calls all handlers and merges their `402` Challenges into a single response with multiple `WWW-Authenticate` headers.
 - **No Credential over MCP:** Calls all handlers and combines their Challenges in configured order. MCP SDK transport returns an `McpError`; raw MCP transport preserves the JSON-RPC request ID.
 - **Intent shorthand:** When multiple registered methods share an intent, `mppx.charge(options)` and other intent functions implicitly compose every matching method over HTTP or MCP. Use explicit composition when offers need different options.

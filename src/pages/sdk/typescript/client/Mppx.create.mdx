@@ -11,7 +11,7 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
-`mppx.prepareRequest` strips `Identity-Attestation` alongside authorization and cookie headers when following a cross-origin redirect.
+`mppx.prepareRequest` strips [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers) and each prover's `headers`, alongside authorization and cookie headers, when following a cross-origin redirect.
 
 Credential-bearing retries use `redirect: 'manual'`. Redirect responses return without forwarding the Credential and leave payment acceptance pending, as with [`Fetch.from`](/sdk/typescript/client/Fetch.from).
 
@@ -572,7 +572,21 @@ const mppx = Mppx.create({
 
 - **Type:** `readonly Identity.Prover[]`
 
-Request identity provers applied to the initial HTTP request and every automatic payment retry to origins in each prover's `scope`. Each attempt uses a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [email OTP](/sdk/typescript/client/EmailOtp.prover), [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity), or include both provers when a request needs both signatures. List request signers last so they cover headers added by earlier provers.
+Identity provers applied to the initial HTTP request and the paid retry, for origins in each prover's `scope`. Each attempt gets a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [email OTP](/sdk/typescript/client/EmailOtp.prover), [Web Bot Auth or Trusted Agent Protocol](/extensions/identity), or both. List request signers last so they cover headers added by earlier provers.
+
+```ts
+type Prover = {
+  headers?: readonly string[] // sensitive request headers it writes
+  prepare?: (response: Response, context: { challenge: Challenge; requirements: readonly Requirement[] }) => MaybePromise<void>
+  prove: (request: Request, context: { challenge?: Challenge; created: number; nonce: string }) => MaybePromise<Request>
+  retry?: (response: Response, context: { request: Request }) => MaybePromise<HeadersInit | false | undefined>
+  scope: readonly string[] | '*'
+}
+```
+
+- **`headers`:** stripped on a cross-origin redirect, like [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers).
+- **`prepare`:** runs on a `402` before the paid retry, with the selected Challenge and the identities its `Identity-Required` header lists (experimental). `prove` receives the same Challenge on the paid retry.
+- **`retry`:** inspects a rejected non-`402` response to an unpaid attempt, with the request that got it. Return headers to resend the request once with; every prover proves it again, and the paid retry carries them too. Payment credential headers are ignored. Paid attempts are never resent. Returning `true` is deprecated—return `{}`.
 
 :::code-group
 

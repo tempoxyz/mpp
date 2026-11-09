@@ -1,0 +1,67 @@
+---
+description: "Use shared attestation headers, limits, and token values in custom integrations."
+imageDescription: "Connect custom issuers and clients to MPP identity"
+---
+
+# `Attestation.Constants` [Attestation integration values]
+
+Exports the headers, token values, and limits every MPP identity attestation shares.
+
+## Usage
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+console.log(Attestation.Constants.header) // [!code hl]
+// @log: Identity-Attestation
+```
+
+## Properties
+
+### algorithm
+
+- **Type:** `'EdDSA'`
+
+JWS algorithm: EdDSA over Ed25519.
+
+### clockTolerance
+
+- **Type:** `60`
+
+Default clock tolerance for `iat` and `exp`, in seconds.
+
+### header
+
+- **Type:** `'Identity-Attestation'`
+
+Request header carrying one or more attestations, separated by commas. Keep it at its intended API origin; `mppx` strips it on cross-origin redirects and in its proxy.
+
+### jwksPath
+
+- **Type:** `'/.well-known/jwks.json'`
+
+Path of the issuer's JSON Web Key Set, relative to the issuer URL.
+
+### maxLength
+
+- **Type:** `8192`
+
+Longest accepted attestation, in characters.
+
+### refreshMargin
+
+- **Type:** `300`
+
+Seconds before expiry at which a client stops sending an attestation on unpaid attempts and replaces it, capped at half its lifetime.
+
+### requiredHeader
+
+- **Type:** `'Identity-Attestation-Required'`
+
+Rejection response header listing required attestations as a structured list, such as `email;issuer="https://identity.mpp.tempo.xyz"`. An inner list is a group of alternatives. [`Attestation.Client.requirements`](/sdk/typescript/client/Attestation.prover#attestationclientrequirements) parses it.
+
+### tokenType
+
+- **Type:** `'mpp-attestation+jwt'`
+
+JWS `typ` header of an attestation.

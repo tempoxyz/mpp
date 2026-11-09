@@ -14,9 +14,17 @@ const permanentContentMoves = [
   },
   {
     source: "/protocol/discovery",
-    destination: "/advanced/discovery",
+    destination: "/extensions/discovery",
     status: 308,
   },
+  ...["discovery", "identity", "payment-hooks", "refunds", "relays"].map(
+    (page) =>
+      ({
+        source: `/advanced/${page}`,
+        destination: `/extensions/${page}`,
+        status: 308,
+      }) as const,
+  ),
 ] as const;
 
 describe("permanent content redirects", () => {

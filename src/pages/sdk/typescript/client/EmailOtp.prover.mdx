@@ -36,15 +36,18 @@ console.log(response.status)
 // @log: 200
 ```
 
-The API names its requirement in `Identity-Attestation-Required`, for example `email;issuer="https://identity.mpp.tempo.xyz"`. The prover matches the `email` type and an allowlisted issuer. On an unpaid `401` or `403` carrying such a requirement, the prover requests a code, prompts through your callback, exchanges the code, and resends once. A subsequent `402` asks the Machine Payments Protocol (MPP) client to create a payment Credential and retry with payment. Paid attempts are never resent by identity recovery.
+The API names its requirement in `Identity-Attestation-Required`, for example `email;issuer="https://identity.mpp.tempo.xyz"`. On an unpaid `401` or `403` carrying a requirement from an allowlisted issuer, the prover requests a code, prompts through your callback, exchanges the code, and resends once. A following `402` goes through payment as usual; paid attempts are never resent. See [Verify an email address](/extensions/identity#verify-an-email-address).
+
+It's an [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover) of type `email` whose `acquire` sends, prompts for, and verifies the code, so caching and refresh work the same way.
 
 ## Return type
 
 `Identity.Prover`, for `Mppx.create({ identity: [prover] })` or `Identity.Client.wrapFetch`.
 
-The prover keeps attestations in memory per audience, issuer, and type. Requests for the same requirement share an in-flight acquisition. It sends cached attestations only to their audience origin, within `scope`, over HTTPS (HTTP only on `localhost` or `127.0.0.1`). Requests carrying identity proofs don't follow redirects.
-
-Before payment, it withholds tokens near expiry to acquire a replacement. The margin is `max(0, min(300, floor(lifetime / 2)) - 60)` seconds, where lifetime is `exp - iat` (or remaining lifetime at load when `iat` is absent). This leaves time to verify identity before creating payment. Just-acquired tokens remain fresh for the resend window (`60` seconds); paid retries retain tokens within the server's `60`-second clock tolerance rather than dropping them after payment creation. Your server can configure a different tolerance, so avoid short lifetimes and large clock skew.
+- **Caching:** one attestation per audience, issuer, and type, in memory. Concurrent requests share one acquisition, so they share one code.
+- **Sending:** cached attestations go only to their audience origin, within `scope`, over HTTPS (HTTP only on `localhost` or `127.0.0.1`). Requests carrying identity proofs don't follow redirects.
+- **Refresh:** unpaid attempts withhold an attestation within `min(300, floor(lifetime / 2))` seconds of expiry, so it's replaced before payment. Paid attempts send it until it's expired beyond the `60`-second clock tolerance.
+- **Several issuers:** a route that accepts any of several issuers (`Identity.anyOf`) costs one code, from the first allowlisted issuer that succeeds, in listed order. A route that requires several issuers gets a code and a prompt for each.
 
 ## Parameters
 
@@ -53,7 +56,7 @@ Before payment, it withholds tokens near expiry to acquire a replacement. The ma
 - **Type:** `readonly string[]`
 - **Default:** `[]`
 
-Pre-obtained bearer tokens. Malformed tokens throw `TypeError` at construction. The client decodes tokens for routing and expiry; only the server verifies their signature. Tokens acquired later must match the requested audience, issuer, and email type before being stored.
+Pre-obtained bearer tokens. Malformed tokens throw `TypeError` at construction. The client decodes tokens for routing and expiry; only the server verifies their signature. Tokens acquired later are kept only if they match the requested audience, issuer, and `email` type.
 
 ### code
 
@@ -88,7 +91,7 @@ API origins that may ask for and receive attestations. Prefer an explicit origin
 
 ## Errors
 
-Issuer rejection and malformed responses throw [`EmailOtp.Client.EmailOtpError`](/sdk/typescript/client/EmailOtp.EmailOtpError). After three `400` code rejections, the last error propagates. Non-`400` failures end acquisition immediately. Callback and network errors propagate. With several acceptable issuer requirements, another successful acquisition can still permit a retry; an error surfaces when none succeeds. A declined acquisition leaves the rejected response unchanged.
+Issuer rejection and malformed responses throw [`EmailOtp.Client.EmailOtpError`](/sdk/typescript/client/EmailOtp.EmailOtpError). After three `400` code rejections, the last error propagates. Non-`400` failures end that issuer's acquisition immediately; the prover then tries the next alternative issuer, if any. Callback and network errors propagate the same way. An error surfaces only when no attestation was obtained. A declined acquisition leaves the rejected response unchanged.
 
 ## Use a custom email form
 

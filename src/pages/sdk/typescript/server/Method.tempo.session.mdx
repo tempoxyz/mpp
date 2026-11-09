@@ -366,11 +366,10 @@ Request-priced automatic iterables charge once per request, not once per emitted
 ### store (optional)
 
 - **Type:** `Store.AtomicStore`
-- **Default:** `Store.memory()`
 
 Atomic store backend for channel state. Session mutations must be linearizable across instances so voucher, top-up, spend, and close updates cannot race.
 
-The in-memory fallback logs a one-time warning because replay protection applies only within one instance.
+Without a `store`, the method throws at construction when `NODE_ENV` is `production`, on multi-instance platforms (Vercel, AWS Lambda, Netlify, Fly.io, Cloud Run, Render, Railway, Heroku, Deno Deploy), and on Cloudflare Workers. Elsewhere, such as local development and tests, it warns once and falls back to an in-memory store. Pass a shared store, or `store: Store.memory()` to keep state instance-local.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'

@@ -1,0 +1,62 @@
+---
+description: "Keep identity proofs from leaking across origins or reaching upstream services."
+imageDescription: "Keep identity proofs on the origin that asked for them"
+---
+
+# `Identity.Headers` [Identity headers as data]
+
+Lowercase lists of identity headers, for code that must handle them without knowing each protocol, such as redirect handling or a proxy.
+
+## Usage
+
+Strip identity proofs before forwarding a request, and drop upstream identity requirements from the response:
+
+```ts twoslash
+import * as Identity from 'mppx/identity'
+
+export async function forward(request: Request, upstream: string) {
+  const headers = new Headers(request.headers)
+  for (const name of Identity.Headers.request) headers.delete(name) // [!code hl]
+  const response = await fetch(upstream, { headers, method: request.method })
+  const scrubbed = new Headers(response.headers)
+  for (const name of Identity.Headers.response) scrubbed.delete(name) // [!code hl]
+  return new Response(response.body, { headers: scrubbed, status: response.status })
+}
+```
+
+`mppx` already does this in the client and the proxy:
+
+- [`Mppx.create`](/sdk/typescript/client/Mppx.create#identity-optional) on the client strips `request` headers, and each prover's `headers`, when following a cross-origin redirect.
+- The [proxy](/sdk/typescript/proxy) strips `request` headers from requests it sends upstream and drops `request` and `response` headers from upstream responses.
+
+## Values
+
+### request
+
+- **Type:** `readonly ['identity-attestation']`
+
+Bearer identity request headers. Anyone holding one can replay it until it expires, so it never crosses origins on a redirect or reaches upstream through a proxy.
+
+### response
+
+- **Type:** `readonly ['identity-attestation-required', 'identity-required']`
+
+Identity response headers a proxy doesn't pass on from upstream. They ask the client for an identity the proxy decides on, not the upstream.
+
+## Prover headers
+
+A prover that writes its own sensitive request header, such as a bearer token, declares it in `Prover.headers`. The client strips it on a cross-origin redirect, like `Identity.Headers.request`.
+
+```ts twoslash
+import type * as Identity from 'mppx/identity'
+
+const session: Identity.Prover = {
+  headers: ['x-session-token'], // [!code hl]
+  prove(request) {
+    const headers = new Headers(request.headers)
+    headers.set('X-Session-Token', process.env.SESSION_TOKEN!)
+    return new Request(request, { headers })
+  },
+  scope: ['https://api.example.com'],
+}
+```

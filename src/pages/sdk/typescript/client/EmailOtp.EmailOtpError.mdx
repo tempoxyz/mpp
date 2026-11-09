@@ -45,4 +45,4 @@ Error description.
 - **Type:** `{ status?: number }`
 - **Default:** `{}`
 
-Set `options.status` to the issuer's HTTP response status. No status by default. [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover), which obtains attestations through your code-entry callback, prompts again only for `status: 400`, up to three prompts.
+Set `options.status` to the issuer's HTTP response status. No status by default. [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover), which obtains attestations through your code-entry callback, prompts again only for `status: 400`, up to three prompts. Other errors end that issuer's attempt, and the prover tries the next alternative issuer, if any.
