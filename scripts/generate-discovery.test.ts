@@ -122,6 +122,14 @@ describe("buildService", () => {
     });
   });
 
+  it("advertises MACH for an external service that declares it", () => {
+    expect(
+      buildService(
+        paymentSvc({ realm: "external.example", supportsMACH: true }),
+      ),
+    ).toHaveProperty("supportsMACH", true);
+  });
+
   it("does not infer MACH support from an external service accepting Tempo", () => {
     expect(
       buildService(paymentSvc({ realm: "external.example" })),

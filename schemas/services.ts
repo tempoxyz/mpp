@@ -125,6 +125,8 @@ export interface ServiceDef {
   provider?: { name: string; url: string };
   /** Payment realm (typically the proxy host) */
   realm: string;
+  /** The service accepts MACH: `machineTokenEnabled` charges or MACH Session offers. Implied for the Tempo proxy realm. */
+  supportsMACH?: true;
   /** Default payment intent for paid endpoints in this service */
   intent: Intent;
   /** Payment methods accepted by this service — first entry is primary for endpoint-level payment info */

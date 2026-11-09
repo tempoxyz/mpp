@@ -117,6 +117,8 @@ We prioritize services that are **high quality and novel**. We may not approve s
 }
 ```
 
+If your service accepts MACH (`machineTokenEnabled` charges or MACH in Session `currencies`), add `supportsMACH: true` so the directory lists it. Your payee address must also be approved to receive MACH.
+
 ## Contributing
 
 Contributions to documentation, the service directory, and site improvements are welcome.

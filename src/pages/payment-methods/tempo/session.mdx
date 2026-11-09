@@ -243,6 +243,42 @@ type SessionReceipt = {
 }
 ```
 
+### MACH sessions
+
+[MACH](https://explore.mainnet.tempo.xyz/address/0x20c000000000000000000000f37de3740ADec032) is closed-loop USD credit on Tempo that only approved merchants can receive. A MACH Session is an ordinary Session on the [TIP-1034 precompile](#reserve-precompile) whose token is MACH: the client deposits MACH, your payee address receives each settlement directly, and closing the channel refunds the unused deposit to the client. No swapper is involved.
+
+To accept MACH Sessions:
+
+1. **Get your payee approved.** MACH's recipient policy must list the address that receives settlements. Ask Tempo to add it; opens and settlements to an unapproved payee fail on-chain.
+2. **Advertise MACH.** Add MACH to `currencies`. Each currency becomes its own Session offer, so clients that hold MACH can pick it.
+3. **Pay fees in a stablecoin.** MACH can't pay transaction fees. Set `feeToken` to a stablecoin, and sponsor client fees with `feePayer` if you want clients to need only MACH.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { machineTokenDeployments } from 'mppx/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account, // the approved payee
+      chainId: 4217,
+      currencies: [
+        '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+        machineTokenDeployments[4217].token, // MACH // [!code hl]
+      ],
+      feePayer: true,
+      feeToken: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e pays fees // [!code hl]
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+Settlement, close supervision, and Receipts work as for any other currency; amounts are in MACH, which has 6 decimals. For one-time charges, MACH works differently: keep a stablecoin as the charge currency and set [`machineTokenEnabled`](/payment-methods/tempo/charge#with-mach-funding). To list MACH support in the [service directory](/services), set `supportsMACH: true` on your service entry.
+
 ## Client
 
 Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create`. It handles both one-time charges and Sessions: on a Session Challenge it opens a channel, signs vouchers, and reuses the channel across requests. `maxDeposit` caps how much it locks up per channel.
