@@ -624,10 +624,6 @@ export default defineConfig({
         items: [
           { text: "Getting started", link: "/sdk/typescript" },
           {
-            text: "Cloudflare Workers",
-            link: "/sdk/typescript/cloudflare",
-          },
-          {
             text: "Client reference",
             items: [
               {
@@ -766,8 +762,20 @@ export default defineConfig({
                     link: "/sdk/typescript/server/Method.tempo.session",
                   },
                   {
+                    text: "tempo.session (Cloudflare)",
+                    link: "/sdk/typescript/cloudflare",
+                  },
+                  {
+                    text: "tempo.session (WebSocket)",
+                    link: "/sdk/typescript/server/Ws.serve",
+                  },
+                  {
                     text: "tempo.subscription",
                     link: "/sdk/typescript/server/Method.tempo.subscription",
+                  },
+                  {
+                    text: "tempo.renewSubscription",
+                    link: "/sdk/typescript/server/Method.tempo.renewSubscription",
                   },
                   {
                     text: "stripe",
@@ -848,16 +856,6 @@ export default defineConfig({
                 ],
               },
               {
-                text: "WebSocket",
-                collapsed: true,
-                items: [
-                  {
-                    text: "session.serveWebSocket",
-                    link: "/sdk/typescript/server/Ws.serve",
-                  },
-                ],
-              },
-              {
                 text: "Utilities",
                 collapsed: true,
                 items: [
@@ -876,10 +874,6 @@ export default defineConfig({
                   {
                     text: "tempo.machineTokenDeployments",
                     link: "/sdk/typescript/tempo.machineTokenDeployments",
-                  },
-                  {
-                    text: "tempo.renewSubscription",
-                    link: "/sdk/typescript/server/Method.tempo.renewSubscription",
                   },
                 ],
               },
