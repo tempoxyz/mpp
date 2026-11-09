@@ -41,6 +41,8 @@ function balanceLines(title: string): string[] {
 function categoryForPath(path: string): string {
   if (path === "/blog" || path.startsWith("/blog/")) return "BLOG";
   if (path.startsWith("/advanced")) return "ADVANCED";
+  if (path === "/extensions/third-party") return "DOCUMENTATION";
+  if (path.startsWith("/extensions")) return "EXTENSIONS";
   if (path.startsWith("/guides")) return "GUIDES";
   if (path.startsWith("/protocol")) return "PROTOCOL";
   if (path.startsWith("/sdk")) return "SDK";
