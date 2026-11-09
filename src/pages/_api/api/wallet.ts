@@ -8,8 +8,11 @@ const DEFAULT_CURRENCY = pathusd(42431).address;
 
 /** Funding cooldown per address. The demo funds a fresh address per run. */
 const addressCooldown = createCooldown({ windowMs: 60 * 60_000 });
-/** Funding cooldown per client IP. */
-const ipCooldown = createCooldown({ windowMs: 30_000 });
+/**
+ * Funding limit per client IP. Every demo page funds a new address, so this
+ * allows a visitor (or a shared NAT) many runs and only stops scripted bursts.
+ */
+const ipCooldown = createCooldown({ limit: 20, windowMs: 10 * 60_000 });
 
 function getClient() {
   return createClient({
@@ -41,7 +44,7 @@ function isSameOrigin(request: Request) {
 function getClientIp(request: Request) {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0];
   return (
-    forwarded?.trim() || request.headers.get("x-real-ip")?.trim() || "unknown"
+    forwarded?.trim() || request.headers.get("x-real-ip")?.trim() || undefined
   );
 }
 
@@ -77,9 +80,11 @@ export async function POST(request: Request) {
   if (action === "fund") {
     const ip = getClientIp(request);
     const key = address.toLowerCase();
-    if (!ipCooldown.claim(ip)) return error("Too many requests", 429);
+    // Without a client IP every request would share one key, so only the
+    // per-address limit applies.
+    if (ip && !ipCooldown.claim(ip)) return error("Too many requests", 429);
     if (!addressCooldown.claim(key)) {
-      ipCooldown.release(ip);
+      if (ip) ipCooldown.release(ip);
       return error("Too many requests", 429);
     }
 
@@ -90,7 +95,7 @@ export async function POST(request: Request) {
       return Response.json({ success: true, txHash: hashes[0] });
     } catch (err) {
       addressCooldown.release(key);
-      ipCooldown.release(ip);
+      if (ip) ipCooldown.release(ip);
       console.error(`[wallet] fund failed for ${address}:`, err);
       return error("Funding failed", 500);
     }

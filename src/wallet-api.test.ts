@@ -131,7 +131,7 @@ describe("api/wallet", () => {
     expect(fund).toHaveBeenCalledTimes(1);
   });
 
-  it("enforces the per-IP cooldown", async () => {
+  it("allows back-to-back demo runs from one IP", async () => {
     fund.mockResolvedValue(["0xabc"]);
     const POST = await load();
 
@@ -143,8 +143,44 @@ describe("api/wallet", () => {
       }),
     );
 
-    expect(response.status).toBe(429);
-    expect(fund).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+  });
+
+  it("enforces the per-IP limit", async () => {
+    fund.mockResolvedValue(["0xabc"]);
+    const POST = await load();
+
+    const statuses: number[] = [];
+    for (let i = 1; i <= 21; i++) {
+      const response = await POST(
+        createRequest({
+          action: "fund",
+          address: `0x${i.toString(16).padStart(40, "0")}`,
+        }),
+      );
+      statuses.push(response.status);
+    }
+
+    expect(statuses.filter((status) => status === 200)).toHaveLength(20);
+    expect(statuses.at(-1)).toBe(429);
+    expect(fund).toHaveBeenCalledTimes(20);
+  });
+
+  it("applies only the per-address limit without a client IP", async () => {
+    fund.mockResolvedValue(["0xabc"]);
+    const POST = await load();
+
+    const responses = [];
+    for (let i = 1; i <= 21; i++) {
+      const request = createRequest({
+        action: "fund",
+        address: `0x${i.toString(16).padStart(40, "0")}`,
+      });
+      request.headers.delete("X-Forwarded-For");
+      responses.push((await POST(request)).status);
+    }
+
+    expect(responses.every((status) => status === 200)).toBe(true);
   });
 
   it("hides upstream errors and releases the cooldown", async () => {

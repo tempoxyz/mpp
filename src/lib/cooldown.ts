@@ -4,45 +4,53 @@
  * them at any time.
  */
 export type Cooldown = {
-  /** Claims `key` for the cooldown window; returns false while it is cooling down. */
+  /** Claims `key`; returns false while it has used its claims for the window. */
   claim: (key: string, now?: number) => boolean;
-  /** Releases a claim, such as after the guarded work failed. */
+  /** Releases one claim, such as after the guarded work failed. */
   release: (key: string) => void;
 };
 
 /**
- * Creates a cooldown that lets each key through once per `windowMs`.
- * Holds at most `maxKeys` keys; expired keys are pruned before that cap
- * drops the oldest one.
+ * Creates a cooldown that lets each key through `limit` times per `windowMs`
+ * (once by default). Holds at most `maxKeys` keys; expired keys are pruned
+ * before that cap drops the oldest one.
  */
 export function createCooldown(options: {
+  limit?: number;
   maxKeys?: number;
   windowMs: number;
 }): Cooldown {
-  const { maxKeys = 10_000, windowMs } = options;
-  const until = new Map<string, number>();
+  const { limit = 1, maxKeys = 10_000, windowMs } = options;
+  const windows = new Map<string, { count: number; resetAt: number }>();
 
   function prune(now: number) {
-    for (const [key, expiresAt] of until)
-      if (expiresAt <= now) until.delete(key);
-    while (until.size >= maxKeys) {
-      const oldest = until.keys().next().value;
+    for (const [key, { resetAt }] of windows)
+      if (resetAt <= now) windows.delete(key);
+    while (windows.size >= maxKeys) {
+      const oldest = windows.keys().next().value;
       if (oldest === undefined) break;
-      until.delete(oldest);
+      windows.delete(oldest);
     }
   }
 
   return {
     claim(key, now = Date.now()) {
-      const expiresAt = until.get(key);
-      if (expiresAt !== undefined && expiresAt > now) return false;
-      until.delete(key);
-      if (until.size >= maxKeys) prune(now);
-      until.set(key, now + windowMs);
+      const current = windows.get(key);
+      if (current && current.resetAt > now) {
+        if (current.count >= limit) return false;
+        current.count++;
+        return true;
+      }
+      windows.delete(key);
+      if (windows.size >= maxKeys) prune(now);
+      windows.set(key, { count: 1, resetAt: now + windowMs });
       return true;
     },
     release(key) {
-      until.delete(key);
+      const current = windows.get(key);
+      if (!current) return;
+      current.count--;
+      if (current.count <= 0) windows.delete(key);
     },
   };
 }

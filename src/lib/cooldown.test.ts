@@ -17,6 +17,16 @@ describe("createCooldown", () => {
     expect(cooldown.claim("a", 1)).toBe(true);
   });
 
+  it("lets a key through limit times per window", () => {
+    const cooldown = createCooldown({ limit: 2, windowMs: 1_000 });
+    expect(cooldown.claim("a", 0)).toBe(true);
+    expect(cooldown.claim("a", 1)).toBe(true);
+    expect(cooldown.claim("a", 2)).toBe(false);
+    cooldown.release("a");
+    expect(cooldown.claim("a", 3)).toBe(true);
+    expect(cooldown.claim("a", 1_000)).toBe(true);
+  });
+
   it("caps the number of tracked keys", () => {
     const cooldown = createCooldown({ maxKeys: 2, windowMs: 1_000 });
     cooldown.claim("a", 0);
