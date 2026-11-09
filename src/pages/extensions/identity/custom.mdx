@@ -1,0 +1,32 @@
+---
+description: "Use your existing API keys, sessions, or SSO as MPP identity with Identity.from."
+imageDescription: "Use your own identity system"
+---
+
+# Your own identity system [Reuse your access policy]
+
+Use [`Identity.from`](/sdk/typescript/core/Identity.from) for API keys, sessions, SSO, or KYC checks you already operate. Return an authenticated identity, `undefined` or `null` for no identity (`401`), or throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) with a `status` (`invalid`, `forbidden`, or `unavailable`) for an expected rejection. Other errors propagate.
+
+```ts twoslash [server.ts]
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+// [!code hl:start]
+const customer = Identity.from({
+  challenge: { 'WWW-Authenticate': 'ApiKey' },
+  verify(request) {
+    const key = request.headers.get('X-Api-Key')
+    if (!key) return undefined
+    const identity = customers.get(key)
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { status: 'forbidden' })
+    return identity
+  },
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+export const handler = mppx.charge({ amount: '0.05', identity: [customer] })
+```
+
+Read the verified customer with `result.identity?.get(customer)` in a successful handler. To accept either email or your existing system, pass `identity: [Identity.anyOf(email, customer)]`; a plain list requires both. Every `anyOf` member runs, and the first valid member wins.

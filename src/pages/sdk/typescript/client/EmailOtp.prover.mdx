@@ -36,7 +36,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-The API names its requirement in `Identity-Attestation-Required`, for example `email;issuer="https://identity.mpp.tempo.xyz"`. On an unpaid `401` or `403` carrying a requirement from an allowlisted issuer, the prover requests a code, prompts through your callback, exchanges the code, and resends once. A following `402` goes through payment as usual; paid attempts are never resent. See [Verify an email address](/extensions/identity#verify-an-email-address).
+The API names its requirement in `Identity-Attestation-Required`, for example `email;issuer="https://identity.mpp.tempo.xyz"`. On an unpaid `401` or `403` carrying a requirement from an allowlisted issuer, the prover requests a code, prompts through your callback, exchanges the code, and resends once. A following `402` goes through payment as usual; paid attempts are never resent. See [Verify an email address](/extensions/identity/email-otp).
 
 It's an [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover) of type `email` whose `acquire` sends, prompts for, and verifies the code, so caching and refresh work the same way.
 
