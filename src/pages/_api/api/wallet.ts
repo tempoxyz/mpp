@@ -1,75 +1,139 @@
-import { createClient, http } from "viem";
+import {
+  BaseError,
+  createClient,
+  http,
+  isAddress,
+  RpcRequestError,
+} from "viem";
 import { tempoModerato } from "viem/chains";
 import { Actions } from "viem/tempo";
 import { pathusd } from "viem/tokens";
+import { createCooldown } from "../../../lib/cooldown.js";
 
 const DEFAULT_CURRENCY = pathusd(42431).address;
+
+/** Funding cooldown per address. The demo funds a fresh address per run. */
+const addressCooldown = createCooldown({ windowMs: 60 * 60_000 });
+/**
+ * Funding limit per client IP. Every demo page funds a new address, so this
+ * allows a visitor (or a shared NAT) many runs and only stops scripted bursts.
+ */
+const ipCooldown = createCooldown({ limit: 20, windowMs: 10 * 60_000 });
 
 function getClient() {
   return createClient({
     chain: tempoModerato,
     transport: http(
       import.meta.env.RPC_URL ?? "https://rpc.moderato.tempo.xyz",
+      // A retried tempo_fundAddress can fund again, so send it once.
+      { retryCount: 0 },
     ),
   });
 }
 
-export async function POST(request: Request) {
+/**
+ * Accepts only same-origin browser requests: the demo calls this route with
+ * `fetch` from the site, so browsers always send `Origin` on its POSTs.
+ */
+function isSameOrigin(request: Request) {
+  const site = request.headers.get("sec-fetch-site");
+  if (site !== null && site !== "same-origin") return false;
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  const url = new URL(request.url);
+  const host = request.headers.get("x-forwarded-host") ?? url.host;
   try {
-    const body = (await request.json()) as { action: string; address: string };
-    const { action, address } = body;
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
 
-    if (action === "fund") {
-      if (!address?.startsWith("0x")) {
-        console.warn(`[wallet] invalid fund address: ${address || "<empty>"}`);
-        return Response.json({ error: "Invalid address" }, { status: 400 });
-      }
+function getClientIp(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0];
+  return (
+    forwarded?.trim() || request.headers.get("x-real-ip")?.trim() || undefined
+  );
+}
 
-      const client = getClient();
-      const hashes = await Actions.faucet.fund(client, {
-        account: address as `0x${string}`,
+/**
+ * Whether the faucet refused the request, so it funded nothing: a JSON-RPC
+ * error other than an internal error. A timeout, HTTP failure or internal
+ * error may follow a funding, so those keep the cooldowns.
+ */
+function isRejected(err: unknown) {
+  if (!(err instanceof BaseError)) return false;
+  return (
+    err.walk((e) => e instanceof RpcRequestError && e.code !== -32603) !== null
+  );
+}
+
+function error(message: string, status: number) {
+  return Response.json({ error: message }, { status });
+}
+
+export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    console.warn("[wallet] rejected cross-site request");
+    return error("Forbidden", 403);
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return error("Invalid request body", 400);
+  }
+  if (typeof body !== "object" || body === null)
+    return error("Invalid request body", 400);
+
+  const { action, address } = body as { action?: unknown; address?: unknown };
+  if (action !== "fund" && action !== "balance") {
+    console.warn("[wallet] invalid action requested");
+    return error("Invalid action", 400);
+  }
+  if (typeof address !== "string" || !isAddress(address)) {
+    console.warn(`[wallet] invalid ${action} address`);
+    return error("Invalid address", 400);
+  }
+
+  if (action === "fund") {
+    const ip = getClientIp(request);
+    const key = address.toLowerCase();
+    // Without a client IP every request would share one key, so only the
+    // per-address limit applies.
+    if (ip && !ipCooldown.claim(ip)) return error("Too many requests", 429);
+    if (!addressCooldown.claim(key)) {
+      if (ip) ipCooldown.release(ip);
+      // 409 tells the demo to wait for the funding already sent.
+      return error("Already funded", 409);
+    }
+
+    try {
+      const hashes = await Actions.faucet.fund(getClient(), {
+        account: address,
       });
-
       return Response.json({ success: true, txHash: hashes[0] });
-    }
-
-    if (action === "balance") {
-      if (!address?.startsWith("0x")) {
-        console.warn(
-          `[wallet] invalid balance address: ${address || "<empty>"}`,
-        );
-        return Response.json({ error: "Invalid address" }, { status: 400 });
+    } catch (err) {
+      if (isRejected(err)) {
+        addressCooldown.release(key);
+        if (ip) ipCooldown.release(ip);
       }
-
-      const client = getClient();
-      try {
-        const balance = await Actions.token.getBalance(client, {
-          account: address as `0x${string}`,
-          token: DEFAULT_CURRENCY as `0x${string}`,
-        });
-        return Response.json({ balance: balance.toString() });
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message?.includes("Uninitialized")
-        ) {
-          console.warn(
-            `[wallet] returning zero balance for uninitialized account ${address}`,
-          );
-          return Response.json({ balance: "0" });
-        }
-        console.error(`[wallet] balance lookup failed for ${address}:`, error);
-        throw error;
-      }
+      console.error(`[wallet] fund failed for ${address}:`, err);
+      return error("Funding failed", 500);
     }
+  }
 
-    console.warn(`[wallet] invalid action requested: ${action}`);
-    return Response.json({ error: "Invalid action" }, { status: 400 });
-  } catch (error) {
-    console.error("[wallet] request failed:", error);
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Request failed" },
-      { status: 500 },
-    );
+  try {
+    const balance = await Actions.token.getBalance(getClient(), {
+      account: address,
+      token: DEFAULT_CURRENCY,
+    });
+    return Response.json({ balance: balance.toString() });
+  } catch (err) {
+    if (err instanceof Error && err.message?.includes("Uninitialized"))
+      return Response.json({ balance: "0" });
+    console.error(`[wallet] balance lookup failed for ${address}:`, err);
+    return error("Balance lookup failed", 500);
   }
 }
