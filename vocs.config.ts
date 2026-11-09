@@ -472,7 +472,7 @@ export default defineConfig({
                 link: "/extensions/identity/agent-signatures",
               },
               {
-                text: "Your own identity",
+                text: "Your own identity provider",
                 link: "/extensions/identity/custom",
               },
               { text: "Payer identity", link: "/extensions/identity/payer" },

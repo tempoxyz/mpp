@@ -1,18 +1,18 @@
 ---
-description: "Use your existing API keys, sessions, or SSO as MPP identity, or build your own identity protocol."
-imageDescription: "Use your own identity"
+description: "Use your existing identity provider, such as API keys, sessions, or SSO, as MPP identity, or build your own identity protocol."
+imageDescription: "Use your own identity provider"
 ---
 
-# Your own identity [Reuse your login or protocol]
+# Your own identity provider [Reuse your login or protocol]
 
-Use your own identity in one of two ways:
+Use your own identity provider in one of two ways:
 
-- **Look up a credential you already issue**, such as an API key or session, with `Identity.from`. Server only.
-- **Build a protocol** when the client must prove something new, with your own prover and verifier.
+- **Connect your identity provider** when callers already have an API key, session, or SSO login from you. The server checks it before payment.
+- **Build a protocol** when the client must prove something new. You write both sides: what the client sends and how the server checks it.
 
-## Look up your users
+## Connect your identity provider
 
-Use [`Identity.from`](/sdk/typescript/core/Identity.from) for API keys, sessions, SSO, or KYC checks you already operate. Return an authenticated identity, `undefined` or `null` for no identity (`401`), or throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) with a `status` (`invalid`, `forbidden`, or `unavailable`) for an expected rejection. Other errors propagate.
+Wrap your existing check in [`Identity.from`](/sdk/typescript/core/Identity.from). Callers your identity provider accepts continue to payment; everyone else is rejected before they see a price.
 
 ```ts twoslash [server.ts]
 import * as Identity from 'mppx/identity'
@@ -36,7 +36,12 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 export const handler = mppx.charge({ amount: '0.05', identity: [customer] })
 ```
 
-Read the verified customer with `result.identity?.get(customer)` in a successful handler. To accept either email or your existing system, pass `identity: [Identity.anyOf(email, customer)]`; a plain list requires both. Every `anyOf` member runs, and the first valid member wins.
+### Details
+
+- **No credential:** return `undefined` or `null`. The caller gets a `401`.
+- **Rejected credential:** throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) with `status` `invalid` (`401`), `forbidden` (`403`), or `unavailable` (`503`). Other errors propagate.
+- **Reading the identity:** use `result.identity?.get(customer)` in a successful handler.
+- **Combining with email:** `identity: [Identity.anyOf(email, customer)]` accepts either; a plain list requires both.
 
 ## Build your own protocol
 

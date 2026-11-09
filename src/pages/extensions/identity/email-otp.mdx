@@ -7,9 +7,29 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Email OTP [Verify an email address]
 
-Use the email OTP extension when callers need a verified address and you don't have an existing identity system. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential.
+Use the email OTP extension when callers need a verified address and you don't have your own identity provider. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential.
 
 The examples use Tempo's hosted issuer; you can also self-host it.
+
+## Overview
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Issuer
+    participant API
+    Client->>API: Request without attestation
+    API-->>Client: 401 + Identity-Attestation-Required
+    Client->>Issuer: Request code for email and API origin
+    Issuer-->>Client: Email code
+    Client->>Issuer: Exchange code
+    Issuer-->>Client: Origin-bound attestation
+    Client->>API: Request + Identity-Attestation
+    API-->>Client: 402 + Challenge
+    Client->>API: Credential + Identity-Attestation
+    API-->>Client: 200 + Receipt
+`} />
+
+## Set it up
 
 ```ts twoslash [server.ts]
 import * as EmailOtp from 'mppx/extensions/identity/email-otp'
@@ -60,21 +80,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Issuer
-    participant API
-    Client->>API: Request without attestation
-    API-->>Client: 401 + Identity-Attestation-Required
-    Client->>Issuer: Request code for email and API origin
-    Issuer-->>Client: Email code
-    Client->>Issuer: Exchange code
-    Issuer-->>Client: Origin-bound attestation
-    Client->>API: Request + Identity-Attestation
-    API-->>Client: 402 + Challenge
-    Client->>API: Credential + Identity-Attestation
-    API-->>Client: 200 + Receipt
-`} />
+### Details
 
 - The prover only contacts allowlisted `issuers` and only sends attestations to in-scope origins matching their audience. Never trust an issuer supplied only by a server—it could relay your code to another issuer.
 - The server returns `401` for missing or invalid attestations, `403` for a verified address rejected by `allow`, and `503` when issuer keys are unavailable. Only identity success reaches payment.
