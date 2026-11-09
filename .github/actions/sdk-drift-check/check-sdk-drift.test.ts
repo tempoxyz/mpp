@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   extractSidebarLinksFromContent,
+  getSdkExports,
   parseLink,
   type SidebarReference,
 } from "./check-sdk-drift.js";
@@ -279,6 +280,48 @@ describe("parseLink", () => {
       });
     });
 
+    it.each([
+      ["client", "EmailOtpError", "Client"],
+      ["client", "prover", "Client"],
+      ["client", "sendCode", "Client"],
+      ["client", "verifyCode", "Client"],
+      ["server", "verifier", "Server"],
+    ])("maps EmailOtp.%s.%s to %s", (area, member, namespace) => {
+      const link = `/sdk/typescript/${area}/EmailOtp.${member}`;
+      expect(parseLink(link, prefix)).toEqual<SidebarReference>({
+        link,
+        area,
+        namespace,
+        member,
+        entrypoint: "extensions/identity/email-otp",
+      });
+    });
+
+    it("maps EmailOtp.Constants to the extension's Constants export", () => {
+      const link = "/sdk/typescript/core/EmailOtp.Constants";
+      expect(parseLink(link, prefix)).toEqual<SidebarReference>({
+        link,
+        area: "core",
+        namespace: "EmailOtp",
+        member: "Constants",
+        entrypoint: "extensions/identity/email-otp",
+      });
+    });
+
+    it.each([
+      "from",
+      "Rejection",
+    ])("maps Identity.%s to the identity entrypoint", (member) => {
+      const link = `/sdk/typescript/core/Identity.${member}`;
+      expect(parseLink(link, prefix)).toEqual<SidebarReference>({
+        link,
+        area: "core",
+        namespace: "Identity",
+        member,
+        entrypoint: "identity",
+      });
+    });
+
     it("maps x402 pages to their subpath entrypoints", () => {
       const result = parseLink("/sdk/typescript/x402/mcp", prefix);
       expect(result).toEqual<SidebarReference>({
@@ -396,5 +439,30 @@ describe("integration: extract and parse", () => {
       namespace: "Expires",
     });
     expect(parsed[4].member).toBeUndefined();
+  });
+});
+
+describe("getSdkExports", () => {
+  it("resolves identity sidebar references against the installed SDK", async () => {
+    const exports = await getSdkExports("mppx");
+    for (const path of [
+      "client/EmailOtp.EmailOtpError",
+      "client/EmailOtp.prover",
+      "client/EmailOtp.sendCode",
+      "client/EmailOtp.verifyCode",
+      "core/EmailOtp.Constants",
+      "server/EmailOtp.verifier",
+      "core/Identity.Rejection",
+      "core/Identity.from",
+    ]) {
+      const ref = parseLink(`/sdk/typescript/${path}`, "/sdk/typescript")!;
+      const area = ref.entrypoint ?? ref.area;
+      const namespace = exports[`${area}:${ref.namespace}`];
+      if (namespace) {
+        if (ref.member) expect(namespace.members).toContain(ref.member);
+      } else {
+        expect(exports[`${area}:${ref.member}`]).toBeDefined();
+      }
+    }
   });
 });
