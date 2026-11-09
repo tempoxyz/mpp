@@ -461,7 +461,23 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/extensions" },
           { text: "Discovery", link: "/extensions/discovery" },
-          { text: "Identity", link: "/extensions/identity" },
+          {
+            text: "Identity",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/extensions/identity" },
+              { text: "Email OTP", link: "/extensions/identity/email-otp" },
+              {
+                text: "Agent signatures",
+                link: "/extensions/identity/agent-signatures",
+              },
+              {
+                text: "Your own identity provider",
+                link: "/extensions/identity/custom",
+              },
+              { text: "Payer identity", link: "/extensions/identity/payer" },
+            ],
+          },
           { text: "Payment hooks", link: "/extensions/payment-hooks" },
           { text: "Refunds", link: "/extensions/refunds" },
           { text: "Relays", link: "/extensions/relays" },

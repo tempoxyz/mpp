@@ -16,7 +16,7 @@ publishedAt: "2026-08-12"
 
 ## Signed identity on every request
 
-When configured, the `mppx` agent SDK signs the initial request and each paid retry using [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421). Each [request identity proof](/extensions/identity#verify-agent-signatures) carries a fresh timestamp and nonce, and the server verifies it before issuing a Challenge or accepting a Credential.
+When configured, the `mppx` agent SDK signs the initial request and each paid retry using [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421). Each [request identity proof](/extensions/identity/agent-signatures) carries a fresh timestamp and nonce, and the server verifies it before issuing a Challenge or accepting a Credential.
 
 The first two request identity profiles implemented in `mppx` are:
 
@@ -69,7 +69,7 @@ const client = Mppx.create({
 
 ### Servers
 
-The server creates matching verifiers and requires one accepted protocol on each protected route. Each verifier resolves keys from an application-selected trust source. The [generic identity framework](/extensions/identity#build-your-own-protocol) also supports third-party identity protocols through its lower-level Client and Server APIs.
+The server creates matching verifiers and requires one accepted protocol on each protected route. Each verifier resolves keys from an application-selected trust source. The [generic identity framework](/extensions/identity/custom#build-your-own-protocol) also supports third-party identity protocols through its lower-level Client and Server APIs.
 
 ```ts [server.ts]
 import * as Tap from 'mppx/extensions/identity/tap'
@@ -93,7 +93,7 @@ export const handler = server.charge({ amount: '1', identity: [Identity.anyOf(ta
 
 ## Extensible identity
 
-`mppx` was built around a protocol-neutral, extensible [identity framework](/extensions/identity#build-your-own-protocol). Web Bot Auth and TAP are the first supported profiles, but more can be added with a Client prover and matching Server verifier from `mppx/identity`. Each profile can carry identity on the initial HTTP request and every automatic MPP retry. The Server verifies the result for application policy, while the MPP payment flow stays unchanged.
+`mppx` was built around a protocol-neutral, extensible [identity framework](/extensions/identity/custom#build-your-own-protocol). Web Bot Auth and TAP are the first supported profiles, but more can be added with a Client prover and matching Server verifier from `mppx/identity`. Each profile can carry identity on the initial HTTP request and every automatic MPP retry. The Server verifies the result for application policy, while the MPP payment flow stays unchanged.
 
 ## Learn more
 

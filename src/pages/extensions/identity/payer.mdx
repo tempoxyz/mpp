@@ -1,0 +1,256 @@
+---
+description: "Use the MPP Credential's payer as identity, including zero-dollar auth, and check the payer before settlement."
+imageDescription: "Use the payer as identity"
+---
+
+import { Badge } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# Payer identity [Use the payer as identity]
+
+The Credential's optional `source` is a DID naming the payer's key, not a raw public key. Tempo verifies the Credential's signature or transaction against this identity. After the payment method verifies it, read `source` with `Credential.fromRequest`. Parsing alone doesn't verify identity. [Zone payments](/guides/private-payments) use a private payment environment whose Credentials omit `source`, so they require separate request authentication:
+
+```ts twoslash [server.ts]
+// @noEmit
+declare const request: Request
+// ---cut---
+import { Credential } from 'mppx'
+
+const credential = Credential.fromRequest(request)
+const clientIdentity = credential.source
+// @log: "did:pkh:eip155:4217:0x1234..."
+```
+
+The examples below use a Tempo method that authenticates `source`, with Zone payments disabled. Unresolved job, dataset, and pipeline helpers are application code, not SDK functions.
+
+## Zero-dollar auth
+
+Zero-dollar auth uses the standard Challenge → Credential flow with the amount set to `0`. The client signs the Challenge to prove key ownership. No funds move on-chain, and no additional protocol extensions are required.
+
+For Tempo charge, zero-dollar auth uses a `proof` Credential payload instead of a real transaction. The client signs a proof message over the Challenge ID, and the server verifies that signature against the `source` DID. Set the server `realm` to its public hostname. If it differs, clients must pin the realm to that origin with `trustedTempoProofRealms` before signing.
+
+:::warning[Replay protection]
+By default, a valid zero-dollar proof remains reusable until the Challenge expires. Pass a `store` to `tempo.charge()` when you want single-use proof auth. In a multi-instance deployment, use a shared store so every instance sees consumed proofs.
+:::
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + Challenge (amount: 0)
+    Note over Client: (3) Sign proof message
+    Client->>Server: (4) GET /resource + Credential
+    Note over Server: (5) Verify proof
+    Server-->>Client: (6) 200 OK
+`} />
+
+The proof Credential contains the client's `source` DID and a signature, giving the server a verified payer identity to associate with the request.
+
+For Tempo, the server rejects `transaction` and `hash` payloads for zero-amount Challenges and requires `proof`.
+
+The client refuses to sign a zero-amount proof when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay the Challenge and replay the proof. Set the server's `realm` to its public hostname, or pin a different realm on the client with [`trustedTempoProofRealms`](/sdk/typescript/client/Mppx.create#trustedtempoproofrealms-optional).
+
+### Case study: long-running jobs
+
+A service accepts a paid request to start work, then lets the client poll for results using zero-dollar auth. The server keys workloads on the client's verified `source` DID.
+
+::::steps
+
+### Client submits a job (paid)
+
+The client sends a request with payment to create a new job. The Credential includes payment proof and the client's `source` DID.
+
+```ts twoslash [client.ts]
+// @noEmit
+declare const fetch: (url: string) => Promise<{ json(): Promise<any> }>
+// ---cut---
+const response = await fetch('https://api.example.com/v1/jobs')
+const { jobId } = await response.json()
+// @log: { jobId: "abc123" }
+```
+
+The server records the job and associates it with the verified `source` DID from the Credential.
+
+### Server stores the payer identity
+
+After the payment middleware verifies the Credential, extract the client's verified payer identity from the request:
+
+```ts [server.ts]
+import { Credential } from 'mppx'
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '1.00' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  // [!code hl:start]
+  const payer = credential.source
+  const jobId = createJob({ owner: payer })
+  // [!code hl:end]
+
+  return result.withReceipt(Response.json({ jobId }))
+}
+```
+
+### Client polls for status (zero-dollar auth)
+
+The client polls the job endpoint. The server issues a zero-dollar Challenge—the client signs it to prove they own the same key.
+
+```ts [server.ts]
+export async function statusHandler(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const job = getJob(jobIdFromUrl(request))
+
+  if (job.owner !== credential.source) {
+    return Response.json({ error: 'Not your job' }, { status: 403 })
+  }
+
+  return result.withReceipt(Response.json({ result: job.result, status: job.status }))
+}
+```
+
+::::
+
+### Case study: paid unlock with free access
+
+A service charges once to unlock a resource, then grants repeated free access tied to the client's identity. This replaces API keys with cryptographic ownership.
+
+::::steps
+
+### Client pays to unlock
+
+The client pays once to gain access. The server records the verified payer DID as an authorized user.
+
+```ts [server.ts]
+export async function unlockHandler(request: Request) {
+  const result = await mppx.charge({ amount: '50.00' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  grantAccess({ dataset: 'premium', owner: credential.source }) // [!code hl]
+
+  return result.withReceipt(Response.json({ status: 'unlocked' }))
+}
+```
+
+### Client accesses the resource (zero-dollar auth)
+
+Subsequent requests use zero-dollar auth. The server checks the client's identity against the access list.
+
+```ts [server.ts]
+export async function accessHandler(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  if (!hasAccess({ dataset: 'premium', owner: credential.source })) {
+    return Response.json({ error: 'Not unlocked' }, { status: 403 })
+  }
+
+  return result.withReceipt(Response.json({ data: getDataset('premium') }))
+}
+```
+
+::::
+
+### Case study: multi-step agent workflow
+
+An agent orchestrates a pipeline where one paid step kicks off several follow-up steps that only need identity. Each step verifies the same payer DID to maintain continuity across the workflow.
+
+::::steps
+
+### Agent starts the pipeline (paid)
+
+The agent pays to kick off generation. The server returns a pipeline ID tied to the agent's verified payer DID.
+
+```ts [server.ts]
+export async function createPipelineHandler(request: Request) {
+  const result = await mppx.charge({ amount: '5.00' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const pipelineId = createPipeline({ owner: credential.source }) // [!code hl]
+
+  return result.withReceipt(Response.json({ pipelineId }))
+}
+```
+
+### Agent retrieves intermediate results (zero-dollar auth)
+
+The agent polls each stage of the pipeline. Every request proves the same identity without additional payment.
+
+```ts [server.ts]
+export async function stageHandler(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const pipeline = getPipeline(pipelineIdFromUrl(request))
+
+  if (pipeline.owner !== credential.source) {
+    return Response.json({ error: 'Not your pipeline' }, { status: 403 })
+  }
+
+  const stage = pipeline.stages[stageFromUrl(request)]
+  return result.withReceipt(Response.json({ output: stage.output, status: stage.status }))
+}
+```
+
+### Agent downloads the final artifact (zero-dollar auth)
+
+The final download also uses zero-dollar auth—the server already collected payment at the start.
+
+```ts [server.ts]
+export async function resultHandler(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const pipeline = getPipeline(pipelineIdFromUrl(request))
+
+  if (pipeline.owner !== credential.source) {
+    return Response.json({ error: 'Not your pipeline' }, { status: 403 })
+  }
+
+  return result.withReceipt(Response.json({ result: pipeline.finalResult }))
+}
+```
+
+::::
+
+## Check the payer before settlement
+
+<Badge variant="info">Experimental</Badge>
+
+A payment check verifies the payer on the paid retry, after the Credential is checked and before it settles. Pass it as `identity: { payment }`; request verifiers go under `request`.
+
+```ts twoslash [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const allowedPayers: ReadonlySet<string>
+
+// [!code hl:start]
+const allowlist: Identity.PaymentCheck<{ payer: string }> = {
+  requires: [{ issuer: 'https://kyc.example.com', type: 'kyc' }],
+  verify({ credential }) {
+    const payer = credential?.source
+    if (!payer) return { reason: 'The Credential names no payer.', status: 'missing' }
+    if (!allowedPayers.has(payer))
+      return { reason: 'This payer is not allowed.', status: 'forbidden' }
+    return { status: 'valid', value: { payer } }
+  },
+}
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+export const handler = mppx.charge({ amount: '0.05', identity: { payment: allowlist } }) // [!code hl]
+```
+
+- Every `402` for the route lists `requires` in an `Identity-Required` header, such as `kyc;issuer="https://kyc.example.com"`.
+- `verify` runs once on the paid retry. A rejection gets its fixed status code with no fresh Challenge, because the client may already have pushed the payment.
+- `credential.source` is the client's claim. Tempo transaction and hash Credentials reject a `source` that doesn't match the payer, unless [`validateSender`](/sdk/typescript/server/Method.tempo.charge#validatesender-optional) accepts another sender; Zone Credentials don't check it. Don't allowlist by `source` on routes that accept `zones` or set `validateSender`.
+- Routes with a payment check reject x402 Credentials and don't offer x402. Composed offers must share the same check.
+- The API may change in any release.

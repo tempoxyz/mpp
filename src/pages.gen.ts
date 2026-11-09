@@ -22,7 +22,11 @@ type Page =
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
   | { path: '/extensions/discovery'; render: 'static' }
+  | { path: '/extensions/identity/agent-signatures'; render: 'static' }
+  | { path: '/extensions/identity/custom'; render: 'static' }
+  | { path: '/extensions/identity/email-otp'; render: 'static' }
   | { path: '/extensions/identity'; render: 'static' }
+  | { path: '/extensions/identity/payer'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
   | { path: '/extensions/payment-hooks'; render: 'static' }
   | { path: '/extensions/refunds'; render: 'static' }
