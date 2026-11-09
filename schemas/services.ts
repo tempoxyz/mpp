@@ -4530,6 +4530,55 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Locus ────────────────────────────────────────────────────────────
+  {
+    id: "locus",
+    name: "Locus",
+    url: "https://paywithlocus.com",
+    serviceUrl: "https://locus-task.mpp.paywithlocus.com",
+    description:
+      "Universal router for agents: describe a task in plain language and Locus picks and calls the right paid APIs, checks the answer against the evidence, and returns the data, sources, and cost. Prepay a ceiling; the unused part is refunded.",
+
+    categories: ["ai", "data", "search"],
+    integration: "first-party",
+    tags: [
+      "router",
+      "agents",
+      "tasks",
+      "research",
+      "enrichment",
+      "web-search",
+      "verification",
+      "refunds",
+    ],
+    docs: {
+      homepage: "https://docs.paywithlocus.com/locus-pro/tasks",
+      llmsTxt: "https://paywithlocus.com/agent/tasks.md",
+      apiReference: "https://locus-task.mpp.paywithlocus.com/openapi.json",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "locus-task.mpp.paywithlocus.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: {
+            goal: "In what year was the Python Software Foundation founded?",
+          },
+        },
+        route: "POST /locus-task/run",
+        desc: "Run a task: Locus plans, calls paid APIs, and verifies the answer",
+        dynamic: true,
+        amountHint: "$0.10 to $5, unused part refunded",
+      },
+      {
+        route: "POST /locus-task/task",
+        desc: "Wait on, read, cancel, or answer a running task",
+      },
+    ],
+  },
+
   // =========================================================================
   // Locus — Pay-per-use API proxy (paywithlocus.com)
   //
