@@ -7,8 +7,6 @@ import * as SdkBadge from '../../../components/SdkBadge'
 
 # Ruby SDK [The mpp-rb library]
 
-## Overview
-
 The `mpp-rb` Ruby gem provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
 
 <div className="flex gap-2">
@@ -28,7 +26,7 @@ Or add to your Gemfile:
 gem "mpp-rb"
 ```
 
-## Requirements
+### Requirements
 
 - Ruby 3.3+
 - `eth` for Tempo signing (optional)
@@ -37,7 +35,7 @@ gem "mpp-rb"
 
 ## Quick start
 
-### Server
+### Server example
 
 ```ruby [server.rb]
 require "mpp-rb"
@@ -69,7 +67,7 @@ end
 
 Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `secret_key` explicitly to `Mpp.create()`.
 
-## Client
+### Client example
 
 ```ruby [client.rb]
 require "mpp-rb"
@@ -96,13 +94,387 @@ puts response.body
 | `Mpp::Methods::Tempo` | Tempo payment method (client and server) |
 | `Mpp::Methods::Stripe` | Stripe payment method (client and server) |
 
-## Next steps
+## Core types
 
-import { Cards } from 'vocs'
-import { RubyCoreTypesCard, RubyClientCard, RubyServerCard } from '../../../components/cards'
+These types map directly to HTTP headers—`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`—and can be used independently of the higher-level client and server APIs.
 
-<Cards>
-  <RubyCoreTypesCard />
-  <RubyClientCard />
-  <RubyServerCard />
-</Cards>
+```ruby
+require "mpp-rb"
+```
+
+### Parse a Challenge
+
+Parse a `WWW-Authenticate` header into a typed `Challenge`:
+
+```ruby
+challenge = Mpp::Challenge.from_www_authenticate(
+  'Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."'
+)
+
+challenge.method  # => "tempo"
+challenge.intent  # => "charge"
+```
+
+### Create and serialize a Credential
+
+Build a `Credential` and serialize it to an `Authorization` header:
+
+```ruby
+credential = Mpp::Credential.new(
+  id: "challenge-id",
+  payload: { "type" => "transaction", "signature" => "0x..." },
+  source: "did:pkh:eip155:42431:0xa726a1...",
+)
+
+header = credential.to_authorization
+# header = "Payment eyJ..."
+```
+
+### Parse and serialize a Receipt
+
+Parse the `Payment-Receipt` response header:
+
+```ruby
+receipt = Mpp::Receipt.from_payment_receipt(header_value)
+header = receipt.to_payment_receipt
+```
+
+### Type reference
+
+| Type | Description |
+|------|-------------|
+| `Mpp::Challenge` | Server Challenge parsed from `WWW-Authenticate` |
+| `Mpp::ChallengeEcho` | Echoed Challenge fields in a Credential |
+| `Mpp::Credential` | Client Credential for the `Authorization` header |
+| `Mpp::Receipt` | Server Receipt parsed from `Payment-Receipt` |
+
+## Client
+
+The `Mpp::Client::Transport` wraps HTTP and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential. The [client example](#client-example) shows the setup.
+
+When the server returns `402`, the client:
+
+1. Parses the Challenge from the `WWW-Authenticate` header
+2. Calls `create_credential` on the matching method to sign a stablecoin transfer
+3. Retries the request with the Credential in the `Authorization` header
+
+### Client event handling
+
+Register event handlers to record the automatic `402` flow. Use helper methods for named events, event constants for shared wiring, and `*` for every client event.
+
+```ruby [client.rb]
+require "json"
+require "mpp-rb"
+
+account = Mpp::Methods::Tempo::Account.from_key("0x...")
+
+transport = Mpp::Client::Transport.new(
+  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+)
+
+log = ->(event, data) { puts({ event: event, **data }.to_json) }
+
+# Record the selected Challenge before the client creates a Credential.
+transport.on_challenge_received do |payload|
+  log.call(
+    "payment.challenge.received",
+    {
+      challenge_id: payload[:challenge].id,
+      intent: payload[:challenge].intent,
+      method: payload[:challenge].method,
+    },
+  )
+  nil
+end
+
+# Record the retried response after payment.
+transport.on(Mpp::Events::PAYMENT_RESPONSE) do |payload|
+  log.call("payment.response", { status: payload[:response].code })
+end
+
+# Catch every client payment event in one handler.
+transport.on("*") do |event|
+  log.call("payment.event", { name: event.name })
+end
+
+response = transport.get("https://api.example.com/resource")
+```
+
+`on_challenge_received` can return a `Credential` or `Payment` authorization string to override the default Credential creation path. Other handlers only record payment handling. Each registration returns an unsubscribe proc.
+
+### Common methods
+
+| Method | Description |
+|--------|-------------|
+| `delete(url, **kwargs)` | DELETE request with payment handling |
+| `get(url, **kwargs)` | GET request with payment handling |
+| `post(url, **kwargs)` | POST request with payment handling |
+| `put(url, **kwargs)` | PUT request with payment handling |
+| `request(method, url, **kwargs)` | Generic request |
+
+### Account setup
+
+Load an account from a hex-encoded private key:
+
+```ruby
+account = Mpp::Methods::Tempo::Account.from_key("0x...")
+```
+
+Or from an environment variable (defaults to `TEMPO_PRIVATE_KEY`):
+
+```ruby
+account = Mpp::Methods::Tempo::Account.from_env
+```
+
+### Credential modes
+
+The Tempo method supports three Credential modes:
+
+```ruby
+# Pull mode (default): Server broadcasts transaction
+credential = method.create_credential(challenge)
+
+# Push mode: Client broadcasts transaction
+credential = method.create_credential(challenge, mode: :push)
+
+# Proof mode: Zero-amount ownership proof
+credential = method.create_credential(challenge, mode: :proof)
+```
+
+### Payment Receipts
+
+Parse the `Payment-Receipt` header from the response:
+
+```ruby
+receipt = Mpp::Receipt.from_payment_receipt(
+  response.headers["Payment-Receipt"]
+)
+```
+
+For manual Challenge and Credential handling, see [Core types](#core-types).
+
+## Server
+
+Create an `Mpp` handler with `Mpp.create()` and call `charge()` with a human-readable amount, as in the [server example](#server-example). The `Mpp::Methods::Tempo.tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
+
+`Mpp.create()` auto-detects `realm` from environment variables (`FLY_APP_NAME`, `HEROKU_APP_NAME`, `VERCEL_URL`, and others). It reads `MPP_SECRET_KEY` from the environment unless you pass `secret_key` explicitly:
+
+```ruby [server.rb]
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  realm: "api.example.com",
+  secret_key: "my-server-secret",
+)
+```
+
+### Server event handling
+
+Register event handlers to record issued Challenges, successful payments, and rejected Credentials. Use helper methods for named events, event constants for shared wiring, and `*` for every server event.
+
+```ruby [server.rb]
+require "json"
+require "mpp-rb"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  secret_key: "my-server-secret",
+)
+
+log = ->(event, data) { puts({ event: event, **data }.to_json) }
+
+# Record each Challenge issued by your API.
+server.on_challenge_created do |payload|
+  log.call(
+    "payment.challenge.created",
+    {
+      amount: payload[:request]["amount"],
+      currency: payload[:request]["currency"],
+      method: payload[:method][:name],
+    },
+  )
+end
+
+# Record successful Credential verification.
+server.on(Mpp::Events::PAYMENT_SUCCESS) do |payload|
+  log.call(
+    "payment.success",
+    {
+      intent: payload[:method][:intent],
+      reference: payload[:receipt].reference,
+    },
+  )
+end
+
+# Catch every server payment event in one handler.
+server.on("*") do |event|
+  log.call("payment.event", { name: event.name })
+end
+```
+
+Server handlers run inline on the payment request path. Keep them short, or send work to your logger, metrics client, or queue. Each registration returns an unsubscribe proc.
+
+### `Mpp::Methods::Tempo.tempo()` factory
+
+`tempo()` creates a method that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
+
+```ruby [server.rb]
+method = Mpp::Methods::Tempo.tempo(
+  currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+)
+```
+
+#### currency (optional)
+
+- **Type:** `String`
+
+Default TIP-20 token address for charges.
+
+#### decimals (optional)
+
+- **Type:** `Integer`
+- **Default:** `6`
+
+Token decimal places for amount conversion (6 for OUSD).
+
+#### intents
+
+- **Type:** `Hash`
+
+Intents to register (for example, `"charge"`). Each intent must be explicitly provided.
+
+#### recipient (optional)
+
+- **Type:** `String`
+
+Default recipient address for charges.
+
+#### rpc_url (optional)
+
+- **Type:** `String`
+- **Default:** `"https://rpc.tempo.xyz"`
+
+Tempo RPC endpoint URL.
+
+### `Mpp.create()` parameters
+
+#### method
+
+- **Type:** `Method`
+
+Payment method instance returned by `tempo()`.
+
+#### realm (optional)
+
+- **Type:** `String`
+
+Server realm for `WWW-Authenticate` headers. Auto-detected from environment if omitted.
+
+#### secret_key (optional)
+
+- **Type:** `String`
+
+HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if omitted.
+
+### `charge()` parameters
+
+#### amount
+
+- **Type:** `String`
+
+Payment amount in human-readable units (for example, `"0.50"` for $0.50). Automatically converted to base units using the method's decimal precision (6 decimals for OUSD).
+
+#### authorization
+
+- **Type:** `String | nil`
+
+The `Authorization` header value from the incoming request.
+
+#### currency (optional)
+
+- **Type:** `String`
+
+Override the method's default currency address.
+
+#### description (optional)
+
+- **Type:** `String`
+
+Human-readable description attached to the Challenge.
+
+#### expires (optional)
+
+- **Type:** `String`
+
+Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
+
+#### fee_payer (optional)
+
+- **Type:** `Boolean`
+- **Default:** `false`
+
+Enable fee sponsorship for this charge.
+
+#### memo (optional)
+
+- **Type:** `String`
+
+Memo for memo-enabled transfers.
+
+#### recipient (optional)
+
+- **Type:** `String`
+
+Override the method's default recipient address.
+
+### Rack middleware
+
+Use `Mpp::Server::Middleware` to add payment requirements to any Rack application:
+
+```ruby [config.rb]
+require "mpp-rb"
+
+handler = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+)
+
+use Mpp::Server::Middleware, handler: handler
+```
+
+In your application, signal that a request requires payment by setting `env["mpp.charge"]`:
+
+```ruby
+env["mpp.charge"] = { amount: "0.50", description: "Premium endpoint" }
+```
+
+The middleware intercepts the response, returns a `402` Challenge on the first request, then processes the Credential on retry.
+
+### Fee sponsorship
+
+Sponsor gas fees so clients do not need native tokens. Pass a `fee_payer` account in the Tempo method:
+
+```ruby [server.rb]
+fee_payer = Mpp::Methods::Tempo::Account.from_env("FEE_PAYER_KEY")
+
+method = Mpp::Methods::Tempo.tempo(
+  currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+  fee_payer: fee_payer,
+)
+```
+
+When fee sponsorship is enabled, the server co-signs transactions and covers gas fees on behalf of the client.

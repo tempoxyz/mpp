@@ -5,8 +5,7 @@ import { describe, expect, it } from "vitest";
 const ROOT = resolve(import.meta.dirname, "..");
 
 const SESSION_DOCS = [
-  "src/pages/guides/pay-as-you-go.mdx",
-  "src/pages/guides/streamed-payments.mdx",
+  "src/pages/guides/usage-based.mdx",
   "src/pages/payment-methods/tempo/session.mdx",
   "src/pages/sdk/typescript/client/Method.tempo.session-manager.mdx",
   "src/pages/sdk/typescript/middlewares/elysia.mdx",
