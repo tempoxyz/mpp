@@ -47,6 +47,16 @@ Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet.
 
 Stripe-backed Session offers require at least one cent of recordable value before application offer policies run. Requests below that minimum don't produce a Stripe-backed Session offer.
 
+### Create a deposit address ahead of time
+
+Use [`mppx stripe address`](/sdk/typescript/cli#stripe-address) to create an address before starting your server:
+
+```bash [test.sh]
+$ mppx stripe address --env
+```
+
+The command writes `TEMPO_DEPOSIT_ADDRESS` to `.env`. Load that file in your server runtime and pass the address as `depositAddresses: { tempo: process.env.TEMPO_DEPOSIT_ADDRESS! }` instead of a resolver. Use a Stripe key in the same mode as your server.
+
 ### Configure one PaymentIntent
 
 Pass `paymentIntentOptions` with route options to associate a Stripe Customer, apply an existing Tax Calculation, attach metadata, or send a receipt email. `mppx` keeps these options server-side and excludes them from the Challenge.

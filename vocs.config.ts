@@ -896,6 +896,44 @@ export default defineConfig({
                 ],
               },
               {
+                text: "Identity",
+                collapsed: true,
+                items: [
+                  {
+                    text: "EmailOtp.Client.EmailOtpError",
+                    link: "/sdk/typescript/client/EmailOtp.EmailOtpError",
+                  },
+                  {
+                    text: "EmailOtp.Client.prover",
+                    link: "/sdk/typescript/client/EmailOtp.prover",
+                  },
+                  {
+                    text: "EmailOtp.Client.sendCode",
+                    link: "/sdk/typescript/client/EmailOtp.sendCode",
+                  },
+                  {
+                    text: "EmailOtp.Client.verifyCode",
+                    link: "/sdk/typescript/client/EmailOtp.verifyCode",
+                  },
+                  {
+                    text: "EmailOtp.Constants",
+                    link: "/sdk/typescript/core/EmailOtp.Constants",
+                  },
+                  {
+                    text: "EmailOtp.Server.verifier",
+                    link: "/sdk/typescript/server/EmailOtp.verifier",
+                  },
+                  {
+                    text: "Identity.Rejection",
+                    link: "/sdk/typescript/core/Identity.Rejection",
+                  },
+                  {
+                    text: "Identity.from",
+                    link: "/sdk/typescript/core/Identity.from",
+                  },
+                ],
+              },
+              {
                 text: "Proxy",
                 link: "/sdk/typescript/proxy",
               },

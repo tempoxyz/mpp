@@ -1,0 +1,48 @@
+---
+description: "Handle rejected email verification codes without hiding network or issuer failures."
+imageDescription: "Handle email verification failures"
+---
+
+# `EmailOtp.Client.EmailOtpError` [Handle issuer rejections]
+
+Represents an email identity service's HTTP rejection, unsafe URL, or malformed response. The service (issuer) emails a one-time code and exchanges it for a signed email attestation.
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+
+declare const code: string
+declare const id: string
+
+try {
+  await EmailOtp.Client.verifyCode({ code, id, issuer: 'https://identity.mpp.tempo.xyz' })
+} catch (error) {
+  // [!code hl:start]
+  if (!(error instanceof EmailOtp.Client.EmailOtpError)) throw error
+  if (error.status !== 400) throw error
+  // [!code hl:end]
+  console.log('The code was not accepted.')
+}
+```
+
+`sendCode` and `verifyCode` use the issuer's JSON `error` string when present; otherwise an HTTP failure uses `The issuer answered <status>.`. Don't expose issuer messages as trusted application instructions. Network and callback errors aren't wrapped in this class.
+
+## Return type
+
+An `Error` subclass with `name: 'EmailOtpError'`, `message: string`, and `readonly status: number | undefined`. `status` is the issuer's HTTP status, or `undefined` for local URL and response-shape errors.
+
+## Parameters
+
+### message
+
+- **Type:** `string`
+
+Error description.
+
+### options (optional)
+
+- **Type:** `{ status?: number }`
+- **Default:** `{}`
+
+Set `options.status` to the issuer's HTTP response status. No status by default. [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover), which obtains attestations through your code-entry callback, prompts again only for `status: 400`, up to three prompts.

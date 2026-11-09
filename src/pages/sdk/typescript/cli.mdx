@@ -1,11 +1,11 @@
 ---
-description: "Use the mppx CLI to make paid HTTP requests from the terminal with automatic MPP and x402 payment handling."
+description: "Make paid HTTP requests with automatic MPP and x402 handling, and create Stripe deposit addresses from the terminal."
 imageDescription: "Make paid API requests from the terminal"
 ---
 
 # CLI Reference [Built-in command-line tool for paid HTTP requests]
 
-The `mppx` package includes a bundled CLI runtime for making HTTP requests with automatic MPP and x402 payment handling. Published packages omit the CLI source files and source maps.
+Use the `mppx` CLI to make HTTP requests with automatic MPP and x402 payment handling, or create Stripe deposit addresses.
 
 ## Usage
 
@@ -129,6 +129,8 @@ The `summary` contains `failed`, `passed`, `skipped`, `suggested`, and `warnings
 | `MPPX_RPC_URL` | Default RPC endpoint |
 | `MPPX_STRIPE_SECRET_KEY` | Stripe secret key for creating SPTs (test mode only: `sk_test_...`) |
 | `MPPX_STRIPE_SPT_URL` | Custom Stripe shared payment token endpoint (advanced) |
+| `STRIPE_PROJECT_NAME` | Stripe CLI project for `mppx stripe address`; defaults to `default` |
+| `STRIPE_SECRET_KEY` | Stripe API key for `mppx stripe address`; overrides the saved Stripe CLI key |
 
 ## Method options
 
@@ -263,9 +265,72 @@ $ mppx account export --account main
 `mppx account export` prints the private key. Don't commit it, paste it into shared logs, or use it in client-side code.
 :::
 
+## Stripe address
+
+Create an address to receive stablecoins in your Stripe account. Each invocation creates a new address; the default network is Tempo. Use the address in your server's [`stripe.create` configuration](/sdk/typescript/server/Method.stripe.create#with-static-deposit-addresses) under `depositAddresses.tempo` (or `.base` or `.solana`).
+
+The command resolves your Stripe API key in this order:
+
+1. `--secret-key`.
+2. `STRIPE_SECRET_KEY`.
+3. Your saved [Stripe CLI login](https://docs.stripe.com/stripe-cli) from `stripe login` (test-mode key by default).
+
+With a key configured, print only the public address to stdout:
+
+```bash [test.sh]
+$ mppx stripe address
+```
+
+Use `--env` to save it as `TEMPO_DEPOSIT_ADDRESS` in `.env`, or choose a network and file:
+
+```bash [test.sh]
+$ mppx stripe address --env
+$ mppx stripe address --network base --env .env.local
+```
+
+### Address options
+
+All options are optional.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--customer` | `string` | — | Stripe customer ID (`cus_...`). The address only accepts that customer's funds. Can't combine with `--env`. |
+| `--env [path]` | `string` | `.env` when passed without a path | Write `<NETWORK>_DEPOSIT_ADDRESS` to the file instead of printing the address. |
+| `--json` | `boolean` | `false` | Print the full result as JSON; equivalent to `--format json`. |
+| `--live` | `boolean` | `false` | Select the saved Stripe CLI live-mode key. Doesn't change a key supplied by flag or environment. |
+| `--network`, `-n` | `'tempo' \| 'base' \| 'solana'` | `'tempo'` | Network for the new address. |
+| `--project-name` | `string` | `STRIPE_PROJECT_NAME` or `'default'` | Stripe CLI project to read the saved key from. |
+| `--secret-key` | `string` | `STRIPE_SECRET_KEY`, then saved login | Stripe secret key (`sk_...`). Prefer `STRIPE_SECRET_KEY` to keep it out of shell history. |
+| `--stripe-account` | `string` | — | Connected account ID (`acct_...`) to create the address for. |
+
+Saved Stripe CLI configuration comes from `$XDG_CONFIG_HOME/stripe`, or `~/.config/stripe`. With `--live`, the command checks an unredacted live key in `config.toml`, then `credentials.json`, then the OS keyring on macOS and Linux. The resolved key—not `--live` alone—determines test or live mode.
+
+### Address output
+
+Pass `--json` for the full deposit-address result: `address`, the Stripe address object's `id`, `livemode` (`true` for live mode), `network`, and `supportedTokens`. Each supported token has `contractAddress` and `currency` fields.
+
+```bash [test.sh]
+$ mppx stripe address --json
+```
+
+With `--env`, the command writes `TEMPO_DEPOSIT_ADDRESS`, `BASE_DEPOSIT_ADDRESS`, or `SOLANA_DEPOSIT_ADDRESS` and reports the write on stderr. Stdout stays empty unless you also pass `--json` or `--format json`.
+
+The file update leaves one assignment for the address, removes duplicate assignments, and preserves other values, including quoted multiline values under keys starting with a digit and in CRLF files. Before saving, the command uses Node's dotenv parser to check that the address reads back correctly and every other entry keeps its value. If that check fails, it leaves the file unchanged; edit it manually.
+
+### Address errors
+
+| Code | Exit code | Action |
+|------|-----------|--------|
+| `INVALID_OPTIONS` | `2` | Remove either `--customer` or `--env`: a customer-scoped address isn't a server-wide recipient. |
+| `MISSING_STRIPE_SECRET_KEY` | `2` | Set `STRIPE_SECRET_KEY`, pass `--secret-key`, or run `stripe login`. |
+| `STRIPE_INVALID_ADDRESS` | `1` | Stripe returned an address in the wrong format. Tempo and Base require a 20-byte hex address; Solana requires a 32-byte base58 address. The invalid value isn't printed or written. |
+| `STRIPE_REQUEST_FAILED` | `1` | Check the reported HTTP status and Stripe error code. Raw Stripe error messages aren't printed. |
+
+The Stripe CLI usually supplies a restricted key (`rk_...`), which can lack deposit-address permissions. If Stripe refuses it, use a secret key (`sk_...`) through `STRIPE_SECRET_KEY` or `--secret-key`. If a saved login is rejected, run `stripe login` again or supply a secret key.
+
 ## Stripe payments
 
-The CLI supports Stripe payment methods. It creates an SPT for each payment with your Stripe test-mode secret key.
+For card payments, the CLI creates a shared payment token (SPT) for each payment with `MPPX_STRIPE_SECRET_KEY` (test mode only). This is separate from `STRIPE_SECRET_KEY`, which `mppx stripe address` uses.
 
 ```bash [test.sh]
 $ export MPPX_STRIPE_SECRET_KEY=sk_test_...
@@ -285,6 +350,8 @@ Register `mppx` as an MCP server for use with coding agents:
 ```bash [test.sh]
 $ mppx mcp add
 ```
+
+The MCP server exposes `mppx stripe address` as the `stripe_address` tool.
 
 Sync skill files to your agent's skill directory:
 

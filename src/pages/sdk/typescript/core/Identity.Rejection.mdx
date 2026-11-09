@@ -1,0 +1,42 @@
+---
+description: "Reject invalid identities with an explicit response before any payment is accepted."
+imageDescription: "Control identity rejection responses"
+---
+
+# `Identity.Rejection` [Reject an identity]
+
+Signals an expected identity rejection from an [`Identity.from`](/sdk/typescript/core/Identity.from) lookup callback. That verifier authenticates callers before payment; returning `undefined` or `null` reports no identity (`401`), while throwing this error explicitly rejects one.
+
+## Usage
+
+```ts twoslash
+import * as Identity from 'mppx/identity'
+
+const member = Identity.from({
+  verify(request) {
+    if (!request.headers.has('X-Api-Key')) return undefined
+    throw new Identity.Rejection('This API key is disabled.', { code: 403 }) // [!code hl]
+  },
+})
+```
+
+`Identity.from` converts this error to an `invalid` verification result. Its message becomes the response body and its code becomes the HTTP status. Don't put secrets or raw provider errors in the message. Other error classes propagate instead of becoming authentication failures.
+
+## Return type
+
+An `Error` subclass with `name: 'Rejection'`, `message: string`, and `readonly code: number`.
+
+## Parameters
+
+### message
+
+- **Type:** `string`
+
+Public rejection reason.
+
+### options (optional)
+
+- **Type:** `{ code?: number }`
+- **Default:** `{}`
+
+Set `options.code` to the HTTP rejection status. Defaults to `401`; use `403` for a caller your policy forbids. The constructor doesn't validate the number—pass an appropriate HTTP error status.

@@ -119,6 +119,10 @@ type Page =
   | { path: '/sdk/typescript/Html.init'; render: 'static' }
   | { path: '/sdk/typescript/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/cli'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.EmailOtpError'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.prover'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.sendCode'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.verifyCode'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
@@ -155,8 +159,11 @@ type Page =
   | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/EmailOtp.Constants'; render: 'static' }
   | { path: '/sdk/typescript/core/Errors'; render: 'static' }
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Rejection'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toServer'; render: 'static' }
@@ -181,6 +188,7 @@ type Page =
   | { path: '/sdk/typescript/middlewares/hono'; render: 'static' }
   | { path: '/sdk/typescript/middlewares/nextjs'; render: 'static' }
   | { path: '/sdk/typescript/proxy'; render: 'static' }
+  | { path: '/sdk/typescript/server/EmailOtp.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }
