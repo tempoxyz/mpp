@@ -1,3 +1,4 @@
+import { RpcRequestError, TimeoutError } from "viem";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fund = vi.fn();
@@ -11,6 +12,14 @@ vi.mock("viem/tempo", () => ({
 }));
 
 const address = "0x1234567890123456789012345678901234567890";
+
+function rpcError(code: number) {
+  return new RpcRequestError({
+    body: {},
+    error: { code, message: "upstream" },
+    url: "https://rpc.moderato.tempo.xyz",
+  });
+}
 
 async function load() {
   vi.resetModules();
@@ -127,7 +136,7 @@ describe("api/wallet", () => {
       ),
     );
 
-    expect(response.status).toBe(429);
+    expect(response.status).toBe(409);
     expect(fund).toHaveBeenCalledTimes(1);
   });
 
@@ -183,8 +192,8 @@ describe("api/wallet", () => {
     expect(responses.every((status) => status === 200)).toBe(true);
   });
 
-  it("hides upstream errors and releases the cooldown", async () => {
-    fund.mockRejectedValueOnce(new Error("secret upstream detail"));
+  it("hides upstream errors and releases the cooldown on a rejection", async () => {
+    fund.mockRejectedValueOnce(rpcError(-32000));
     fund.mockResolvedValueOnce(["0xabc"]);
     const POST = await load();
 
@@ -194,5 +203,22 @@ describe("api/wallet", () => {
 
     const retried = await POST(createRequest({ action: "fund", address }));
     expect(retried.status).toBe(200);
+  });
+
+  it.each([
+    ["a timeout", new TimeoutError({ body: {}, url: "https://rpc" })],
+    ["an internal error", rpcError(-32603)],
+    ["an unknown error", new Error("socket hang up")],
+  ])("keeps the cooldown after %s, which may follow a funding", async (_, err) => {
+    fund.mockRejectedValueOnce(err);
+    fund.mockResolvedValue(["0xabc"]);
+    const POST = await load();
+
+    expect(
+      (await POST(createRequest({ action: "fund", address }))).status,
+    ).toBe(500);
+    const retried = await POST(createRequest({ action: "fund", address }));
+    expect(retried.status).toBe(409);
+    expect(fund).toHaveBeenCalledTimes(1);
   });
 });

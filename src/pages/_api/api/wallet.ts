@@ -1,4 +1,10 @@
-import { createClient, http, isAddress } from "viem";
+import {
+  BaseError,
+  createClient,
+  http,
+  isAddress,
+  RpcRequestError,
+} from "viem";
 import { tempoModerato } from "viem/chains";
 import { Actions } from "viem/tempo";
 import { pathusd } from "viem/tokens";
@@ -19,6 +25,8 @@ function getClient() {
     chain: tempoModerato,
     transport: http(
       import.meta.env.RPC_URL ?? "https://rpc.moderato.tempo.xyz",
+      // A retried tempo_fundAddress can fund again, so send it once.
+      { retryCount: 0 },
     ),
   });
 }
@@ -45,6 +53,18 @@ function getClientIp(request: Request) {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0];
   return (
     forwarded?.trim() || request.headers.get("x-real-ip")?.trim() || undefined
+  );
+}
+
+/**
+ * Whether the faucet refused the request, so it funded nothing: a JSON-RPC
+ * error other than an internal error. A timeout, HTTP failure or internal
+ * error may follow a funding, so those keep the cooldowns.
+ */
+function isRejected(err: unknown) {
+  if (!(err instanceof BaseError)) return false;
+  return (
+    err.walk((e) => e instanceof RpcRequestError && e.code !== -32603) !== null
   );
 }
 
@@ -85,7 +105,8 @@ export async function POST(request: Request) {
     if (ip && !ipCooldown.claim(ip)) return error("Too many requests", 429);
     if (!addressCooldown.claim(key)) {
       if (ip) ipCooldown.release(ip);
-      return error("Too many requests", 429);
+      // 409 tells the demo to wait for the funding already sent.
+      return error("Already funded", 409);
     }
 
     try {
@@ -94,8 +115,10 @@ export async function POST(request: Request) {
       });
       return Response.json({ success: true, txHash: hashes[0] });
     } catch (err) {
-      addressCooldown.release(key);
-      if (ip) ipCooldown.release(ip);
+      if (isRejected(err)) {
+        addressCooldown.release(key);
+        if (ip) ipCooldown.release(ip);
+      }
       console.error(`[wallet] fund failed for ${address}:`, err);
       return error("Funding failed", 500);
     }

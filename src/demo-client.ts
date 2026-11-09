@@ -36,9 +36,11 @@ export async function createDemoClient() {
       body: JSON.stringify({ action: "fund", address: account.address }),
     });
     const data = (await res.json()) as { success?: boolean; error?: string };
-    if (!data.success) throw new Error(data.error ?? "Funding failed");
+    // 409: this address was already funded, so wait for that funding instead.
+    if (!data.success && res.status !== 409)
+      throw new Error(data.error ?? "Funding failed");
 
-    const deadline = Date.now() + 15_000;
+    const deadline = Date.now() + 30_000;
     while (Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 1_000));
       const balRes = await globalThis.fetch("/api/wallet", {
