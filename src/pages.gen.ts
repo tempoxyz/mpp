@@ -7,11 +7,13 @@ import type { PathsForPages } from 'waku/router'
 type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/_root'; render: 'static' }
   | { path: '/_slots'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
+  | { path: '/blog'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/mppx-identity-support'; render: 'static' }
@@ -22,11 +24,7 @@ type Page =
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
   | { path: '/extensions/discovery'; render: 'static' }
-  | { path: '/extensions/identity/agent-signatures'; render: 'static' }
-  | { path: '/extensions/identity/custom'; render: 'static' }
-  | { path: '/extensions/identity/email-otp'; render: 'static' }
   | { path: '/extensions/identity'; render: 'static' }
-  | { path: '/extensions/identity/payer'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
   | { path: '/extensions/payment-hooks'; render: 'static' }
   | { path: '/extensions/refunds'; render: 'static' }
@@ -40,15 +38,15 @@ type Page =
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
   | { path: '/guides/one-time-payments'; render: 'static' }
-  | { path: '/guides/pay-as-you-go'; render: 'static' }
   | { path: '/guides/payment-links'; render: 'static' }
   | { path: '/guides/private-payments'; render: 'static' }
   | { path: '/guides/proxy-existing-service'; render: 'static' }
   | { path: '/guides/split-payments'; render: 'static' }
-  | { path: '/guides/streamed-payments'; render: 'static' }
   | { path: '/guides/subscription-payments'; render: 'static' }
+  | { path: '/guides/usage-based'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
   | { path: '/guides/webmcp-payments'; render: 'static' }
+  | { path: '/'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
   | { path: '/intents'; render: 'static' }
@@ -60,67 +58,38 @@ type Page =
   | { path: '/partner-integrations/mcp-sdk'; render: 'static' }
   | { path: '/partner-integrations/openclaw'; render: 'static' }
   | { path: '/partner-integrations/vercel-ai-sdk'; render: 'static' }
-  | { path: '/payment-methods/card/charge'; render: 'static' }
   | { path: '/payment-methods/card'; render: 'static' }
   | { path: '/payment-methods/custom'; render: 'static' }
-  | { path: '/payment-methods/evm/charge'; render: 'static' }
   | { path: '/payment-methods/evm'; render: 'static' }
   | { path: '/payment-methods'; render: 'static' }
-  | { path: '/payment-methods/lightning/charge'; render: 'static' }
   | { path: '/payment-methods/lightning'; render: 'static' }
-  | { path: '/payment-methods/lightning/session'; render: 'static' }
-  | { path: '/payment-methods/monad/charge'; render: 'static' }
   | { path: '/payment-methods/monad'; render: 'static' }
-  | { path: '/payment-methods/nearintents/charge'; render: 'static' }
   | { path: '/payment-methods/nearintents'; render: 'static' }
-  | { path: '/payment-methods/redotpay/charge'; render: 'static' }
   | { path: '/payment-methods/redotpay'; render: 'static' }
-  | { path: '/payment-methods/solana/charge'; render: 'static' }
   | { path: '/payment-methods/solana'; render: 'static' }
-  | { path: '/payment-methods/solana/session'; render: 'static' }
-  | { path: '/payment-methods/stellar/charge'; render: 'static' }
   | { path: '/payment-methods/stellar'; render: 'static' }
-  | { path: '/payment-methods/stellar/session'; render: 'static' }
-  | { path: '/payment-methods/stripe/charge'; render: 'static' }
   | { path: '/payment-methods/stripe'; render: 'static' }
   | { path: '/payment-methods/tempo/charge'; render: 'static' }
   | { path: '/payment-methods/tempo'; render: 'static' }
   | { path: '/payment-methods/tempo/session'; render: 'static' }
   | { path: '/payment-methods/tempo/subscription'; render: 'static' }
-  | { path: '/payment-methods/xrpl/charge'; render: 'static' }
   | { path: '/payment-methods/xrpl'; render: 'static' }
-  | { path: '/payment-methods/xrpl/session'; render: 'static' }
   | { path: '/protocol/challenges'; render: 'static' }
   | { path: '/protocol/credentials'; render: 'static' }
   | { path: '/protocol/http-402'; render: 'static' }
   | { path: '/protocol'; render: 'static' }
   | { path: '/protocol/receipts'; render: 'static' }
-  | { path: '/protocol/transports/http'; render: 'static' }
   | { path: '/protocol/transports'; render: 'static' }
-  | { path: '/protocol/transports/mcp'; render: 'static' }
-  | { path: '/protocol/transports/websocket'; render: 'static' }
   | { path: '/quickstart/agent'; render: 'static' }
   | { path: '/quickstart/client'; render: 'static' }
   | { path: '/quickstart'; render: 'static' }
   | { path: '/quickstart/server'; render: 'static' }
   | { path: '/sdk/features'; render: 'static' }
-  | { path: '/sdk/go/client'; render: 'static' }
-  | { path: '/sdk/go/core'; render: 'static' }
   | { path: '/sdk/go'; render: 'static' }
-  | { path: '/sdk/go/server'; render: 'static' }
   | { path: '/sdk'; render: 'static' }
-  | { path: '/sdk/python/client'; render: 'static' }
-  | { path: '/sdk/python/core'; render: 'static' }
   | { path: '/sdk/python'; render: 'static' }
-  | { path: '/sdk/python/server'; render: 'static' }
-  | { path: '/sdk/ruby/client'; render: 'static' }
-  | { path: '/sdk/ruby/core'; render: 'static' }
   | { path: '/sdk/ruby'; render: 'static' }
-  | { path: '/sdk/ruby/server'; render: 'static' }
-  | { path: '/sdk/rust/client'; render: 'static' }
-  | { path: '/sdk/rust/core'; render: 'static' }
   | { path: '/sdk/rust'; render: 'static' }
-  | { path: '/sdk/rust/server'; render: 'static' }
   | { path: '/sdk/typescript/Html.init'; render: 'static' }
   | { path: '/sdk/typescript/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/cli'; render: 'static' }
@@ -236,6 +205,7 @@ type Page =
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }
   | { path: '/sdk/typescript/x402/next'; render: 'static' }
+  | { path: '/services'; render: 'static' }
   | { path: '/services'; render: 'static' }
   | { path: '/tools/wallet'; render: 'static' }
   | { path: '/use-cases/agentic-payments'; render: 'static' }

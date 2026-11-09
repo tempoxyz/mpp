@@ -109,7 +109,7 @@ app.get(
 
 ## x402-compatible clients
 
-Hono apps, including apps deployed on Cloudflare Workers, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm/charge) with `x402.facilitator`.
+Hono apps, including apps deployed on Cloudflare Workers, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm#charge) with `x402.facilitator`.
 
 ```ts [worker.ts]
 import { Hono } from 'hono'
