@@ -16,13 +16,11 @@ Require a verified identity before payment, check the payer before settlement, o
 | Option | Verifies | Use it for |
 |---|---|---|
 | [**Email OTP**](#verify-an-email-address) | Control of an email inbox, attested by a trusted issuer | Verified-address access and domain allowlists |
-| [**Your identity system**](#use-your-identity-system) | Your API key, session, or provider lookup | Existing customer access policy |
+| [**Your own identity system**](#use-your-own-identity-system) | Your API key, session, or provider lookup | Existing customer access policy |
 | [**Attestations**](#use-attestations) | Any fact an issuer attests, such as a phone number | Your own issuer or attestation type |
 | [**Agent signatures**](#verify-agent-signatures) | The agent or bot that signed the HTTP request | Bot recognition and agent-specific policy |
 | [**Payer check**](#check-the-payer-before-settlement) <Badge variant="info">Experimental</Badge> | The payer named in the Credential | KYC allowlists and payer policy |
 | [**MPP Credential**](#mpp-credential-identity) | The key in the Credential's `source` field | Ownership and identity-only MPP flows |
-
-Request identity doesn't authorize payment. Email OTP proves inbox access, not legal identity; an agent signature identifies the agent, not its user. Apply your own access policy and verify the MPP Credential separately.
 
 ## How identity checks run
 
@@ -139,7 +137,7 @@ Don't forward `Identity-Attestation` to upstream services. `mppx` strips it from
 
 See [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) for key resolution and rejection rules, and [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover) for callbacks, expiry handling, and errors. The [Cloudflare Worker example](https://github.com/wevm/mppx/tree/main/examples/email-otp) includes a terminal prompt, a domain allowlist, and a self-hosted issuer option.
 
-## Use your identity system
+## Use your own identity system
 
 Use [`Identity.from`](/sdk/typescript/core/Identity.from) for API keys, sessions, SSO, or KYC checks you already operate. Return an authenticated identity, `undefined` or `null` for no identity (`401`), or throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) with a `status` (`invalid`, `forbidden`, or `unavailable`) for an expected rejection. Other errors propagate.
 
@@ -450,7 +448,7 @@ export const handler = mppx.charge({ amount: '0.05', identity: { payment: allowl
 
 - Every `402` for the route lists `requires` in an `Identity-Required` header, such as `kyc;issuer="https://kyc.example.com"`.
 - `verify` runs once on the paid retry. A rejection gets its fixed status code with no fresh Challenge, because the client may already have pushed the payment.
-- The Credential's `source` is the client's claim when the check runs. Tempo charge rejects a `source` that isn't the signer, so a spoofed payer never settles.
+- `credential.source` is the client's claim. Tempo transaction and hash Credentials reject a `source` that doesn't match the payer; Zone Credentials don't check it. Don't allowlist by `source` on routes that accept `zones`.
 - Routes with a payment check reject x402 Credentials and don't offer x402. Composed offers must share the same check.
 - The API may change in any release.
 
@@ -458,11 +456,11 @@ export const handler = mppx.charge({ amount: '0.05', identity: { payment: allowl
 
 Third-party identity protocols implement the `Identity.Verifier` and `Identity.Prover` types from `mppx/identity`. For a lookup in your own system, prefer [`Identity.from`](/sdk/typescript/core/Identity.from).
 
-- **Verifier:** `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](#how-identity-checks-run) with a `reason` and optional `headers`, such as a protocol challenge.
-- **Prover:** `scope` lists the origins it runs for, and `prove(request, context)` returns the proved request. `context` carries a fresh nonce and timestamp per attempt, and the Challenge on a paid retry.
-- **`prepare(response, { challenge, requirements })`** (optional) runs on a `402` before the payment retry. `requirements` lists the 402's `Identity-Required` entries.
-- **`retry(response, { request })`** (optional) inspects a rejected non-402 response and returns headers to resend the request with once. Paid attempts are never resent.
-- **`headers`** (optional) lists the prover's sensitive request headers. The client strips them, with those in [`Identity.Headers`](/sdk/typescript/core/Identity.Headers), on cross-origin redirects, and the `mppx` proxy never forwards them upstream.
+- **Verifier:** `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](#how-identity-checks-run) with a `reason` and optional `headers`.
+- **Prover:** `prove(request, context)` returns the proved request for origins in `scope`. `context` has a fresh nonce, a timestamp, and on a paid retry the Challenge.
+- **`prepare`** (optional): runs on a `402` before the paid retry. Its `requirements` list the 402's `Identity-Required` entries.
+- **`retry`** (optional): returns headers to resend a rejected non-402 request once. Paid attempts are never resent.
+- **`headers`** (optional): sensitive request headers, stripped on cross-origin redirects and never proxied upstream.
 
 ```ts twoslash [identity.ts]
 import type * as Identity from 'mppx/identity'
