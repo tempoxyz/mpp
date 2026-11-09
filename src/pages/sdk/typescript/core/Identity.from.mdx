@@ -44,6 +44,8 @@ The verifier runs before the server issues a payment Challenge or settles a Cred
 
 `Identity.Verifier<value>` with `stage: 'request'`. Read the returned identity with `result.identity?.get(verifier)` after a successful payment result.
 
+On upstream `mppx/main`, `Identity.from` returns a request verifier without a `stage` property. Rejections use fixed statuses; `Identity.Rejection.status` replaces `code` for new callers. These changes are not in `mppx` 0.17.6.
+
 | Lookup outcome | Verifier outcome | HTTP response |
 |---|---|---|
 | Identity value | `valid` | Continue to payment |

@@ -359,6 +359,54 @@ A payment-stage verifier checks a proof on the paid retry, before settlement. It
 
 A client prover can use `prepare(response, { challenge })` to process the `402` before the payment retry. Its `prove(request, context)` receives the selected Challenge. `retry(response)` inspects rejected responses other than `402` and can request one unpaid resend; paid attempts are never resent.
 
+### Changes on upstream main
+
+The following identity API changes are on `mppx/main` but are not in the installed `mppx` 0.17.6 release.
+
+Identity rejections use fixed statuses. `Identity.Status.codes` maps them to HTTP responses, and `Identity.Status.precedence` chooses the first status when several verifiers reject. Rejection headers from every verifier are merged.
+
+| Status | HTTP response | Meaning |
+|---|---:|---|
+| `missing` | `401` | No proof was presented |
+| `invalid` | `401` | A presented proof failed verification |
+| `forbidden` | `403` | A verified identity is not allowed |
+| `unavailable` | `503` | Verification is temporarily unavailable |
+
+`Identity.from` accepts `new Identity.Rejection(reason, { status: 'forbidden' })`; the older `code` option remains deprecated. Request verifiers now receive only `verify(request)`. A route rejection includes `result.rejection` with `stage`, `status`, and `reason`; send `result.challenge` as the response.
+
+The experimental `identity: { request, payment }` form replaces payment-stage verifiers. A payment check advertises `requires` in each `402` response's `Identity-Required` header and verifies the selected Challenge and Credential on the paid retry before settlement. A rejected paid retry receives a final rejection response. Payment checks reject x402 Credentials; composed offers must use the same payment check.
+
+```ts [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function verifyKyc(input: {
+  attestation: string | null
+  challengeId: string
+  credential: unknown
+}): Promise<boolean>
+
+// [!code hl:start]
+const paymentCheck: Identity.PaymentCheck<{ approved: boolean }> = {
+  requires: [{ issuer: 'https://identity.example.com', type: 'kyc' }],
+  async verify({ challenge, credential, request }) {
+    const approved = await verifyKyc({
+      attestation: request.headers.get('Identity-Attestation'),
+      challengeId: challenge.id,
+      credential,
+    })
+    if (!approved) return { reason: 'KYC proof required.', status: 'forbidden' }
+    return { status: 'valid', value: { approved } }
+  },
+}
+// [!code hl:end]
+
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+const charge = mppx.charge({ amount: '1', identity: { payment: paymentCheck } })
+```
+
+Client provers receive the selected Challenge and parsed `Identity-Required` requirements in `prepare(response, context)`. Their `retry(response)` can return headers for one resend after a rejected unpaid request. The SDK sets those headers before provers sign again; paid attempts are never resent. A `stage: 'payment'` verifier now throws, and the old `Verifier.challenge` hook is ignored.
+
 ### Store nonces
 
 Web Bot Auth and TAP verifiers use the core `Store.AtomicStore` to retain consumed nonces and block replay. `Store.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared atomic store so every instance claims nonces through their expiration time.

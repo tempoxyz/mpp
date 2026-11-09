@@ -26,6 +26,8 @@ const member = Identity.from({
 
 An `Error` subclass with `name: 'Rejection'`, `message: string`, and `readonly code: number`.
 
+Upstream `mppx/main` adds `readonly status: 'invalid' | 'forbidden' | 'unavailable'` and deprecates `code`. Use `status` when a release includes this change; the default is `invalid`. See [changes on upstream main](/advanced/identity#changes-on-upstream-main).
+
 ## Parameters
 
 ### message

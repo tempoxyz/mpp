@@ -171,6 +171,8 @@ Pass `identity` to an intent function to require [identity verifiers](/advanced/
 
 `Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
 
+On upstream `mppx/main`, missing proofs return `401`, and `forbidden` and `unavailable` return `403` and `503`. Rejected route results include `result.rejection` with `stage`, `status`, and `reason`. These changes are not in `mppx` 0.17.6.
+
 ### Validate and broadcast Credentials
 
 Use `validateCredential` to pre-check a Credential without consuming payment state. Use `broadcastCredential` to validate again and complete the payment. `verifyCredential` remains as a deprecated alias for the mutating broadcast operation.
@@ -191,6 +193,8 @@ console.log(receipt.status)
 ## Route identity
 
 Require identity per route with `identity: [verifier]` in an intent handler's options. Every listed verifier must succeed; use `Identity.anyOf` to accept one of several protocols. Request-stage verifiers run before a Challenge. Payment-stage verifiers add headers to the `402` and check proofs before settlement. Routes with preflight hooks do not support payment-stage identity. On a successful result, `result.identity?.get(verifier)` returns its verified value. Identity rejections use the verifier's HTTP status on the non-success branch; see the [identity reference](/sdk/typescript/server/EmailOtp.verifier#errors) for email OTP failure statuses.
+
+Upstream `mppx/main` replaces payment-stage verifiers with an experimental `identity: { request, payment }` check. It advertises `payment.requires` in `Identity-Required` and checks the paid retry before settlement. Routes with a payment check reject x402 Credentials; composed offers must share the check. See [changes on upstream main](/advanced/identity#changes-on-upstream-main).
 
 ```ts twoslash
 import * as Tap from 'mppx/extensions/identity/tap'

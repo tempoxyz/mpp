@@ -574,6 +574,8 @@ const mppx = Mppx.create({
 
 Request identity provers applied to the initial HTTP request and every automatic payment retry to origins in each prover's `scope`. Each attempt uses a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [email OTP](/sdk/typescript/client/EmailOtp.prover), [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity), or include both provers when a request needs both signatures. List request signers last so they cover headers added by earlier provers.
 
+On upstream `mppx/main`, `prepare` receives the selected Challenge and parsed `Identity-Required` requirements. `retry` may return headers for one resend of a rejected unpaid request. These changes are not in `mppx` 0.17.6.
+
 :::code-group
 
 ```ts twoslash [Web Bot Auth]
