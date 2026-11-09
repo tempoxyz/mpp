@@ -161,6 +161,12 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 Lets compatible charge clients fund the requested stablecoin payment with MACH through the canonical swapper. This option applies only to `tempo.charge`; it doesn't change Sessions.
 
+### machineTokenSessionEnabled (optional)
+
+- **Type:** `boolean`
+
+Adds a MACH session offer, paid directly to `recipient`, after the charge and session pairs. Its gas is paid in the session `feeToken`, which defaults to USDC.e on mainnet and pathUSD on Moderato. Applies only to Sessions. See [`tempo.session`](/sdk/typescript/server/Method.tempo.session#machinetokensessionenabled-optional).
+
 ### onPaymentSuccess (optional)
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge> & Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`

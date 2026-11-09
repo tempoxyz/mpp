@@ -210,11 +210,21 @@ Sponsorship preflight:
 
 Fee token used for Session management, scheduled settlement, and cooperative close transactions. Hosted fee payers preserve this configured token when they complete server-driven transactions.
 
+The server advertises it in the Challenge, and clients pay open and top-up gas in it. When the session currency is MACH, which can't pay fees, it defaults to USDC.e on mainnet and pathUSD on Moderato.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### machineTokenSessionEnabled (optional)
+
+- **Type:** `boolean`
+
+Adds MACH as a session currency after `currencies` on Tempo mainnet and Moderato. MACH channels open directly to `recipient`, without the MACH swapper or an operator: settlement pays the recipient MACH, and close refunds the unspent deposit to the payer. Gas is paid in [`feeToken`](#feetoken-optional), since MACH can't pay fees.
+
+MACH reaches only recipients on its TIP-403 recipient whitelist, so enable this only when your recipient is a MACH merchant. For MACH-funded charges, use [`machineTokenEnabled`](/sdk/typescript/server/Method.tempo.charge#machinetokenenabled-optional).
 
 ### minVoucherDelta (optional)
 
