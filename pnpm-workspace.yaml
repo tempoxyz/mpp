@@ -15,6 +15,7 @@ onlyBuiltDependencies:
   - sharp
   - workerd
 ignoredBuiltDependencies:
+  - core-js
   - es5-ext
   - simple-git-hooks
   - vue-demi
