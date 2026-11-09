@@ -7,10 +7,11 @@ import { LogoLottie } from "./LogoLottie";
 import { useWipeHover } from "./useWipeHover";
 import { WipeBands } from "./WipeBands";
 
-export type ActiveKey = "blog" | "docs" | "services";
+export type ActiveKey = "blog" | "docs" | "sdks" | "services";
 
 const links = [
   { href: "/overview", key: "docs" as const, label: "Docs" },
+  { href: "/sdk", key: "sdks" as const, label: "SDKs" },
   { href: "/services", key: "services" as const, label: "Services" },
   { href: "/blog", key: "blog" as const, label: "Blog" },
 ];
@@ -99,7 +100,7 @@ export function Header({
       external: true,
       href: "https://paymentauth.org/",
       icon: "arrow-linkout",
-      label: "IETF Specs",
+      label: "IETF Specification",
     },
   ];
 
@@ -200,7 +201,7 @@ export function Header({
               rel="noopener noreferrer"
               target="_blank"
             >
-              IETF Specs
+              IETF Specification
               <Icon name="arrow-linkout" size={24} />
             </a>
             <details className="group">

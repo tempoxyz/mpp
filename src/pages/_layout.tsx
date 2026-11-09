@@ -231,6 +231,9 @@ function MobileNav() {
         <a href="/overview" onClick={closeMenu}>
           Docs
         </a>
+        <a href="/sdk" onClick={closeMenu}>
+          SDKs
+        </a>
         <a href="/services" onClick={closeMenu}>
           Services
         </a>
@@ -242,7 +245,7 @@ function MobileNav() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          IETF Specs ↗
+          IETF Specification ↗
         </a>
         <details
           open={githubOpen}
