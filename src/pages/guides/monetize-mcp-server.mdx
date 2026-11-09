@@ -36,7 +36,7 @@ Add per-call payments to any [MCP](https://modelcontextprotocol.io) server. When
 6. **Network** confirms the payment
 7. **Server** returns the tool result with a Receipt in `_meta`
 
-This maps directly to the standard MPP Challenge → Credential → Receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports/mcp) for the full encoding.
+This maps directly to the standard MPP Challenge → Credential → Receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports#mcp-and-json-rpc) for the full encoding.
 
 :::info
 This guide uses the MCP transport, so Challenge, Credential, and Receipt data travel as native JSON in `error.data` and `_meta`. The base64url-encoded `request` and `opaque` auth-params apply to the HTTP transport.
@@ -300,7 +300,7 @@ When the client also installs a global mppx fetch polyfill, `McpClient.wrap` sti
     description="Read the full MCP transport encoding"
     icon="lucide:book-open"
     title="MCP transport"
-    to="/protocol/transports/mcp"
+    to="/protocol/transports#mcp-and-json-rpc"
   />
   <OneTimePaymentsCard />
   <WalletCliCard />

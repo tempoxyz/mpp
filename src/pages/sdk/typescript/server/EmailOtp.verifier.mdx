@@ -29,7 +29,7 @@ export async function handler(request: Request) {
 }
 ```
 
-Pair it with [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover). The issuer verifies access to an email inbox; `allow` decides whether that address may use your route. This doesn't prove a legal identity or bind the address to a payment key. See [Verify an email address](/extensions/identity/email-otp).
+Pair it with [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover). The issuer verifies access to an email inbox; `allow` decides whether that address may use your route. This doesn't prove a legal identity or bind the address to a payment key. See [Verify an email address](/extensions/identity#email-otp).
 
 It's an [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) of type `email` whose `validate` runs `allow`, so candidate selection and key handling are the same.
 

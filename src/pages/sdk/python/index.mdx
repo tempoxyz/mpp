@@ -24,7 +24,7 @@ $ pip install "pympp[tempo]"
 
 ## Quick start
 
-### Server
+### Server example
 
 ```python [server.py]
 from fastapi import FastAPI, Request
@@ -50,7 +50,9 @@ async def get_resource(
     return JSONResponse({"data": "paid content", "payer": receipt.payer})
 ```
 
-### Client
+`@pay` converts FastAPI, Starlette, Django, and Flask requests into the framework-neutral payment flow. It returns the `402` response or adds the Receipt to a successful response.
+
+### Client example
 
 ```python [client.py]
 from mpp.client import Mpp
@@ -74,15 +76,159 @@ async with Mpp(
     print(response.json())
 ```
 
-Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
+`allowed_origins` authorizes automatic payment only to exact HTTP origins. An empty list disables automatic payment. Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
 
-## Next steps
+## Core types
 
-import { Cards } from 'vocs'
-import { PythonCoreTypesCard, PythonClientCard, PythonServerCard } from '../../../components/cards'
+The SDK provides three core types that map directly to HTTP headers: `Challenge`, `Credential`, and `Receipt`.
 
-<Cards>
-  <PythonCoreTypesCard />
-  <PythonClientCard />
-  <PythonServerCard />
-</Cards>
+```python
+from mpp import Challenge, Credential, Receipt
+```
+
+### Parse a Challenge
+
+```python
+challenge = Challenge.from_www_authenticate(
+    'Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."'
+)
+```
+
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `Challenge.from_www_authenticate(...)` decodes them for application code.
+
+### Create and serialize a Credential
+
+```python
+credential = Credential(
+    challenge=challenge.to_echo(),
+    payload={"type": "transaction", "signature": "0x..."},
+    source="did:pkh:eip155:42431:0xa726a1...",
+)
+
+header = credential.to_authorization()
+```
+
+When a Credential echoes a Challenge, `challenge.request` and `challenge.opaque` stay in their base64url string form inside the serialized `Authorization` payload.
+
+### Parse and serialize a Receipt
+
+```python
+receipt = Receipt.from_payment_receipt(header_value)
+header = receipt.to_payment_receipt()
+```
+
+## Client
+
+The client wraps `httpx`, selects a supported Challenge, creates a Credential, and retries the request. Start from the [client example](#client-example), and also configure method-level amount, chain, currency, and recipient limits when you know them.
+
+### Use an existing `httpx` client
+
+```python [client.py]
+import httpx
+from mpp.client import Mpp
+
+payment = Mpp(methods=[method])
+
+async with httpx.AsyncClient(transport=payment.payment_transport) as client:
+    response = await client.get("https://api.example.com/resource")
+```
+
+Call `payment.client()` when you want the SDK to construct the `httpx.AsyncClient`.
+
+### Client event handling
+
+```python [client.py]
+from mpp.client import Mpp
+from mpp.events import PAYMENT_RESPONSE
+
+payment = Mpp(methods=[method])
+
+unsubscribe = payment.on(
+    PAYMENT_RESPONSE,
+    lambda payload: print(payload["response"].status_code),
+)
+```
+
+`on_challenge_received`, `on_credential_created`, `on_payment_failed`, and `on_payment_response` register named handlers. Each registration returns an unsubscribe function.
+
+### Custom transport
+
+```python [transport.py]
+import httpx
+from mpp.client import PaymentTransport
+
+transport = PaymentTransport(
+    allowed_origins=["https://api.example.com"],
+    inner=httpx.AsyncHTTPTransport(retries=3),
+    methods=[method],
+)
+
+async with httpx.AsyncClient(transport=transport) as client:
+    response = await client.get("https://api.example.com/resource")
+```
+
+For manual Challenge and Credential handling, see [Core types](#core-types).
+
+## Server
+
+Configure server methods once, then create a handler for each route price. The [server example](#server-example) shows the FastAPI integration.
+
+### Framework-neutral flow
+
+```python [server.py]
+from mpp.server import Request, Response
+
+async def handle(request: Request) -> Response:
+    result = await payment.charge(amount="0.50")(request)
+    if result.status != 200:
+        return result.challenge
+    if result.response is not None:
+        return result.response
+    return result.with_receipt(Response.json({"data": "paid content"}))
+```
+
+Return `result.response` for method-managed requests such as session top-ups and closes.
+
+### Configure Tempo
+
+```python [server.py]
+from mpp.methods.tempo import PATH_USD
+from mpp.methods.tempo import server as tempo
+
+methods = tempo.charge(
+    chain_id=42431,
+    currencies=[PATH_USD],
+    recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    rpc_url="https://rpc.moderato.tempo.xyz",
+)
+payment = Mpp(methods=methods)
+```
+
+Use a shared persistent replay store across replicas. The default in-memory store is process-local and loses replay state on restart.
+
+### Existing `Authorization` headers
+
+If the route already uses `Authorization`, configure a separate Payment credential header:
+
+```python [server.py]
+payment = Mpp(methods=methods, requires_auth=True)
+```
+
+The Challenge then advertises `Payment-Authorization`.
+
+### Server event handling
+
+```python [server.py]
+from mpp.events import PAYMENT_SUCCESS
+
+unsubscribe = payment.on(
+    PAYMENT_SUCCESS,
+    lambda payload: print(payload["receipt"].reference),
+)
+```
+
+Server event handlers run inline with verification. Keep them short and retain the unsubscribe function while the handler is active.
+
+### Sessions
+
+Use `tempo.session(...)` with a durable store for metered payment channels, then create route handlers with `payment.session(...)`. Forward method-managed responses so channel open, top-up, and close requests complete correctly.

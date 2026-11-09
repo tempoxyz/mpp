@@ -97,7 +97,7 @@ export const GET =
 
 ## x402-compatible clients
 
-Next.js route handlers, including routes deployed on Vercel, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm/charge) with `x402.facilitator`.
+Next.js route handlers, including routes deployed on Vercel, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm#charge) with `x402.facilitator`.
 
 ```ts [app/api/paid/route.ts]
 import { Mppx, evm } from 'mppx/nextjs'

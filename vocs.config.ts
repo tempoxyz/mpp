@@ -98,6 +98,183 @@ export default defineConfig({
       destination: "/payment-methods/stripe",
     },
 
+    // Pages merged into their parent page
+    {
+      source: "/payment-methods/evm/charge",
+      destination: "/payment-methods/evm#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/card/charge",
+      destination: "/payment-methods/card#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/stripe/charge",
+      destination: "/payment-methods/stripe#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/lightning/charge",
+      destination: "/payment-methods/lightning#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/lightning/session",
+      destination: "/payment-methods/lightning#session",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/solana/charge",
+      destination: "/payment-methods/solana#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/solana/session",
+      destination: "/payment-methods/solana#session",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/xrpl/charge",
+      destination: "/payment-methods/xrpl#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/xrpl/session",
+      destination: "/payment-methods/xrpl#session",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/stellar/charge",
+      destination: "/payment-methods/stellar#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/stellar/session",
+      destination: "/payment-methods/stellar#session",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/monad/charge",
+      destination: "/payment-methods/monad#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/nearintents/charge",
+      destination: "/payment-methods/nearintents#charge",
+      status: 308,
+    },
+    {
+      source: "/payment-methods/redotpay/charge",
+      destination: "/payment-methods/redotpay#charge",
+      status: 308,
+    },
+    {
+      source: "/guides/pay-as-you-go",
+      destination: "/guides/usage-based#per-request",
+      status: 308,
+    },
+    {
+      source: "/guides/streamed-payments",
+      destination: "/guides/usage-based#streaming",
+      status: 308,
+    },
+    {
+      source: "/protocol/transports/http",
+      destination: "/protocol/transports#http",
+      status: 308,
+    },
+    {
+      source: "/protocol/transports/mcp",
+      destination: "/protocol/transports#mcp-and-json-rpc",
+      status: 308,
+    },
+    {
+      source: "/protocol/transports/websocket",
+      destination: "/protocol/transports#websocket",
+      status: 308,
+    },
+    {
+      source: "/extensions/identity/email-otp",
+      destination: "/extensions/identity#email-otp",
+      status: 308,
+    },
+    {
+      source: "/extensions/identity/agent-signatures",
+      destination: "/extensions/identity#agent-signatures",
+      status: 308,
+    },
+    {
+      source: "/extensions/identity/custom",
+      destination: "/extensions/identity#your-own-identity-provider",
+      status: 308,
+    },
+    {
+      source: "/extensions/identity/payer",
+      destination: "/extensions/identity#payer-identity",
+      status: 308,
+    },
+    {
+      source: "/sdk/python/core",
+      destination: "/sdk/python#core-types",
+      status: 308,
+    },
+    {
+      source: "/sdk/python/client",
+      destination: "/sdk/python#client",
+      status: 308,
+    },
+    {
+      source: "/sdk/python/server",
+      destination: "/sdk/python#server",
+      status: 308,
+    },
+    {
+      source: "/sdk/rust/core",
+      destination: "/sdk/rust#core-types",
+      status: 308,
+    },
+    {
+      source: "/sdk/rust/client",
+      destination: "/sdk/rust#client",
+      status: 308,
+    },
+    {
+      source: "/sdk/rust/server",
+      destination: "/sdk/rust#server",
+      status: 308,
+    },
+    {
+      source: "/sdk/go/core",
+      destination: "/sdk/go#core-types",
+      status: 308,
+    },
+    {
+      source: "/sdk/go/client",
+      destination: "/sdk/go#client",
+      status: 308,
+    },
+    {
+      source: "/sdk/go/server",
+      destination: "/sdk/go#server",
+      status: 308,
+    },
+    {
+      source: "/sdk/ruby/core",
+      destination: "/sdk/ruby#core-types",
+      status: 308,
+    },
+    {
+      source: "/sdk/ruby/client",
+      destination: "/sdk/ruby#client",
+      status: 308,
+    },
+    {
+      source: "/sdk/ruby/server",
+      destination: "/sdk/ruby#server",
+      status: 308,
+    },
+
     // Protocol concept shortcuts
     { source: "/402", destination: "/protocol/http-402" },
     {
@@ -117,7 +294,7 @@ export default defineConfig({
     { source: "/receipt", destination: "/protocol/receipts" },
     { source: "/transports", destination: "/protocol/transports" },
     { source: "/transport", destination: "/protocol/transports" },
-    { source: "/mcp", destination: "/protocol/transports/mcp" },
+    { source: "/mcp", destination: "/protocol/transports#mcp-and-json-rpc" },
 
     // SDK shortcuts
     { source: "/typescript", destination: "/sdk/typescript" },
@@ -363,48 +540,38 @@ export default defineConfig({
             ],
           },
           { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
-          { text: "FAQ", link: "/faq" },
+          { text: "Security best practices", link: "/advanced/security" },
         ],
       },
       {
-        text: "Guides",
+        text: "Sell",
+        items: [
+          { text: "One-time", link: "/guides/one-time-payments" },
+          { text: "Usage-based", link: "/guides/usage-based" },
+          { text: "Subscriptions", link: "/guides/subscription-payments" },
+          { text: "Cards", link: "/guides/accept-card-payments" },
+          { text: "Splits", link: "/guides/split-payments" },
+          {
+            text: "Multiple methods",
+            link: "/guides/multiple-payment-methods",
+          },
+          { text: "Payment links", link: "/guides/payment-links" },
+          {
+            text: "Proxy an existing service",
+            link: "/guides/proxy-existing-service",
+          },
+          { text: "MCP servers", link: "/guides/monetize-mcp-server" },
+          { text: "WebMCP tools", link: "/guides/webmcp-payments" },
+          { text: "x402", link: "/guides/use-mpp-with-x402" },
+        ],
+      },
+      {
+        text: "Buy",
         items: [
           {
-            text: "Accept payments",
+            text: "Agents",
             items: [
-              { text: "One-time", link: "/guides/one-time-payments" },
-              { text: "Pay-as-you-go", link: "/guides/pay-as-you-go" },
-              { text: "Streaming", link: "/guides/streamed-payments" },
-              { text: "Subscriptions", link: "/guides/subscription-payments" },
-              { text: "Splits", link: "/guides/split-payments" },
-              { text: "Cards", link: "/guides/accept-card-payments" },
-              {
-                text: "Multiple methods",
-                link: "/guides/multiple-payment-methods",
-              },
-              { text: "Payment links", link: "/guides/payment-links" },
-              {
-                text: "Proxy an existing service",
-                link: "/guides/proxy-existing-service",
-              },
-              { text: "x402", link: "/guides/use-mpp-with-x402" },
-            ],
-          },
-          {
-            text: "Agent developers",
-            items: [
-              {
-                text: "Manage agent spend",
-                link: "/guides/managing-agent-spend",
-              },
-              {
-                text: "Monetize an MCP server",
-                link: "/guides/monetize-mcp-server",
-              },
-              {
-                text: "Monetize WebMCP tools",
-                link: "/guides/webmcp-payments",
-              },
+              { text: "Manage spend", link: "/guides/managing-agent-spend" },
               {
                 text: "Agent SDKs",
                 items: [
@@ -412,10 +579,7 @@ export default defineConfig({
                     text: "Cloudflare Agents",
                     link: "/partner-integrations/cloudflare-agents",
                   },
-                  {
-                    text: "MCP SDK",
-                    link: "/partner-integrations/mcp-sdk",
-                  },
+                  { text: "MCP SDK", link: "/partner-integrations/mcp-sdk" },
                   { text: "OpenClaw", link: "/partner-integrations/openclaw" },
                   {
                     text: "Vercel AI SDK",
@@ -425,6 +589,7 @@ export default defineConfig({
               },
             ],
           },
+          { text: "Wallets", link: "/tools/wallet" },
         ],
       },
       {
@@ -439,18 +604,7 @@ export default defineConfig({
               { text: "Challenges", link: "/protocol/challenges" },
               { text: "Credentials", link: "/protocol/credentials" },
               { text: "Receipts", link: "/protocol/receipts" },
-              {
-                text: "Transports",
-                link: "/protocol/transports",
-                items: [
-                  { text: "HTTP", link: "/protocol/transports/http" },
-                  {
-                    text: "MCP and JSON-RPC",
-                    link: "/protocol/transports/mcp",
-                  },
-                  { text: "WebSocket", link: "/protocol/transports/websocket" },
-                ],
-              },
+              { text: "Transports", link: "/protocol/transports" },
             ],
           },
           {
@@ -469,26 +623,7 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: "Discovery", link: "/extensions/discovery" },
-              {
-                text: "Identity",
-                link: "/extensions/identity",
-                collapsed: false,
-                items: [
-                  { text: "Email OTP", link: "/extensions/identity/email-otp" },
-                  {
-                    text: "Agent signatures",
-                    link: "/extensions/identity/agent-signatures",
-                  },
-                  {
-                    text: "Your own identity provider",
-                    link: "/extensions/identity/custom",
-                  },
-                  {
-                    text: "Payer identity",
-                    link: "/extensions/identity/payer",
-                  },
-                ],
-              },
+              { text: "Identity", link: "/extensions/identity" },
               { text: "Payment hooks", link: "/extensions/payment-hooks" },
               { text: "Refunds", link: "/extensions/refunds" },
               { text: "Relays", link: "/extensions/relays" },
@@ -518,103 +653,17 @@ export default defineConfig({
               { text: "Private payments", link: "/guides/private-payments" },
             ],
           },
-          {
-            text: "EVM",
-            link: "/payment-methods/evm",
-            collapsed: true,
-            items: [{ text: "Charge", link: "/payment-methods/evm/charge" }],
-          },
-          {
-            text: "Stripe",
-            link: "/payment-methods/stripe",
-            collapsed: true,
-            items: [
-              { text: "SPT charge", link: "/payment-methods/stripe/charge" },
-            ],
-          },
-          {
-            text: "Card",
-            link: "/payment-methods/card",
-            collapsed: true,
-            items: [{ text: "Charge", link: "/payment-methods/card/charge" }],
-          },
-          {
-            text: "Lightning",
-            link: "/payment-methods/lightning",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/lightning/charge" },
-              { text: "Session", link: "/payment-methods/lightning/session" },
-            ],
-          },
-          {
-            text: "Solana",
-            link: "/payment-methods/solana",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/solana/charge" },
-              { text: "Session", link: "/payment-methods/solana/session" },
-            ],
-          },
-          {
-            text: "XRPL",
-            link: "/payment-methods/xrpl",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/xrpl/charge" },
-              { text: "Session", link: "/payment-methods/xrpl/session" },
-            ],
-          },
-          {
-            text: "Stellar",
-            link: "/payment-methods/stellar",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/stellar/charge" },
-              { text: "Channel", link: "/payment-methods/stellar/session" },
-            ],
-          },
-          {
-            text: "Monad",
-            link: "/payment-methods/monad",
-            collapsed: true,
-            items: [{ text: "Charge", link: "/payment-methods/monad/charge" }],
-          },
-          {
-            text: "NEAR Intents",
-            link: "/payment-methods/nearintents",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/nearintents/charge" },
-            ],
-          },
-          {
-            text: "RedotPay",
-            link: "/payment-methods/redotpay",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/payment-methods/redotpay/charge" },
-            ],
-          },
+          { text: "EVM", link: "/payment-methods/evm" },
+          { text: "Stripe", link: "/payment-methods/stripe" },
+          { text: "Card", link: "/payment-methods/card" },
+          { text: "Lightning", link: "/payment-methods/lightning" },
+          { text: "Solana", link: "/payment-methods/solana" },
+          { text: "XRPL", link: "/payment-methods/xrpl" },
+          { text: "Stellar", link: "/payment-methods/stellar" },
+          { text: "Monad", link: "/payment-methods/monad" },
+          { text: "NEAR Intents", link: "/payment-methods/nearintents" },
+          { text: "RedotPay", link: "/payment-methods/redotpay" },
           { text: "Custom", link: "/payment-methods/custom" },
-        ],
-      },
-      {
-        text: "More",
-        items: [
-          {
-            text: "Use cases",
-            collapsed: true,
-            items: [
-              { text: "Agentic payments", link: "/use-cases/agentic-payments" },
-              { text: "API monetization", link: "/use-cases/api-monetization" },
-              { text: "Micropayments", link: "/use-cases/micropayments" },
-            ],
-          },
-          { text: "Security best practices", link: "/advanced/security" },
-          { text: "Wallets", link: "/tools/wallet" },
-          { text: "Governance", link: "/governance" },
-          { text: "Brand", link: "/brand" },
         ],
       },
     ],
@@ -928,76 +977,94 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: "Attestation.Client.prover",
-                link: "/sdk/typescript/client/Attestation.prover",
+                text: "Attestation",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/Attestation.prover",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Attestation.Constants",
+                  },
+                  {
+                    text: ".Jwks.resolver",
+                    link: "/sdk/typescript/core/Attestation.Jwks.resolver",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/Attestation.verifier",
+                  },
+                  {
+                    text: ".decode",
+                    link: "/sdk/typescript/core/Attestation.decode",
+                  },
+                  {
+                    text: ".sign",
+                    link: "/sdk/typescript/core/Attestation.sign",
+                  },
+                  {
+                    text: ".verify",
+                    link: "/sdk/typescript/core/Attestation.verify",
+                  },
+                ],
               },
               {
-                text: "Attestation.Constants",
-                link: "/sdk/typescript/core/Attestation.Constants",
+                text: "EmailOtp",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.EmailOtpError",
+                    link: "/sdk/typescript/client/EmailOtp.EmailOtpError",
+                  },
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/EmailOtp.prover",
+                  },
+                  {
+                    text: ".Client.sendCode",
+                    link: "/sdk/typescript/client/EmailOtp.sendCode",
+                  },
+                  {
+                    text: ".Client.verifyCode",
+                    link: "/sdk/typescript/client/EmailOtp.verifyCode",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/EmailOtp.Constants",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/EmailOtp.verifier",
+                  },
+                ],
               },
               {
-                text: "Attestation.Jwks.resolver",
-                link: "/sdk/typescript/core/Attestation.Jwks.resolver",
-              },
-              {
-                text: "Attestation.Server.verifier",
-                link: "/sdk/typescript/server/Attestation.verifier",
-              },
-              {
-                text: "Attestation.decode",
-                link: "/sdk/typescript/core/Attestation.decode",
-              },
-              {
-                text: "Attestation.sign",
-                link: "/sdk/typescript/core/Attestation.sign",
-              },
-              {
-                text: "Attestation.verify",
-                link: "/sdk/typescript/core/Attestation.verify",
-              },
-              {
-                text: "EmailOtp.Client.EmailOtpError",
-                link: "/sdk/typescript/client/EmailOtp.EmailOtpError",
-              },
-              {
-                text: "EmailOtp.Client.prover",
-                link: "/sdk/typescript/client/EmailOtp.prover",
-              },
-              {
-                text: "EmailOtp.Client.sendCode",
-                link: "/sdk/typescript/client/EmailOtp.sendCode",
-              },
-              {
-                text: "EmailOtp.Client.verifyCode",
-                link: "/sdk/typescript/client/EmailOtp.verifyCode",
-              },
-              {
-                text: "EmailOtp.Constants",
-                link: "/sdk/typescript/core/EmailOtp.Constants",
-              },
-              {
-                text: "EmailOtp.Server.verifier",
-                link: "/sdk/typescript/server/EmailOtp.verifier",
-              },
-              {
-                text: "Identity.Headers",
-                link: "/sdk/typescript/core/Identity.Headers",
-              },
-              {
-                text: "Identity.Rejection",
-                link: "/sdk/typescript/core/Identity.Rejection",
-              },
-              {
-                text: "Identity.Status",
-                link: "/sdk/typescript/core/Identity.Status",
-              },
-              {
-                text: "Identity.anyOf",
-                link: "/sdk/typescript/core/Identity.anyOf",
-              },
-              {
-                text: "Identity.from",
-                link: "/sdk/typescript/core/Identity.from",
+                text: "Identity",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Headers",
+                    link: "/sdk/typescript/core/Identity.Headers",
+                  },
+                  {
+                    text: ".Rejection",
+                    link: "/sdk/typescript/core/Identity.Rejection",
+                  },
+                  {
+                    text: ".Status",
+                    link: "/sdk/typescript/core/Identity.Status",
+                  },
+                  {
+                    text: ".anyOf",
+                    link: "/sdk/typescript/core/Identity.anyOf",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Identity.from",
+                  },
+                ],
               },
             ],
           },
@@ -1202,46 +1269,10 @@ export default defineConfig({
           { text: "CLI reference", link: "/sdk/typescript/cli" },
         ],
       },
-      {
-        text: "Python",
-        collapsed: true,
-        items: [
-          { text: "Overview", link: "/sdk/python" },
-          { text: "Core types", link: "/sdk/python/core" },
-          { text: "Client", link: "/sdk/python/client" },
-          { text: "Server", link: "/sdk/python/server" },
-        ],
-      },
-      {
-        text: "Rust",
-        collapsed: true,
-        items: [
-          { text: "Overview", link: "/sdk/rust" },
-          { text: "Core types", link: "/sdk/rust/core" },
-          { text: "Client", link: "/sdk/rust/client" },
-          { text: "Server", link: "/sdk/rust/server" },
-        ],
-      },
-      {
-        text: "Go",
-        collapsed: true,
-        items: [
-          { text: "Overview", link: "/sdk/go" },
-          { text: "Core types", link: "/sdk/go/core" },
-          { text: "Client", link: "/sdk/go/client" },
-          { text: "Server", link: "/sdk/go/server" },
-        ],
-      },
-      {
-        text: "Ruby",
-        collapsed: true,
-        items: [
-          { text: "Overview", link: "/sdk/ruby" },
-          { text: "Core types", link: "/sdk/ruby/core" },
-          { text: "Client", link: "/sdk/ruby/client" },
-          { text: "Server", link: "/sdk/ruby/server" },
-        ],
-      },
+      { text: "Python", link: "/sdk/python" },
+      { text: "Rust", link: "/sdk/rust" },
+      { text: "Go", link: "/sdk/go" },
+      { text: "Ruby", link: "/sdk/ruby" },
     ],
   },
   socials: [

@@ -32,7 +32,7 @@ const attestation = await Attestation.sign(
 // [!code hl:end]
 ```
 
-Publish the public key at `<issuer>/.well-known/jwks.json` as an `OKP` key with `crv: 'Ed25519'`, `kid`, and `x`, so [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver) finds it. See [Build your own protocol](/extensions/identity/custom#build-your-own-protocol).
+Publish the public key at `<issuer>/.well-known/jwks.json` as an `OKP` key with `crv: 'Ed25519'`, `kid`, and `x`, so [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver) finds it. See [Build your own protocol](/extensions/identity#build-your-own-protocol).
 
 ## Return type
 
