@@ -72,7 +72,7 @@ console.log(await res.json())
 
 - `maxDeposit` caps the funds reserved per channel. At $0.01 per photo, 1 token covers 100 requests.
 - If the seller suggests a deposit, `mppx` reserves the smaller of that and `maxDeposit`.
-- The channel stays open for reuse across requests. To close it, use a [session manager](#close-the-session).
+- The channel stays open for reuse across requests. `Mppx.create` can't close it; to reclaim the deposit when you're done, make your requests through a [session manager](#close-the-session) instead.
 
 ## Set limits
 
@@ -113,6 +113,8 @@ Mppx.create({
 - **`origin`**: the trusted API origin your saved channels belong to. Use one channel store per origin.
 - **Total budget**: set an [access-key spending limit](/guides/managing-agent-spend#add-spending-limits-and-scopes) to cap spend across channels, processes and restarts.
 
+These limits apply to `tempo()` with `Mppx.create`. A session manager (used below for streaming and closing) doesn't support `currencies`, `expectedRecipients` or `maxAmount`.
+
 Explicit closes bypass price and recipient limits, so you can always reclaim funds.
 
 ## Pay per token
@@ -144,12 +146,13 @@ for await (const word of stream) {
 await session.close()
 ```
 
+- The manager doesn't enforce `currencies`, `expectedRecipients` or `maxAmount`. Stream only from APIs you trust, and bound exposure with `maxDeposit` and an [access-key spending limit](/guides/managing-agent-spend#add-spending-limits-and-scopes).
 - Use one manager per API origin. Its first request pins the origin and rejects redirects to others.
 - For bidirectional streams, use [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `.sse()`.
 
 ## Close the session
 
-Your deposit stays reserved until the channel closes. Call `close()` on the manager that opened it to settle and get unspent funds back:
+Your deposit stays reserved until the channel closes. Only the manager that opened a channel can close it, so make the requests and the close on the same manager:
 
 ```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
