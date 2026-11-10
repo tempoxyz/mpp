@@ -5261,7 +5261,7 @@ export const services: ServiceDef[] = [
     url: "https://deepgram.com",
     serviceUrl: "https://deepgram.mpp.paywithlocus.com",
     description:
-      "Deepgram brings voice, the most natural interface, to the technology we use every day. Transcribe audio with Nova-3, generate natural speech with Aura-2, and analyze text for sentiment, topics, intents, and summaries.",
+      "Deepgram brings voice, the most natural interface, to the technology we use every day. Transcribe audio with Nova-3, generate natural speech with Flux TTS or Aura-2, and analyze text for sentiment, topics, intents, and summaries.",
 
     categories: ["data"],
     integration: "third-party",
