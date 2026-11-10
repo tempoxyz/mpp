@@ -28,7 +28,7 @@ Pick a demo, then click **Run demo** to create a wallet, fund it, and pay per ph
 
 ## Per request
 
-Build a photo API that charges $0.01 per photo. Examples use `mppx/server` with the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), so they run on Bun, Deno, Cloudflare Workers and most TypeScript servers. On Next.js, Hono, Express or Elysia, wrap the same handler with the [framework middleware](/sdk/typescript/middlewares/hono).
+Build a photo API that charges $0.01 per photo. Examples use `mppx/server` with a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) handler served by `Bun.serve`. On Deno or Cloudflare Workers, export the same handler as `export default { fetch }` instead. On Next.js, Hono, Express or Elysia, wrap the same handler with the [framework middleware](/sdk/typescript/middlewares/hono).
 
 ::::steps
 
@@ -277,7 +277,7 @@ $ npx mppx http://localhost:3000
 
 ## Pay as a buyer
 
-Buyers pay with `mppx/client`: it opens the channel on the first request, signs vouchers after that, and closes the channel to return unspent funds. See [Pay for sessions](/guides/pay-for-sessions).
+Buyers pay with `mppx/client`: it opens the channel on the first request and signs vouchers after that. Call `close()` on a session manager to close the channel and return unspent funds. See [Pay for sessions](/guides/pay-for-sessions).
 
 ## Go to production
 
