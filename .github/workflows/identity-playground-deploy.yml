@@ -66,7 +66,10 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          if pnpm exec wrangler secret list --format json | jq -e 'any(.[]; .name == "MPP_PRIVATE_KEY")' > /dev/null; then
+          # Any failure to read the list stops here: only a confirmed absence creates a key.
+          secrets="$(pnpm exec wrangler secret list --format json)"
+          set="$(jq -r 'if type == "array" then any(.[]; .name == "MPP_PRIVATE_KEY") else error("unexpected output") end' <<< "$secrets")"
+          if [ "$set" = "true" ]; then
             echo "MPP_PRIVATE_KEY is already set"
             exit 0
           fi
