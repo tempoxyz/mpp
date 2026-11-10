@@ -584,7 +584,10 @@ function useDemo() {
     tier !== "link" &&
     Boolean(config) &&
     Boolean(address) &&
-    !low &&
+    // OUSD pays the price; network fees are paid separately in pathUSD.
+    (balance === undefined ||
+      price === undefined ||
+      Number(balance) >= Number(price)) &&
     (tier !== "email" || /@/.test(email)) &&
     (tier !== "apiKey" || Boolean(apiKey));
 
@@ -672,17 +675,14 @@ function usage(tier: Tier, address: string, apiKey = "", topic = "") {
     "const provider = await connector.getProvider()",
     "",
     "const mppx = Mppx.create({",
-    "  methods: [",
-    "    tempo(provider.getMppxParameters()),",
-    "  ],",
     ...(tier === "email"
       ? [
           "  identity: [",
           "    EmailOtp.Client.prover({",
           "      attestations: [attestation], // verified up front",
+          "      code: askForCode,",
           `      email: '${address || "you@example.com"}',`,
           "      issuers: [issuer],",
-          "      code: askForCode,",
           "    }),",
           "  ],",
         ]
@@ -708,9 +708,12 @@ function usage(tier: Tier, address: string, apiKey = "", topic = "") {
           "  ],",
         ]
       : []),
+    "  methods: [",
+    "    tempo(provider.getMppxParameters()),",
+    "  ],",
     "})",
     "",
-    "const url = new URL('/api/haiku', location.origin)",
+    `const url = new URL('${basePath}api/haiku', location.origin)`,
     ...(topic
       ? [
           "// Verified buyers only: anonymous gets a 403.",
@@ -747,6 +750,7 @@ function serverUsage(tier: Tier) {
     "  methods: [",
     "    tempo({",
     "      account,",
+    "      chainId: 42431, // Tempo Moderato testnet",
     "      currency: OUSD,",
     "      recipient: account.address,",
     "    }),",

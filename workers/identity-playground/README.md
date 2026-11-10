@@ -18,7 +18,7 @@ The **Deploy MPP identity playground** workflow deploys on pushes to `main` that
 ## Setup
 
 1. Set the payee key: `wrangler secret put MPP_PRIVATE_KEY`.
-2. Set `IDENTITY_PLAYGROUND_WORKER_ORIGIN` in the Vercel project to the Worker's origin (for example `https://mpp-identity-playground.<account>.workers.dev`) and redeploy.
+2. Set `IDENTITY_PLAYGROUND_WORKER_ORIGIN` in the Vercel project to the Worker's origin (for example `https://mpp-identity-playground.<account>.workers.dev`) and redeploy. Preview deployments skip the rewrite: attestations are bound to `https://mpp.dev`.
 
 ## Local development
 

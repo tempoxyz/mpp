@@ -177,14 +177,16 @@ export async function handle(
         { error: "Invalid email address." },
         { status: 400 },
       );
-    if (!audience)
+    // Only this deployment's own origin: codes go to a public demo inbox, so an attestation
+    // for another audience would let anyone claim any email there.
+    if (!audience || audience !== new URL(issuer).origin)
       return Response.json({ error: "Invalid audience." }, { status: 400 });
 
     // step: issuer.otp
     // One allowance per client, for everyone (real email only) and per mailbox (ignoring
     // +tags and dots), so neither address variants nor many recipients get around it.
     // The mailbox goes last: a request another limit refuses must not spend a victim's slots.
-    const client = prefix(clientIp(request));
+    const client = clientKey(request);
     const limits: [string, number][] = [
       [`sent-ip:${client}`, clientLimit],
       ...(env.EMAIL && env.EMAIL_FROM
@@ -326,6 +328,17 @@ export function expiry(key: string, value: unknown): number | undefined {
 /** The caller's IP as Cloudflare saw it, which callers can't forge. */
 export function clientIp(request: Request) {
   return request.headers.get("cf-connecting-ip") ?? "local";
+}
+
+/**
+ * The rate-limit key for the caller: its IP (or IPv6 /64), under the proxy that forwarded it
+ * when there is one. A direct caller that forges a forwarded IP lands under its own address,
+ * never in the bucket of the user it names.
+ */
+export function clientKey(request: Request) {
+  const client = prefix(clientIp(request));
+  const via = request.headers.get("x-playground-via");
+  return via ? `${prefix(via)}>${client}` : client;
 }
 
 /** An IPv6 address's /64, which one host usually controls whole; IPv4 addresses as they are. */

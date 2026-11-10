@@ -102,8 +102,7 @@ const base = "/playground/identity";
 export default {
   async fetch(incoming: Request, env: Env): Promise<Response> {
     // Behind the Vercel rewrite every request comes from Vercel: rate limits key on the
-    // caller's IP Vercel saw. Callers reaching the Worker directly can set it, which only
-    // moves them between demo rate-limit buckets.
+    // caller's IP Vercel saw, under the address that forwarded it (Issuer.clientKey).
     const request = (() => {
       const forwarded =
         incoming.headers.get("x-real-ip") ??
@@ -111,6 +110,10 @@ export default {
       const ip = env.TRUST_PROXY_IP === "true" && forwarded;
       if (!ip) return incoming;
       const headers = new Headers(incoming.headers);
+      headers.set(
+        "x-playground-via",
+        incoming.headers.get("cf-connecting-ip") ?? "local",
+      );
       headers.set("cf-connecting-ip", ip);
       return new Request(incoming, { headers });
     })();
@@ -217,29 +220,39 @@ async function haiku(
   // step: quota
   // Anonymous callers get a few haikus a day per IP; any verified proof lifts the limit.
   const quota = tier === "anonymous" ? quotaKey(request) : undefined;
+  // A paid request reserves its haiku atomically, so concurrent ones can't pass the limit
+  // together; the reservation is released if the payment doesn't go through.
+  let reserved: number | undefined;
   if (quota) {
-    const used = await usedToday(app.store, quota);
-    if (used >= Tiers.anonymousDailyLimit) {
-      trace.step(
-        "quota",
-        `refused: ${used} of ${Tiers.anonymousDailyLimit} today`,
-      );
+    const used = paid
+      ? await reserve(app.store, quota)
+      : await usedToday(app.store, quota);
+    if (paid && used !== undefined) reserved = used;
+    if (used === undefined || (!paid && used >= Tiers.anonymousDailyLimit)) {
+      const count = Tiers.anonymousDailyLimit;
+      trace.step("quota", `refused: ${count} of ${count} today`);
       return Response.json(
         {
-          error: `Anonymous buyers get ${Tiers.anonymousDailyLimit} haikus a day. Verify an email or use an API key for more.`,
+          error: `Anonymous buyers get ${count} haikus a day. Verify an email or use an API key for more.`,
         },
         { status: 429 },
       );
     }
   }
-
   // step: charge
   const verifier = tiers.verifiers[tier];
-  const result = await mppx.charge({
-    amount: Tiers.prices[tier],
-    description: `A ${tier} haiku`,
-    ...(verifier && { identity: [verifier] }),
-  })(request);
+  const result = await mppx
+    .charge({
+      amount: Tiers.prices[tier],
+      description: `A ${tier} haiku`,
+      ...(verifier && { identity: [verifier] }),
+    })(request)
+    .catch(async (error: unknown) => {
+      if (quota && reserved !== undefined) await release(app.store, quota);
+      throw error;
+    });
+  if (result.status === 402 && quota && reserved !== undefined)
+    await release(app.store, quota);
 
   // step: identity.required
   if (result.status === 402 && result.rejection) {
@@ -267,10 +280,9 @@ async function haiku(
   const poem = await Haiku.write(profile, { env, topic, trace });
 
   // step: charge.settled
-  // Counted after payment: only paid haikus use up the day's allowance.
-  const remaining = quota
-    ? Tiers.anonymousDailyLimit - (await countOne(app.store, quota))
-    : undefined;
+  // Reserved before payment: only paid haikus use up the day's allowance.
+  const remaining =
+    reserved !== undefined ? Tiers.anonymousDailyLimit - reserved : undefined;
   const response = result.withReceipt(
     Response.json({
       remaining,
@@ -291,7 +303,7 @@ async function haiku(
 
 /** Today's quota counter for the caller's IP (or IPv6 /64). */
 function quotaKey(request: Request) {
-  return `quota:${Issuer.prefix(Issuer.clientIp(request))}`;
+  return `quota:${Issuer.clientKey(request)}`;
 }
 
 type Quota = { day: string; used: number };
@@ -306,13 +318,30 @@ async function usedToday(store: Issuer.Store, key: string) {
   return value?.day === today() ? value.used : 0;
 }
 
-/** Counts one more haiku today and returns the new total. */
-function countOne(store: Issuer.Store, key: string) {
+/** Reserves one more haiku today and returns the new total, or undefined at the limit. */
+function reserve(store: Issuer.Store, key: string) {
   const day = today();
   return store.update(key, (current) => {
     const value = current as Quota | null | undefined;
-    const used = (value?.day === day ? value.used : 0) + 1;
-    return { op: "set", result: used, value: { day, used } };
+    const used = value?.day === day ? value.used : 0;
+    if (used >= Tiers.anonymousDailyLimit)
+      return { op: "noop", result: undefined };
+    return { op: "set", result: used + 1, value: { day, used: used + 1 } };
+  });
+}
+
+/** Releases a reservation whose payment didn't go through. */
+function release(store: Issuer.Store, key: string) {
+  const day = today();
+  return store.update(key, (current) => {
+    const value = current as Quota | null | undefined;
+    if (value?.day !== day || value.used === 0)
+      return { op: "noop", result: undefined };
+    return {
+      op: "set",
+      result: undefined,
+      value: { day, used: value.used - 1 },
+    };
   });
 }
 

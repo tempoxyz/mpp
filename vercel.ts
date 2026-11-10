@@ -26,8 +26,11 @@ if (
 
 // The identity playground Worker (workers/identity-playground) at /playground/identity.
 // Optional: without it the rewrite is left out and the path 404s.
+// Production only: attestations are bound to https://mpp.dev, so preview hosts can't verify.
 const IDENTITY_PLAYGROUND_WORKER_ORIGIN =
-  process.env.IDENTITY_PLAYGROUND_WORKER_ORIGIN?.replace(/\/+$/, "");
+  process.env.VERCEL_ENV === "preview"
+    ? undefined
+    : process.env.IDENTITY_PLAYGROUND_WORKER_ORIGIN?.replace(/\/+$/, "");
 
 const REWRITES = [
   ...(MPP_SERVICES_MCP_WORKER_ORIGIN
