@@ -58,47 +58,48 @@ function label(tier: string) {
 export function App() {
   const f = useDemo();
   return (
-    <div className="page">
-      <main className="main">
-        <Nav f={f} />
-        <h1 className="title">
-          MPP Identity Playground<span className="accent">.</span>
-        </h1>
-        <div className="on">
-          <span>try as</span>
-          <div className="segments">
+    <>
+      <Nav f={f} />
+      <div className="page">
+        <main className="main">
+          <div className="intro">
+            <span className="label">Playground</span>
+            <h1 className="title">Identity</h1>
+            <p className="lede">
+              Buy a haiku. The more you prove, the less you pay and the more
+              personal it gets.
+            </p>
+          </div>
+          <div className="tabs">
             {tiers.map((t) => (
               <button
                 key={t.id}
-                className="segment"
+                className="tab"
                 data-active={t.id === f.tier}
-                data-tier={t.id}
                 onClick={() => f.setTier(t.id)}
                 type="button"
               >
                 {t.label}
                 {t.id !== "link" && (
-                  <span className="dim"> {f.config?.prices[t.id] ?? "…"}</span>
+                  <span className="price">
+                    {" "}
+                    {f.config?.prices[t.id] ?? "…"}
+                  </span>
                 )}
               </button>
             ))}
           </div>
-        </div>
-        <Panel f={f} />
-        <Requests f={f} />
-        <a
-          className="link"
-          href="https://mpp.dev"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Read the MPP docs →
-        </a>
-      </main>
-      <aside className="aside">
-        <Code f={f} />
-      </aside>
-    </div>
+          <Panel f={f} />
+          <Requests f={f} />
+          <a className="link" href="https://mpp.dev/overview">
+            Read the MPP docs →
+          </a>
+        </main>
+        <aside>
+          <Code f={f} />
+        </aside>
+      </div>
+    </>
   );
 }
 
@@ -106,32 +107,29 @@ type Demo = ReturnType<typeof useDemo>;
 
 function Nav({ f }: { f: Demo }) {
   return (
-    <nav className="nav">
-      <span className="nav-item" data-active>
-        Home
-      </span>
-      <a
-        className="nav-item"
-        href="https://mpp.dev"
-        rel="noreferrer"
-        target="_blank"
-      >
-        Docs
+    <header className="header">
+      <a aria-label="MPP" className="logo" href="https://mpp.dev">
+        <Logo />
       </a>
-      <a
-        className="nav-item"
-        href="https://github.com/tempoxyz/mpp/tree/main/workers/identity-playground"
-        rel="noreferrer"
-        target="_blank"
-      >
-        GitHub
-      </a>
-      {f.address && (
-        <button className="nav-item" onClick={f.unlink} type="button">
-          Unlink
-        </button>
-      )}
-    </nav>
+      <nav className="nav">
+        {f.address && (
+          <button className="nav-item" onClick={f.unlink} type="button">
+            Unlink
+          </button>
+        )}
+        <a className="nav-item" href="https://mpp.dev/overview">
+          Docs
+        </a>
+        <a
+          className="nav-item"
+          href="https://github.com/tempoxyz/mpp/tree/main/workers/identity-playground"
+          rel="noreferrer"
+          target="_blank"
+        >
+          GitHub
+        </a>
+      </nav>
+    </header>
   );
 }
 
@@ -139,6 +137,7 @@ function Nav({ f }: { f: Demo }) {
 function Panel({ f }: { f: Demo }) {
   return (
     <section className="panel">
+      <PanelHead name="haiku" />
       <div className="panel-body">
         {f.tier === "link" ? (
           <div className="warning">
@@ -169,9 +168,9 @@ function Panel({ f }: { f: Demo }) {
       </div>
       {!f.address ? (
         <div className="panel-row">
-          <span className="accent">❯</span>
+          <span className="prompt">❯</span>
           <button
-            className="link"
+            className="action"
             disabled={f.connect.isPending}
             onClick={f.link}
             type="button"
@@ -179,7 +178,7 @@ function Panel({ f }: { f: Demo }) {
             {f.connect.isPending ? "Linking…" : "Link Tempo Wallet"}
           </button>
           <span className="dim">or</span>
-          <button className="link" onClick={f.useTestWallet} type="button">
+          <button className="action" onClick={f.useTestWallet} type="button">
             use a test wallet
           </button>
         </div>
@@ -199,7 +198,7 @@ function Panel({ f }: { f: Demo }) {
         </span>
         {f.low && (
           <button
-            className="link"
+            className="action"
             disabled={f.funding}
             onClick={f.fund}
             type="button"
@@ -223,7 +222,7 @@ function Composer({ f }: { f: Demo }) {
           pending.resolve(f.code || pending.message?.code);
         }}
       >
-        <span className="accent">❯</span>
+        <span className="prompt">❯</span>
         <input
           aria-label="One-time code"
           className="input"
@@ -232,8 +231,8 @@ function Composer({ f }: { f: Demo }) {
           value={f.code}
           onChange={(e) => f.setCode(e.target.value)}
         />
-        <button className="kbd" type="submit">
-          VERIFY
+        <button className="button" type="submit">
+          Verify
         </button>
       </form>
     );
@@ -245,7 +244,7 @@ function Composer({ f }: { f: Demo }) {
         if (f.ready && !f.busy) f.buy();
       }}
     >
-      <span className="accent">❯</span>
+      <span className="prompt">❯</span>
       {f.tier === "email" && (
         <input
           aria-label="Email"
@@ -273,12 +272,12 @@ function Composer({ f }: { f: Demo }) {
       {f.tier === "link" && (
         <span className="input dim">needs a Link OAuth client</span>
       )}
-      <button className="kbd" disabled={!f.ready || f.busy} type="submit">
+      <button className="button" disabled={!f.ready || f.busy} type="submit">
         {f.busy
-          ? "PAYING…"
+          ? "Paying…"
           : f.tier === "link"
-            ? "NOT SET UP"
-            : `BUY HAIKU · ${f.price ?? "…"} OUSD`}
+            ? "Not set up"
+            : `Buy haiku · ${f.price ?? "…"} OUSD`}
       </button>
       <div className="topic">
         <span className="dim">topic</span>
@@ -331,7 +330,7 @@ function Requests({ f }: { f: Demo }) {
   if (f.hops.length === 0) return null;
   return (
     <div className="hops">
-      <div className="dim">Requests</div>
+      <div className="label">Requests</div>
       {f.hops.map((hop, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: the requests never reorder
         <div key={i} className="hop">
@@ -373,9 +372,7 @@ function CodePanel({
 }) {
   return (
     <section className="panel code">
-      <div className="panel-row panel-head">
-        <span>{name}</span>
-      </div>
+      <PanelHead name={name} />
       <div className="code-body">
         {old === now ? (
           <File file={{ contents: now, name }} options={codeOptions} />
@@ -627,8 +624,35 @@ function useDemo() {
 const codeOptions = {
   disableFileHeader: true,
   overflow: "wrap",
-  theme: "pierre-light",
+  theme: { dark: "pierre-dark", light: "pierre-light" },
+  themeType: "system",
 } as const;
+
+/** A terminal window's title bar, as on mpp.dev's demos. */
+function PanelHead({ name }: { name: string }) {
+  return (
+    <div className="panel-head">
+      <span aria-hidden className="dots">
+        <i />
+        <i />
+        <i />
+      </span>
+      <span>{name}</span>
+    </div>
+  );
+}
+
+/** mpp.dev's logo, in the current text color. */
+function Logo() {
+  return (
+    <svg fill="currentColor" viewBox="0 0 81.2195 18">
+      <title>MPP</title>
+      <path d="M33.1162 17.9828H29.2324V2.84079e-05H51.2711C52.7167 2.84079e-05 53.8884 1.17531 53.8884 2.62538V8.65536C53.8884 10.1054 52.7167 11.2807 51.2711 11.2807H33.7302C33.3911 11.2807 33.1162 11.5556 33.1162 11.8948V17.9828ZM33.9887 7.62911H49.1322C49.6143 7.62911 50.0047 7.2375 50.0047 6.754V4.52674C50.0047 4.04324 49.6143 3.65162 49.1322 3.65162H33.9887C33.5066 3.65162 33.1162 4.04324 33.1162 4.52674V6.754C33.1162 7.2375 33.5066 7.62911 33.9887 7.62911Z" />
+      <path d="M26.5978 17.9828H22.7141V5.6935C22.7141 5.30451 22.246 5.10892 21.9707 5.38284L16.511 10.8126C16.2658 11.0564 15.9347 11.1933 15.5897 11.1933H11.0099C10.6661 11.1933 10.3364 11.0577 10.0916 10.8157L4.62666 5.41609C4.35096 5.14349 3.88419 5.33952 3.88419 5.72763V17.9828H0V0H4.67988L11.8982 7.13351C12.0613 7.29496 12.2812 7.3851 12.5106 7.3851H14.0824C14.3123 7.3851 14.5334 7.29409 14.6966 7.13132L21.8669 0H26.5983V17.9828H26.5978Z" />
+      <path d="M60.4063 17.9828H56.5226V2.84079e-05H78.5612C80.0068 2.84079e-05 81.1786 1.17531 81.1786 2.62538V8.65536C81.1786 10.1054 80.0068 11.2807 78.5612 11.2807H61.0204C60.6812 11.2807 60.4063 11.5556 60.4063 11.8948V17.9828ZM61.2788 7.62911H76.4223C76.9044 7.62911 77.2948 7.2375 77.2948 6.754V4.52674C77.2948 4.04324 76.9044 3.65162 76.4223 3.65162H61.2788C60.7968 3.65162 60.4063 4.04324 60.4063 4.52674V6.754C60.4063 7.2375 60.7968 7.62911 61.2788 7.62911Z" />
+    </svg>
+  );
+}
 
 /** The anonymous client: every tier's code is this plus added lines. */
 const base = usage("anonymous", "");

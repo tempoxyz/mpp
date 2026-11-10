@@ -59,8 +59,6 @@ jobs:
 
       # The payee and issuer key: generated once with Foundry and stored only as a Worker secret.
       # Later deploys keep it, so attestations and the payee address stay stable.
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@dba66c27052e63476d886f22216e119ba7e615bf # v1.9.2
       - name: Set MPP_PRIVATE_KEY if missing
         working-directory: workers/identity-playground
         env:
@@ -73,7 +71,8 @@ jobs:
             echo "MPP_PRIVATE_KEY is already set"
             exit 0
           fi
-          key="$(cast wallet new --json | jq -r '[.. | .private_key? // empty][0]')"
+          # Foundry's pinned image, as mppx's CI uses it: the org's Actions allowlist refuses foundry-toolchain.
+          key="$(docker run --rm --entrypoint cast ghcr.io/foundry-rs/foundry@sha256:ede4c35d3e9310f6c77f09952cd666e17e4ee7cd5228290d8b4fc9d5cdd37eb1 wallet new --json | jq -r '[.. | .private_key? // empty][0]')"
           echo "::add-mask::$key"
           # Stop unless cast printed a private key: a renamed field would store "null".
           grep -Eqx "0x[0-9a-fA-F]{64}" <<< "$key"

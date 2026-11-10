@@ -118,6 +118,9 @@ export default {
       return new Request(incoming, { headers });
     })();
     const url = new URL(request.url);
+    // The bare Worker and the unslashed path open the playground.
+    if (url.pathname === "/" || url.pathname === base)
+      return Response.redirect(new URL(`${base}/`, url), 302);
     if (!url.pathname.startsWith(`${base}/`))
       return new Response("Not found", { status: 404 });
     url.pathname = url.pathname.slice(base.length);
