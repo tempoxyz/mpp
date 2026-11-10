@@ -358,9 +358,8 @@ button:disabled {
 }
 
 .coming-soon {
-  border-left: 2px solid #00d66f;
   color: #00d66f;
-  padding-left: 12px;
+  font-weight: 400;
 }
 .panel-row:has(.topic) {
   flex-wrap: wrap;
