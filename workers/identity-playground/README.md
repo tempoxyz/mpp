@@ -15,6 +15,8 @@ pnpm identity-playground:deploy  # build and wrangler deploy
 
 The **Deploy MPP identity playground** workflow deploys on pushes to `main` that touch this directory.
 
+mpp.dev serves the page itself (built with the site, cached at Vercel's edge until the next deploy), while its API still comes from this Worker, so the two deploy separately and can briefly run different commits. Keep the Worker's API backward compatible: add fields and routes rather than renaming or removing them, and remove one only after a deploy of mpp.dev that no longer uses it has gone out.
+
 ## Setup
 
 1. The deploy workflow generates the payee key with Foundry (`cast wallet new`) and stores it as the `MPP_PRIVATE_KEY` Worker secret the first time; later deploys keep it. To rotate, delete the secret and rerun the workflow.

@@ -9,12 +9,12 @@ import { createServer } from "vite";
 
 import { prerenderCode } from "../vite.config.ts";
 
-// The first state is a new visitor's: no stored test wallet.
-globalThis.localStorage ??= {
-  getItem: () => null,
-  removeItem: () => {},
-  setItem: () => {},
-};
+// The first state is a new visitor's: no stored test wallet. Replaced outright, since Node 25+
+// defines a localStorage of its own that throws without --localstorage-file.
+Object.defineProperty(globalThis, "localStorage", {
+  configurable: true,
+  value: { getItem: () => null, removeItem: () => {}, setItem: () => {} },
+});
 
 const root = new URL("..", import.meta.url).pathname;
 const vite = await createServer({

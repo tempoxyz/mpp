@@ -5,6 +5,10 @@ import { proxy } from "../../../identity-playground-proxy.ts";
  * public/), so Vercel's edge serves it. Each deploy is atomic, so the page and the assets it
  * names always match, and the edge keeps it until the next deploy. Without a build of the
  * playground (local dev), the page is proxied to the Worker like its API.
+ *
+ * The API stays on the Worker, which deploys separately, so a page can meet an older or newer
+ * Worker while either deploy is in flight: the Worker's API must only change in backward-
+ * compatible ways (see workers/identity-playground/README.md).
  */
 const built = Object.values(
   (
