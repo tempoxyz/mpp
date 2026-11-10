@@ -25,7 +25,7 @@ const MAINNET_PATTERNS = [
   /https:\/\/rpc\.tempo\.xyz/,
   /\btempo as tempoMainnet\b/,
   // mppx resolves an unpinned request to mainnet; mpp.dev charges on testnet
-  /\bmppx\s+https:\/\/mpp\.dev\/(?!.*--network\s+testnet)/,
+  /\bmppx\b(?![.\w])(?=.*\bmpp\.dev\/)(?!.*--network[\s=]+testnet)/,
 ] as const;
 
 async function listMdx(dir: string): Promise<string[]> {
