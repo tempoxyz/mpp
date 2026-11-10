@@ -76,7 +76,13 @@ require "mpp-rb"
 account = Mpp::Methods::Tempo::Account.from_env
 
 transport = Mpp::Client::Transport.new(
-  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+  methods: [
+    Mpp::Methods::Tempo.tempo(
+      account: account,
+      chain_id: 42431, # Tempo testnet (Moderato)
+      intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    ),
+  ],
 )
 
 response = transport.get("https://mpp.dev/api/ping/paid")
@@ -174,7 +180,13 @@ require "mpp-rb"
 account = Mpp::Methods::Tempo::Account.from_key("0x...")
 
 transport = Mpp::Client::Transport.new(
-  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+  methods: [
+    Mpp::Methods::Tempo.tempo(
+      account: account,
+      chain_id: 42431, # Tempo testnet (Moderato)
+      intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    ),
+  ],
 )
 
 log = ->(event, data) { puts({ event: event, **data }.to_json) }
