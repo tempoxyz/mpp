@@ -27,7 +27,7 @@ const MAINNET_PATTERNS = [
   // mppx resolves an unpinned request to mainnet; mpp.dev charges on testnet
   /\bmppx\b(?![.\w])(?=.*\bmpp\.dev\/)(?![^#]*--network[\s=]+testnet)/,
   // Paid requests to your own testnet server need the same pin
-  /\bmppx\b(?![.\w/-])(?!\s+(?:validate|discover|account|sessions|sign|init)\b)(?=[^#]*(?:<your-server>|\blocalhost\b|\b127\.0\.0\.1\b))(?![^#]*--network[\s=]+testnet)/,
+  /\bmppx\b(?![.\w/-])(?!\s+(?:validate|discover|account|sessions|sign|init)(?:\s|$))(?=[^#]*(?:<your-server>|\blocalhost\b|\b127\.0\.0\.1\b))(?![^#]*--network[\s=]+testnet)/,
 ] as const;
 
 async function listMdx(dir: string): Promise<string[]> {
