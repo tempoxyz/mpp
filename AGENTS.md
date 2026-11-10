@@ -14,6 +14,7 @@ pnpm check:markdown                     # audit generated Markdown output
 pnpm check:generated                    # src/pages.gen.ts matches pnpm generate:pages
 pnpm build                              # production build, type-checks every twoslash snippet; needs MPP_SECRET_KEY (CI uses a placeholder)
 pnpm mcp-services:check                 # workers/mcp-services Worker
+pnpm identity-playground:check          # workers/identity-playground Worker
 docker compose up -d --wait tempo && pnpm test:integration   # Tempo localnet integration tests
 ```
 
@@ -43,6 +44,7 @@ vocs.config.ts     — config file
 - `schemas/`: discovery and service directory schemas and data (`services.ts`, `mpp-proxy.json`, synced with `pnpm sync:mpp-proxy`).
 - `scripts/`: build-time generators (discovery, diagrams, CLI help, pages, OG images) and docs lint tests (`check-*.test.ts`).
 - `workers/mcp-services/`: the MPP Discovery Service MCP Worker.
+- `workers/identity-playground/`: the identity playground Worker at `mpp.dev/playground/identity`; `vercel.ts` rewrites it to `IDENTITY_PLAYGROUND_WORKER_ORIGIN`.
 - `integration/`, `e2e/`: localnet integration and terminal demo tests.
 - `public/AGENTS.md` is a published artifact, not guidance for this repository.
 - [MARKDOWN.md](./MARKDOWN.md): generated Markdown output rules.

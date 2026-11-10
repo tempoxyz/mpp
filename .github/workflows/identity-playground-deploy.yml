@@ -1,0 +1,59 @@
+name: Deploy MPP identity playground
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/identity-playground/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/identity-playground-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: identity-playground-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+env:
+  NODE_ENV: production
+  WRANGLER_SEND_METRICS: false
+
+jobs:
+  deploy:
+    name: mpp-identity-playground
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: production
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Secure runner
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
+      - run: pnpm identity-playground:check
+      - name: Check Cloudflare deploy environment
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || {
+            echo "CLOUDFLARE_ACCOUNT_ID GitHub Environment variable is required"
+            exit 1
+          }
+          test -n "$CLOUDFLARE_API_TOKEN" || {
+            echo "CLOUDFLARE_API_TOKEN GitHub Environment secret is required"
+            exit 1
+          }
+      - name: Deploy Worker
+        run: pnpm identity-playground:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+

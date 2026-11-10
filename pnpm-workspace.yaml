@@ -25,6 +25,8 @@ allowBuilds:
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - semver@6.3.1
+  # @pierre/diffs (the identity playground code panels) pins it; 2.0.0 shipped without provenance.
+  - "@pierre/theme@2.0.0"
 overrides:
   "zod@>=4.0.0 <4.6.6": "4.6.7"
   "fast-uri@>=3.0.0 <3.1.9": "3.1.9"

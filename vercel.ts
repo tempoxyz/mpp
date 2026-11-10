@@ -24,6 +24,41 @@ if (
   );
 }
 
+// The identity playground Worker (workers/identity-playground) at /playground/identity.
+// Optional: without it the rewrite is left out and the path 404s.
+// Production only: attestations are bound to https://mpp.dev, so preview hosts can't verify.
+const IDENTITY_PLAYGROUND_WORKER_ORIGIN =
+  process.env.VERCEL_ENV === "preview"
+    ? undefined
+    : process.env.IDENTITY_PLAYGROUND_WORKER_ORIGIN?.replace(/\/+$/, "");
+
+const REWRITES = [
+  ...(MPP_SERVICES_MCP_WORKER_ORIGIN
+    ? [
+        rewriteRule(
+          "/mcp/services",
+          `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+        ),
+        rewriteRule(
+          "/mcp/services/:path*",
+          `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+        ),
+      ]
+    : []),
+  ...(IDENTITY_PLAYGROUND_WORKER_ORIGIN
+    ? [
+        rewriteRule(
+          "/playground/identity",
+          `${IDENTITY_PLAYGROUND_WORKER_ORIGIN}/playground/identity/`,
+        ),
+        rewriteRule(
+          "/playground/identity/:path*",
+          `${IDENTITY_PLAYGROUND_WORKER_ORIGIN}/playground/identity/:path*`,
+        ),
+      ]
+    : []),
+];
+
 const CONTENT_NEGOTIATION_HEADERS = [header("Vary", "Accept, User-Agent")];
 
 const API_CATALOG_HEADERS = [
@@ -114,20 +149,7 @@ export const config = {
       ]),
     ),
   ],
-  ...(MPP_SERVICES_MCP_WORKER_ORIGIN
-    ? {
-        rewrites: [
-          rewriteRule(
-            "/mcp/services",
-            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
-          ),
-          rewriteRule(
-            "/mcp/services/:path*",
-            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
-          ),
-        ],
-      }
-    : {}),
+  ...(REWRITES.length > 0 ? { rewrites: REWRITES } : {}),
   redirects: [
     {
       source: "/index",

@@ -1,0 +1,283 @@
+/* CommitMono on off-white, one orange accent, square panels. */
+@font-face {
+  font-display: swap;
+  font-family: CommitMono;
+  font-style: normal;
+  font-weight: 200 700;
+  src: url("/fonts/CommitMono-VF.woff2") format("woff2");
+}
+
+:root {
+  --bg: #fafafa;
+  --ink: #141414;
+  --dim: #737373;
+  --accent: #ea4c0a;
+  --panel: #ffffff;
+  --line: #e5e5e5;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    13px / 17px CommitMono,
+    ui-monospace,
+    monospace;
+  margin: 0;
+}
+
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.page {
+  display: grid;
+  gap: 48px;
+  grid-template-columns: minmax(0, 504px) minmax(0, 1fr);
+  min-height: 100vh;
+  padding: 16px 32px 48px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.aside {
+  padding-top: 56px;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+.nav-item {
+  color: var(--ink);
+  line-height: 17px;
+  padding: 0;
+  text-decoration: none;
+}
+.nav-item[data-active] {
+  background: var(--ink);
+  box-shadow: 0 2px 0 var(--accent);
+  color: var(--bg);
+}
+.nav-item:hover:not([data-active]) {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  margin: 40px 0 0;
+}
+.accent {
+  color: var(--accent);
+}
+.dim {
+  color: var(--dim);
+}
+.ink {
+  color: var(--ink);
+}
+.error {
+  color: #b42318;
+}
+
+.link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  width: fit-content;
+}
+
+.on {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+.segments {
+  border: 1px solid var(--line);
+  display: flex;
+}
+.segment {
+  padding: 4px 8px;
+}
+.segment + .segment {
+  border-left: 1px solid var(--line);
+}
+.segment[data-active="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+.segment[data-active="true"] .dim {
+  color: var(--line);
+}
+.segment[data-tier="link"] {
+  background: #00d66f;
+  color: #011e0f;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 200px;
+  padding: 16px;
+}
+.panel-row {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  min-height: 33px;
+  padding: 6px 16px;
+}
+.panel-head {
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  justify-content: space-between;
+}
+.panel-foot {
+  justify-content: space-between;
+}
+.placeholder {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.input {
+  background: none;
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+}
+.input::placeholder {
+  color: var(--dim);
+}
+.kbd {
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  line-height: 14px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+.kbd:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.haiku {
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.hops {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hop {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+}
+.hop-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-status="ok"] {
+  color: #2f7d32;
+}
+[data-status="pay"] {
+  color: var(--accent);
+}
+
+.code-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: calc(100vh - 88px);
+  position: sticky;
+  top: 16px;
+}
+.code {
+  flex: 1;
+  min-height: 0;
+}
+.code-body {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+}
+.code-body * {
+  --diffs-font-family: CommitMono, ui-monospace, monospace;
+  --diffs-bg: var(--panel);
+}
+
+@media (max-width: 960px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aside {
+    padding-top: 0;
+  }
+  .code-stack {
+    height: auto;
+    position: static;
+  }
+}
+
+.warning {
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+  padding-left: 10px;
+}
+.panel-row:has(.topic) {
+  flex-wrap: wrap;
+}
+.topic {
+  align-items: center;
+  display: flex;
+  flex-basis: 100%;
+  gap: 8px;
+  padding-left: 18px;
+}
