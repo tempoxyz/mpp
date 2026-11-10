@@ -44,7 +44,7 @@ vocs.config.ts     — config file
 - `schemas/`: discovery and service directory schemas and data (`services.ts`, `mpp-proxy.json`, synced with `pnpm sync:mpp-proxy`).
 - `scripts/`: build-time generators (discovery, diagrams, CLI help, pages, OG images) and docs lint tests (`check-*.test.ts`).
 - `workers/mcp-services/`: the MPP Discovery Service MCP Worker.
-- `workers/identity-playground/`: the identity playground Worker at `mpp.dev/playground/identity`; `vercel.ts` rewrites it to `IDENTITY_PLAYGROUND_WORKER_ORIGIN`.
+- `workers/identity-playground/`: the identity playground Worker at `mpp.dev/playground/identity`; `vercel.ts` rewrites it to the deployed Worker (`IDENTITY_PLAYGROUND_WORKER_ORIGIN` overrides it).
 - `integration/`, `e2e/`: localnet integration and terminal demo tests.
 - `public/AGENTS.md` is a published artifact, not guidance for this repository.
 - [MARKDOWN.md](./MARKDOWN.md): generated Markdown output rules.
