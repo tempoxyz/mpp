@@ -1,7 +1,8 @@
 // Renders the page's first state into dist's index.html, so it paints before any JavaScript
 // runs; main.tsx then renders over it. Runs after vite build (see package.json).
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -16,7 +17,8 @@ Object.defineProperty(globalThis, "localStorage", {
   value: { getItem: () => null, removeItem: () => {}, setItem: () => {} },
 });
 
-const root = new URL("..", import.meta.url).pathname;
+// fileURLToPath, not .pathname: a checkout path with spaces or non-ASCII characters stays intact.
+const root = fileURLToPath(new URL("..", import.meta.url));
 const vite = await createServer({
   appType: "custom",
   base: "/playground/identity/",
@@ -43,11 +45,6 @@ try {
     join(root, "dist/client/playground/identity", css[1]),
     "utf8",
   );
-  // Fetch the code panes' highlighter with the page rather than after main.tsx runs.
-  const codeView = readdirSync(
-    join(root, "dist/client/playground/identity/assets"),
-  ).find((name) => /^CodeView-.*\.js$/.test(name));
-  if (!codeView) throw new Error("dist has no CodeView chunk to preload");
   writeFileSync(
     file,
     html
@@ -63,14 +60,10 @@ try {
                 font +
                 '.woff2">',
             )
-            .join(""),
-      )
-      .replace(
-        "</head>",
-        () =>
-          '<link rel="modulepreload" crossorigin href="/playground/identity/assets/' +
-          codeView +
-          '">\n</head>',
+            .join("") +
+          // The Worker's config (prices, limits) with the page, not after the wallet chunks:
+          // Buy waits on it. Same request as App.tsx's fetch, so the browser reuses it.
+          '<link rel="preload" as="fetch" crossorigin href="/playground/identity/api/config">',
       )
       // Inline, and keep a link that never applies (media="not all"): Vite's loader for lazy
       // chunks checks for it, and would otherwise add the stylesheet again, which re-fetches

@@ -336,29 +336,62 @@ button:disabled {
   overflow: auto;
   padding: 8px;
 }
-/* The fallback and the highlighter share one cell; the highlighter shows once it has painted. */
-.code-body > * {
-  grid-area: 1 / 1;
-  min-width: 0;
-}
-.code-layer[data-painted="false"] {
-  visibility: hidden;
-}
-.code-fallback {
-  color: var(--dim);
+.code-lines {
+  color: #adbac7;
   font-family: var(--mono);
   font-size: 13px;
   line-height: 20px;
   margin: 0;
-  padding: 0 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 8px 0;
   white-space: pre-wrap;
 }
-.code-prerendered {
-  color: #adbac7;
+.code-plain {
+  padding: 8px;
 }
-.code-body * {
-  --diffs-font-family: var(--mono);
-  --diffs-bg: var(--panel);
+/* A 6px gutter, then the line; a change's bar runs down the gutter's first 4px. */
+.code-line {
+  min-height: 20px;
+  padding: 0 8px 0 14px;
+  position: relative;
+}
+.code-lines:not([data-diff]) .code-line {
+  padding-left: 8px;
+}
+.code-changed {
+  border-radius: 3px;
+}
+[data-change="add"] > .code-changed {
+  background: rgb(85 170 90 / 20%);
+}
+[data-change="del"] > .code-changed {
+  background: rgb(229 83 75 / 20%);
+}
+/* An explanation's row, between lines. */
+.code-note {
+  background: #272727;
+  display: flow-root;
+}
+.code-line[data-change]::before {
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 4px;
+}
+.code-line[data-change="add"] {
+  background: linear-gradient(90deg, #222b21 6px, #263326 6px);
+}
+.code-line[data-change="add"]::before {
+  background: #57ab5a;
+}
+.code-line[data-change="del"] {
+  background: linear-gradient(90deg, #352420 6px, #3e2622 6px);
+}
+.code-line[data-change="del"]::before {
+  background: linear-gradient(0deg, #3d2723 50%, #e5534b 50%) 0 0 / 4px 4px;
 }
 
 @media (max-width: 960px) {
@@ -417,6 +450,7 @@ button:disabled {
   line-height: 1.5;
   margin: 8px 16px;
   padding: 8px 12px;
+  white-space: normal;
 }
 
 .header .logo {
