@@ -331,9 +331,18 @@ button:disabled {
   min-height: 0;
 }
 .code-body {
+  display: grid;
   flex: 1;
   overflow: auto;
   padding: 8px;
+}
+/* The fallback and the highlighter share one cell; the highlighter shows once it has painted. */
+.code-body > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.code-layer[data-painted="false"] {
+  visibility: hidden;
 }
 .code-fallback {
   color: var(--dim);

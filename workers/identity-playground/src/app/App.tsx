@@ -4,6 +4,7 @@ import {
   lazy,
   type ReactNode,
   Suspense,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -115,7 +116,7 @@ export function App() {
           <Panel f={f} />
           <Requests f={f} />
           <a className="link" href="https://mpp.dev/extensions/identity">
-            Read the docs →
+            Read the MPP docs →
           </a>
         </main>
         <aside>
@@ -416,6 +417,8 @@ function CodePanel({
   old: string;
 }) {
   const [explain, setExplain] = useState(false);
+  const [painted, setPainted] = useState(false);
+  const onPaint = useCallback(() => setPainted(true), []);
   const annotations = explain ? explanations(now) : [];
   return (
     <section className="panel code">
@@ -430,19 +433,23 @@ function CodePanel({
         </button>
       </PanelHead>
       <div className="code-body">
-        <LoadBoundary
-          fallback={<CodeFallback name={name} now={now} old={old} />}
-        >
-          <Suspense fallback={<CodeFallback name={name} now={now} old={old} />}>
-            <CodeView
-              annotations={annotations}
-              name={name}
-              now={now}
-              old={old}
-              renderAnnotation={renderExplanation}
-            />
-          </Suspense>
-        </LoadBoundary>
+        {/* The fallback stays on screen until the highlighter has painted the code beneath it,
+            so the pane never shows empty lines while Shiki starts. */}
+        {!painted && <CodeFallback name={name} now={now} old={old} />}
+        <div className="code-layer" data-painted={painted}>
+          <LoadBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <CodeView
+                annotations={annotations}
+                name={name}
+                now={now}
+                old={old}
+                onPaint={onPaint}
+                renderAnnotation={renderExplanation}
+              />
+            </Suspense>
+          </LoadBoundary>
+        </div>
       </div>
     </section>
   );
