@@ -68,6 +68,8 @@ MACH-enabled Challenges use the canonical swapper to pay the requested stablecoi
 
 [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) in `mppx/tempo` lists canonical token and swapper addresses.
 
+If the account holds neither enough MACH nor the stablecoin, payment fails with an insufficient-balance error. On mainnet, point the user to the MACH onramp—see [When the buyer has no MACH](/payment-methods/tempo/charge#when-the-buyer-has-no-mach).
+
 ### Cap each payment
 
 Set a currency allowlist and amount cap before paying an API you don't control.
