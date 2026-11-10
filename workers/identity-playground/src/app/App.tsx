@@ -80,7 +80,7 @@ export function App() {
           <WalletBridge onChange={f.setWallet} />
         </Suspense>
       </LoadBoundary>
-      <Nav f={f} />
+      <Nav />
       <div className="page">
         <main className="main">
           <div className="intro">
@@ -128,18 +128,13 @@ export function App() {
 
 type Demo = ReturnType<typeof useDemo>;
 
-function Nav({ f }: { f: Demo }) {
+function Nav() {
   return (
     <header className="header">
       <a aria-label="MPP" className="logo" href="https://mpp.dev">
         <Logo />
       </a>
       <nav aria-label="Main navigation" className="nav">
-        {f.address && (
-          <button className="nav-item" onClick={f.unlink} type="button">
-            Unlink
-          </button>
-        )}
         {[
           ["Docs", "https://mpp.dev/overview"],
           ["SDKs", "https://mpp.dev/sdk"],
@@ -239,7 +234,22 @@ function Panel({ f }: { f: Demo }) {
       ) : (
         <Composer f={f} />
       )}
-      {!f.address && f.wallet.error && (
+      {f.address && !f.wallet.connected && (
+        // With no unlink action, linking is how a test-wallet visitor switches to a real
+        // wallet: a linked wallet's address takes precedence over the test one.
+        <div className="panel-row">
+          <span className="dim">Using a test wallet ·</span>
+          <button
+            className="action"
+            disabled={!f.wallet.ready || f.wallet.linking}
+            onClick={f.link}
+            type="button"
+          >
+            {f.wallet.linking ? "Linking…" : "Link Tempo Wallet"}
+          </button>
+        </div>
+      )}
+      {!f.wallet.connected && f.wallet.error && (
         <div className="panel-row error">{f.wallet.error.message}</div>
       )}
     </section>
@@ -573,14 +583,6 @@ function useDemo() {
       .catch((e) => setError(`Couldn't create a test wallet: ${String(e)}`));
   }
 
-  function unlink() {
-    if (wallet.connected) wallet.disconnect();
-    localStorage.removeItem("fortune.key");
-    localStorage.removeItem("fortune.address");
-    setTestKey(null);
-    setTestAddress(undefined);
-  }
-
   async function payer(): Promise<Client.Options["wallet"]> {
     const linked = (await wallet.mppx()) as
       | Client.Options["wallet"]
@@ -727,7 +729,6 @@ function useDemo() {
     source,
     tier,
     topic,
-    unlink,
     useTestWallet,
     wallet,
   };
