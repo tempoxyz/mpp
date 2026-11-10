@@ -248,6 +248,17 @@ type SessionReceipt = {
 }
 ```
 
+### Production checklist
+
+- **Use a persistent store**: replace `Store.memory()` with a durable, atomic store so channel state survives restarts and scales across instances. See [`tempo.session`](/sdk/typescript/server/Method.tempo.session).
+- **Close idle channels**: run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes with few open channels) so idle channels close and buyers get unspent funds back. See [Close supervision](/payment-methods/tempo/session#close-supervision).
+- **Settle streams on a schedule**: set `settlementSchedule` on `tempo.session()` so SSE and WebSocket charges settle without waiting for close.
+- **Monitor settlement failures**: use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to alert on failures. Retryable failures leave the charge due for a later settlement.
+- **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
+- **Charge dynamic amounts**: pass a `bigint` in base units, such as `stream.charge(2_000n)`, to price one event differently from the route's tick cost.
+- **Use WebSocket for bidirectional streams**: serve with [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) and connect with [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
+- **Go live**: before going live, set `chainId: 4217` and fund a mainnet account.
+
 ## Client
 
 Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create`. It handles both one-time charges and Sessions: on a Session Challenge it opens a channel, signs vouchers, and reuses the channel across requests. `maxDeposit` caps how much it locks up per channel.
