@@ -15,7 +15,11 @@ const EXCLUDED_DIRS = ["src/pages/blog"] as const;
 const ALLOWLIST: readonly string[] = [];
 
 const MAINNET_PATTERNS = [
-  /\bchainId:\s*4217\b/,
+  // chainId, allowedChainIds, expectedChainId, chain_id, ChainID, ...
+  /(?:chain_?ids?)\s*[:=]\s*\[?\s*4217\b/i,
+  /\beip155:4217\b/,
+  /\bchain:\s*tempo\b(?!Moderato)/,
+  /\bimport\s*\{[^}]*\btempo\b(?!Moderato)[^}]*\}\s*from\s*['"]viem\/chains['"]/,
   /\btestnet:\s*false\b/,
   /--network mainnet/,
   /https:\/\/rpc\.tempo\.xyz/,
