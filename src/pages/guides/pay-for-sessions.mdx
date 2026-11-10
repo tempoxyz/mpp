@@ -152,7 +152,7 @@ await session.close()
 
 ## Close the session
 
-Your deposit stays reserved until the channel closes. Closing needs the channel's stored state. Make the requests and the close on the same manager, or on managers that share a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore):
+Your deposit stays reserved until the channel closes. Make the requests and the close on the same manager. A new manager that shares a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) loads the channel only on its next request; `close()` before that does nothing and the deposit stays reserved.
 
 ```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
