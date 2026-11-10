@@ -544,7 +544,7 @@ export default defineConfig({
         ],
       },
       {
-        text: "Sell",
+        text: "For sellers",
         items: [
           { text: "One-time", link: "/guides/one-time-payments" },
           { text: "Usage-based", link: "/guides/usage-based" },
@@ -566,7 +566,7 @@ export default defineConfig({
         ],
       },
       {
-        text: "Buy",
+        text: "For buyers",
         items: [
           {
             text: "Agents",
