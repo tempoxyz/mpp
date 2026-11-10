@@ -7,10 +7,7 @@ import { createConfig, http } from "wagmi";
 import { tempoModerato } from "wagmi/chains";
 import { tempoWallet } from "wagmi/connectors";
 
-/** OUSD on Tempo: what haiku are priced in. */
-export const ousd = "0x20c0000000000000000000006a37DA5C996874BE" as const;
-/** pathUSD on Moderato: OUSD can't pay fees, so the wallet pays them in pathUSD. */
-export const pathUsd = "0x20c0000000000000000000000000000000000000" as const;
+import { ousd, pathUsd } from "./wallet-state.js";
 
 export const config = createConfig({
   chains: [tempoModerato],

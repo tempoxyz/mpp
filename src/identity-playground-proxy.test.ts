@@ -81,4 +81,31 @@ describe("/playground/identity proxy", () => {
     expect(response.status).toBe(404);
     expect(calls).toHaveLength(0);
   });
+
+  it("caches hashed assets for good and the page briefly", async () => {
+    vi.stubEnv("VERCEL_ENV", "production");
+    stubFetch();
+
+    const asset = await proxy(
+      new Request("https://mpp.dev/playground/identity/assets/index-abc123.js"),
+    );
+    expect(asset.headers.get("cache-control")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+    expect(asset.headers.get("vercel-cdn-cache-control")).toBe(
+      "max-age=31536000",
+    );
+
+    const page = await proxy(
+      new Request("https://mpp.dev/playground/identity"),
+    );
+    expect(page.headers.get("vercel-cdn-cache-control")).toBe(
+      "max-age=60, stale-while-revalidate=300",
+    );
+
+    const api = await proxy(
+      new Request("https://mpp.dev/playground/identity/api/config"),
+    );
+    expect(api.headers.get("vercel-cdn-cache-control")).toBeNull();
+  });
 });
