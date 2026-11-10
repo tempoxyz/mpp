@@ -2,7 +2,6 @@
 export type Wallet = {
   address: `0x${string}` | undefined;
   connected: boolean;
-  disconnect: () => void;
   error: Error | undefined;
   link: () => void;
   linking: boolean;
@@ -16,7 +15,6 @@ export type Wallet = {
 export const unloaded: Wallet = {
   address: undefined,
   connected: false,
-  disconnect: () => {},
   error: undefined,
   link: () => {},
   linking: false,
