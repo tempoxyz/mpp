@@ -136,6 +136,82 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  {
+    id: "influship",
+    name: "Influship",
+    url: "https://www.influship.com",
+    serviceUrl: "https://api.influship.com",
+    description:
+      "Find creators by campaign brief and research public Instagram, TikTok, and YouTube profiles and content. Pay per request with USDC on Tempo or with Stripe when the quote is at least $0.50.",
+    icon: "https://www.influship.com/favicon-256x256.png",
+    categories: ["data", "search", "social"],
+    integration: "first-party",
+    tags: ["creator-search", "influencer-marketing", "instagram", "tiktok", "youtube", "transcripts"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.influship.com/guides/mpp",
+      llmsTxt: "https://docs.influship.com/llms.txt",
+      apiReference: "https://api.influship.com/openapi.json",
+    },
+    provider: { name: "Influship", url: "https://www.influship.com" },
+    realm: "api.influship.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/search",
+        desc: "Find Instagram creators by topic, content style, and campaign fit.",
+        docs: "https://docs.influship.com/concepts/semantic-search",
+        dynamic: true,
+        amountHint: "$0.30 + $0.024 per requested result, rounded up to cents. Limit 1–100.",
+        healthCheck: {"body": {"query": "fitness creators in Austin", "limit": 25, "filters": {"followers": {"min": 10000}}}},
+      },
+      {
+        route: "GET /v1/creators/autocomplete",
+        desc: "Get creator suggestions from a partial name or handle.",
+        docs: "https://docs.influship.com/api-reference",
+        amount: "10000",
+        healthCheck: {"path": "/v1/creators/autocomplete?q=fitness&limit=10"},
+      },
+      {
+        route: "POST /v1/profiles/lookup",
+        desc: "Resolve a batch of known public profiles by platform and username.",
+        docs: "https://docs.influship.com/concepts/creators-vs-profiles",
+        dynamic: true,
+        amountHint: "$0.0012 per profile, rounded up to cents with a $0.01 minimum.",
+        healthCheck: {"body": {"profiles": [{"platform": "instagram", "username": "cristiano"}]}},
+      },
+      {
+        route: "GET /v1/raw/instagram/profile/:username",
+        desc: "Get a public Instagram profile with optional recent posts.",
+        docs: "https://docs.influship.com/guides/download-instagram-videos",
+        amount: "10000",
+        healthCheck: {"path": "/v1/raw/instagram/profile/cristiano?include_posts=false&post_limit=5"},
+      },
+      {
+        route: "GET /v1/raw/tiktok/search/videos",
+        desc: "Find public TikTok videos by keyword, with pagination.",
+        docs: "https://docs.influship.com/guides/tiktok-live-data",
+        amount: "10000",
+        healthCheck: {"path": "/v1/raw/tiktok/search/videos?query=cooking"},
+      },
+      {
+        route: "GET /v1/raw/youtube/search",
+        desc: "Find public YouTube videos by keyword, with pagination.",
+        docs: "https://docs.influship.com/guides/youtube-live-data",
+        amount: "10000",
+        healthCheck: {"path": "/v1/raw/youtube/search?q=beginner+marathon+training&limit=5"},
+      },
+      {
+        route: "GET /v1/raw/youtube/transcript/:video_id",
+        desc: "Retrieve captions and timestamped segments for a public YouTube video.",
+        docs: "https://docs.influship.com/guides/youtube-live-data",
+        amount: "10000",
+        healthCheck: {"path": "/v1/raw/youtube/transcript/dQw4w9WgXcQ?language=auto"},
+      },
+    ],
+  },
+
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
