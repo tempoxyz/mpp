@@ -251,7 +251,7 @@ type SessionReceipt = {
 ### Production checklist
 
 - **Use a persistent store**: replace `Store.memory()` with a durable, atomic store so channel state survives restarts and scales across instances. See [`tempo.session`](/sdk/typescript/server/Method.tempo.session).
-- **Close idle channels**: run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes with few open channels) so idle channels close and buyers get unspent funds back. See [Close supervision](/payment-methods/tempo/session#close-supervision).
+- **Answer close requests**: run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes with few open channels) so every buyer close request gets a payee close that captures spend and refunds the rest. It doesn't close idle channels nobody asked to close. See [Close supervision](/payment-methods/tempo/session#close-supervision).
 - **Settle streams on a schedule**: set `settlementSchedule` on `tempo.session()` so SSE and WebSocket charges settle without waiting for close.
 - **Monitor settlement failures**: use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to alert on failures. Retryable failures leave the charge due for a later settlement.
 - **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
