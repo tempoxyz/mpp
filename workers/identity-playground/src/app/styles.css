@@ -344,6 +344,9 @@ button:disabled {
   padding: 0 8px;
   white-space: pre-wrap;
 }
+.code-prerendered {
+  color: #adbac7;
+}
 .code-body * {
   --diffs-font-family: var(--mono);
   --diffs-bg: var(--panel);

@@ -1,3 +1,4 @@
+import prerendered from "virtual:prerendered-code";
 import {
   Component,
   lazy,
@@ -429,8 +430,10 @@ function CodePanel({
         </button>
       </PanelHead>
       <div className="code-body">
-        <LoadBoundary fallback={<pre className="code-fallback">{now}</pre>}>
-          <Suspense fallback={<pre className="code-fallback">{now}</pre>}>
+        <LoadBoundary
+          fallback={<CodeFallback name={name} now={now} old={old} />}
+        >
+          <Suspense fallback={<CodeFallback name={name} now={now} old={old} />}>
             <CodeView
               annotations={annotations}
               name={name}
@@ -443,6 +446,31 @@ function CodePanel({
       </div>
     </section>
   );
+}
+
+/**
+ * What a code pane shows until the highlighter loads: the build-time highlighted sample while
+ * the code is still that sample, or else the plain source.
+ */
+function CodeFallback({
+  name,
+  now,
+  old,
+}: {
+  name: string;
+  now: string;
+  old: string;
+}) {
+  const pane = prerendered[name];
+  if (pane && old === now && pane.source === now)
+    return (
+      <pre
+        className="code-fallback code-prerendered"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted at build time from the page's own samples
+        dangerouslySetInnerHTML={{ __html: pane.html }}
+      />
+    );
+  return <pre className="code-fallback">{now}</pre>;
 }
 
 function renderExplanation({ metadata }: { metadata: string }) {
