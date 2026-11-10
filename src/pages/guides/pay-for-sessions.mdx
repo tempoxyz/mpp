@@ -176,7 +176,7 @@ console.log(receipt?.spent)
 
 - Close when you're done with the API, not between requests.
 - `close()` must run on the same manager instance. To reuse channels across restarts, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore).
-- If a seller stops responding, you can still request a close on-chain and withdraw the full deposit after Tempo's 900-second grace period. See [close supervision](/payment-methods/tempo/session#close-supervision).
+- If a seller stops responding, you can still request a close on-chain. After Tempo's 900-second grace period, you withdraw whatever the seller hasn't settled; it can still settle what you spent until then. See [close supervision](/payment-methods/tempo/session#close-supervision).
 
 ## Go live
 
