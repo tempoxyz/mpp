@@ -205,7 +205,9 @@ function Panel({ f }: { f: Demo }) {
           <span className="prompt">❯</span>
           <button
             className="action"
-            disabled={f.wallet.linking}
+            // Until the wallet stack loads, link can't open the wallet: replaying the click
+            // later would lose its user gesture, so the button waits instead.
+            disabled={!f.wallet.ready || f.wallet.linking}
             onClick={f.link}
             type="button"
           >
