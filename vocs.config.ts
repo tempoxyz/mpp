@@ -5,6 +5,186 @@ import { transformMarkdownOutput } from "./scripts/markdown-output.ts";
 import remarkMppMarkdown from "./scripts/remark-mpp-markdown.ts";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
+// Pages merged into their parent page. Each also redirects its Markdown
+// URL (/page.md) to the parent's Markdown, which has no anchors.
+const mergedPageRedirects = [
+  {
+    source: "/payment-methods/evm/charge",
+    destination: "/payment-methods/evm#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/card/charge",
+    destination: "/payment-methods/card#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stripe/charge",
+    destination: "/payment-methods/stripe#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/lightning/charge",
+    destination: "/payment-methods/lightning#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/lightning/session",
+    destination: "/payment-methods/lightning#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/solana/charge",
+    destination: "/payment-methods/solana#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/solana/session",
+    destination: "/payment-methods/solana#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/xrpl/charge",
+    destination: "/payment-methods/xrpl#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/xrpl/session",
+    destination: "/payment-methods/xrpl#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stellar/charge",
+    destination: "/payment-methods/stellar#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stellar/session",
+    destination: "/payment-methods/stellar#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/monad/charge",
+    destination: "/payment-methods/monad#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/nearintents/charge",
+    destination: "/payment-methods/nearintents#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/redotpay/charge",
+    destination: "/payment-methods/redotpay#charge",
+    status: 308,
+  },
+  {
+    source: "/guides/pay-as-you-go",
+    destination: "/guides/usage-based#per-request",
+    status: 308,
+  },
+  {
+    source: "/guides/streamed-payments",
+    destination: "/guides/usage-based#streaming",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/http",
+    destination: "/protocol/transports#http",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/mcp",
+    destination: "/protocol/transports#mcp-and-json-rpc",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/websocket",
+    destination: "/protocol/transports#websocket",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/email-otp",
+    destination: "/extensions/identity#email-otp",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/agent-signatures",
+    destination: "/extensions/identity#agent-signatures",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/custom",
+    destination: "/extensions/identity#your-own-identity-provider",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/payer",
+    destination: "/extensions/identity#payer-identity",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/core",
+    destination: "/sdk/python#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/client",
+    destination: "/sdk/python#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/server",
+    destination: "/sdk/python#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/core",
+    destination: "/sdk/rust#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/client",
+    destination: "/sdk/rust#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/server",
+    destination: "/sdk/rust#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/core",
+    destination: "/sdk/go#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/client",
+    destination: "/sdk/go#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/server",
+    destination: "/sdk/go#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/core",
+    destination: "/sdk/ruby#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/client",
+    destination: "/sdk/ruby#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/server",
+    destination: "/sdk/ruby#server",
+    status: 308,
+  },
+];
+
 const baseUrl = (() => {
   if (process.env.VERCEL_ENV === "production")
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
@@ -98,182 +278,12 @@ export default defineConfig({
       destination: "/payment-methods/stripe",
     },
 
-    // Pages merged into their parent page
-    {
-      source: "/payment-methods/evm/charge",
-      destination: "/payment-methods/evm#charge",
+    ...mergedPageRedirects,
+    ...mergedPageRedirects.map(({ source, destination }) => ({
+      source: `${source}.md`,
+      destination: `${destination.split("#")[0]}.md`,
       status: 308,
-    },
-    {
-      source: "/payment-methods/card/charge",
-      destination: "/payment-methods/card#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/stripe/charge",
-      destination: "/payment-methods/stripe#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/lightning/charge",
-      destination: "/payment-methods/lightning#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/lightning/session",
-      destination: "/payment-methods/lightning#session",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/solana/charge",
-      destination: "/payment-methods/solana#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/solana/session",
-      destination: "/payment-methods/solana#session",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/xrpl/charge",
-      destination: "/payment-methods/xrpl#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/xrpl/session",
-      destination: "/payment-methods/xrpl#session",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/stellar/charge",
-      destination: "/payment-methods/stellar#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/stellar/session",
-      destination: "/payment-methods/stellar#session",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/monad/charge",
-      destination: "/payment-methods/monad#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/nearintents/charge",
-      destination: "/payment-methods/nearintents#charge",
-      status: 308,
-    },
-    {
-      source: "/payment-methods/redotpay/charge",
-      destination: "/payment-methods/redotpay#charge",
-      status: 308,
-    },
-    {
-      source: "/guides/pay-as-you-go",
-      destination: "/guides/usage-based#per-request",
-      status: 308,
-    },
-    {
-      source: "/guides/streamed-payments",
-      destination: "/guides/usage-based#streaming",
-      status: 308,
-    },
-    {
-      source: "/protocol/transports/http",
-      destination: "/protocol/transports#http",
-      status: 308,
-    },
-    {
-      source: "/protocol/transports/mcp",
-      destination: "/protocol/transports#mcp-and-json-rpc",
-      status: 308,
-    },
-    {
-      source: "/protocol/transports/websocket",
-      destination: "/protocol/transports#websocket",
-      status: 308,
-    },
-    {
-      source: "/extensions/identity/email-otp",
-      destination: "/extensions/identity#email-otp",
-      status: 308,
-    },
-    {
-      source: "/extensions/identity/agent-signatures",
-      destination: "/extensions/identity#agent-signatures",
-      status: 308,
-    },
-    {
-      source: "/extensions/identity/custom",
-      destination: "/extensions/identity#your-own-identity-provider",
-      status: 308,
-    },
-    {
-      source: "/extensions/identity/payer",
-      destination: "/extensions/identity#payer-identity",
-      status: 308,
-    },
-    {
-      source: "/sdk/python/core",
-      destination: "/sdk/python#core-types",
-      status: 308,
-    },
-    {
-      source: "/sdk/python/client",
-      destination: "/sdk/python#client",
-      status: 308,
-    },
-    {
-      source: "/sdk/python/server",
-      destination: "/sdk/python#server",
-      status: 308,
-    },
-    {
-      source: "/sdk/rust/core",
-      destination: "/sdk/rust#core-types",
-      status: 308,
-    },
-    {
-      source: "/sdk/rust/client",
-      destination: "/sdk/rust#client",
-      status: 308,
-    },
-    {
-      source: "/sdk/rust/server",
-      destination: "/sdk/rust#server",
-      status: 308,
-    },
-    {
-      source: "/sdk/go/core",
-      destination: "/sdk/go#core-types",
-      status: 308,
-    },
-    {
-      source: "/sdk/go/client",
-      destination: "/sdk/go#client",
-      status: 308,
-    },
-    {
-      source: "/sdk/go/server",
-      destination: "/sdk/go#server",
-      status: 308,
-    },
-    {
-      source: "/sdk/ruby/core",
-      destination: "/sdk/ruby#core-types",
-      status: 308,
-    },
-    {
-      source: "/sdk/ruby/client",
-      destination: "/sdk/ruby#client",
-      status: 308,
-    },
-    {
-      source: "/sdk/ruby/server",
-      destination: "/sdk/ruby#server",
-      status: 308,
-    },
+    })),
 
     // Protocol concept shortcuts
     { source: "/402", destination: "/protocol/http-402" },
