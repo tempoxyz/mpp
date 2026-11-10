@@ -24,17 +24,6 @@ if (
   );
 }
 
-// The identity playground Worker (workers/identity-playground) at /playground/identity.
-// IDENTITY_PLAYGROUND_WORKER_ORIGIN overrides the deployed Worker's origin.
-// Production only: attestations are bound to https://mpp.dev, so preview hosts can't verify.
-const IDENTITY_PLAYGROUND_WORKER_ORIGIN =
-  process.env.VERCEL_ENV === "preview"
-    ? undefined
-    : (
-        process.env.IDENTITY_PLAYGROUND_WORKER_ORIGIN ||
-        "https://mpp-identity-playground.porto.workers.dev"
-      ).replace(/\/+$/, "");
-
 const REWRITES = [
   ...(MPP_SERVICES_MCP_WORKER_ORIGIN
     ? [
@@ -45,18 +34,6 @@ const REWRITES = [
         rewriteRule(
           "/mcp/services/:path*",
           `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
-        ),
-      ]
-    : []),
-  ...(IDENTITY_PLAYGROUND_WORKER_ORIGIN
-    ? [
-        rewriteRule(
-          "/playground/identity",
-          `${IDENTITY_PLAYGROUND_WORKER_ORIGIN}/playground/identity/`,
-        ),
-        rewriteRule(
-          "/playground/identity/:path*",
-          `${IDENTITY_PLAYGROUND_WORKER_ORIGIN}/playground/identity/:path*`,
         ),
       ]
     : []),
