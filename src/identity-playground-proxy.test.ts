@@ -82,7 +82,7 @@ describe("/playground/identity proxy", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it("caches hashed assets for good and the page briefly", async () => {
+  it("caches hashed assets for good and never the page", async () => {
     vi.stubEnv("VERCEL_ENV", "production");
     stubFetch();
 
@@ -99,9 +99,7 @@ describe("/playground/identity proxy", () => {
     const page = await proxy(
       new Request("https://mpp.dev/playground/identity"),
     );
-    expect(page.headers.get("vercel-cdn-cache-control")).toBe(
-      "max-age=60, stale-while-revalidate=300",
-    );
+    expect(page.headers.get("vercel-cdn-cache-control")).toBe("no-store");
 
     const api = await proxy(
       new Request("https://mpp.dev/playground/identity/api/config"),

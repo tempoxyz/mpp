@@ -1,4 +1,5 @@
 import {
+  Component,
   lazy,
   type ReactNode,
   Suspense,
@@ -19,6 +20,20 @@ const loadClient = () => import("../client.js");
 const loadChain = () => import("./chain.js");
 const loadReceipt = () => import("mppx").then((m) => m.Receipt);
 const WalletBridge = lazy(() => import("./WalletBridge.js"));
+
+/** Shows the fallback if a lazy chunk fails to load (a network error, a blocker, a stale tab after a deploy), instead of unmounting the page. */
+class LoadBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
 type Tier = "anonymous" | "email" | "apiKey" | "link";
 /** The Worker's active tiers; Link is not implemented yet. */
@@ -59,9 +74,11 @@ export function App() {
   const f = useDemo();
   return (
     <>
-      <Suspense fallback={null}>
-        <WalletBridge onChange={f.setWallet} />
-      </Suspense>
+      <LoadBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <WalletBridge onChange={f.setWallet} />
+        </Suspense>
+      </LoadBoundary>
       <Nav f={f} />
       <div className="page">
         <main className="main">
@@ -412,15 +429,17 @@ function CodePanel({
         </button>
       </PanelHead>
       <div className="code-body">
-        <Suspense fallback={<pre className="code-fallback">{now}</pre>}>
-          <CodeView
-            annotations={annotations}
-            name={name}
-            now={now}
-            old={old}
-            renderAnnotation={renderExplanation}
-          />
-        </Suspense>
+        <LoadBoundary fallback={<pre className="code-fallback">{now}</pre>}>
+          <Suspense fallback={<pre className="code-fallback">{now}</pre>}>
+            <CodeView
+              annotations={annotations}
+              name={name}
+              now={now}
+              old={old}
+              renderAnnotation={renderExplanation}
+            />
+          </Suspense>
+        </LoadBoundary>
       </div>
     </section>
   );
@@ -441,14 +460,18 @@ function useDemo() {
     () =>
       (localStorage.getItem("fortune.address") as Address | null) ?? undefined,
   );
+  // Once viem loads, derive the address from the key, correcting a stored address that
+  // doesn't match it (another version of the page may have replaced the key).
   useEffect(() => {
-    if (!testKey || testAddress) return;
-    loadChain().then(({ privateKeyToAccount }) => {
-      const { address } = privateKeyToAccount(testKey);
-      localStorage.setItem("fortune.address", address);
-      setTestAddress(address);
-    });
-  }, [testKey, testAddress]);
+    if (!testKey) return;
+    loadChain()
+      .then(({ privateKeyToAccount }) => {
+        const { address } = privateKeyToAccount(testKey);
+        localStorage.setItem("fortune.address", address);
+        setTestAddress(address);
+      })
+      .catch((e) => setError(`Couldn't load the test wallet: ${String(e)}`));
+  }, [testKey]);
   const address = wallet.address ?? (testKey ? testAddress : undefined);
 
   const [config, setConfig] = useState<Config>();
@@ -510,14 +533,16 @@ function useDemo() {
   }
 
   function useTestWallet() {
-    loadChain().then(({ generatePrivateKey, privateKeyToAccount }) => {
-      const key = generatePrivateKey();
-      const { address } = privateKeyToAccount(key);
-      localStorage.setItem("fortune.key", key);
-      localStorage.setItem("fortune.address", address);
-      setTestKey(key);
-      setTestAddress(address);
-    });
+    loadChain()
+      .then(({ generatePrivateKey, privateKeyToAccount }) => {
+        const key = generatePrivateKey();
+        const { address } = privateKeyToAccount(key);
+        localStorage.setItem("fortune.key", key);
+        localStorage.setItem("fortune.address", address);
+        setTestKey(key);
+        setTestAddress(address);
+      })
+      .catch((e) => setError(`Couldn't create a test wallet: ${String(e)}`));
   }
 
   function unlink() {

@@ -19,7 +19,8 @@ const BASE = "/playground/identity";
 /**
  * How long browsers and Vercel's CDN keep each response, so repeat visits skip the
  * function and the Worker. Vite's assets are content-hashed, so they never change;
- * the fonts rarely do; the page is short-lived, since a Worker deploy replaces its assets.
+ * the fonts rarely do. The page is never cached: a Worker deploy replaces the assets
+ * it names, so a stale copy would load chunks that no longer exist.
  */
 function cacheControl(pathname: string) {
   if (pathname.startsWith(`${BASE}/assets/`))
@@ -30,10 +31,7 @@ function cacheControl(pathname: string) {
   if (pathname.startsWith(`${BASE}/fonts/`))
     return { browser: "public, max-age=86400", cdn: "max-age=604800" };
   if (pathname === BASE || pathname === `${BASE}/`)
-    return {
-      browser: "public, max-age=0, must-revalidate",
-      cdn: "max-age=60, stale-while-revalidate=300",
-    };
+    return { browser: "no-cache", cdn: "no-store" };
   return undefined;
 }
 
