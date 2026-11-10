@@ -7,12 +7,13 @@ import { LogoLottie } from "./LogoLottie";
 import { useWipeHover } from "./useWipeHover";
 import { WipeBands } from "./WipeBands";
 
-export type ActiveKey = "blog" | "docs" | "sdks" | "services";
+export type ActiveKey = "blog" | "docs" | "playground" | "sdks" | "services";
 
 const links = [
   { href: "/overview", key: "docs" as const, label: "Docs" },
   { href: "/sdk", key: "sdks" as const, label: "SDKs" },
   { href: "/services", key: "services" as const, label: "Services" },
+  { href: "/playground", key: "playground" as const, label: "Playground" },
   { href: "/blog", key: "blog" as const, label: "Blog" },
 ];
 const sdks = [
@@ -136,7 +137,7 @@ export function Header({
             <LogoLottie className="block aspect-[763/74] w-[206px] max-w-full overflow-hidden" />
           </Link>
 
-          <nav className="hidden flex-wrap items-center justify-end gap-2 min-[880px]:flex">
+          <nav className="hidden flex-wrap items-center justify-end gap-2 min-[1080px]:flex">
             {navItems.map((item) => (
               <NavLink active={active} item={item} key={item.label} />
             ))}
@@ -146,7 +147,7 @@ export function Header({
           <button
             aria-expanded={menuOpen}
             aria-label="Open menu"
-            className={cx(tagClass, "ml-auto min-[880px]:hidden")}
+            className={cx(tagClass, "ml-auto min-[1080px]:hidden")}
             onClick={() => setMenuOpen(true)}
             type="button"
           >
@@ -160,7 +161,7 @@ export function Header({
         <div
           aria-label="Site menu"
           aria-modal="true"
-          className="fixed inset-0 z-[90] flex flex-col bg-[#101010] min-[880px]:hidden"
+          className="fixed inset-0 z-[90] flex flex-col bg-[#101010] min-[1080px]:hidden"
           role="dialog"
         >
           <div className="flex items-center justify-between px-4 py-4">

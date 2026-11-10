@@ -1369,6 +1369,7 @@ export default defineConfig({
       match: (path) => Boolean(path?.startsWith("/sdk")),
     },
     { text: "Services", link: "/services" },
+    { text: "Playground", link: "/playground" },
     { text: "Blog", link: "/blog" },
     { text: "IETF Specification", link: "https://paymentauth.org" },
     {

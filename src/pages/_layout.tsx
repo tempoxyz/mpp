@@ -237,6 +237,9 @@ function MobileNav() {
         <a href="/services" onClick={closeMenu}>
           Services
         </a>
+        <a href="/playground" onClick={closeMenu}>
+          Playground
+        </a>
         <a href="/blog" onClick={closeMenu}>
           Blog
         </a>
