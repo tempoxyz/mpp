@@ -30,7 +30,7 @@ await provider.request({ method: 'wallet_connect' })
 
 const session = tempo.session.manager({
   account: provider.getAccount({ signable: true }),
-  allowedChainIds: [4217], // Tempo mainnet
+  allowedChainIds: [42431], // Tempo testnet (Moderato)
   getClient: provider.getClient,
   maxDeposit: '1',
 })
@@ -59,7 +59,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 
 const session = tempo.session.manager({
   account,
-  allowedChainIds: [4217], // Tempo mainnet
+  allowedChainIds: [42431], // Tempo testnet (Moderato)
   maxDeposit: '1',
 })
 

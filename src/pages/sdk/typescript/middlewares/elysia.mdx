@@ -41,7 +41,7 @@ Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment h
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const app = new Elysia()
   .guard(
@@ -62,7 +62,7 @@ Put multiple routes inside the same `.guard()` callback to apply one payment con
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] }) // [!code hl]
 
 const app = new Elysia()
   .guard(
@@ -89,7 +89,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),

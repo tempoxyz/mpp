@@ -39,7 +39,7 @@ Mppx.create({
     // [!code focus:start]
     tempo({
       account: provider.getAccount({ signable: true }),
-      allowedChainIds: [4217], // Tempo mainnet
+      allowedChainIds: [42431], // Tempo testnet (Moderato)
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -59,7 +59,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo({ account, allowedChainIds: [4217] }), // Tempo mainnet
+    tempo({ account, allowedChainIds: [42431] }), // Tempo testnet (Moderato)
     // [!code focus:end]
   ],
 })

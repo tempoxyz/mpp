@@ -1,5 +1,5 @@
 ---
-description: "Build a subscription-gated API with MPP. Let clients authorize recurring stablecoin payments and reuse access across requests."
+description: "Bill buyers on a recurring schedule with MPP. Buyers authorize stablecoin payments once and keep access across requests."
 imageDescription: "Build recurring paid API access"
 ---
 
@@ -8,7 +8,9 @@ import { Tab, Tabs } from 'vocs'
 
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Create and manage subscriptions [Recurring access for paid APIs]
+# Bill on a schedule with subscriptions [Recurring access for paid APIs]
+
+Use this when you bill buyers on a recurring schedule, such as a weekly or monthly plan. For one-off paid requests, use [Charge](/guides/one-time-payments). For metered usage, use [Session](/guides/usage-based).
 
 ## Choose a signing account
 
@@ -19,9 +21,9 @@ Build a subscription-gated API that charges $1 for access using `mppx` and Tempo
 
 ## Overview
 
-Subscriptions separate access from billing. The client authorizes recurring access once, then keeps using the paid API without paying again on every request.
+Subscriptions separate access from billing. The buyer authorizes recurring access once, then keeps using the paid API without paying again on every request.
 
-Your server stores the subscription after the first payment succeeds. Later requests prove the same payer signed the request, check the stored subscription, and return the protected response when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before clients return. This keeps normal API requests simple while recurring payments happen asynchronously.
+The seller's server stores the subscription after the first payment succeeds. Later requests prove the same payer signed the request, check the stored subscription, and return the protected response when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before buyers return. This keeps normal API requests simple while recurring payments happen asynchronously.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -139,9 +141,9 @@ export async function GET(request: Request) {
 }
 ```
 
-The first unpaid request returns `402`. After the client activates the subscription, the same route returns `200` with a `Payment-Receipt` header.
+The first unpaid request returns `402`. After the buyer activates the subscription, the same route returns `200` with a `Payment-Receipt` header.
 
-## Configure the client
+## Configure the buyer's client
 
 Register `tempo.subscription()` on the client. The SDK handles the `402` response, signs the key authorization, and retries the request.
 
@@ -194,7 +196,7 @@ console.log(response.status)
 
 ### Cancel a subscription
 
-Cancellation is a server-side state change. Have the client call your cancellation endpoint, then mark the active subscription record with `canceledAt`; the next paid request returns `402` and requires a new subscription activation.
+Cancellation is a server-side state change. Have the buyer call your cancellation endpoint, then mark the active subscription record with `canceledAt`; the next paid request returns `402` and requires a new subscription activation.
 
 ```ts [client.ts]
 await fetch('/api/subscription/cancel', {
@@ -226,11 +228,11 @@ Keep the canceled record instead of deleting it. That preserves Receipts and pre
 
 ### Revoke the access key
 
-On Tempo, clients can also revoke the authorized access key. Do this after server cancellation when you want a wallet-level backstop against future renewals.
+On Tempo, buyers can also revoke the authorized access key. Do this after server cancellation when you want a wallet-level backstop against future renewals.
 
 ```ts twoslash [revoke.ts]
 import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Actions } from 'viem/tempo'
 
@@ -238,8 +240,8 @@ const client = createClient({
   account: privateKeyToAccount(
     '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
   ),
-  chain: tempo,
-  transport: http(),
+  chain: tempoModerato,
+  transport: http('https://rpc.moderato.tempo.xyz'),
 })
 
 await Actions.accessKey.revokeSync(client, {
@@ -247,7 +249,7 @@ await Actions.accessKey.revokeSync(client, {
 })
 ```
 
-Revoking the access key doesn't cancel the merchant-side subscription record. If the client only revokes the key, the server can still reuse an already-paid period until it tries to renew.
+Revoking the access key doesn't cancel the seller-side subscription record. If the buyer only revokes the key, the server can still reuse an already-paid period until it tries to renew.
 
 ### Renew in the background
 
@@ -275,6 +277,7 @@ if (result) console.log(result.receipt.status)
 - Set `subscriptionExpires` to the maximum authorization lifetime you accept.
 - Add webhook or cron coverage for background renewals if access must stay warm.
 - Persist `subscriptionId` and `externalId` in your app database for support and reconciliation.
+- Before going live, remove `testnet: true` and fund a mainnet account.
 
 ## Next steps
 

@@ -50,7 +50,7 @@ That makes MPP the recommended choice for APIs and agents that need to evolve be
 
 ## Payment methods
 
-x402 focuses on on-chain payments across registered networks and schemes. That's useful when your clients already have compatible wallets and your service wants blockchain settlement.
+x402 focuses on on-chain payments across registered networks and schemes. That's useful when your buyers already have compatible wallets and your service wants blockchain settlement.
 
 MPP keeps the same stablecoin path, but it also supports non-stablecoin methods. A single endpoint can advertise:
 
@@ -59,13 +59,13 @@ MPP keeps the same stablecoin path, but it also supports non-stablecoin methods.
 - [Lightning payments](/payment-methods/lightning)
 - [custom payment methods](/payment-methods/custom)
 
-This matters if you want to serve agents and human-operated apps, or if you don't want your API monetization strategy tied to blockchain settlement.
+This matters if you want to serve agents, apps, and people, or if you don't want your API monetization strategy tied to blockchain settlement.
 
 ## Sessions and micropayments
 
 x402 supports fixed-price `exact`, usage-based `upto`, and EVM `batch-settlement` schemes. Batch settlement funds a channel and uses off-chain vouchers for repeated requests. See the [x402 payment schemes](https://docs.x402.org/getting-started/quickstart-for-sellers#payment-schemes-exact-upto-and-batch-settlement).
 
-MPP defines session billing as a payment intent within the same Challenge–Credential–Receipt framework used by other payment methods. A client funds a session, sends signed off-chain vouchers per request, and lets the server settle the net result later. That makes [micropayments](/use-cases/micropayments), streaming APIs, and token-metered usage practical without changing the HTTP authentication model.
+MPP defines session billing as a payment intent within the same Challenge–Credential–Receipt framework used by other payment methods. A buyer funds a session, sends signed off-chain vouchers per request at near-zero latency and cost, and the seller settles the net result later. That makes [micropayments](/use-cases/micropayments), streaming APIs, and token-metered usage practical without changing the HTTP authentication model.
 
 Use MPP when you want one client and server interface across session and one-time payments or across different payment rails. Use x402 batch settlement when its supported EVM networks and on-chain model match your deployment.
 
@@ -90,7 +90,7 @@ Choose **MPP** if:
 Choose **x402** if:
 
 - you exclusively want on-chain payments
-- your clients use x402-compatible wallets and schemes
+- your buyers use x402-compatible wallets and schemes
 - `exact`, `upto`, or EVM `batch-settlement` matches your billing model
 - you want to use the x402 facilitator and extension ecosystem directly
 
@@ -99,6 +99,6 @@ Choose **x402** if:
 <Cards>
   <Card title="Use MPP with x402" description="Run x402 inline with an MPP route" to="/guides/use-mpp-with-x402" />
   <Card title="Protocol overview" description="Learn the core Challenge-Credential-Receipt flow" to="/protocol" />
-  <Card title="Accept pay-as-you-go payments" description="Use sessions for high-frequency APIs" to="/guides/usage-based#per-request" />
+  <Card title="Session" description="Use sessions for high-frequency APIs" to="/guides/usage-based" />
   <SpecCard to="https://paymentauth.org" />
 </Cards>

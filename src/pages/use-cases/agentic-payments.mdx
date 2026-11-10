@@ -19,7 +19,7 @@ When an agent encounters a paid service today, it has two options: fail, or wait
 
 MPP uses [HTTP `402`](/protocol/http-402) to create a three-step payment flow built for machines:
 
-1. **Challenge**—The agent requests a resource. The server responds with `402 Payment Required` and a Challenge describing the price and accepted payment methods.
+1. **Challenge**—The agent, as the buyer, requests a resource. The seller's server responds with `402 Payment Required` and a Challenge describing the price and accepted payment methods.
 2. **Credential**—The agent selects a payment method—stablecoins, card, or Lightning—and constructs a Credential proving payment.
 3. **Receipt**—The server verifies the Credential, fulfills the request, and returns a Receipt confirming the transaction.
 
@@ -36,7 +36,7 @@ This all happens in a single HTTP round-trip. The agent doesn't need pre-provisi
 ## Next steps
 
 <Cards>
-  <Card title="Add payments to your API" description="Charge for API access" to="/quickstart/server" />
-  <Card title="Use with agents" description="Connect your agent to paid APIs" to="/quickstart/agent" />
+  <Card title="Server quickstart" description="Charge for API access" to="/quickstart/server" />
+  <Card title="Use with agents" description="Connect your coding agent to paid APIs" to="/quickstart/agent" />
   <Card title="Protocol overview" description="Learn how MPP works" to="/overview" />
 </Cards>

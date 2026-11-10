@@ -8,7 +8,7 @@ Creates a server-side payment handler from a method.
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
 })
 ```
 
@@ -33,6 +33,7 @@ const payment = Mppx.create({
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       decimals: 6,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      testnet: true,
     }),
   ],
 })
@@ -56,7 +57,7 @@ Set `requiresAuth: true` when `Authorization` already carries an application Cre
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   requiresAuth: true,
 })
 
@@ -77,6 +78,7 @@ import { Mppx, stripe, tempo } from 'mppx/server'
 const OUSD = '0x20c0000000000000000000006a37DA5C996874BE' // OUSD on Tempo
 const charge = tempo.charge({
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  testnet: true,
 })
 const card = stripe.spt({
   decimals: 2,
@@ -111,7 +113,7 @@ Use a custom transport for non-HTTP environments like MCP servers.
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   transport: Transport.mcpSdk(),
 })
 ```
@@ -124,7 +126,7 @@ Register hooks on the returned `payment` instance to observe Challenges, success
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
 })
 
 payment.onChallengeCreated(({ challenge, request }) => {
@@ -184,7 +186,7 @@ Use `validateCredential` to pre-check a Credential without consuming payment sta
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const validation = await mppx.validateCredential('Payment credential="..."')
 console.log(validation.source)
@@ -208,7 +210,7 @@ const tap = Tap.Server.verifier({
   keyResolver({ keyId }) { return trustedAgentKeys.get(keyId) },
   nonceStore: Store.memory(),
 })
-const payment = Mppx.create({ methods: [tempo.charge()] })
+const payment = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 const charge = payment.charge({ amount: '1', identity: [tap] }) // [!code hl]
 ```
 
@@ -246,7 +248,7 @@ const kyc: Identity.PaymentCheck<{ subject: string }> = {
   },
 }
 // [!code hl:end]
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 const charge = mppx.charge({ amount: '1', identity: { payment: kyc } })
 ```
 
@@ -272,7 +274,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
   // [!code focus:start]
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   // [!code focus:end]
 })
 ```
@@ -288,7 +290,7 @@ Server realm (for example, hostname). Auto-detected from common platform environ
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   realm: 'mpp.dev', // [!code focus]
 })
 ```
@@ -311,7 +313,7 @@ Secret key for HMAC-bound Challenge IDs. Enables stateless verification—the se
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   secretKey: process.env.MPP_SECRET_KEY!, // [!code focus]
 })
 ```
@@ -335,7 +337,7 @@ Transport to use for handling payment requests.
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
   transport: Transport.mcp(), // [!code focus]
 })
 ```

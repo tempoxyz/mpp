@@ -27,7 +27,7 @@ Mppx.create({
     // [!code focus:start]
     tempo.charge({
       account: provider.getAccount({ signable: true }),
-      allowedChainIds: [4217], // Tempo mainnet
+      allowedChainIds: [42431], // Tempo testnet (Moderato)
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -49,7 +49,7 @@ const account = privateKeyToAccount('0xabc…123')
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo.charge({ account, allowedChainIds: [4217] }), // Tempo mainnet
+    tempo.charge({ account, allowedChainIds: [42431] }), // Tempo testnet (Moderato)
     // [!code focus:end]
   ],
 })
@@ -78,7 +78,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.charge({
   account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
-  allowedChainIds: [4217], // Tempo mainnet
+  allowedChainIds: [42431], // Tempo testnet (Moderato)
   // [!code hl:start]
   currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
   decimals: 6,
@@ -224,7 +224,7 @@ await provider.request({ method: 'wallet_connect' })
 const method = tempo.charge({
   account: provider.getAccount({ signable: true }),
   getClient: provider.getClient,
-  expectedChainId: 4217, // Tempo mainnet // [!code focus]
+  expectedChainId: 42431, // Tempo testnet (Moderato) // [!code focus]
 })
 ```
 
@@ -237,7 +237,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.charge({
   account: privateKeyToAccount('0xabc…123'),
-  expectedChainId: 4217, // Tempo mainnet // [!code focus]
+  expectedChainId: 42431, // Tempo testnet (Moderato) // [!code focus]
 })
 ```
 

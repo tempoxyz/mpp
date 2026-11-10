@@ -31,9 +31,12 @@ Add `middleware` for `reqwest-middleware`, `axum` for the Axum extractor, or `ws
 use mpp::server::{tempo, Mpp, TempoConfig};
 use mpp::{format_www_authenticate_many, parse_authorization};
 
-let payment = Mpp::create(tempo(TempoConfig {
-    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}))?;
+let payment = Mpp::create(
+    tempo(TempoConfig {
+        recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    })
+    .rpc_url("https://rpc.moderato.tempo.xyz"), // Tempo testnet (Moderato)
+)?;
 
 let challenges = payment.charge("0.50")?;
 let headers = format_www_authenticate_many(&challenges)?;
@@ -52,7 +55,7 @@ use mpp::client::{Fetch, TempoProvider};
 use mpp::PrivateKeySigner;
 
 let signer: PrivateKeySigner = "0xac0974bec...".parse()?;
-let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+let provider = TempoProvider::new(signer, "https://rpc.moderato.tempo.xyz")?;
 
 let response = reqwest::Client::new()
     .get("https://api.example.com/paid")
@@ -62,6 +65,10 @@ let response = reqwest::Client::new()
 ```
 
 The default `AcceptPaymentPolicy::Explicit` pays only when the request has an `Accept-Payment` header. This keeps requests to untrusted URLs from authorizing payment implicitly.
+
+:::info[Go live]
+Before going live, drop the Moderato `rpc_url` (the default is Tempo mainnet) and fund a mainnet account.
+:::
 
 ## Feature flags
 
@@ -196,7 +203,7 @@ mpp = { version = "0.18.1", features = ["client", "middleware", "tempo"] }
 use mpp::client::{PaymentMiddleware, TempoProvider};
 use reqwest_middleware::ClientBuilder;
 
-let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+let provider = TempoProvider::new(signer, "https://rpc.moderato.tempo.xyz")?;
 let client = ClientBuilder::new(reqwest::Client::new())
     .with(PaymentMiddleware::new(provider))
     .build();
@@ -216,7 +223,7 @@ Request-level payment authorization is still required with middleware. Default h
 use mpp::client::{MultiProvider, TempoProvider};
 
 let provider = MultiProvider::new()
-    .with(TempoProvider::new(signer, "https://rpc.tempo.xyz")?);
+    .with(TempoProvider::new(signer, "https://rpc.moderato.tempo.xyz")?);
 ```
 
 `MultiProvider` selects by method and intent while preserving the order of the client's `Accept-Payment` preferences.

@@ -101,7 +101,7 @@ export function LandingPage() {
 
           <div className="relative z-10 flex max-w-[560px] flex-col gap-8 md:max-w-[978px] md:gap-[38px]">
             <h1 className="font-sans !text-[28px] !font-normal !leading-[1.1] !tracking-[-0.56px] text-offwhite min-[640px]:!text-[32px] min-[640px]:!tracking-[-0.64px] min-[1000px]:!text-[48px] min-[1000px]:!leading-none min-[1000px]:!tracking-[-1.44px]">
-              MPP lets agents pay for services on the
+              MPP lets any buyer pay any seller on the
               <br className="hidden min-[1000px]:block" /> web, extensible to
               any payment method.
             </h1>
@@ -111,10 +111,10 @@ export function LandingPage() {
                 href="/quickstart/agent"
                 variant="primary"
               >
-                Use with your agent
+                Use with agents
               </Button>
               <Button className="w-full sm:w-auto" href="/quickstart/server">
-                Add payments to your API
+                Charge for your API
               </Button>
             </div>
           </div>
@@ -229,7 +229,7 @@ Object.assign(LandingPage, {
       {
         type: "text",
         value:
-          "MPP lets agents pay for services on the web, extensible to any payment method. ",
+          "MPP lets any buyer pay any seller on the web, extensible to any payment method. ",
       },
       {
         children: [{ type: "text", value: "Read the quickstart" }],

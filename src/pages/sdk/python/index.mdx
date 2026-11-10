@@ -36,6 +36,7 @@ from mpp.server import Mpp, pay
 app = FastAPI()
 payment = Mpp(
     methods=tempo.charge(
+        chain_id=42431,  # Tempo testnet (Moderato)
         recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
 )
@@ -62,7 +63,7 @@ from mpp.methods.tempo import client as tempo
 account = TempoAccount.from_key("0x...")
 method = tempo.charge(
     account=account,
-    allowed_chain_ids=[4217],
+    allowed_chain_ids=[42431],  # Tempo testnet (Moderato)
     currency=OUSD,
     max_amount="0.50",
     max_amount_decimals=6,
@@ -77,6 +78,10 @@ async with Mpp(
 ```
 
 `allowed_origins` authorizes automatic payment only to exact HTTP origins. An empty list disables automatic payment. Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
+
+:::info[Go live]
+Before going live, set `chain_id=4217` (Tempo mainnet) on the server, set `allowed_chain_ids=[4217]` on the client, and fund a mainnet account.
+:::
 
 ## Core types
 

@@ -213,8 +213,18 @@ describe("permanent content redirects", () => {
       }))
       .sort((a, b) => a.source.localeCompare(b.source));
 
+    // Pages merged into a parent (anchored destination) also redirect their
+    // Markdown URL to the parent's Markdown.
+    const markdownTwins = permanentContentMoves
+      .filter(({ destination }) => destination.includes("#"))
+      .map(({ source, destination }) => ({
+        source: `${source}.md`,
+        destination: `${destination.split("#")[0]}.md`,
+        status: 308,
+      }));
+
     expect(redirects).toEqual(
-      [...permanentContentMoves].sort((a, b) =>
+      [...permanentContentMoves, ...markdownTwins].sort((a, b) =>
         a.source.localeCompare(b.source),
       ),
     );

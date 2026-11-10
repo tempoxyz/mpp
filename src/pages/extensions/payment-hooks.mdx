@@ -57,7 +57,7 @@ Server handlers are awaited inline and sequentially on the payment request path.
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge(), tempo.session()],
+  methods: [tempo.charge({ testnet: true }), tempo.session({ chainId: 42431 })],
 })
 
 payment.onChallengeCreated(({ challenge, method, request }) => { // [!code hl]
@@ -106,8 +106,9 @@ const payment = Mppx.create({
           reference: receipt.reference,
         })
       },
+      testnet: true,
     }),
-    tempo.session(),
+    tempo.session({ chainId: 42431 }),
   ],
 })
 ```
@@ -233,7 +234,7 @@ Use `method.intent === 'session'` on server hooks or `challenge.intent === 'sess
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.session()],
+  methods: [tempo.session({ chainId: 42431 })],
 })
 
 payment.onPaymentSuccess(({ method, receipt, request }) => { // [!code hl]
@@ -315,7 +316,7 @@ Each hook registration returns an unsubscribe function. Keep the function when a
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo.charge({ testnet: true })],
 })
 
 const unsubscribe = payment.onPaymentSuccess(({ receipt }) => {

@@ -931,7 +931,7 @@ export function ServicesPage({
 
               <div className="hidden space-y-5 group-open:block">
                 <AgentSetupPrompt
-                  manualSetupHref="/quickstart/agent#manual-setup"
+                  manualSetupHref="/quickstart/agent#set-up-with-the-tempo-cli"
                   variant="marketing"
                 />
 

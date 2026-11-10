@@ -344,10 +344,11 @@ $ bun add -g mppx
 ```
 :::
 
-### Create an account
+### Create and fund a testnet account
 
 ```bash [test.sh]
-$ mppx account create
+$ mppx account create --network testnet
+$ mppx account fund --network testnet
 ```
 
 ### Make a paid request
@@ -371,7 +372,7 @@ $ mppx https://mpp.dev/api/ping/paid
 
 <Cards>
   <Card
-    description="Connect your agent to MPP-enabled services"
+    description="Let your coding agent pay for MPP services"
     icon="lucide:bot"
     title="Use with agents"
     to="/quickstart/agent"

@@ -9,14 +9,14 @@ Persist and recover Tempo session channels, and settle payments through a Cloudf
 
 ## Usage
 
-Export a `ChannelStore` subclass, spread `channels(namespace)` into `tempo.session()`, and consume `{ channelId }` jobs with `settle`. This mainnet example uses a Worker secret for the settlement account:
+Export a `ChannelStore` subclass, spread `channels(namespace)` into `tempo.session()`, and consume `{ channelId }` jobs with `settle`. This example runs on Tempo testnet and uses a Worker secret for the settlement account:
 
 ```ts twoslash [worker.ts]
 import { ChannelStore, channels, settle } from 'mppx/cloudflare'
 import { Mppx, type Store, tempo } from 'mppx/server'
 import { createClient, http, type Hex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoChain } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 
 export class MppxChannels extends ChannelStore {}
 
@@ -30,8 +30,8 @@ type Env = {
 function payments(env: Env) {
   const account = privateKeyToAccount(env.SETTLEMENT_PRIVATE_KEY)
   function getClient({ chainId }: { chainId?: number }) {
-    if (chainId !== undefined && chainId !== tempoChain.id) throw new Error('Unsupported chain')
-    return createClient({ account, chain: tempoChain, transport: http() })
+    if (chainId !== undefined && chainId !== tempoModerato.id) throw new Error('Unsupported chain')
+    return createClient({ account, chain: tempoModerato, transport: http() })
   }
   const storage = channels(env.MPPX_CHANNELS)
   const mppx = Mppx.create({
@@ -41,7 +41,7 @@ function payments(env: Env) {
         ...storage,
         account,
         bootstrap: true,
-        chainId: 4217,
+        chainId: 42431,
         currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
         getClient,
       }),
@@ -67,7 +67,11 @@ export default {
 }
 ```
 
-Fund the settlement account with a fee token such as USDC.e; OUSD can't pay fees. Set `settle`'s `feeToken` if the account default is unsuitable.
+Fund the settlement account with a fee token; OUSD can't pay fees. Set `settle`'s `feeToken` if the account default is unsuitable.
+
+:::info[Go live]
+Before going live, set `chainId: 4217`, use `tempo` from `viem/chains`, and fund a mainnet settlement account with a fee token such as USDC.e.
+:::
 
 Configure your Worker:
 

@@ -36,6 +36,7 @@ type Page =
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
   | { path: '/guides/one-time-payments'; render: 'static' }
+  | { path: '/guides/pay-for-sessions'; render: 'static' }
   | { path: '/guides/payment-links'; render: 'static' }
   | { path: '/guides/private-payments'; render: 'static' }
   | { path: '/guides/proxy-existing-service'; render: 'static' }

@@ -10,7 +10,7 @@ import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Proxy an existing service [Add payments to any API without changing its code]
 
-Put a payment gate in front of an existing API without modifying it. The proxy sits between clients and the origin, handles the `402` flow, injects upstream credentials, and forwards paid requests.
+Put a payment gate in front of an existing API without modifying it. The proxy sits between buyers and the origin, handles the `402` flow, injects upstream credentials, and forwards paid requests.
 
 ## How it works
 
@@ -27,7 +27,7 @@ Put a payment gate in front of an existing API without modifying it. The proxy s
     P-->>C: 200 + Payment-Receipt + response body
 `} />
 
-The proxy verifies the client's payment Credential, then forwards the request to the origin with the real API key injected. The client never sees the upstream credentials.
+The proxy verifies the buyer's payment Credential, then forwards the request to the origin with the real API key injected. The buyer never sees the upstream credentials.
 
 ## Prompt mode
 
@@ -61,13 +61,13 @@ $ bun add mppx viem
 
 ### Define the upstream service
 
-Use `Service.from` to describe the API you want to proxy. The proxy injects upstream credentials so clients never see them.
+Use `Service.from` to describe the API you want to proxy. The proxy injects upstream credentials so buyers never see them.
 
 ```ts [server.ts]
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const proxy = Proxy.create({
   services: [
@@ -98,7 +98,7 @@ Each route maps a `"METHOD /pattern"` to a payment intent or `true` for free pas
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const proxy = Proxy.create({
   services: [
@@ -127,7 +127,7 @@ The proxy returns two handlers for different runtimes.
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const proxy = Proxy.create({
   description: 'Payment-gated weather data', // [!code hl]
@@ -163,8 +163,9 @@ export default { fetch: proxy.fetch }
 # Validate the paid route
 $ npx mppx validate http://localhost:3000
 
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Free route — no payment required
 $ npx mppx http://localhost:3000/weather/v1/status
@@ -185,7 +186,7 @@ Gate several APIs behind a single proxy by passing multiple services. Each mount
 import { Proxy, Service, openai } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 const proxy = Proxy.create({
   description: 'Multi-service paid API proxy',
@@ -218,7 +219,7 @@ Built-in service presets (`openai`, `anthropic`, `stripe`) handle upstream auth 
 
 ## Recover interrupted delivery
 
-`Proxy.create` limits request bodies to 10 MiB on paid and free routes; set `maxRequestBodySize` when an upstream needs a different limit. Enable `replay` with a shared atomic store to let clients collect a paid response using the same Credential and exact request after a connection loss.
+`Proxy.create` limits request bodies to 10 MiB on paid and free routes; set `maxRequestBodySize` when an upstream needs a different limit. Enable `replay` with a shared atomic store to let buyers collect a paid response using the same Credential and exact request after a connection loss.
 
 For non-idempotent upstream operations, set `replay.maxAttempts: 1`: the default of three attempts can execute a failed operation again without charging again. In-progress retries return `202`; streamed or oversized responses aren't retained and later return `410`. See [paid-response recovery](/sdk/typescript/proxy#recover-a-paid-response) for configuration and limits.
 
@@ -235,6 +236,10 @@ $ curl http://localhost:3000/openapi.json
 ```
 
 See the [Proxy reference](/sdk/typescript/proxy#discovery-endpoints) for discovery endpoint details.
+
+:::info[Go live]
+Before going live, remove `testnet: true` and fund a mainnet account.
+:::
 
 ## Next steps
 

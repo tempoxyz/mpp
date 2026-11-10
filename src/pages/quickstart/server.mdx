@@ -45,7 +45,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -67,7 +67,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -89,7 +89,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -113,7 +113,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -154,7 +154,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -173,7 +173,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currencies` lists the accepted TIP-20 token addresses—[`0x20c0000000000000000000006a37DA5C996874BE`](https://explore.tempo.xyz/address/0x20c0000000000000000000006a37DA5C996874BE?live=false) is OUSD on Tempo. This example accepts only OUSD; omit `currencies` to offer OUSD first with USDC.e as a fallback. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists the accepted TIP-20 token addresses—[`0x20c0000000000000000000006a37DA5C996874BE`](https://explore.tempo.xyz/address/0x20c0000000000000000000006a37DA5C996874BE?live=false) is OUSD on Tempo. This example accepts only OUSD; omit `currencies` to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
@@ -206,7 +206,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -247,7 +247,7 @@ const mppx = Mppx.create({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     mode: 'push', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -268,7 +268,7 @@ const mppx = Mppx.create({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     feePayer: privateKeyToAccount('0x…'), // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -291,7 +291,7 @@ const mppx = Mppx.create({
     },
     // [!code focus:end]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -308,7 +308,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
     waitForConfirmation: false, // [!code focus]
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -321,7 +321,7 @@ Optimistic verification simulates the transaction but does not wait for inclusio
 
 ## Discovery
 
-After your server is running, add [discovery](/extensions/discovery) so agents can find your API and its payment terms automatically. The `discovery()` helper generates a `GET /openapi.json` endpoint from your route configuration:
+After your server is running, add [discovery](/extensions/discovery) so buyers can find your API and its payment terms automatically. The `discovery()` helper generates a `GET /openapi.json` endpoint from your route configuration:
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -334,7 +334,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -351,7 +351,7 @@ discovery(app, mppx, {
 
 The generated document advertises each paid route with canonical `x-payment-info.offers[]` entries. See [Discovery](/extensions/discovery) for the full document shape, multi-offer examples, and flat-shorthand compatibility notes.
 
-Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so agents and registries can discover it.
+Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so buyers and registries can discover it.
 
 ## Testing your server
 
@@ -361,9 +361,7 @@ After your server is running, test it with the `mppx` CLI:
 $ npx mppx validate <your-server>
 ```
 
-The command tests discovery, challenge formats, error handling, and the full payment flow. We recommend addressing all noted issues to make it easy for agents to pay your server.
-
-Set `testnet: true` in `tempo.charge()` while testing so `npx mppx validate` and `npx mppx` use testnet out of the box.
+The command tests discovery, challenge formats, error handling, and the full payment flow. Address every noted issue so buyers can pay your server.
 
 You can also test each step individually:
 
@@ -378,6 +376,10 @@ $ npx mppx <your-server>/resource
 
 :::tip
 Use `curl -i <your-server>/resource` to inspect the server's `402` Challenge without paying. To validate the returned header, run `npx mppx sign --challenge '<WWW-Authenticate value>' --dry-run`.
+:::
+
+:::info[Go live]
+Before going live, remove `testnet: true` and fund a mainnet account.
 :::
 
 ## Next steps

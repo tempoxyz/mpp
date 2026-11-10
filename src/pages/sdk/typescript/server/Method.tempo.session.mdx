@@ -32,6 +32,7 @@ const mppx = Mppx.create({
     // [!code focus:start]
     tempo.session({
       account,
+      chainId: 42431,
       store: Store.memory(),
     }),
     // [!code focus:end]
@@ -55,6 +56,7 @@ const mppx = Mppx.create({
       account,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
+      testnet: true,
     }),
   ],
 })
@@ -78,6 +80,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       bootstrap: true,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store,
       resolveChannelId({ request, source }) {
@@ -261,6 +264,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  chainId: 42431,
   // [!code hl:start]
   onSessionSettlementFailure({ chainId, channelId, error, trigger }) {
     console.error({ chainId, channelId, error, trigger })
@@ -377,6 +381,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  chainId: 42431,
   store: Store.memory(), // [!code focus]
 })
 ```

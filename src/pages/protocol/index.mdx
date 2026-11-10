@@ -8,7 +8,7 @@ import { PaymentFlowDiagram } from "../../components/PaymentFlowDiagram";
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
-The Machine Payments Protocol (MPP) is a protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
+The Machine Payments Protocol (MPP) lets a buyer (an agent, app, or person) pay a seller (an API, service, or site) over HTTP. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
 These docs provide a developer-friendly overview. Read the [IETF Specification](https://datatracker.ietf.org/doc/draft-httpauth-payment/) for the normative core protocol.
 
@@ -65,16 +65,13 @@ See [HTTP 402](/protocol/http-402) for details on when to return each status cod
 
 ## Payment method agnostic
 
-MPP works with any payment network or currency. The core protocol defines the framework, while **payment methods** define how specific networks integrate:
+MPP works with any payment network or currency. The core protocol defines the framework, while **payment methods** define how specific networks integrate.
 
 :::info[Extensible by design]
 Anyone can define new payment methods. The protocol requires that methods define their `request` schema (what the server asks for) and `payload` schema (what the client provides as proof).
 :::
 
-| Method                            | Description                                     | Status                                      |
-| --------------------------------- | ----------------------------------------------- | ------------------------------------------- |
-| [Tempo](/payment-methods/tempo)   | Native stablecoin payments on Tempo Network     | <Badge variant="success">Production</Badge> |
-| [Stripe](/payment-methods/stripe) | Traditional card payment methods through Stripe | <Badge variant="success">Production</Badge> |
+See [Status and capabilities](/payment-methods#status-and-capabilities) for every method's intents, SDKs, status, and maintainer.
 
 Each payment method specifies its own `request` and `payload` schemas while sharing the common Challenge/Credential flow.
 
