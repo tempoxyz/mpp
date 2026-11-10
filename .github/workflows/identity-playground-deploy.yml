@@ -75,6 +75,7 @@ jobs:
           fi
           key="$(cast wallet new --json | jq -r '[.. | .private_key? // empty][0]')"
           echo "::add-mask::$key"
-          test -n "$key"
+          # Stop unless cast printed a private key: a renamed field would store "null".
+          grep -Eqx "0x[0-9a-fA-F]{64}" <<< "$key"
           printf '%s' "$key" | pnpm exec wrangler secret put MPP_PRIVATE_KEY
           echo "Set MPP_PRIVATE_KEY on the Worker"
