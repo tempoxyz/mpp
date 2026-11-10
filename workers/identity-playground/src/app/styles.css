@@ -1,14 +1,14 @@
 /* mpp.dev's homepage: Geist and Geist Mono, #060606 and #191919 surfaces,
  * uppercase mono labels and boxed controls, terminal-style panels. */
 @font-face {
-  font-display: swap;
+  font-display: fallback;
   font-family: "Geist Variable";
   font-style: normal;
   font-weight: 100 900;
   src: url("/fonts/Geist-Variable.woff2") format("woff2-variations");
 }
 @font-face {
-  font-display: swap;
+  font-display: fallback;
   font-family: "Geist Mono Variable";
   font-style: normal;
   font-weight: 100 900;

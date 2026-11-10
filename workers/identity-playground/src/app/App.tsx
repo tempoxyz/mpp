@@ -12,6 +12,7 @@ import {
 import type { Address, Hex as HexValue } from "viem";
 
 import type * as Client from "../client.js";
+import { prices } from "../prices.js";
 import { explanations, serverUsage, usage } from "./samples.js";
 import { ousd, unloaded, type Wallet } from "./wallet-state.js";
 
@@ -107,7 +108,7 @@ export function App() {
                 {t.id !== "link" && (
                   <span className="price">
                     {" "}
-                    {f.config?.prices[t.id] ?? "…"}
+                    {f.config?.prices[t.id] ?? prices[t.id]}
                   </span>
                 )}
               </button>
@@ -323,7 +324,7 @@ function Composer({ f }: { f: Demo }) {
           ? "Paying…"
           : f.tier === "link"
             ? "Not set up"
-            : `Buy haiku · ${f.price ?? "…"} OUSD`}
+            : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
       </button>
       <div className="topic">
         <span className="dim">topic</span>

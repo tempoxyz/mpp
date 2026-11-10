@@ -10,6 +10,7 @@ import * as EmailOtp from "mppx/extensions/identity/email-otp";
 import * as Identity from "mppx/identity";
 
 import * as Issuer from "./issuer.js";
+import { prices as defaultPrices } from "./prices.js";
 import type { Trace } from "./trace.js";
 
 export type Tier = "anonymous" | "email" | "apiKey";
@@ -26,11 +27,7 @@ export function topic(value: string | null): string | undefined {
     : undefined;
 }
 
-export const prices = {
-  anonymous: "0.03",
-  email: "0.02",
-  apiKey: "0.01",
-} as const satisfies Record<Tier, string>;
+export const prices = defaultPrices satisfies Record<Tier, string>;
 
 const rank: Record<Tier, number> = { anonymous: 0, email: 1, apiKey: 2 };
 

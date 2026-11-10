@@ -51,6 +51,20 @@ try {
   writeFileSync(
     file,
     html
+      // The fonts as early as the page itself, so text paints in them rather than swapping.
+      .replace(
+        '<meta charset="UTF-8" />',
+        (meta) =>
+          meta +
+          ["Geist-Variable", "GeistMono-Variable"]
+            .map(
+              (font) =>
+                '<link rel="preload" as="font" type="font/woff2" crossorigin href="/playground/identity/fonts/' +
+                font +
+                '.woff2">',
+            )
+            .join(""),
+      )
       .replace(
         "</head>",
         () =>
@@ -58,7 +72,14 @@ try {
           codeView +
           '">\n</head>',
       )
-      .replace(css[0], () => `<style>${style}</style>`)
+      // Inline, and keep a link that never applies (media="not all"): Vite's loader for lazy
+      // chunks checks for it, and would otherwise add the stylesheet again, which re-fetches
+      // the fonts and reflows the page a second or two in.
+      .replace(
+        css[0],
+        () =>
+          `<style>${style}</style>${css[0].replace(">", ' media="not all">')}`,
+      )
       .replace('<div id="root"></div>', () => `<div id="root">${markup}</div>`),
   );
   console.log(`prerendered ${markup.length} bytes into ${file}`);
