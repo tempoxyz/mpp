@@ -13,7 +13,15 @@ export default defineConfig(({ command }) => ({
     react(),
     cloudflare(
       command === "serve" && process.env.PLAYGROUND_LOCAL
-        ? { config: (config) => void delete (config as { ai?: unknown }).ai }
+        ? {
+            config: (config) => {
+              delete (config as { ai?: unknown }).ai;
+              config.assets = {
+                ...config.assets,
+                not_found_handling: "single-page-application",
+              };
+            },
+          }
         : {},
     ),
   ],

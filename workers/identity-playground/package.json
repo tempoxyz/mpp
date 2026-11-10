@@ -5,7 +5,8 @@
   "scripts": {
     "build": "vite build && node scripts/nest-assets.mjs",
     "check:types": "tsgo -b",
-    "check": "pnpm check:types && pnpm build",
+    "check": "pnpm check:types && pnpm check:samples && pnpm build",
+    "check:samples": "pnpm --workspace-root exec vitest run scripts/check-identity-playground-samples.test.ts",
     "deploy": "pnpm build && wrangler deploy",
     "dev": "vite dev",
     "pubkeys": "tsx src/pubkeys.ts"
@@ -14,7 +15,7 @@
     "@pierre/diffs": "^1.6.4",
     "@tanstack/react-query": "^5.107.1",
     "accounts": "0.21.1",
-    "mppx": "0.0.0-main-20261109183743",
+    "mppx": "0.0.0-main-20261110013608",
     "react": "~19.3.1",
     "react-dom": "~19.3.1",
     "viem": "^2.57.17",
