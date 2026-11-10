@@ -105,7 +105,7 @@ Bun.serve({
 
 #### Add `.session` to the route handler
 
-Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. If the request is a session update, such as a top-up or close, return its response before doing paid work. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [server.ts]
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -133,6 +133,13 @@ Bun.serve({
     })(request) // [!code ++]
 
     if (result.status === 402) return result.challenge // [!code ++]
+    // Session updates (open, top-up, voucher, close) carry their own response: // [!code ++]
+    // return it before paid work. Content requests throw and fall through. // [!code ++]
+    try { // [!code ++]
+      return await result.withReceipt() // [!code ++]
+    } catch (error) { // [!code ++]
+      if (!Mppx.isMissingReceiptResponseError(error)) throw error // [!code ++]
+    } // [!code ++]
 
     const res = await fetch('https://picsum.photos/200/200')
     return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
