@@ -9,7 +9,7 @@ import { type Playground, playgrounds } from "./playgrounds";
 export function PlaygroundIndex() {
   return (
     <div className="marketing-route not-prose bg-[#101010] text-offwhite">
-      <Header />
+      <Header active="playground" />
       <main className="mx-auto w-full max-w-[1728px]">
         <section className="flex h-[231px] flex-col items-start justify-end px-4 pb-6 pt-12 md:h-[236px] md:px-12">
           <LineLogo

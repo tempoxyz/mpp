@@ -7,12 +7,13 @@ import { LogoLottie } from "./LogoLottie";
 import { useWipeHover } from "./useWipeHover";
 import { WipeBands } from "./WipeBands";
 
-export type ActiveKey = "blog" | "docs" | "sdks" | "services";
+export type ActiveKey = "blog" | "docs" | "playground" | "sdks" | "services";
 
 const links = [
   { href: "/overview", key: "docs" as const, label: "Docs" },
   { href: "/sdk", key: "sdks" as const, label: "SDKs" },
   { href: "/services", key: "services" as const, label: "Services" },
+  { href: "/playground", key: "playground" as const, label: "Playground" },
   { href: "/blog", key: "blog" as const, label: "Blog" },
 ];
 const sdks = [
