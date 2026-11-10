@@ -4537,7 +4537,7 @@ export const services: ServiceDef[] = [
     url: "https://paywithlocus.com",
     serviceUrl: "https://locus-task.mpp.paywithlocus.com",
     description:
-      "Universal router for agents: describe a task in plain language and Locus picks and calls the right paid APIs, checks the answer against the evidence, and returns the data, sources, and cost. Prepay a ceiling; the unused part is refunded.",
+      "Universal router for agents: describe a task in plain language and Locus picks and calls the right paid APIs, checks the answer against the evidence, and returns the data, sources, and cost. Prepay a ceiling per task; the unused part is credited back to your session.",
 
     categories: ["ai", "data", "search"],
     integration: "first-party",
@@ -4558,7 +4558,7 @@ export const services: ServiceDef[] = [
     },
     provider: { name: "Locus", url: "https://paywithlocus.com" },
     realm: "locus-task.mpp.paywithlocus.com",
-    intent: "charge",
+    intent: "session",
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
@@ -4570,7 +4570,7 @@ export const services: ServiceDef[] = [
         route: "POST /locus-task/run",
         desc: "Run a task: Locus plans, calls paid APIs, and verifies the answer",
         dynamic: true,
-        amountHint: "$0.10 to $5, unused part refunded",
+        amountHint: "$0.10 to $5 per task, unused part credited back",
       },
       {
         route: "POST /locus-task/task",
