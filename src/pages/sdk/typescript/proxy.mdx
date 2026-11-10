@@ -62,7 +62,13 @@ import { createServer } from 'node:http'
 createServer(proxy.listener).listen(3000)
 ```
 
-The proxy strips [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers) (`Identity-Attestation`) from requests sent upstream, alongside payment and hop-by-hop headers, and drops `Identity-Attestation-Required` and `Identity-Required` from upstream responses. Identity verification stays at the proxy; upstream services don't receive the caller's attestation.
+The proxy keeps identity verification at the proxy boundary:
+
+- Removes `Authorization`, `Payment-Authorization`, [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers) (`Identity-Attestation` and `Identity-Presentation`), and hop-by-hop headers before forwarding upstream.
+- Drops identity request and requirement headers from upstream responses.
+- Removes Payment, PrivateToken, and Identity-Presentation challenges from upstream `WWW-Authenticate`, preserving other schemes.
+
+Authenticate upstream services separately with each service's configuration.
 
 The proxy returns two handlers:
 

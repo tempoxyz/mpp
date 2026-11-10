@@ -5,7 +5,7 @@ imageDescription: "Collect session payments on Cloudflare"
 
 # Cloudflare [Durable session storage and settlement]
 
-Persist and recover Tempo session channels, and settle payments through a Cloudflare queue.
+Persist and recover [Tempo session channels](/payment-methods/tempo/session), and settle payments through a Cloudflare queue.
 
 ## Usage
 
@@ -140,18 +140,61 @@ Match namespace, prefix, encoding, and replay settings across request/queue hand
 - Return `undefined` for missing payer/recipient, chain mismatch, or no open match.
 - Maintain indexes best effort: failures don't fail committed payments; later writes repair entries. Closing one channel doesn't hide others; stale entries are checked against current state.
 
+## `backfillSettlement`
+
+Queue dormant unpaid channels after upgrading from an older settlement scheduler. Durable Objects can't enumerate channels or wake themselves; supply IDs from your channel registry or reserve opening events.
+
+### Usage
+
+```ts twoslash
+import { backfillSettlement, channels, type ChannelStore } from 'mppx/cloudflare'
+import type { Store } from 'mppx/server'
+import type { Hex } from 'viem'
+
+export async function recover(
+  channelIds: Iterable<Hex> | AsyncIterable<Hex>,
+  env: {
+    MPPX_CHANNELS: Store.durableObject.Namespace
+    MPPX_SETTLEMENT_QUEUE: ChannelStore.Queue
+  },
+) {
+  // [!code hl:start]
+  return backfillSettlement(channelIds, {
+    queue: env.MPPX_SETTLEMENT_QUEUE,
+    store: channels(env.MPPX_CHANNELS).store,
+  })
+  // [!code hl:end]
+}
+```
+
+### Return type
+
+- **Type:** `Promise<number>`
+
+Number of successful queue sends, not confirmed settlements. IDs are normalized before lookup and enqueueing. Missing, finalized, and fully collected channels are skipped; oversized vouchers still qualify for bounded close recovery.
+
+### Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `channelIds` | `Iterable<Hex> \| AsyncIterable<Hex>` | Channel IDs to inspect, in iteration order. |
+| `parameters.queue` | `ChannelStore.Queue` | Settlement queue with `send({ channelId })`. |
+| `parameters.store` | `Store.AtomicStore` | The same channel store used for requests and queue settlement. |
+
+Store and queue failures reject the call, leaving earlier sends intact. Rerun after a failure; duplicate jobs are safe because the consumer checks current state and takes a temporary, exclusive settlement lease. The helper doesn't deduplicate repeated IDs.
+
 ## `ChannelStore`
 
 Extends [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore), with one object per precompile-backed channel. Inherits fetch/RPC, native encoding, replay shards, and storage hooks.
 
 ### Settlement behavior
 
-- **Settleable amount:** largest accepted payer-signed cumulative voucher amount ≤ `spent`, or `settledOnChain` if none qualifies. `spent` is committed charges; `settledOnChain` is collected funds.
-- **Immediate queue:** `settleable - settledOnChain` reaches `max(deposit / 10, minUnsettledAmount, 1)` raw token units; `deposit` is reserved funds.
-- **Idle queue:** below-threshold funds wait for `staleAfterMs` without writes. Finalized channels and channels with nothing settleable never queue.
+- **Collectible amount:** `max(min(spent, highestVoucher.cumulativeAmount, deposit), settledOnChain)`. `spent` is committed charges; `settledOnChain` is collected funds. A voucher above spend can recover only that spend through a bounded close.
+- **Immediate queue:** collectible amount minus `settledOnChain` reaches `max(deposit / 10, minUnsettledAmount, 1)` raw token units; `deposit` is reserved funds.
+- **Idle queue:** below-threshold funds wait for `staleAfterMs` without writes. Finalized channels and channels with nothing collectible never queue.
 - **Delivery:** alarms send `{ channelId }` outside storage transactions. Failed sends retry after `retryMs` without consuming an attempt; missing bindings throw for Cloudflare to report/retry.
 - **Watchdog:** double resend delays; stop after settlement `maxAttempts` successful sends without on-chain progress (default `6`, distinct from storage's `32` compare-and-swap attempts). Configure queue retries and monitoring too.
-- **Reset:** more collected funds reset the count. A new close request or threshold-sized voucher increase resets it and queues immediately.
+- **Reset:** more collected funds reset the count. A new payer close request or threshold-sized voucher increase resets it and queues immediately. Expiring a server close marker alone does not reset attempts.
 - **Closing:** cap resend delays at two minutes, fitting six sends within the 15-minute close grace period before the payer can withdraw unsettled funds.
 
 ### Settlement options
@@ -196,7 +239,7 @@ Extend `ChannelStore.rpc(DurableObject)` using the `cloudflare:workers` base; pa
 
 ## `settle`
 
-Processes a queue batch in order; returns `Promise<void>`.
+Processes a queue batch in order; returns `Promise<void>`. When an accepted voucher fits recorded spend, it settles normally and keeps the channel open. If no voucher fits, it uses a bounded payee close: capture is limited by recorded spend, the signed voucher, and the deposit; the rest returns to the buyer.
 
 ### batch
 
@@ -212,6 +255,7 @@ Processes a queue batch in order; returns `Promise<void>`.
 | --- | --- | --- | --- |
 | `account` (optional) | `Account` | Client account | Account submitting the settlement. |
 | `candidateFeeTokens` (optional) | `readonly Address[]` | Channel token | Candidate fee tokens for sponsored settlement; include a fee-paying token when the channel currency can't pay fees. |
+| `closeSearchFromBlock` (optional) | `bigint` | `0n` | Earliest close-event search block for channels without a supervision checkpoint; choose a block at or before every channel opening. |
 | `escrowContract` (optional) | `Address` | TIP-1034 precompile | Settlement contract override. |
 | `feePayer` (optional) | `Account \| true` | None | Sponsor account, or `true` with a hosted fee-payer transport. |
 | `feePayerPolicy` (optional) | `Partial<FeePayer.Policy>` | Chain policy | Sponsored-transaction limits: `maxFeePerGas`, `maxGas`, `maxPriorityFeePerGas`, `maxTotalFee` (bigints), and `maxValidityWindowSeconds` (number). |
@@ -221,27 +265,31 @@ Processes a queue batch in order; returns `Promise<void>`.
 | `settle` (optional) | `typeof Session.Server.settle` | `Session.Server.settle` | Override for settling one channel. |
 | `store` | `Store.AtomicStore` | Required | The same channel store used for requests. |
 
-`amount` is cumulative raw token units; `delta` is the increment captured by the transaction. The queue helper uses the normal settlement trigger, `'settle'`.
+The `closeSearchFromBlock` option is a fixed historical search floor. The same-named stored channel field is a resumable cursor, not a replacement for this option.
+
+`amount` is cumulative raw token units; `delta` is the increment captured by the transaction. Ordinary settlement uses trigger `'settle'`; bounded closes use `'close'`.
 
 | Outcome | Queue action |
 | --- | --- |
 | Missing string `channelId`; missing, finalized, or fully settled channel | Acknowledge. |
 | `ChannelNotFoundError`, `VerificationFailedError`, `SettlementCheckpointError` | Acknowledge. |
-| Live cooperative-close marker or existing settlement lease | Retry after 60 seconds. |
+| Live cooperative-close marker, existing settlement lease, or bounded recovery still open/closing/failed | Retry after 60 seconds. |
 | Other errors, including fee-payer policy refusals | Retry after 30 seconds, doubling per attempt to 600 seconds. |
 
-`SettlementCheckpointError` means confirmation succeeded but recording failed. Reconcile stored state from that transaction before settling again; blind retries risk duplicate submission.
+`SettlementCheckpointError` means confirmation succeeded but recording failed. Ordinary settlement acknowledges this error; reconcile its confirmed transaction before another settlement. A bounded-close failure stays retryable: later supervision finds its `ChannelClosed` event and finalizes state without another close broadcast. The success callback still runs for the confirmed close.
 
 ### Leases and close markers
 
 Queue settlement atomically takes `scheduledSettlementLease` for five minutes, renews every two-and-a-half minutes, and releases only its own lease in `finally`. Duplicate queue jobs and server-scheduled settlements can't broadcast the same voucher concurrently.
 
-`pendingCloseAt` identifies the server's cooperative close; `closeRequestedAt` can also identify a payer's on-chain close. The queue waits when:
+`pendingCloseAt` identifies the server's cooperative close. `onChainCloseRequestedAt` separately preserves an observed payer close request, even when a server marker occupies `closeRequestedAt`. The queue waits when:
 
-- Both timestamps match and are nonzero.
+- `pendingCloseAt` and `closeRequestedAt` match and are nonzero.
 - The channel isn't finalized.
 - Current Unix seconds ≤ timestamp + 55 (25-second transaction validity + 30-second clock skew).
 
-This avoids settling vouchers already collected by that close. After expiry, payer close requests can resume urgent settlement.
+This avoids settling vouchers already collected by that close. Before-send failures and confirmed reverts clear the server marker, preserving an observed payer request. An ambiguous send stays frozen until the transaction validity window plus clock skew expires and an on-chain read proves the channel remains open. Expiry alone never creates a payer close request.
 
-Custom serializers must preserve `scheduledSettlementLease` and bigint `pendingCloseAt`. Never infer the latter from `closeRequestedAt`: without it, a pending server close isn't recognized.
+The queue passes its lease owner to close supervision and enables `closeUnsettled`. Outstanding `prepaidRefunds` (records of items charged before delivery) block this automatic closure until delivery or refund reconciliation completes.
+
+Custom serializers must preserve `scheduledSettlementLease`, `pendingCloseAt`, `onChainCloseRequestedAt`, `closeSupervisedFromBlock`, and `closeSearchFromBlock`. The last four are bigints; `closeSupervisedFromBlock` is the first block where supervision verified the channel open. Close-event searches persist their next range after each successful empty query, resume after interruption, and reset the cursor after an entirely empty scan so a lagging RPC index can catch up. Don't replace the verified-open anchor with that cursor.

@@ -5,7 +5,7 @@ imageDescription: "Keep identity proofs on the origin that asked for them"
 
 # `Identity.Headers` [Identity headers as data]
 
-Lowercase lists of identity headers, for code that must handle them without knowing each protocol, such as redirect handling or a proxy.
+Lowercase identity header names and authentication schemes for redirect and proxy handling.
 
 ## Usage
 
@@ -26,16 +26,22 @@ export async function forward(request: Request, upstream: string) {
 
 `mppx` already does this in the client and the proxy:
 
-- [`Mppx.create`](/sdk/typescript/client/Mppx.create#identity-optional) on the client strips `request` headers, and each prover's `headers`, when following a cross-origin redirect.
-- The [proxy](/sdk/typescript/proxy) strips `request` headers from requests it sends upstream and drops `request` and `response` headers from upstream responses.
+- [`Mppx.create`](/sdk/typescript/client/Mppx.create#identity-optional) on the client strips `request` headers, and each client prover's declared sensitive `headers`, when following a cross-origin redirect.
+- The [proxy](/sdk/typescript/proxy) strips `request` headers from upstream requests and drops `request` and `response` headers from upstream responses. It also removes `Payment`, `PrivateToken`, and `Identity-Presentation` challenges from upstream `WWW-Authenticate`, preserving other schemes.
 
 ## Values
 
+### challenges
+
+- **Type:** `readonly ['privatetoken', 'identity-presentation']`
+
+Identity schemes in `WWW-Authenticate`. The proxy removes these challenges from upstream responses: the proxy decides which identity the buyer presents.
+
 ### request
 
-- **Type:** `readonly ['identity-attestation']`
+- **Type:** `readonly ['identity-attestation', 'identity-presentation']`
 
-Bearer identity request headers. Anyone holding one can replay it until it expires, so it never crosses origins on a redirect or reaches upstream through a proxy.
+Sensitive identity proof headers. Don't forward them to another origin or upstream service.
 
 ### response
 
@@ -45,7 +51,7 @@ Identity response headers a proxy doesn't pass on from upstream. They ask the cl
 
 ## Prover headers
 
-A prover that writes its own sensitive request header, such as a bearer token, declares it in `Prover.headers`. The client strips it on a cross-origin redirect, like `Identity.Headers.request`.
+A client prover adds identity proofs to requests for the origins in its `scope`. A prover that writes its own sensitive request header, such as a bearer token, declares it in `Prover.headers`. The client strips it on a cross-origin redirect, like `Identity.Headers.request`.
 
 ```ts twoslash
 import type * as Identity from 'mppx/identity'

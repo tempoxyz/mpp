@@ -21,6 +21,8 @@ Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For 
 
 ## How it works
 
+A Credential is the buyer's payment proof: an opening transaction or a signed voucher for an existing channel.
+
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
@@ -33,7 +35,7 @@ Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For 
         Note over Server: verify signature
         Server-->>Client: 200 OK + Receipt
     end
-    Server->>Tempo: (4) Settle highest voucher
+    Server->>Tempo: (4) Settle earned amount
     Client->>Server: (5) Close
     Server->>Tempo: close(channelId, voucher)
     Tempo-->>Client: Refund remaining deposit
@@ -47,11 +49,11 @@ The buyer deposits stablecoins into a channel on the [TIP-1034 precompile](https
 
 ### Pay with vouchers
 
-For each request, the buyer signs a voucher for the new cumulative total: "I have now used up to X." Your server checks the signature and that the total went up, then charges the difference.
+The buyer signs a voucher authorizing a cumulative payment limit. Your server verifies it and records the cost of each billable item as spend. A voucher can authorize more than the buyer has used; that extra authorization is not earned revenue.
 
 ### Settle
 
-Your server submits the highest voucher on-chain to collect what the buyer spent. The channel stays open. Settlement runs on a schedule you choose; see [Settlement](#settlement).
+Your server submits the largest accepted voucher at or below recorded spend to collect earned revenue. The channel stays open. Settlement runs on a schedule you choose; see [Settlement](#settlement).
 
 ### Top up or close
 
@@ -131,7 +133,7 @@ const mppx = Mppx.create({
 
 The schedule applies to HTTP responses, SSE streams, and WebSocket streams. `mppx` checks it after each charge.
 
-To settle at a time you pick—for example, end-of-period reconciliation or before maintenance—call `tempo.session.settle` for one channel or `tempo.session.settleBatch` for several. Each submits the channel's highest accepted voucher.
+To settle at a time you pick—for example, end-of-period reconciliation or before maintenance—call `tempo.session.settle` for one channel or `tempo.session.settleBatch` for several. Each submits the largest accepted voucher at or below recorded spend. If no voucher fits, these helpers throw; the [Cloudflare queue](/sdk/typescript/cloudflare#settle) instead performs a bounded close that captures recorded spend up to the signed voucher and deposit, then refunds the remainder.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
@@ -228,6 +230,10 @@ loop()
 
 `superviseCloses` is a higher-level helper over the same on-chain reads and payee close that [`tempo.session.settle`](#settlement) uses; servers with their own channel bookkeeping can drive those directly instead. Close requests aren't pushed to servers, so polling on a schedule is the supported approach.
 
+For unpaid channels whose signed voucher exceeds recorded spend, opt into `closeUnsettled: true` to collect spend with a bounded close even without a payer close request. It keeps channels open when a retained voucher can settle normally and waits for delivery of items charged in advance or another worker's settlement. See the [supervision reference](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) for lease, checkpoint, and retry rules.
+
+Cloudflare's queue enables this recovery automatically. After upgrading an older scheduler, run [`backfillSettlement`](/sdk/typescript/cloudflare#backfillsettlement) over your registered channel IDs to wake dormant unpaid channels.
+
 ### Receipts
 
 A Session Receipt's `reference` is the channel ID, not a transaction hash as in a charge Receipt. Closing the channel returns a Receipt whose `txHash` is the settlement transaction.
@@ -254,7 +260,7 @@ type SessionReceipt = {
 - **Answer close requests**: run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes with few open channels) so every buyer close request gets a payee close that captures spend and refunds the rest. It doesn't close idle channels nobody asked to close. See [Close supervision](/payment-methods/tempo/session#close-supervision).
 - **Settle streams on a schedule**: set `settlementSchedule` on `tempo.session()` so SSE and WebSocket charges settle without waiting for close.
 - **Monitor settlement failures**: use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to alert on failures. Retryable failures leave the charge due for a later settlement.
-- **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
+- **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. The charge atomically records the pending delivery, blocking automatic bounded closure until delivery or refund reconciliation completes. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
 - **Charge dynamic amounts**: pass a `bigint` in base units, such as `stream.charge(2_000n)`, to price one event differently from the route's tick cost.
 - **Use WebSocket for bidirectional streams**: serve with [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) and connect with [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
 - **Go live**: before going live, set `chainId: 4217` and fund a mainnet account.
@@ -309,7 +315,7 @@ const response = await mppxFetch('https://api.example.com/v1/chat/completions')
 
 ### Closing the channel
 
-Channels don't close on their own: the deposit stays locked up until someone closes the channel. To close it and get the unspent deposit back, use `tempo.session.manager()` and call `close()`. The manager also exposes `.topUp()`, `.sse()`, and `.ws()`.
+Channels don't expire: the deposit stays locked up until someone closes the channel. To close it and get the unspent deposit back, use `tempo.session.manager()` and call `close()`. The manager also exposes `.topUp()`, `.sse()`, and `.ws()`.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -358,7 +364,7 @@ See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manage
 
 `currencies` and `expectedRecipients` restrict which Session offers your client accepts. `maxAmount` caps the Challenge price per unit; it requires `currencies` and explicit `decimals`. `maxAtomicAmount` is the raw-unit alternative. These are separate from `maxDeposit`, which bounds funds reserved per channel, not a cumulative budget across replacement channels. Explicit closes remain available outside the price and recipient policy.
 
-Each stored channel belongs to one HTTP origin. Use a separate store per API origin and set `origin` when low-level `tempo.session()` needs to recover an unknown server snapshot. Managers pin their first request origin automatically and reject redirects and foreign response origins. Configure `trustedTempoProofRealms` when a manager's API uses a realm other than its hostname; this authorizes the realm alias, not another origin.
+Each stored channel belongs to one HTTP origin. Use a separate store per API origin and set `origin` when low-level `tempo.session()` needs to recover the server's balance snapshot for an existing channel. Managers pin their first request origin automatically and reject redirects and foreign response origins. Configure `trustedTempoProofRealms` when a manager's API uses a realm other than its hostname; this authorizes the realm alias, not another origin.
 
 ### Recovering channels after a restart
 
