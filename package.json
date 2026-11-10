@@ -16,6 +16,8 @@
     "dev": "node scripts/generate-discovery.ts && vite dev",
     "generate:discovery": "node scripts/generate-discovery.ts",
     "generate:pages": "node scripts/generate-pages.ts",
+    "identity-playground:check": "pnpm --filter mpp-identity-playground run check",
+    "identity-playground:deploy": "pnpm --filter mpp-identity-playground run deploy",
     "mcp-services:check": "pnpm --filter mpp-services-mcp run check",
     "mcp-services:deploy": "pnpm --filter mpp-services-mcp run deploy",
     "og:generate": "node --use-system-ca scripts/generate-og-images.ts",
