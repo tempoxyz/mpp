@@ -168,10 +168,10 @@ $ npx mppx account create --network testnet
 $ npx mppx account fund --network testnet
 
 # Free route — no payment required
-$ npx mppx http://localhost:3000/weather/v1/status
+$ npx mppx http://localhost:3000/weather/v1/status --network testnet
 
 # Paid route — handles 402 automatically
-$ npx mppx http://localhost:3000/weather/v1/forecast
+$ npx mppx http://localhost:3000/weather/v1/forecast --network testnet
 ```
 
 Requests route to `/{serviceId}/`—for example, `/weather/v1/forecast` proxies to `https://api.weather.example.com/v1/forecast`.
