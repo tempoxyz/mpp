@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/generate-cli-help.ts && vite build",
+    "build": "pnpm --filter mpp-identity-playground build && node scripts/copy-identity-playground.ts && node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/generate-cli-help.ts && vite build",
     "check": "biome check --write",
     "check:ci": "biome check",
     "check:markdown": "vocs markdown-audit",

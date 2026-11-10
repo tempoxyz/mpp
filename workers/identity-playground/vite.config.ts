@@ -39,7 +39,7 @@ export default defineConfig(({ command }) => ({
  * download and loads as a chain of chunks, so on a first visit the panes would stay plain for
  * seconds. App.tsx shows these until it loads, while the code is still the anonymous sample.
  */
-function prerenderCode(): Plugin {
+export function prerenderCode(): Plugin {
   const id = "virtual:prerendered-code";
   return {
     name: "prerender-code",
@@ -47,7 +47,11 @@ function prerenderCode(): Plugin {
     async load(source) {
       if (source !== `\0${id}`) return;
       const { preloadFile } = await import("@pierre/diffs/ssr");
-      const { serverUsage, usage } = await import("./src/app/samples.js");
+      // By file URL: Vite's bundled config and Node (scripts/prerender-html.ts imports this file
+      // directly) both load the .ts source from there.
+      const { serverUsage, usage } = (await import(
+        new URL("./src/app/samples.ts", import.meta.url).href
+      )) as typeof import("./src/app/samples.js");
       const panes = {
         "client.ts": usage("anonymous", "", "haiku-demo-key", ""),
         "server.ts": serverUsage("anonymous"),

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build && node scripts/nest-assets.mjs",
+    "build": "vite build && node scripts/nest-assets.mjs && node scripts/prerender-html.ts",
     "check:types": "tsgo -b",
     "check": "pnpm check:types && pnpm check:samples && pnpm build",
     "check:samples": "pnpm --workspace-root exec vitest run scripts/check-identity-playground-samples.test.ts",
