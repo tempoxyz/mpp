@@ -72,7 +72,7 @@ console.log(await res.json())
 
 - `maxDeposit` caps the funds reserved per channel. At $0.01 per photo, 1 token covers 100 requests.
 - If the seller suggests a deposit, `mppx` reserves the smaller of that and `maxDeposit`.
-- The channel stays open for reuse across requests. `Mppx.create` can't close it; to reclaim the deposit when you're done, make your requests through a [session manager](#close-the-session) instead.
+- The channel stays open for reuse across requests. To reclaim the deposit when you're done, make your requests through a [session manager](#close-the-session), which can close the channel.
 
 ## Set limits
 
@@ -152,7 +152,7 @@ await session.close()
 
 ## Close the session
 
-Your deposit stays reserved until the channel closes. Only the manager that opened a channel can close it, so make the requests and the close on the same manager:
+Your deposit stays reserved until the channel closes. Closing needs the channel's stored state. Make the requests and the close on the same manager, or on managers that share a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore):
 
 ```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
