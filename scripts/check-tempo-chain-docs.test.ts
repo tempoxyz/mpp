@@ -26,6 +26,8 @@ const MAINNET_PATTERNS = [
   /\btempo as tempoMainnet\b/,
   // mppx resolves an unpinned request to mainnet; mpp.dev charges on testnet
   /\bmppx\b(?![.\w])(?=.*\bmpp\.dev\/)(?!.*--network[\s=]+testnet)/,
+  // Paid requests to your own testnet server need the same pin
+  /\bmppx\s+(?:<your-server>|https?:\/\/localhost)(?!.*--network[\s=]+testnet)/,
 ] as const;
 
 async function listMdx(dir: string): Promise<string[]> {

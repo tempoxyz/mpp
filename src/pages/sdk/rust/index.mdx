@@ -67,7 +67,7 @@ let response = reqwest::Client::new()
 The default `AcceptPaymentPolicy::Explicit` pays only when the request has an `Accept-Payment` header. This keeps requests to untrusted URLs from authorizing payment implicitly.
 
 :::info[Go live]
-Before going live, drop the Moderato `rpc_url` (the default is Tempo mainnet) and fund a mainnet account.
+Before going live, drop the Moderato `rpc_url` from `tempo()` (its default is Tempo mainnet), pass `https://rpc.tempo.xyz` to `TempoProvider::new`, and fund a mainnet account.
 :::
 
 ## Feature flags
