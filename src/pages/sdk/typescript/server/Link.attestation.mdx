@@ -1,0 +1,59 @@
+---
+description: "Require an agent recognized by Link before accepting payment."
+imageDescription: "Recognize agents without collecting personal details"
+---
+
+# `Link.Server.attestation` [Verify a Link agent token]
+
+Creates an identity check that runs before payment and requires an Agent Attestation Token: proof that Link, Stripe's agent identity issuer, recognizes the agent without personal details.
+
+## Usage
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+import { Mppx, tempo } from 'mppx/server'
+
+const agent = Link.Server.attestation()
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true, // [!code hl]
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.tempo.charge({ amount: '0.05', identity: [agent] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ agent: result.identity?.get(agent) }))
+}
+```
+
+Both the Link token and Payment Credential normally use `Authorization`, so they cannot coexist there. Set `requiresAuth: true` to move Payment Credentials to `Payment-Authorization`. After a `402` payment Challenge, the buyer resends with both the token and its payment proof. Pair with [`Link.Client.attestation`](/sdk/typescript/client/Link.attestation). The default Web Crypto implementation needs no `@stripe/agent-identity` peer.
+
+## Return type
+
+`Identity.Verifier<Link.VerifiedAttestation>` with `authorization: true`.
+
+A valid result is a frozen `{ issuer: string; tokenKeyId: string }`. It proves Link issued the token, not a person's identity or payment authorization. Tokens are reusable bearer tokens; the verifier does not make them single-use.
+
+| Outcome | Status | HTTP |
+|---|---|---|
+| No `PrivateToken` authorization | `missing` | `401` |
+| Token fails verification | `invalid` | `401` |
+| Issuer reports `issuer_unavailable` | `unavailable` | `503` |
+| Cannot obtain issuer challenge | `unavailable` | `503` |
+
+`missing` and `invalid` include Link's `WWW-Authenticate: PrivateToken` challenges. An outage returns no replacement challenge.
+
+## Parameters
+
+The options object is optional and defaults to `{}`.
+
+### verifier (optional)
+
+- **Type:** `Link.AttestationVerifier`
+- **Default:** `Link.Server.tokenVerifier()`
+
+Shared token verifier. Configure [`tokenVerifier`](/sdk/typescript/server/Link.tokenVerifier) for custom fetch, cache, issuer, or timeout settings. A Node `LinkVerifier` from `@stripe/agent-identity` also implements this interface; create one per process to share its key cache.
+
+## Errors
+
+Configuring a route with this verifier without `requiresAuth: true` throws `TypeError`, including when nested inside [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf). Challenge-fetch errors become `unavailable`; a custom `verifyAttestation` rejection propagates to the identity runner.

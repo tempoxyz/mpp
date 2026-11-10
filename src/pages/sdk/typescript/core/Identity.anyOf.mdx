@@ -43,6 +43,7 @@ A plain list such as `identity: [customer, email]` requires both. See [Combine v
 - **Every member runs:** in list order, even after one verifies, so each presented proof's replay nonce is consumed.
 - **At most once per request:** a member also listed elsewhere in the route, or in another offer of a [composed](/sdk/typescript/server/Mppx.compose) route, runs once.
 - **First valid member wins:** `result.identity?.get(member)` returns the winner's value, at any nesting depth.
+- **Authorization readers propagate:** if any member reads `Authorization` and sets [`authorization: true`](/sdk/typescript/core/Identity.Verifier#authorization-optional), the group does too, including nested groups. Create the server with [`requiresAuth: true`](/sdk/typescript/server/Mppx.create#requiresauth-optional) so Payment Credentials use `Payment-Authorization` instead of replacing the identity proof; otherwise, configuring the route throws a `TypeError`.
 - **All members reject:** the status highest in [`Identity.Status.precedence`](/sdk/typescript/core/Identity.Status#precedence) decides the status and reason, and every member's headers are merged.
 
 ## Grouped alternatives

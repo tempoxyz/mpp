@@ -1,0 +1,74 @@
+---
+description: "Disclose only the Link identity facts your API needs."
+imageDescription: "Share selected identity facts with trusted APIs"
+---
+
+# `Link.Client.claims` [Present Link identity claims]
+
+Creates a client identity prover that presents selected facts signed by Link, Stripe's agent identity issuer. A presentation discloses those facts and includes the credential holder's signature for your API.
+
+## Usage
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+import * as Identity from 'mppx/identity'
+
+declare const present: Link.Present
+
+// [!code hl:start]
+const prover = Link.Client.claims({
+  claims: ['email', 'email_verified'],
+  issuers: ['https://api.link.com'],
+  present,
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+const fetch = Identity.Client.wrapFetch(globalThis.fetch, Identity.Client.from([prover]))
+const response = await fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+Implement `present` with your Link CLI or SDK integration, such as `link-cli identity credentials present`. It receives the requested audience, claims, nonce, and optional purpose; return the presentation string. Register the prover in `Mppx.create({ identity: [prover], methods })` to combine identity with payment.
+
+Pair it with [`Link.Server.claims`](/sdk/typescript/server/Link.claims). Claims use `Identity-Presentation`, not `Authorization`. By default, only credentials from issuer `https://api.link.com` are accepted; `issuers` overrides that trust list. The buyer's callback needs no `@stripe/agent-identity` peer; the default server verifier needs version `0.3.0` or later.
+
+## Return type
+
+`Identity.Prover`, declaring `identity-presentation` as a sensitive request header so redirect handling keeps it from another origin.
+
+- Answers an unpaid `401` with `WWW-Authenticate: Identity-Presentation` and a valid [`claimsChallenge`](/sdk/typescript/client/Link.claimsChallenge) body.
+- Requires the challenged audience to equal the request's origin after trailing slashes are removed, at least one challenged issuer to match `issuers`, format `dc+sd-jwt` to be offered, and every requested claim to appear in `claims`.
+- Caches one presentation per origin in memory until that origin challenges again. Later requests, including paid retries, carry it in `Identity-Presentation`.
+- Preserves a presentation supplied by the caller and never answers a rejection on its behalf. Paid attempts are never resent.
+
+## Parameters
+
+### claims
+
+- **Type:** `readonly string[]`
+
+Claim names the prover may disclose, such as `['email', 'email_verified']`. Any request for a claim outside this list is declined before calling `present`.
+
+### issuers (optional)
+
+- **Type:** `readonly string[]`
+- **Default:** `['https://api.link.com']`
+
+Trusted credential issuers. Override only for staging or tests; matching uses exact strings.
+
+### present
+
+- **Type:** `Link.Present`
+
+Creates a presentation, synchronously or asynchronously. Its parameters are `audience: string`, `claims: readonly string[]`, `nonce: string`, and optional `purpose: string`. Return `undefined` to decline. See [Link types](/sdk/typescript/core/Link.Types#present).
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+Origins allowed to receive presentations. Prefer an explicit list. Use HTTPS origins outside local development.
+
+## Errors
+
+Malformed or untrusted challenges return the original `401` response without a resend. Errors thrown by `present` propagate to the fetch caller.

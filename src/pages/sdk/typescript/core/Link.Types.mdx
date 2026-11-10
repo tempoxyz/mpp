@@ -1,0 +1,145 @@
+---
+description: "Type custom Link token providers and identity verification adapters."
+imageDescription: "Build custom Link identity integrations"
+---
+
+# `Link types` [Shared Link identity contracts]
+
+Exports the types used by Link identity adapters. Link is Stripe's agent identity issuer: an attestation token proves it recognizes an agent; a claims presentation discloses selected identity facts it signed.
+
+## Usage
+
+```ts twoslash
+import type * as Link from 'mppx/extensions/identity/link'
+
+declare const present: Link.Present
+
+// [!code hl:start]
+const presentation = await present({
+  audience: 'https://api.example.com',
+  claims: ['email', 'email_verified'],
+  nonce: 'server-issued-nonce',
+})
+// [!code hl:end]
+```
+
+Import every type below from `mppx/extensions/identity/link`, or through the `Link` namespace from `mppx/extensions/identity`.
+
+## AttestationVerifier
+
+Selects two methods from the [`LinkVerifier`](#linkverifier) interface below: `attestationChallenge` supplies HTTP authentication challenges, and `verifyAttestation` verifies the token. Its type is `Pick<Link.LinkVerifier, 'attestationChallenge' | 'verifyAttestation'>`. Implemented by [`Link.Server.tokenVerifier`](/sdk/typescript/server/Link.tokenVerifier) or the Stripe SDK's `LinkVerifier`.
+
+## ClaimsChallenge
+
+Problem body of a `401` response with `WWW-Authenticate: Identity-Presentation`:
+
+```ts
+type ClaimsChallenge = {
+  readonly aud: string
+  readonly claims: readonly string[]
+  readonly formats: readonly string[]
+  readonly nonce: string
+  readonly purpose?: string | undefined
+  readonly trusted_issuers: readonly string[]
+  readonly type: 'urn:stripe:link:claims-required'
+}
+```
+
+- **`aud`:** API origin the presentation must target.
+- **`claims`:** names to disclose, such as `email` and `email_verified`.
+- **`formats`:** accepted formats; Link uses `dc+sd-jwt`.
+- **`nonce`:** server-issued value the holder signs in the presentation.
+- **`purpose` (optional):** why the API asks for these claims.
+- **`trusted_issuers`:** accepted issuers; defaults to `https://api.link.com` on the server.
+- **`type`:** identifies the Link claims-required problem.
+
+[`Link.Client.claimsChallenge`](/sdk/typescript/client/Link.claimsChallenge) parses this shape; parsing alone does not validate its trust settings. Server challenge bodies additionally include a `detail` reason.
+
+## ClaimsVerifier
+
+`Pick<Link.LinkVerifier, 'verifyClaims'>`. Implemented by [`Link.Server.presentationVerifier`](/sdk/typescript/server/Link.presentationVerifier) or the Stripe SDK's `LinkVerifier`.
+
+## Failure
+
+```ts
+type Failure = {
+  readonly code: string
+  readonly message: string
+}
+```
+
+One verification failure. `code: 'issuer_unavailable'` maps to `503` in the Link server adapters; other verification failures map to `401`.
+
+## LinkVerifier
+
+Structural subset of `LinkVerifier` from `@stripe/agent-identity` that `mppx` consumes:
+
+```ts
+// Shape only; Failure is defined above.
+type LinkVerifier = {
+  attestationChallenge(): Promise<{ wwwAuthenticate: string[] }>
+  verifyAttestation(authorization: string | null | undefined): Promise<
+    | { bindingMode?: 'bearer'; issuer: string; tokenKeyId: string; valid: true }
+    | { failures: readonly Failure[]; valid: false }
+  >
+  verifyClaims(
+    presentation: string | null | undefined,
+    options: { nonce: string; requiredClaims: string[] },
+  ): Promise<
+    | { claims: Record<string, unknown>; holderKeyThumbprint: string; issuer: string; valid: true; vct: string }
+    | { failures: readonly Failure[]; valid: false }
+  >
+}
+```
+
+- **`attestationChallenge`:** returns `WWW-Authenticate` values to send on a token rejection.
+- **`verifyAttestation`:** accepts the complete `Authorization` value, including `PrivateToken`, or an absent value. Success identifies the issuer, token key, and optional bearer binding mode; failure carries `Failure[]`.
+- **`verifyClaims`:** accepts the `Identity-Presentation` value or an absent value, plus the expected server nonce and required claim names. Success returns disclosed claims, the holder key's RFC 7638 thumbprint, issuer, and credential type (`vct`); failure carries `Failure[]`.
+
+Reuse one SDK `new LinkVerifier({ origin })` per process on Node to share its issuer cache. The `mppx` Web Crypto adapters support Workers too; only claims verification needs the optional `@stripe/agent-identity >=0.3.0` peer.
+
+## Present
+
+```ts
+type Present = (parameters: {
+  audience: string
+  claims: readonly string[]
+  nonce: string
+  purpose?: string | undefined
+}) => string | undefined | Promise<string | undefined>
+```
+
+Callback for [`Link.Client.claims`](/sdk/typescript/client/Link.claims). `audience` is the request's own origin, `claims` lists the requested disclosures, `nonce` comes from the challenge, and optional `purpose` explains the request. Return the presentation string or `undefined` to decline.
+
+## VerifiedAttestation
+
+```ts
+type VerifiedAttestation = {
+  readonly issuer: string
+  readonly tokenKeyId: string
+}
+```
+
+Frozen value returned by [`Link.Server.attestation`](/sdk/typescript/server/Link.attestation). `issuer` names the signer; `tokenKeyId` is the base64url token-key ID. It contains no personal claims.
+
+## VerifiedClaims
+
+```ts
+type VerifiedClaims = {
+  readonly claims: Readonly<Record<string, unknown>>
+  readonly email?: string | undefined
+  readonly holderKeyThumbprint: string
+  readonly issuer: string
+  readonly vct: string
+}
+```
+
+Frozen value returned by [`Link.Server.claims`](/sdk/typescript/server/Link.claims):
+
+- **`claims`:** shallow-frozen disclosed claims, indexed by name.
+- **`email` (optional):** lowercased email, only when a string `email` and `email_verified: true` were disclosed.
+- **`holderKeyThumbprint`:** RFC 7638 thumbprint of the key that signed the presentation.
+- **`issuer`:** credential issuer.
+- **`vct`:** credential type identifier.
+
+These types define no runtime defaults or validation of their own.

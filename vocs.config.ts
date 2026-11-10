@@ -1072,12 +1072,58 @@ export default defineConfig({
                     link: "/sdk/typescript/core/Identity.Status",
                   },
                   {
+                    text: ".Verifier",
+                    link: "/sdk/typescript/core/Identity.Verifier",
+                  },
+                  {
                     text: ".anyOf",
                     link: "/sdk/typescript/core/Identity.anyOf",
                   },
                   {
                     text: ".from",
                     link: "/sdk/typescript/core/Identity.from",
+                  },
+                ],
+              },
+              {
+                text: "Link",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.attestation",
+                    link: "/sdk/typescript/client/Link.attestation",
+                  },
+                  {
+                    text: ".Client.claims",
+                    link: "/sdk/typescript/client/Link.claims",
+                  },
+                  {
+                    text: ".Client.claimsChallenge",
+                    link: "/sdk/typescript/client/Link.claimsChallenge",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Link.Constants",
+                  },
+                  {
+                    text: ".Server.attestation",
+                    link: "/sdk/typescript/server/Link.attestation",
+                  },
+                  {
+                    text: ".Server.claims",
+                    link: "/sdk/typescript/server/Link.claims",
+                  },
+                  {
+                    text: ".Server.presentationVerifier",
+                    link: "/sdk/typescript/server/Link.presentationVerifier",
+                  },
+                  {
+                    text: ".Server.tokenVerifier",
+                    link: "/sdk/typescript/server/Link.tokenVerifier",
+                  },
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Link.Types",
                   },
                 ],
               },

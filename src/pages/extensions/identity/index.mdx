@@ -15,6 +15,7 @@ Require a verified identity before payment, check the payer before settlement, o
 
 | Option | Verifies | Use it for |
 |---|---|---|
+| [**Link**](#link) | Link-issued agent tokens or disclosed identity claims | Recognize Link agents or require a verified email |
 | [**Email OTP**](#email-otp) | An email inbox, or any fact a trusted issuer attests | Verified-address access without your own login |
 | [**Agent signatures**](#agent-signatures) | The agent or bot that signed the request | Bot recognition and agent-specific policy |
 | [**Your own identity provider**](#your-own-identity-provider) | Your identity provider's API keys, sessions, or SSO, or your own protocol | Existing customer access policy |
@@ -75,8 +76,134 @@ export const handler = payment.charge({
 ```
 
 - Every `anyOf` member runs, so each presented proof's nonce is consumed. The first valid member wins.
+- If a verifier reads `Authorization`, set [`authorization: true`](/sdk/typescript/core/Identity.Verifier#authorization-optional) on its verifier object and create the server with `requiresAuth: true`. Payment Credentials then use `Payment-Authorization`, leaving the identity proof intact. This also applies inside nested `anyOf` groups; configuring the route without it throws a `TypeError`.
 - When every member rejects, the highest-precedence status decides and the headers of every rejection are merged.
 - Attestation members are listed as one group of alternatives, such as `Identity-Attestation-Required: (email;issuer="https://identity.mpp.tempo.xyz" email;issuer="https://identity.example.com")`. The client meets the group with one attestation it holds, or acquires the first that succeeds, so accepting several issuers costs the caller one code.
+
+## Link
+
+[Link Agent Identity](https://docs.link.com/concepts/agent-identity) provides agent tokens without personal details and presentations of signed claims, such as a verified email. Use agent attestation for the former and claims verification for the latter. Neither proves that the identity owns the paying wallet.
+
+### Recognize a Link agent
+
+[`Link.Server.attestation`](/sdk/typescript/server/Link.attestation) verifies an Agent Attestation Token from `Authorization: PrivateToken`. Set `requiresAuth: true` so Payment Credentials use `Payment-Authorization` instead.
+
+```ts twoslash [server.ts]
+import * as Link from 'mppx/extensions/identity/link'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const agent = Link.Server.attestation()
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true,
+})
+// [!code hl:end]
+export const handler = mppx.charge({ amount: '0.05', identity: [agent] })
+```
+
+Configure [`Link.Client.attestation`](/sdk/typescript/client/Link.attestation) to obtain a token from your Link CLI integration. `getLinkToken` below is application code that returns the CLI's `authorization` value or a bare token.
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as Link from 'mppx/extensions/identity/link'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function getLinkToken(): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [Link.Client.attestation({
+    scope: ['https://api.example.com'],
+    token: () => getLinkToken(),
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+- A missing token gets `401` with a `PrivateToken` challenge. The prover obtains a token and retries the unpaid request, then reuses it for that origin, including on the paid retry.
+- The token only establishes that Link issued it; it discloses no personal details and isn't single-use. Existing caller-supplied `Authorization` is left untouched.
+- Use [`Link.Server.tokenVerifier`](/sdk/typescript/server/Link.tokenVerifier) to configure the built-in Web Crypto verifier, or pass an `@stripe/agent-identity` verifier.
+
+### Require verified claims
+
+Install `@stripe/agent-identity` 0.3.0 or later for claims verification. Agent attestation alone uses Web Crypto and doesn't need this package.
+
+:::code-group
+
+```bash [npm]
+$ npm install @stripe/agent-identity
+```
+
+```bash [pnpm]
+$ pnpm add @stripe/agent-identity
+```
+
+```bash [bun]
+$ bun add @stripe/agent-identity
+```
+
+:::
+
+[`Link.Server.claims`](/sdk/typescript/server/Link.claims) verifies a presentation of claims signed by Link. Request both `email` and `email_verified` for a verified email; read it through `result.identity?.get(email)?.email` after success.
+
+```ts twoslash [server.ts]
+import * as Link from 'mppx/extensions/identity/link'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = Link.Server.claims({
+  audience: 'https://api.example.com',
+  claims: ['email', 'email_verified'],
+  purpose: 'Send your purchased report',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({ amount: '0.05', identity: [email] })
+```
+
+Configure [`Link.Client.claims`](/sdk/typescript/client/Link.claims) with the claims you permit and a callback that obtains a presentation, for example through `link-cli identity credentials present`.
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as Link from 'mppx/extensions/identity/link'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const present: Link.Present
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [Link.Client.claims({
+    claims: ['email', 'email_verified'],
+    present,
+    scope: ['https://api.example.com'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+- A missing presentation gets `401` with `WWW-Authenticate: Identity-Presentation` and a claims challenge in the response body. The prover checks the audience, trusted issuer, format, and allowed claims before calling `present`.
+- The presentation travels in `Identity-Presentation`, bound to the configured API origin and a nonce signed by the server with `secretKey`. It remains reusable until the nonce expires (300 seconds by default), including on the paid retry.
+- Put the claims verifier first to retain its challenge body when other verifiers also return `missing`. Use a fixed public origin for `audience`, not a caller-controlled host.
+- Claims alone don't need `requiresAuth`. Add it if you also require agent attestation. Neither prover retries an already-paid attempt for identity recovery.
+- See [`Link.Client.claimsChallenge`](/sdk/typescript/client/Link.claimsChallenge) to parse the challenge yourself and [`Link.Server.presentationVerifier`](/sdk/typescript/server/Link.presentationVerifier) for verification options.
+
+Keep proofs at their intended origin. The client strips sensitive identity headers on cross-origin redirects, and the [proxy](/sdk/typescript/proxy) removes them before forwarding upstream. See [`Identity.Headers`](/sdk/typescript/core/Identity.Headers).
 
 ## Email OTP
 
@@ -453,11 +580,11 @@ export const handler = mppx.charge({ amount: '0.05', identity: [customer] })
 
 Third-party identity protocols implement the `Identity.Verifier` and `Identity.Prover` types from `mppx/identity`.
 
-- **Verifier:** `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](#how-identity-checks-run) with a `reason` and optional `headers`.
+- **Verifier:** set `authorization: true` if it reads `Authorization`, and create the server with `requiresAuth: true`. `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](#how-identity-checks-run) with a `reason` and optional `headers`.
 - **Prover:** `prove(request, context)` returns the proved request for origins in `scope`. `context` has a fresh nonce, a timestamp, and on a paid retry the Challenge.
 - **`prepare`** (optional): runs on a `402` before the paid retry. Its `requirements` list the 402's `Identity-Required` entries.
 - **`retry`** (optional): returns headers to resend a rejected non-402 request once. Paid attempts are never resent.
-- **`headers`** (optional): sensitive request headers, stripped on cross-origin redirects and never proxied upstream.
+- **`headers`** (optional): sensitive request headers stripped on cross-origin redirects. Remove custom proof headers yourself when forwarding upstream.
 
 ```ts twoslash [identity.ts]
 import type * as Identity from 'mppx/identity'

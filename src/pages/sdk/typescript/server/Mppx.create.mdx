@@ -1,3 +1,8 @@
+---
+description: "Charge for API access with payment methods and identity checks you choose."
+imageDescription: "Accept payments and verify callers in one handler"
+---
+
 # `Mppx.create` [Create a server-side payment handler]
 
 Creates a server-side payment handler from a method.
@@ -67,6 +72,8 @@ const handler = payment.tempo.charge({
 ```
 
 Compatible `mppx` clients follow the field advertised by the Challenge and preserve an existing non-Payment `Authorization` value on the retry.
+
+Request verifiers that read `Authorization`, including [`Link.Server.attestation`](/sdk/typescript/server/Link.attestation), declare `authorization: true`. Configuring a route with one requires `requiresAuth: true`; otherwise, the handler throws a `TypeError`. [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf) propagates this flag through nested alternatives.
 
 ### Select offers per request
 
@@ -300,7 +307,7 @@ const payment = Mppx.create({
 - **Type:** `boolean`
 - **Default:** `false`
 
-Uses `Payment-Authorization` for Payment Credentials so `Authorization` remains available for application authentication. Available with the HTTP transport.
+Uses `Payment-Authorization` for Payment Credentials so `Authorization` remains available for application authentication. Required when any request verifier sets `authorization: true`, including within nested `Identity.anyOf` groups; configuring such a route without it throws a `TypeError`. Available with the HTTP transport.
 
 ### secretKey (optional)
 

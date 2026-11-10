@@ -99,6 +99,9 @@ type Page =
   | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.attestation'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.claims'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.claimsChallenge'; render: 'static' }
   | { path: '/sdk/typescript/client/McpClient.wrap'; render: 'static' }
   | { path: '/sdk/typescript/client/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/client/Method.evm'; render: 'static' }
@@ -143,8 +146,11 @@ type Page =
   | { path: '/sdk/typescript/core/Identity.Headers'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Rejection'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Status'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Verifier'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.anyOf'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Link.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Link.Types'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toServer'; render: 'static' }
@@ -171,6 +177,10 @@ type Page =
   | { path: '/sdk/typescript/proxy'; render: 'static' }
   | { path: '/sdk/typescript/server/Attestation.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/EmailOtp.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.attestation'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.claims'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.presentationVerifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.tokenVerifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }

@@ -1,0 +1,92 @@
+---
+description: "Define identity checks that run before an API accepts payment."
+imageDescription: "Check caller identity before charging"
+---
+
+# `Identity.Verifier` [Define a request identity check]
+
+Defines one server-side identity protocol checked before a payment Challenge is issued or a Credential is settled.
+
+`authorization: true` declares that the check reads the HTTP `Authorization` header. Set `requiresAuth: true` in server `Mppx.create` to put Payment Credentials in `Payment-Authorization` instead, avoiding a collision with the identity proof.
+
+## Usage
+
+```ts twoslash
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function verifyToken(value: string): Promise<{ customerId: string } | undefined>
+
+// [!code hl:start]
+const customer: Identity.Verifier<{ customerId: string }> = {
+  authorization: true,
+  async verify(request) {
+    const token = request.headers.get('Authorization')
+    if (!token) return { reason: 'Authentication required.', status: 'missing' }
+    const value = await verifyToken(token)
+    if (!value) return { reason: 'Invalid authentication.', status: 'invalid' }
+    return { status: 'valid', value }
+  },
+}
+// [!code hl:end]
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true,
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.tempo.charge({ amount: '0.05', identity: [customer] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json(result.identity?.get(customer)))
+}
+```
+
+Use [`Identity.from`](/sdk/typescript/core/Identity.from) when a callback returning a value or a refusal is enough. Use `Verifier` directly when implementing a protocol with its own challenge headers.
+
+## Return type
+
+`verify` returns `Identity.Verification<value>` synchronously or asynchronously:
+
+| Status | Result | HTTP |
+|---|---|---|
+| `valid` | Required `value` | Continue |
+| `missing` | Optional `reason` and `headers` | `401` |
+| `invalid` | Required `reason`, optional `headers` | `401` |
+| `forbidden` | Required `reason`, optional `headers` | `403` |
+| `unavailable` | Required `reason`, optional `headers` | `503` |
+
+`headers` has type `HeadersInit` and carries protocol challenges or errors. The deprecated numeric `code` on `missing` and `invalid` is still honored: `403` maps to `forbidden`, `503` to `unavailable`, and other codes are sent as given. Prefer fixed statuses; see [`Identity.Status`](/sdk/typescript/core/Identity.Status) for precedence.
+
+A route identity list requires every verifier. [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf) accepts alternatives. Each verifier runs at most once per request, including when reused across composed offers; successful values are keyed by that exact verifier object in `result.identity`.
+
+## Properties
+
+### authorization (optional)
+
+- **Type:** `boolean`
+- **Default:** unset
+
+Declares that `verify` reads `Authorization`. Set `requiresAuth: true` on `Mppx.create` so the identity proof keeps `Authorization` and Payment Credentials use `Payment-Authorization`. `Identity.anyOf` propagates this flag through nested alternatives.
+
+### challenge (optional, deprecated)
+
+- **Type:** `(request: Request, context: { readonly nonce: string }) => unknown`
+
+Ignored. Payment-stage verifiers were replaced by the route's experimental `identity: { payment }` check, whose `requires` values are sent in `Identity-Required`.
+
+### stage (optional, deprecated)
+
+- **Type:** `'request' | 'payment'`
+- **Default:** `'request'`
+
+Omit it. Every verifier runs at request stage; `'payment'` throws. Use the experimental route payment check for checks bound to a payment Challenge and Credential.
+
+### verify
+
+- **Type:** `(request: Request) => Identity.Verification<value> | Promise<Identity.Verification<value>>`
+
+Verifies the incoming HTTP request and returns a fixed outcome. Return `unavailable` for an issuer outage rather than calling a valid proof invalid. Return `forbidden` only after the proof verifies but your policy refuses it.
+
+## Errors
+
+An authorization-reading verifier on a server without `requiresAuth: true` throws `TypeError` when the route is configured. The same check applies inside nested `Identity.anyOf` alternatives. Do not rely on exceptions to express protocol rejection; return a verification outcome instead.
