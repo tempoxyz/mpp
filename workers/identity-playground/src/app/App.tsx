@@ -233,7 +233,22 @@ function Panel({ f }: { f: Demo }) {
       ) : (
         <Composer f={f} />
       )}
-      {!f.address && f.wallet.error && (
+      {f.address && !f.wallet.connected && (
+        // With no unlink action, linking is how a test-wallet visitor switches to a real
+        // wallet: a linked wallet's address takes precedence over the test one.
+        <div className="panel-row">
+          <span className="dim">Using a test wallet ·</span>
+          <button
+            className="action"
+            disabled={!f.wallet.ready || f.wallet.linking}
+            onClick={f.link}
+            type="button"
+          >
+            {f.wallet.linking ? "Linking…" : "Link Tempo Wallet"}
+          </button>
+        </div>
+      )}
+      {!f.wallet.connected && f.wallet.error && (
         <div className="panel-row error">{f.wallet.error.message}</div>
       )}
     </section>
