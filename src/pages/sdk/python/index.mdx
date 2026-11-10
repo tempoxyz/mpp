@@ -80,7 +80,7 @@ async with Mpp(
 `allowed_origins` authorizes automatic payment only to exact HTTP origins. An empty list disables automatic payment. Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
 
 :::info[Go live]
-Before going live, set `chain_id=4217` (Tempo mainnet) on both sides and fund a mainnet account.
+Before going live, set `chain_id=4217` (Tempo mainnet) on the server, set `allowed_chain_ids=[4217]` on the client, and fund a mainnet account.
 :::
 
 ## Core types

@@ -45,7 +45,7 @@ Run it again: the second request reuses the channel and pays with a voucher. Lis
 
 Register `tempo()` with `Mppx.create`. It polyfills `fetch`, so a session Challenge opens a channel on the first request and signs a voucher on each later one.
 
-```ts [client.ts]
+```ts twoslash [client.ts]
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -78,7 +78,7 @@ console.log(await res.json())
 
 An unattended buyer needs limits. Pin what you accept from an API you don't control:
 
-```ts [client.ts]
+```ts twoslash [client.ts]
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -119,7 +119,7 @@ Explicit closes bypass price and recipient limits, so you can always reclaim fun
 
 For streamed responses, use `tempo.session.manager()` and `.sse()`. The seller charges per token; when the channel balance runs low mid-stream, the manager signs a new voucher (and tops up within `maxDeposit`) without interrupting the stream.
 
-```ts [stream.ts]
+```ts twoslash [stream.ts]
 import { tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -151,7 +151,7 @@ await session.close()
 
 Your deposit stays reserved until the channel closes. Call `close()` on the manager that opened it to settle and get unspent funds back:
 
-```ts [client.ts]
+```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
