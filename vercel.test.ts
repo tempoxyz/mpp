@@ -48,4 +48,32 @@ describe("identity playground rewrite", () => {
       ]),
     );
   });
+
+  it("proxies to the deployed Worker by default", async () => {
+    vi.resetModules();
+    vi.stubEnv("IDENTITY_PLAYGROUND_WORKER_ORIGIN", "");
+    const { config } = await import("./vercel");
+    vi.unstubAllEnvs();
+
+    expect(config.rewrites).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/playground/identity/:path*",
+          destination:
+            "https://mpp-identity-playground.porto.workers.dev/playground/identity/:path*",
+        },
+      ]),
+    );
+  });
+
+  it("leaves the rewrite out of preview deployments", async () => {
+    vi.resetModules();
+    vi.stubEnv("VERCEL_ENV", "preview");
+    const { config } = await import("./vercel");
+    vi.unstubAllEnvs();
+
+    expect(JSON.stringify(config.rewrites ?? [])).not.toContain(
+      "/playground/identity",
+    );
+  });
 });
