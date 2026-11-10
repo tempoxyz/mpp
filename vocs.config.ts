@@ -549,7 +549,7 @@ export default defineConfig({
             link: "/quickstart",
             items: [
               { text: "Add payments to your API", link: "/quickstart/server" },
-              { text: "Use with coding agents", link: "/quickstart/agent" },
+              { text: "Use with agents", link: "/quickstart/agent" },
               { text: "Use with your app", link: "/quickstart/client" },
             ],
           },
@@ -560,23 +560,23 @@ export default defineConfig({
       {
         text: "For sellers",
         items: [
-          { text: "Charge", link: "/guides/one-time-payments" },
-          { text: "Session", link: "/guides/usage-based" },
-          { text: "Subscription", link: "/guides/subscription-payments" },
-          { text: "Cards", link: "/guides/accept-card-payments" },
-          { text: "Splits", link: "/guides/split-payments" },
+          { text: "Charge per request", link: "/guides/one-time-payments" },
+          { text: "Bill by usage", link: "/guides/usage-based" },
+          { text: "Sell subscriptions", link: "/guides/subscription-payments" },
+          { text: "Accept cards", link: "/guides/accept-card-payments" },
+          { text: "Split payments", link: "/guides/split-payments" },
           {
-            text: "Multiple methods",
+            text: "Accept multiple methods",
             link: "/guides/multiple-payment-methods",
           },
-          { text: "Payment links", link: "/guides/payment-links" },
+          { text: "Create payment links", link: "/guides/payment-links" },
           {
             text: "Proxy an existing service",
             link: "/guides/proxy-existing-service",
           },
-          { text: "MCP servers", link: "/guides/monetize-mcp-server" },
-          { text: "WebMCP tools", link: "/guides/webmcp-payments" },
-          { text: "x402", link: "/guides/use-mpp-with-x402" },
+          { text: "Monetize MCP servers", link: "/guides/monetize-mcp-server" },
+          { text: "Monetize WebMCP tools", link: "/guides/webmcp-payments" },
+          { text: "Accept x402 payments", link: "/guides/use-mpp-with-x402" },
         ],
       },
       {

@@ -111,7 +111,7 @@ export function LandingPage() {
                 href="/quickstart/agent"
                 variant="primary"
               >
-                Use with coding agents
+                Use with agents
               </Button>
               <Button className="w-full sm:w-auto" href="/quickstart/server">
                 Charge for your API

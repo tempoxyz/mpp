@@ -1,20 +1,31 @@
 ---
-description: "Let Claude Code, Codex, and other coding agents pay for MPP services. Set up a wallet in one prompt."
-imageDescription: "Let your coding agent pay for APIs"
+description: "Set up Claude Code, Codex, Cursor, or your own agent to pay for MPP services with the Tempo CLI, mppx, or MCP."
+imageDescription: "Set up your agent to pay for APIs"
 ---
 
 import { Card, Cards, Tab, Tabs } from 'vocs'
 import { AgentSetupPrompt } from '../../components/AgentSetupPrompt'
 
-# Use with coding agents [Let your coding agent pay for MPP services]
+# Use with agents [Set up your agent to pay for MPP services]
 
-After setup, your coding agent pays for MPP services on its own, acting as the buyer. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
+Give your agent a wallet and a CLI, and it pays for MPP services on its own as the buyer. This works with any agent that can run shell commands or use MCP tools: Claude Code, Codex, Cursor, or your own.
+
+| Setup | Best for |
+|-------|----------|
+| [One prompt](#set-up-with-one-prompt) | Fastest: your agent installs and connects Tempo Wallet itself |
+| [Tempo CLI](#set-up-with-the-tempo-cli) | Doing the same setup by hand |
+| [`mppx` CLI and MCP](#set-up-with-mppx) | Development, testnet, and MCP-based agents |
+| [Other wallets](#other-wallets) | Privy or AgentCash wallets |
+
+Building the agent yourself? Use an [Agent SDK](/partner-integrations/vercel-ai-sdk) or the [client quickstart](/quickstart/client). To cap what an agent spends, see [Manage spend](/guides/managing-agent-spend).
+
+## Set up with one prompt
 
 <AgentSetupPrompt />
 
-## Manual setup
+## Set up with the Tempo CLI
 
-Set up [Tempo Wallet](https://wallet.tempo.xyz) yourself if you don't want your coding agent to handle installation.
+Run the same setup yourself. Your agent then calls `tempo request` to pay for services.
 
 ::::steps
 
@@ -52,15 +63,56 @@ $ tempo request -X POST \
 
 ::::
 
-## Other MPP clients and integrations
+## Set up with mppx
 
-Tempo Wallet is the recommended way to use MPP services with a coding agent. These alternatives support other wallets and development workflows.
+The [`mppx` CLI](/sdk/typescript/cli) is a lightweight MPP client. Use it on testnet while you develop, or connect it to your agent over MCP.
+
+::::steps
+
+### Install
+
+:::code-group
+```bash [npm]
+$ npm install -g mppx
+```
+```bash [pnpm]
+$ pnpm add -g mppx
+```
+```bash [bun]
+$ bun add -g mppx
+```
+:::
+
+### Create and fund a testnet account
+
+```bash [test.sh]
+$ mppx account create --network testnet
+$ mppx account fund --network testnet
+```
+
+### Make a paid request
+
+```bash [test.sh]
+$ mppx https://mpp.dev/api/ping/paid
+```
+
+### Connect your agent
+
+Register `mppx` as an MCP server and sync its skill files, so your agent can call paid services as tools:
+
+```bash [test.sh]
+$ mppx mcp add
+$ mppx skills add
+```
+
+::::
+
+## Other wallets
 
 | Tool | Best for |
 |------|----------|
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding |
-| [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP |
-| [`mppx` CLI](#mppx) | Development and debugging |
+| [AgentCash](#agentcash) | One balance for 300+ premium APIs |
 
 ### Privy Agent CLI
 
@@ -165,42 +217,6 @@ $ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 ::::
 </Tab>
 </Tabs>
-
-### mppx
-
-The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
-
-::::steps
-
-### Install
-
-:::code-group
-```bash [npm]
-$ npm install -g mppx
-```
-```bash [pnpm]
-$ pnpm add -g mppx
-```
-```bash [bun]
-$ bun add -g mppx
-```
-:::
-
-### Create and fund a testnet account
-
-```bash [test.sh]
-$ mppx account create --network testnet
-$ mppx account fund --network testnet
-```
-
-### Make a paid request
-
-```bash [test.sh]
-$ mppx https://mpp.dev/api/ping/paid
-```
-
-::::
-
 
 ## Next steps
 

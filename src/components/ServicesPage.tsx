@@ -668,7 +668,7 @@ const topShortcuts = [
   {
     href: "/quickstart/agent",
     subtext: "CLI wallet for agents.",
-    title: "Use with coding agents",
+    title: "Use with agents",
   },
   ...shortcuts.filter((shortcut) => shortcut.title !== "Discovery"),
 ];
@@ -916,7 +916,7 @@ export function ServicesPage({
               <summary className="flex cursor-pointer list-none items-start gap-4 marker:hidden [&::-webkit-details-marker]:hidden">
                 <div className="flex flex-1 flex-col gap-2 pr-6">
                   <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite">
-                    Use with coding agents
+                    Use with agents
                   </p>
                   <p className="font-sans text-sm leading-[1.2] text-secondary">
                     Install the Tempo CLI and its wallet to fund your
@@ -931,7 +931,7 @@ export function ServicesPage({
 
               <div className="hidden space-y-5 group-open:block">
                 <AgentSetupPrompt
-                  manualSetupHref="/quickstart/agent#manual-setup"
+                  manualSetupHref="/quickstart/agent#set-up-with-the-tempo-cli"
                   variant="marketing"
                 />
 

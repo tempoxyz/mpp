@@ -33,7 +33,7 @@ export function Footer() {
             href="/quickstart/agent"
             variant="primary"
           >
-            Use with coding agents
+            Use with agents
           </Button>
           <Button
             className="w-full sm:w-auto"

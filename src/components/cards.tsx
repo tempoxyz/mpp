@@ -107,7 +107,7 @@ export function OneTimePaymentsCard() {
     <Card
       description="One payment per request, settled on-chain"
       icon="lucide:zap"
-      title="Charge"
+      title="Charge per request"
       to="/guides/one-time-payments"
     />
   );
@@ -118,7 +118,7 @@ export function PayAsYouGoCard() {
     <Card
       description="Bill per request or per token with off-chain vouchers"
       icon="lucide:repeat"
-      title="Session"
+      title="Bill by usage"
       to="/guides/usage-based"
     />
   );
@@ -140,7 +140,7 @@ export function SubscriptionPaymentsCard() {
     <Card
       description="Bill buyers on a recurring schedule"
       icon="lucide:calendar-sync"
-      title="Subscription"
+      title="Sell subscriptions"
       to="/guides/subscription-payments"
     />
   );
