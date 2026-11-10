@@ -1,17 +1,17 @@
 import { MarketingHead } from "../../components/MarketingHead";
 import { Footer } from "../../components/marketing/Footer";
-import { PlaygroundIndexA } from "../../components/playground/PlaygroundIndexA";
+import { PlaygroundIndex } from "../../components/playground/PlaygroundIndex";
 
 export default function PlaygroundRoute() {
   return (
     <>
       <MarketingHead
-        description="Try MPP in your browser: interactive demos that make real payments on Tempo testnet, from paid requests and sessions to agent identity."
-        imageDescription="Try machine payments in your browser"
+        description="Interactive MPP demos that make real payments on Tempo testnet."
+        imageDescription="Try MPP in your browser"
         path="/playground"
-        title="MPP playground: interactive payment demos"
+        title="MPP playground"
       />
-      <PlaygroundIndexA />
+      <PlaygroundIndex />
       <Footer />
     </>
   );
