@@ -158,6 +158,10 @@ $ npx mppx http://localhost:3000
 
 Build a poetry API that streams word by word over Server-Sent Events (SSE) and charges $0.001 per word. If the channel balance runs low mid-stream, the client signs a new voucher and the stream continues.
 
+:::info[Cloudflare Workers]
+Set `sse: { poll: true }` instead of `sse: true`. Workers can't resolve a promise across request contexts, so without polling the stream stalls when it needs a new voucher. See [`sse` options](/sdk/typescript/server/Method.tempo.session#sse-optional).
+:::
+
 ::::steps
 
 #### Install `mppx`
