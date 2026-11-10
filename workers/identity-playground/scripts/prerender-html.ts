@@ -1,6 +1,6 @@
 // Renders the page's first state into dist's index.html, so it paints before any JavaScript
 // runs; main.tsx then renders over it. Runs after vite build (see package.json).
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import react from "@vitejs/plugin-react";
 import { createElement } from "react";
@@ -43,9 +43,21 @@ try {
     join(root, "dist/client/playground/identity", css[1]),
     "utf8",
   );
+  // Fetch the code panes' highlighter with the page rather than after main.tsx runs.
+  const codeView = readdirSync(
+    join(root, "dist/client/playground/identity/assets"),
+  ).find((name) => /^CodeView-.*\.js$/.test(name));
+  if (!codeView) throw new Error("dist has no CodeView chunk to preload");
   writeFileSync(
     file,
     html
+      .replace(
+        "</head>",
+        () =>
+          '<link rel="modulepreload" crossorigin href="/playground/identity/assets/' +
+          codeView +
+          '">\n</head>',
+      )
       .replace(css[0], () => `<style>${style}</style>`)
       .replace('<div id="root"></div>', () => `<div id="root">${markup}</div>`),
   );

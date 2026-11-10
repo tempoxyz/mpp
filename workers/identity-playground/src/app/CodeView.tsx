@@ -1,7 +1,10 @@
 // The code panes' highlighter, loaded lazily: @pierre/diffs bundles Shiki.
+
+import prerendered from "virtual:prerendered-diffs";
 import { File, MultiFileDiff } from "@pierre/diffs/react";
 import { type ReactNode, type RefObject, useEffect, useRef } from "react";
 
+import { codeOptions } from "./codeOptions.js";
 import type { explanations } from "./samples.js";
 
 /** One file, or its additions to the anonymous base when it differs. */
@@ -27,6 +30,13 @@ export default function CodeView({
       {old === now ? (
         <File
           file={{ contents: now, name }}
+          // The build-time render of this exact file, as diffs.com does it: the pane shows final
+          // highlighted code as soon as it mounts, without waiting for Shiki to start.
+          prerenderedHTML={
+            annotations.length === 0 && prerendered[name]?.source === now
+              ? prerendered[name].html
+              : undefined
+          }
           lineAnnotations={annotations}
           options={codeOptions}
           renderAnnotation={renderAnnotation}
@@ -73,11 +83,3 @@ function usePainted(
     return () => clearInterval(timer);
   }, [ref, onPaint]);
 }
-
-const codeOptions = {
-  disableFileHeader: true,
-  disableLineNumbers: true,
-  overflow: "wrap",
-  theme: { dark: "github-dark-dimmed", light: "github-light" },
-  themeType: "dark",
-} as const;

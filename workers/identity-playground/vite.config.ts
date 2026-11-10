@@ -40,40 +40,58 @@ export default defineConfig(({ command }) => ({
  * seconds. App.tsx shows these until it loads, while the code is still the anonymous sample.
  */
 export function prerenderCode(): Plugin {
-  const id = "virtual:prerendered-code";
+  const ids = ["virtual:prerendered-code", "virtual:prerendered-diffs"];
+  let panes:
+    | Promise<Record<string, { full: string; source: string }>>
+    | undefined;
+  // Highlights each pane's first file once, with the same options as CodeView.tsx.
+  const render = async () => {
+    const { preloadFile } = await import("@pierre/diffs/ssr");
+    // By file URL: Vite's bundled config and Node (scripts/prerender-html.ts imports this file
+    // directly) both load the .ts source from there.
+    const { serverUsage, usage } = (await import(
+      new URL("./src/app/samples.ts", import.meta.url).href
+    )) as typeof import("./src/app/samples.js");
+    const { codeOptions } = (await import(
+      new URL("./src/app/codeOptions.ts", import.meta.url).href
+    )) as typeof import("./src/app/codeOptions.js");
+    const sources = {
+      "client.ts": usage("anonymous", "", "haiku-demo-key", ""),
+      "server.ts": serverUsage("anonymous"),
+    };
+    const out: Record<string, { full: string; source: string }> = {};
+    for (const [name, contents] of Object.entries(sources)) {
+      const { prerenderedHTML } = await preloadFile({
+        file: { contents, name },
+        options: codeOptions,
+      });
+      out[name] = { full: prerenderedHTML, source: contents };
+    }
+    return out;
+  };
   return {
     name: "prerender-code",
-    resolveId: (source) => (source === id ? `\0${id}` : undefined),
+    resolveId: (source) => (ids.includes(source) ? "\0" + source : undefined),
     async load(source) {
-      if (source !== `\0${id}`) return;
-      const { preloadFile } = await import("@pierre/diffs/ssr");
-      // By file URL: Vite's bundled config and Node (scripts/prerender-html.ts imports this file
-      // directly) both load the .ts source from there.
-      const { serverUsage, usage } = (await import(
-        new URL("./src/app/samples.ts", import.meta.url).href
-      )) as typeof import("./src/app/samples.js");
-      const panes = {
-        "client.ts": usage("anonymous", "", "haiku-demo-key", ""),
-        "server.ts": serverUsage("anonymous"),
-      };
+      const id = ids.find((id) => source === "\0" + id);
+      if (!id) return;
+      panes ??= render();
       const out: Record<string, { html: string; source: string }> = {};
-      for (const [name, contents] of Object.entries(panes)) {
-        const { prerenderedHTML } = await preloadFile({
-          file: { contents, name },
-          options: { theme: "github-dark-dimmed" },
-        });
-        // Just the lines, each token's dark color inline: the page always uses the dark theme.
-        const code =
-          /<code[^>]*>([\s\S]*)<\/code>/.exec(prerenderedHTML)?.[1] ?? "";
+      for (const [name, { full, source }] of Object.entries(await panes)) {
         out[name] = {
-          html: code.replace(
-            /style="--diffs-token-dark:(#[0-9A-Fa-f]+)[^"]*"/g,
-            'style="color:$1"',
-          ),
-          source: contents,
+          // The diffs pane's own markup (for CodeView.tsx, in the highlighter's chunk), or for
+          // the page's first paint just the lines, each token's dark color inline.
+          html:
+            id === "virtual:prerendered-diffs"
+              ? full
+              : (/<code[^>]*>([\s\S]*)<\/code>/.exec(full)?.[1] ?? "").replace(
+                  /style="--diffs-token-dark:(#[0-9A-Fa-f]+)[^"]*"/g,
+                  'style="color:$1"',
+                ),
+          source,
         };
       }
-      return `export default ${JSON.stringify(out)};`;
+      return "export default " + JSON.stringify(out) + ";";
     },
   };
 }
