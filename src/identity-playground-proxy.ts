@@ -30,7 +30,9 @@ export async function proxy(request: Request) {
   // instead of following the Worker's redirect back to the slashed path.
   const path = url.pathname === BASE ? `${BASE}/` : url.pathname;
   const headers = new Headers(request.headers);
-  for (const name of [...HOP_BY_HOP, "host"]) headers.delete(name);
+  // fetch decodes only the encodings it asks for itself (no zstd), so let it negotiate.
+  for (const name of [...HOP_BY_HOP, "accept-encoding", "host"])
+    headers.delete(name);
 
   const init: RequestInit = {
     headers,
