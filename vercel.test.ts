@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { config } from "./vercel";
 
 const CACHE_CONTROL =
@@ -20,32 +20,5 @@ describe("static asset caching", () => {
       key: "Cache-Control",
       value: CACHE_CONTROL,
     });
-  });
-});
-
-describe("identity playground rewrite", () => {
-  it("proxies /playground/identity to the Worker when its origin is set", async () => {
-    vi.resetModules();
-    vi.stubEnv(
-      "IDENTITY_PLAYGROUND_WORKER_ORIGIN",
-      "https://playground.example.workers.dev/",
-    );
-    const { config: withOrigin } = await import("./vercel");
-    vi.unstubAllEnvs();
-
-    expect(withOrigin.rewrites).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/playground/identity",
-          destination:
-            "https://playground.example.workers.dev/playground/identity/",
-        },
-        {
-          source: "/playground/identity/:path*",
-          destination:
-            "https://playground.example.workers.dev/playground/identity/:path*",
-        },
-      ]),
-    );
   });
 });

@@ -3,7 +3,7 @@
 The MPP identity playground at [mpp.dev/playground/identity](https://mpp.dev/playground/identity): pay for a haiku as an anonymous, API-key or verified-email buyer and see each tier's price, limits and Receipt.
 
 - A Cloudflare Worker with static assets, an AI binding for the haiku and a Durable Object for mppx state.
-- `vercel.ts` rewrites `/playground/identity/*` on mpp.dev to `IDENTITY_PLAYGROUND_WORKER_ORIGIN`, so every path lives under `/playground/identity`.
+- `src/pages/_api/playground/` proxies `/playground/identity/*` on mpp.dev to the Worker at `https://mpp-identity-playground.porto.workers.dev` (`IDENTITY_PLAYGROUND_WORKER_ORIGIN` overrides it), so every path lives under `/playground/identity`.
 - Email codes go to the demo inbox on the page, not to real email.
 
 ## Commands
@@ -18,7 +18,7 @@ The **Deploy MPP identity playground** workflow deploys on pushes to `main` that
 ## Setup
 
 1. The deploy workflow generates the payee key with Foundry (`cast wallet new`) and stores it as the `MPP_PRIVATE_KEY` Worker secret the first time; later deploys keep it. To rotate, delete the secret and rerun the workflow.
-2. Set `IDENTITY_PLAYGROUND_WORKER_ORIGIN` in the Vercel project to the Worker's origin (for example `https://mpp-identity-playground.<account>.workers.dev`) and redeploy. Preview deployments skip the rewrite: attestations are bound to `https://mpp.dev`.
+2. Production deployments of mpp.dev proxy to that Worker by default; set `IDENTITY_PLAYGROUND_WORKER_ORIGIN` in Vercel only to point elsewhere. Preview deployments answer 404: attestations are bound to `https://mpp.dev`.
 
 ## Local development
 
