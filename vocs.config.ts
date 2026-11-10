@@ -7,7 +7,11 @@ import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 // Pages merged into their parent page. Each also redirects its Markdown
 // URL (/page.md) to the parent's Markdown, which has no anchors.
-const mergedPageRedirects = [
+const mergedPageRedirects: {
+  source: string;
+  destination: string;
+  status: 308;
+}[] = [
   {
     source: "/payment-methods/evm/charge",
     destination: "/payment-methods/evm#charge",
@@ -282,7 +286,7 @@ export default defineConfig({
     ...mergedPageRedirects.map(({ source, destination }) => ({
       source: `${source}.md`,
       destination: `${destination.split("#")[0]}.md`,
-      status: 308,
+      status: 308 as const,
     })),
 
     // Protocol concept shortcuts
