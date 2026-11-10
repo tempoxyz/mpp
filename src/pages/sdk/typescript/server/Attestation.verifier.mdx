@@ -20,7 +20,7 @@ const phone = Attestation.Server.verifier({
   type: 'phone',
 })
 // [!code hl:end]
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 export async function handler(request: Request) {
   const result = await mppx.charge({ amount: '0.05', identity: [phone] })(request)

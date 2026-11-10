@@ -15,7 +15,7 @@ import { SpecCard } from '../../../components/SpecCard'
 <SigningAccountTabs />
 
 
-Sessions let a client pay per request, per token, or per byte without an on-chain transaction for each payment. The client locks up a deposit in a payment channel once, then signs off-chain vouchers as it uses your service. Your server verifies vouchers, checks the live channel reserve, and settles on-chain in batches.
+Sessions let a buyer pay per request, per token, or per byte without an on-chain transaction for each payment. The buyer locks up a deposit in a payment channel once, then signs off-chain vouchers as it uses your service. Per-request latency and fees are near-zero. Your server verifies vouchers, checks the live channel reserve, and settles on-chain in batches.
 
 Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For single API calls or one-off purchases, use [charge](/payment-methods/tempo/charge).
 
@@ -43,19 +43,19 @@ Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For 
 
 ### Open
 
-The client deposits stablecoins into a channel on the [TIP-1034 precompile](https://tips.sh/1034). The channel is between the client (payer) and your server (payee), and a `channelId` identifies it.
+The buyer deposits stablecoins into a channel on the [TIP-1034 precompile](https://tips.sh/1034). The channel is between the buyer (payer) and you, the seller (payee), and a `channelId` identifies it.
 
 ### Pay with vouchers
 
-For each request, the client signs a voucher for the new cumulative total: "I have now used up to X." Your server checks the signature and that the total went up, then charges the difference.
+For each request, the buyer signs a voucher for the new cumulative total: "I have now used up to X." Your server checks the signature and that the total went up, then charges the difference.
 
 ### Settle
 
-Your server submits the highest voucher on-chain to collect what the client spent. The channel stays open. Settlement runs on a schedule you choose; see [Settlement](#settlement).
+Your server submits the highest voucher on-chain to collect what the buyer spent. The channel stays open. Settlement runs on a schedule you choose; see [Settlement](#settlement).
 
 ### Top up or close
 
-When the deposit runs low, the client tops up without closing the channel. When the client is done, it closes the channel: your server settles the final amount and the rest of the deposit goes back to the client.
+When the deposit runs low, the buyer tops up without closing the channel. When the buyer is done, it closes the channel: your server settles the final amount and the rest of the deposit goes back to the buyer.
 
 ::::
 
@@ -73,7 +73,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account, // signs settlement and close transactions
-      chainId: 4217, // optional; pins Challenges to Tempo mainnet
+      chainId: 42431, // Tempo testnet (Moderato)
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(), // use a shared atomic store in production
     }),
@@ -98,9 +98,13 @@ export async function handler(request: Request) {
 
 A production server also needs a [settlement schedule](#settlement) to collect spend and [close supervision](#close-supervision) to protect it.
 
+:::info[Go live]
+Before going live, set `chainId: 4217` (Tempo mainnet) and fund a mainnet account.
+:::
+
 ### Settlement
 
-Set `settlementSchedule` so your server settles in the background as spend accumulates. Clients don't see or control the schedule. Settlement triggers when any threshold is crossed: `amount` (spend since the last settlement), `units` (metered units), or `intervalMs` (time since the last settlement).
+Set `settlementSchedule` so your server settles in the background as spend accumulates. Buyers don't see or control the schedule. Settlement triggers when any threshold is crossed: `amount` (spend since the last settlement), `units` (metered units), or `intervalMs` (time since the last settlement).
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -112,7 +116,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217, // optional; pins Challenges to Tempo mainnet
+      chainId: 42431, // Tempo testnet (Moderato)
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       settlementSchedule: { // [!code hl]
         amount: '10',
@@ -133,15 +137,15 @@ To settle at a time you pick—for example, end-of-period reconciliation or befo
 import { Store, tempo } from 'mppx/server'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 const store = Store.memory()
 
 const client = createWalletClient({
   account,
-  chain: tempoMainnet,
-  transport: http('https://rpc.tempo.xyz'),
+  chain: tempoModerato,
+  transport: http('https://rpc.moderato.tempo.xyz'),
 })
 
 const channelIds = [
@@ -169,13 +173,13 @@ Run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.sessio
 import { Mppx, Store, tempo } from 'mppx/server'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 const client = createWalletClient({
   account,
-  chain: tempoMainnet,
-  transport: http('https://rpc.tempo.xyz'),
+  chain: tempoModerato,
+  transport: http('https://rpc.moderato.tempo.xyz'),
 })
 const store = Store.memory()
 
@@ -187,6 +191,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       onPaymentSuccess({ receipt }) { // [!code hl:start]
         channelIds.add(receipt.reference as `0x${string}`)
@@ -413,14 +418,14 @@ Sessions don't accept payments from a [Zone](https://docs.tempo.xyz/docs/zones) 
 
 ## Why Sessions
 
-Usage-based services—LLM APIs, cloud infrastructure, metered data—don't know the final cost when a request starts. Billing after the fact adds credit risk and reconciliation; prepaid credits make the client guess and strand unused funds.
+Usage-based services—LLM APIs, cloud infrastructure, metered data—don't know the final cost when a request starts. Billing after the fact adds credit risk and reconciliation; prepaid credits make the buyer guess and strand unused funds.
 
-With Sessions, payment is part of each request. For an LLM API priced at 0.000025 OUSD per token, a client opens a channel with 10 OUSD, signs a voucher for each chunk it receives, and gets the unused deposit back when it closes. Managed streams check the live reserve before charging and delivering content; settlement runs separately on your configured schedule.
+With Sessions, payment is part of each request. For an LLM API priced at 0.000025 OUSD per token, a buyer opens a channel with 10 OUSD, signs a voucher for each chunk it receives, and gets the unused deposit back when it closes. Managed streams check the live reserve before charging and delivering content; settlement runs separately on your configured schedule.
 
 :::info[Why Tempo]
 - **Fast, cheap channel operations**—Opening, topping up, and closing are on-chain. Tempo's ~500ms finality and sub-cent fees keep them out of the way.
 - **Payment lanes**—Channel transactions use dedicated nonce lanes, so they don't block other account activity, and several server processes can share one signing account.
-- **Fee sponsorship**—Your server can pay channel fees for clients, so after the deposit the client side is entirely off-chain.
+- **Fee sponsorship**—Your server can pay channel fees for buyers, so after the deposit the buyer side is entirely off-chain.
 - **Native precompile**—[TIP-1034](https://tips.sh/1034) makes Sessions a Tempo precompile at `0x4D5050…` ("MPP"). It needs no token approval and stays in the payment lane under congestion.
 :::
 

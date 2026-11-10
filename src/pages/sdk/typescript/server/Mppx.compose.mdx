@@ -10,10 +10,10 @@ Present both stablecoin and Stripe card payment options for a single endpoint. T
 import { Mppx, stripe, tempo } from 'mppx/server'
 
 const OUSD = '0x20c0000000000000000000006a37DA5C996874BE' // OUSD on Tempo
-const USDCe = '0x20C000000000000000000000b9537d11c60E8b50'
+const pathUSD = '0x20c0000000000000000000000000000000000000' // pathUSD on Tempo testnet
 const recipient = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 
-const charge = tempo.charge({ recipient })
+const charge = tempo.charge({ recipient, testnet: true })
 const card = stripe.spt({
   decimals: 2,
   networkId: 'acct_1234',
@@ -26,7 +26,7 @@ const mppx = Mppx.create({ methods: [charge, card] })
 export async function handler(request: Request) {
   const result = await mppx.compose(
     [mppx.tempo.charge, { amount: '1', currency: OUSD }],
-    [mppx.tempo.charge, { amount: '1', currency: USDCe }],
+    [mppx.tempo.charge, { amount: '1', currency: pathUSD }],
     [mppx.stripe.charge, { amount: '1', currency: 'usd' }],
   )(request)
 
@@ -44,9 +44,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const OUSD = '0x20c0000000000000000000006a37DA5C996874BE' // OUSD on Tempo
-const USDCe = '0x20C000000000000000000000b9537d11c60E8b50'
+const pathUSD = '0x20c0000000000000000000000000000000000000' // pathUSD on Tempo testnet
 const charge = tempo.charge({
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  testnet: true,
 })
 const mppx = Mppx.create({
   methods: [charge],
@@ -59,7 +60,7 @@ server.registerTool('premium', { description: 'Read premium data' }, async (extr
   // [!code hl:start]
   const result = await mppx.compose(
     [mppx.tempo.charge, { amount: '1', currency: OUSD }],
-    [mppx.tempo.charge, { amount: '1', currency: USDCe }],
+    [mppx.tempo.charge, { amount: '1', currency: pathUSD }],
   )(extra)
   // [!code hl:end]
 
@@ -75,7 +76,7 @@ Use the static `Mppx.compose()` function to combine configured handlers or anoth
 ```ts
 const stablecoins = Mppx.compose(
   mppx.tempo.charge({ amount: '1', currency: OUSD }),
-  mppx.tempo.charge({ amount: '1', currency: USDCe }),
+  mppx.tempo.charge({ amount: '1', currency: pathUSD }),
 )
 
 const paid = Mppx.compose(

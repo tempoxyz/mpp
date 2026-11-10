@@ -10,7 +10,7 @@ import { LightningSessionCard, SolanaSessionCard, StellarChannelCard } from '../
 
 # Session [Metered pay-as-you-go payments]
 
-The `session` intent establishes reusable payment state so clients can pay for many requests, streamed chunks, or metered units without settling a separate payment for each one.
+The `session` intent establishes reusable payment state so buyers can pay for many requests, streamed chunks, or metered units without settling a separate payment for each one.
 
 ## How it works
 
@@ -41,14 +41,16 @@ The `session` intent establishes reusable payment state so clients can pay for m
 
 ## When to use session
 
-Session is the best intent when the client makes many paid interactions or the final cost isn't known when the request starts:
+Session is the best intent when the buyer makes many paid interactions or the final cost isn't known when the request starts:
 
 - **LLM APIs**—Bill by token while streaming a response
 - **Metered APIs**—Charge by query, byte, request, or compute unit
 - **Long-running tools**—Keep payment state active across many MCP tool calls
-- **Sub-cent pricing**—Avoid one settlement transaction per tiny payment
+- **Sub-cent pricing**—Avoid one settlement transaction per tiny payment, so per-request fees are near-zero
 
 Use `charge` when each request maps to one known payment. Use `subscription` when access renews at a fixed amount per billing period.
+
+To build it, see the [Session](/guides/usage-based) guide for sellers and [Pay for sessions](/guides/pay-for-sessions) for buyers.
 
 ## Request schema
 

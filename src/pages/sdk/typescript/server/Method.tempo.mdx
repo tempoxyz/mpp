@@ -34,10 +34,10 @@ Mppx.create({
     // [!code focus:start]
     tempo({
       account,
-      chainId: 4217,
       machineTokenEnabled: true,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       store: Store.memory(),
+      testnet: true,
     }),
     // [!code focus:end]
   ],
@@ -57,10 +57,11 @@ Mppx.create({
     tempo.charge({
       machineTokenEnabled: true, // [!code hl]
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      testnet: true,
     }),
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       store: Store.memory(),
     }),
   ],
@@ -69,16 +70,16 @@ Mppx.create({
 
 ### Accept only OUSD
 
-Pass an explicit list to replace the defaults. Resolve the OUSD address from viem on mainnet:
+Pass an explicit list to replace the defaults:
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
-import { ousd } from 'viem/tokens'
 
 const mppx = Mppx.create({
   methods: [tempo({
-    currencies: [ousd(4217).address], // [!code hl]
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo // [!code hl]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
 })
 ```

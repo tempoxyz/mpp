@@ -275,6 +275,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -296,6 +297,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -317,6 +319,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -340,6 +343,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -386,6 +390,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -404,7 +409,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currencies` lists the accepted TIP-20 token addresses; this example accepts only OUSD on Tempo. Omit the list to offer OUSD first with USDC.e as a fallback. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists the accepted TIP-20 token addresses; this example accepts only OUSD on Tempo. Omit the list to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
@@ -443,6 +448,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: true,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -474,17 +480,20 @@ The `mppx` package install automatically includes a [CLI tool](/sdk/typescript/c
 
 ### Create an account
 
-Create a Tempo mainnet account to sign payments. The key is stored in your system keychain. Fund the account with OUSD before making a paid request.
+Create and fund a Tempo testnet account to sign payments. The key is stored in your system keychain.
 
 :::code-group
 ```bash [npm]
-$ npx mppx account create --network mainnet
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 ```
 ```bash [pnpm]
-$ pnpm mppx account create --network mainnet
+$ pnpm mppx account create --network testnet
+$ pnpm mppx account fund --network testnet
 ```
 ```bash [bun]
-$ bunx mppx account create --network mainnet
+$ bunx mppx account create --network testnet
+$ bunx mppx account fund --network testnet
 ```
 :::
 
@@ -509,3 +518,7 @@ $ bunx mppx https://mpp.dev/api/ping/paid
 </div>
 </Tab>
 </Tabs>
+
+:::info[Go live]
+Before going live, remove `testnet: true` and fund a mainnet account.
+:::

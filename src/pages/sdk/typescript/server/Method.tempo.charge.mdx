@@ -22,7 +22,7 @@ Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 export async function handler(request: Request) {
   // [!code focus:start]
@@ -44,7 +44,7 @@ Set a custom expiration time for the charge using the `expires` option.
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 // ---cut---
 import { Expires } from 'mppx'
 
@@ -68,7 +68,7 @@ Add a human-readable description for the payment request.
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 // ---cut---
 export async function handler(request: Request) {
   const response = await mppx.charge({
@@ -91,7 +91,7 @@ Let compatible clients fund a stablecoin charge with MACH through the canonical 
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({ machineTokenEnabled: true })], // [!code hl]
+  methods: [tempo.charge({ machineTokenEnabled: true, testnet: true })], // [!code hl]
 })
 
 export async function handler(request: Request) {
@@ -128,6 +128,7 @@ const mppx = Mppx.create({
         maxPriorityFeePerGas: 50_000_000_000n,
         maxTotalFee: 100_000_000_000_000_000n,
       },
+      testnet: true,
     }),
   ],
 })
@@ -152,6 +153,7 @@ const mppx = Mppx.create({
         maxInFlightTotalFee: 250_000_000_000_000_000n,
         store: Store.memory(),
       },
+      testnet: true,
     }),
   ],
 })
@@ -173,6 +175,7 @@ const mppx = Mppx.create({
         },
         url: 'https://sponsor.example.com',
       },
+      testnet: true,
     }),
   ],
 })
@@ -191,6 +194,7 @@ const mppx = Mppx.create({
       relay: {
         apiKey: process.env.TEMPO_API_KEY!,
       },
+      testnet: true,
     }),
   ],
 })
@@ -211,6 +215,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.charge({
       store: replayStore,
+      testnet: true,
     }),
   ],
 })
@@ -341,6 +346,7 @@ const mppx = Mppx.create({
         maxPriorityFeePerGas: 50_000_000_000n,
         maxTotalFee: 100_000_000_000_000_000n,
       },
+      testnet: true,
     }),
   ],
 })
@@ -448,6 +454,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [tempo.charge({
+    testnet: true,
     waitForConfirmation: false, // [!code focus]
   })],
 })
@@ -532,7 +539,7 @@ At least one matched transfer must include the Challenge-bound attribution memo.
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 // ---cut---
 export async function handler(request: Request) {
   const response = await mppx.charge({

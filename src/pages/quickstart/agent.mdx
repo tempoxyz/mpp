@@ -1,14 +1,14 @@
 ---
-description: "Connect your coding agent to MPP-enabled services. Set up a wallet to handle payment flows automatically."
-imageDescription: "Connect your agent to paid APIs"
+description: "Let Claude Code, Codex, and other coding agents pay for MPP services. Set up a wallet in one prompt."
+imageDescription: "Let your coding agent pay for APIs"
 ---
 
 import { Card, Cards, Tab, Tabs } from 'vocs'
 import { AgentSetupPrompt } from '../../components/AgentSetupPrompt'
 
-# Use with agents [Connect your agent to MPP-enabled services]
+# Use with coding agents [Let your coding agent pay for MPP services]
 
-After setup, agents can automatically interact with MPP-enabled services and pay for API calls. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
+After setup, your coding agent pays for MPP services on its own, acting as the buyer. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
 
 <AgentSetupPrompt />
 
@@ -186,10 +186,11 @@ $ bun add -g mppx
 ```
 :::
 
-### Create an account
+### Create and fund a testnet account
 
 ```bash [test.sh]
-$ mppx account create
+$ mppx account create --network testnet
+$ mppx account fund --network testnet
 ```
 
 ### Make a paid request

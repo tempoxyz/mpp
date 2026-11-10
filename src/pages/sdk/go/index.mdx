@@ -27,7 +27,7 @@ $ go get github.com/tempoxyz/mpp-go
 ```go [server.go]
 method, err := charge.New(charge.Config{
 	Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-	RPCURL:    "https://rpc.tempo.xyz",
+	RPCURL:    "https://rpc.moderato.tempo.xyz",
 	Store:     tempo.NewMemoryStore(), // Development only.
 })
 if err != nil {
@@ -74,7 +74,7 @@ import (
 method, err := charge.New(charge.Config{
 	PaymentPolicy: charge.MaxAmount("", "0.50", 6),
 	PrivateKey:    os.Getenv("MPP_PRIVATE_KEY"),
-	RPCURL:        "https://rpc.tempo.xyz",
+	RPCURL:        "https://rpc.moderato.tempo.xyz",
 })
 if err != nil {
 	log.Fatal(err)
@@ -90,6 +90,10 @@ fmt.Println("Status:", resp.StatusCode)
 ```
 
 `PaymentPolicy` must authorize every nonzero payment. A missing policy rejects paid Challenges. Combine `MaxAmount`, `AllowChainIDs`, and a custom policy when you can pin the currency, chain, recipient, and budget.
+
+:::info[Go live]
+Before going live, set `RPCURL` to `https://rpc.tempo.xyz` (Tempo mainnet) and fund a mainnet account.
+:::
 
 ## Package layout
 
@@ -141,7 +145,7 @@ credential := &mpp.Credential{
 		"type":      "transaction",
 		"signature": "0x...",
 	},
-	Source: "did:pkh:eip155:4217:0xa726a1...",
+	Source: "did:pkh:eip155:42431:0xa726a1...",
 }
 
 header := credential.ToAuthorization()

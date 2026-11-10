@@ -1,5 +1,5 @@
 ---
-description: "Charge for your API per request or per streamed token with mppx sessions. Pay once to open a channel, then bill each call with near-zero latency."
+description: "Bill buyers per request or per streamed token with mppx sessions. Funds are reserved once, then each call settles with near-zero latency and fees."
 imageDescription: "Bill per request or per token as you go"
 ---
 
@@ -9,16 +9,14 @@ import { PromptBlock } from '../../components/PromptBlock'
 import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { UsageDemo } from '../../components/UsageDemo'
 
-# Accept usage-based payments [Bill per request or per token with sessions]
+# Bill usage with sessions [Pay per request or per token with off-chain vouchers]
 
-Use `mppx` sessions on Tempo to charge for usage. A session opens a payment channel once, then pays for each request or streamed token with an off-chain voucher.
+Use sessions when a buyer makes many requests or streams tokens: the buyer reserves funds once, then pays for each request or token with an off-chain voucher, with near-zero latency and per-request fees.
 
-- **[Per request](#per-request)**: charge a fixed amount for each API call.
-- **[Streaming](#streaming)**: charge per token as content streams over Server-Sent Events (SSE).
+For a single paid request, use [Charge](/guides/one-time-payments). To bill on a schedule, use [Subscription](/guides/subscription-payments).
 
-:::info
-Unlike [one-time payments](/guides/one-time-payments), vouchers are **not bottlenecked by blockchain throughput**—they're processed in pure CPU-bound signature checks.
-:::
+- **[Bill per request](#per-request)**: charge a fixed amount for each API call.
+- **[Bill per token (streaming)](#streaming)**: charge per token as content streams over Server-Sent Events (SSE).
 
 ## Choose a signing account
 
@@ -90,7 +88,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -113,7 +111,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -144,7 +142,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -164,8 +162,9 @@ export const GET =
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/sessions/photo 
@@ -212,7 +211,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -238,7 +237,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -272,7 +271,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -294,8 +293,9 @@ app.get(
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/sessions/photo 
@@ -338,7 +338,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -360,7 +360,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -391,7 +391,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -418,8 +418,9 @@ export default {
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:8787 
@@ -466,7 +467,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -492,7 +493,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -526,7 +527,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -548,8 +549,9 @@ app.get(
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/sessions/photo 
@@ -597,7 +599,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -619,7 +621,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -650,7 +652,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -677,8 +679,9 @@ Bun.serve({
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000
@@ -690,6 +693,8 @@ $ npx mppx http://localhost:3000
 </Tabs>
 
 ### Per-request client setup
+
+For the full buyer walkthrough (limits, streaming, closing), see [Pay for sessions](/guides/pay-for-sessions).
 
 Set `maxDeposit` to bound the tokens reserved per channel. Automatic channel management doesn't require this option, but an unattended client needs a limit. Unspent funds return when the channel closes. This is not a total budget across replacement channels; use an [access-key spending limit](/guides/managing-agent-spend) for that.
 
@@ -857,7 +862,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -881,7 +886,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -920,8 +925,9 @@ export const GET = mppx.session({ amount: "0.001", unitType: "word" })(
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Stream a paid poem
 $ npx mppx http://localhost:3000/api/sessions/poem
@@ -969,7 +975,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -996,7 +1002,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -1037,8 +1043,9 @@ app.get(
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Stream a paid poem
 $ npx mppx http://localhost:3000/api/sessions/poem
@@ -1082,7 +1089,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: { poll: true }, // [!code hl]
       store: Store.memory(),
@@ -1105,7 +1112,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: { poll: true }, // [!code hl]
       store: Store.memory(),
@@ -1151,8 +1158,9 @@ export default {
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Stream a paid poem
 $ npx mppx http://localhost:8787
@@ -1200,7 +1208,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -1227,7 +1235,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -1268,8 +1276,9 @@ app.get(
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Stream a paid poem
 $ npx mppx http://localhost:3000/api/sessions/poem
@@ -1318,7 +1327,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -1341,7 +1350,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
@@ -1387,8 +1396,9 @@ Bun.serve({
 #### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with OUSD
-$ npx mppx account create --network mainnet
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Stream a paid poem
 $ npx mppx http://localhost:3000
@@ -1400,6 +1410,8 @@ $ npx mppx http://localhost:3000
 </Tabs>
 
 ### Streaming client setup
+
+For the full buyer walkthrough (limits, streaming, closing), see [Pay for sessions](/guides/pay-for-sessions).
 
 Use `tempo.session.manager()` from `mppx/client` to create a session manager. Use one manager and channel store per API origin: its first HTTP or HTTPS request pins that origin, and later requests or redirected responses from other origins are rejected. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
 
@@ -1509,37 +1521,16 @@ const receipt = await session.close()
 </Tab>
 </Tabs>
 
-### Prepaid requests and failed delivery
+## Go to production
 
-- With `sse: true` and `unitType: 'request'`, payment is charged before your handler runs—once per request, not per chunk. This includes plain POST responses; POSTs with a body or query carry content—don't return a blanket `204`.
-- Enable `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit undelivered prepaid items after managed SSE failures. Don't combine this with another automatic refund handler.
-- Delivered content, manual charges, and client cancellation aren't automatically refunded. Handle plain-response refunds in your application.
-- Persist recovery jobs in `onRefundRequired`. Retry uncertain credits with the same key, amount, and units before external refunds; transfer only a non-null `externalRefundAmount`.
-
-See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) for recovery rules and limits.
-
-### Charge dynamic amounts
-
-Pass a `bigint` in base units to charge a different amount for a specific event. An explicit amount reserves that amount for the next emitted event; calling `charge()` without an argument uses the route's configured tick cost.
-
-```ts
-return result.withReceipt(async function* (stream) {
-  await stream.charge(2_000n)
-  yield 'premium-result'
-})
-```
-
-### WebSocket alternative
-
-Use WebSocket for bidirectional streaming. Vouchers and content share one socket; channel opening, signing, and closing work the same way.
-
-On the server, use [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) to reuse the Session method's store and automatic settlement schedule. On the client, use [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
-
-Configure `settlementSchedule` on `tempo.session()` for SSE or WebSocket streams. `mppx` evaluates the schedule after each committed nonzero stream charge.
-
-Run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes is fine with few open channels) to answer close requests for idle channels. See [Close supervision](/payment-methods/tempo/session#close-supervision) for the recommended setup.
-
-Retryable scheduled settlement failures keep charged content served and leave the charge due for a later settlement. Use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to monitor failures. Confirmed settlements remain successful if only the channel-store checkpoint fails; reverts and configuration errors still fail the charge.
+- **Use a persistent store**: replace `Store.memory()` with a durable, atomic store so channel state survives restarts and scales across instances. See [`tempo.session`](/sdk/typescript/server/Method.tempo.session).
+- **Close idle channels**: run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) every minute (every 5 minutes with few open channels) so idle channels close and buyers get unspent funds back. See [Close supervision](/payment-methods/tempo/session#close-supervision).
+- **Settle streams on a schedule**: set `settlementSchedule` on `tempo.session()` so SSE and WebSocket charges settle without waiting for close.
+- **Monitor settlement failures**: use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to alert on failures. Retryable failures leave the charge due for a later settlement.
+- **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
+- **Charge dynamic amounts**: pass a `bigint` in base units, such as `stream.charge(2_000n)`, to price one event differently from the route's tick cost.
+- **Use WebSocket for bidirectional streams**: serve with [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) and connect with [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
+- **Go live**: before going live, set `chainId: 4217` and fund a mainnet account.
 
 ## Next steps
 

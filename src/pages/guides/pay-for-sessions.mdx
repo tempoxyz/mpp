@@ -1,0 +1,188 @@
+---
+description: "Call APIs that bill per request or per token. Reserve funds once, pay as you go, and get every unspent cent back when you're done."
+imageDescription: "Pay per request or per token, and keep what you don't spend"
+---
+
+import { Cards } from 'vocs'
+import { ClientQuickstartCard, PayAsYouGoCard, TempoSessionCard } from '../../components/cards'
+
+# Pay for sessions [Reserve funds once, then pay per request or per token]
+
+Use `mppx` to pay a seller that bills with [sessions](/payment-methods/tempo/session). This guide is for buyers: agents and apps that call paid APIs.
+
+## How a session works
+
+- **Open**: your first paid request opens a payment channel and reserves a deposit on-chain.
+- **Pay**: later requests, or tokens in a stream, are paid with signed off-chain vouchers—no transaction per request.
+- **Close**: closing settles what you spent and returns the unspent deposit to you.
+- **Cost**: vouchers add near-zero latency and per-request fees.
+
+`mppx` handles all of this when a seller returns a session Challenge.
+
+## Set up a testnet account
+
+Create and fund a Moderato testnet account with the `mppx` CLI, then export its private key for your code:
+
+```bash [test.sh]
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
+$ npx mppx account export
+```
+
+Store the key as `PRIVATE_KEY` in your environment. Never commit it.
+
+## Try it from the CLI
+
+Pay the mpp.dev demo, which charges $0.01 per photo with a testnet session:
+
+```bash [test.sh]
+$ npx mppx https://mpp.dev/api/sessions/photo --network testnet
+```
+
+Run it again: the second request reuses the channel and pays with a voucher. List and close CLI sessions with `npx mppx sessions list` and `npx mppx sessions close --all --yes`.
+
+## Pay per request
+
+Register `tempo()` with `Mppx.create`. It polyfills `fetch`, so a session Challenge opens a channel on the first request and signs a voucher on each later one.
+
+```ts [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`),
+      allowedChainIds: [42431], // Moderato testnet
+      getClient: () =>
+        createClient({ chain: tempoModerato, transport: http('https://rpc.moderato.tempo.xyz') }),
+      maxDeposit: '1', // [!code hl]
+    }),
+  ],
+})
+
+// 1st request: opens the channel on-chain and sends the first voucher
+// Later requests: off-chain vouchers only
+const res = await fetch('https://mpp.dev/api/sessions/photo')
+console.log(await res.json())
+// @log: { url: 'https://fastly.picsum.photos/...' }
+```
+
+- `maxDeposit` caps the funds reserved per channel. At $0.01 per photo, 1 token covers 100 requests.
+- If the seller suggests a deposit, `mppx` reserves the smaller of that and `maxDeposit`.
+- The channel stays open for reuse across requests. To close it, use a [session manager](#close-the-session).
+
+## Set limits
+
+An unattended buyer needs limits. Pin what you accept from an API you don't control:
+
+```ts [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`),
+      allowedChainIds: [42431], // Moderato testnet
+      // [!code hl:start]
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      decimals: 6,
+      expectedRecipients: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+      // [!code hl:end]
+      getClient: () =>
+        createClient({ chain: tempoModerato, transport: http('https://rpc.moderato.tempo.xyz') }),
+      // [!code hl:start]
+      maxAmount: '0.01',
+      maxDeposit: '1',
+      origin: 'https://api.example.com',
+      // [!code hl:end]
+    }),
+  ],
+})
+```
+
+- **`maxDeposit`**: caps funds reserved per channel, not total spend across channels.
+- **`maxAmount`**: caps the price per unit (request or token). Requires `currencies` and explicit `decimals`.
+- **`currencies`**: tokens you're willing to pay with.
+- **`expectedRecipients`**: seller addresses you're willing to pay. Offers to anyone else are rejected before signing.
+- **`origin`**: the trusted API origin your saved channels belong to. Use one channel store per origin.
+- **Total budget**: set an [access-key spending limit](/guides/managing-agent-spend#add-spending-limits-and-scopes) to cap spend across channels, processes and restarts.
+
+Explicit closes bypass price and recipient limits, so you can always reclaim funds.
+
+## Pay per token
+
+For streamed responses, use `tempo.session.manager()` and `.sse()`. The seller charges per token; when the channel balance runs low mid-stream, the manager signs a new voucher (and tops up within `maxDeposit`) without interrupting the stream.
+
+```ts [stream.ts]
+import { tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+const session = tempo.session.manager({
+  account: privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`),
+  allowedChainIds: [42431], // Moderato testnet
+  getClient: () =>
+    createClient({ chain: tempoModerato, transport: http('https://rpc.moderato.tempo.xyz') }),
+  maxDeposit: '1',
+})
+
+// [!code hl:start]
+const stream = await session.sse('https://mpp.dev/api/sessions/poem')
+
+for await (const word of stream) {
+  process.stdout.write(word + ' ')
+}
+// [!code hl:end]
+
+await session.close()
+```
+
+- Use one manager per API origin. Its first request pins the origin and rejects redirects to others.
+- For bidirectional streams, use [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `.sse()`.
+
+## Close the session
+
+Your deposit stays reserved until the channel closes. Call `close()` on the manager that opened it to settle and get unspent funds back:
+
+```ts [client.ts]
+import { tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+const session = tempo.session.manager({
+  account: privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`),
+  allowedChainIds: [42431], // Moderato testnet
+  getClient: () =>
+    createClient({ chain: tempoModerato, transport: http('https://rpc.moderato.tempo.xyz') }),
+  maxDeposit: '1',
+})
+
+await session.fetch('https://mpp.dev/api/sessions/photo')
+
+const receipt = await session.close() // [!code hl]
+console.log(receipt?.spent)
+```
+
+- Close when you're done with the API, not between requests.
+- `close()` must run on the same manager instance. To reuse channels across restarts, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore).
+- If a seller stops responding, you can still request a close on-chain and withdraw the full deposit after Tempo's 900-second grace period. See [close supervision](/payment-methods/tempo/session#close-supervision).
+
+## Go live
+
+Before going live, set `allowedChainIds: [4217]`, point `getClient` at `tempo` from `viem/chains` and `https://rpc.tempo.xyz`, and fund a mainnet account.
+
+## Next steps
+
+<Cards>
+  <TempoSessionCard />
+  <PayAsYouGoCard />
+  <ClientQuickstartCard />
+</Cards>

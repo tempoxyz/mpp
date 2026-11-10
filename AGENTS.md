@@ -81,9 +81,14 @@ vocs.config.ts     — config file
 
 ### Tempo networks in examples
 
+- **Testnet everywhere**: runnable examples on every page (except blog posts) use Tempo testnet (Moderato, chain ID `42431`). `scripts/check-tempo-chain-docs.test.ts` enforces this for code fences.
+  - Server: `testnet: true` on `tempo()`, `tempo.charge()`, `tempo.subscription()` and wrappers that take it. `tempo.session()` has no `testnet` option: set `chainId: 42431`.
+  - Client chains: `tempoModerato` from `viem/chains` and `https://rpc.moderato.tempo.xyz`; pin chains with `42431`.
+  - Accounts: `npx mppx account create --network testnet`, then `npx mppx account fund --network testnet`.
+  - Other SDKs: the Moderato RPC URL or chain ID option each SDK documents.
+- **Mainnet** (`4217`) appears only in one short Go live note per guide (for example, "Before going live, remove `testnet: true` (sessions: set `chainId: 4217`) and fund a mainnet account.") and in network reference tables.
 - Use the chain IDs under MPP below; never the retired one.
-- Keep code examples within a single page on one Tempo network unless the section is explicitly comparing networks. For Sessions docs, default runnable examples to Tempo mainnet (`4217`, `tempo` from `viem/chains`, and `https://rpc.tempo.xyz`) and reserve Moderato (`42431`) for parameter descriptions, network reference tables, or pages that are specifically about testnet setup.
-- When showing token or contract addresses in code examples, add a short inline comment naming the currency or contract whenever the name is not obvious from surrounding text:
+- OUSD has the same address on mainnet and Moderato. When showing token or contract addresses in code examples, add a short inline comment naming the currency or contract whenever the name is not obvious from surrounding text:
 
 ```ts
 currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
@@ -237,6 +242,10 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 - When discussing command names like `tempo wallet` or HTTP status code specifics like `402` you should always use code blocks ``
 
 **MPP core concepts as proper nouns**: Capitalize Challenge, Credential, and Receipt when referring to these as MPP protocol concepts or SDK types. For example: "Parse a Challenge", "Verify a Credential", "Return a Receipt". These are proper nouns within the MPP domain.
+
+**Roles**: Call the two parties the **buyer** (pays: an agent, app or person) and the **seller** (charges: an API, service or site). Keep "client" and "server" for code identifiers (`mppx/client`, `mppx/server`, `client.ts`) and HTTP mechanics. Don't write "three parties" or "Developers, Agents, Services".
+
+**Session speed**: Describe session latency and per-request fees as "near-zero"; don't quote millisecond figures for sessions.
 
 **Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (OUSD, USDC.e) on Tempo—not generic cryptocurrency. Use OUSD in single-currency Tempo examples and setup. Prefer the SDK's OUSD-first defaults when showing fallback offers. Preserve actual provider defaults and chain-specific token requirements. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
 

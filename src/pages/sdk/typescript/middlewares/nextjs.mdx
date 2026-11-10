@@ -42,7 +42,7 @@ When route options omit `scope` and reserved scope metadata, the wrapper binds t
 ```ts twoslash [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] }) // [!code hl]
 
 export const GET = 
   mppx.charge({ amount: '1' }) // [!code hl]
@@ -64,7 +64,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -84,7 +84,7 @@ After the handler verifies payment, the Credential field is still on the request
 import { Credential } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 export const GET =
   mppx.charge({ amount: '1' })

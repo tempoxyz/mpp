@@ -20,7 +20,7 @@ Use subscriptions when access has a fixed price per billing period: paid plans, 
 
 ## Why subscriptions matter
 
-Charges work well for one-time purchases. Sessions work well when usage changes inside a request. Subscriptions cover the third common pattern: the client authorizes recurring access once, and the server bills each period without asking the client to sign every request.
+Charges work well for one-time purchases. Sessions work well when usage changes inside a request. Subscriptions cover the third common pattern: the buyer authorizes recurring access once, and the seller bills each period without asking the buyer to sign every request.
 
 A Tempo subscription uses a key authorization. The client authorizes a scoped access key to transfer a fixed amount of a specific TIP-20 token to a specific recipient once per period until `subscriptionExpires`. The server stores the active subscription record and returns Receipts on later requests without another Credential while the current period is paid.
 
@@ -142,7 +142,7 @@ On Tempo, clients that know the authorized access key can revoke it from the pay
 
 ```ts twoslash
 import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Actions } from 'viem/tempo'
 
@@ -150,7 +150,7 @@ const client = createClient({
   account: privateKeyToAccount(
     '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
   ),
-  chain: tempo,
+  chain: tempoModerato,
   transport: http(),
 })
 
@@ -198,6 +198,7 @@ const mppx = Mppx.create({
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
+      testnet: true,
     }),
   ],
 })

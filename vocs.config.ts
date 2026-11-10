@@ -535,7 +535,7 @@ export default defineConfig({
             link: "/quickstart",
             items: [
               { text: "Add payments to your API", link: "/quickstart/server" },
-              { text: "Use with agents", link: "/quickstart/agent" },
+              { text: "Use with coding agents", link: "/quickstart/agent" },
               { text: "Use with your app", link: "/quickstart/client" },
             ],
           },
@@ -546,9 +546,9 @@ export default defineConfig({
       {
         text: "For sellers",
         items: [
-          { text: "One-time", link: "/guides/one-time-payments" },
-          { text: "Usage-based", link: "/guides/usage-based" },
-          { text: "Subscriptions", link: "/guides/subscription-payments" },
+          { text: "Charge", link: "/guides/one-time-payments" },
+          { text: "Session", link: "/guides/usage-based" },
+          { text: "Subscription", link: "/guides/subscription-payments" },
           { text: "Cards", link: "/guides/accept-card-payments" },
           { text: "Splits", link: "/guides/split-payments" },
           {
@@ -589,6 +589,7 @@ export default defineConfig({
               },
             ],
           },
+          { text: "Pay for sessions", link: "/guides/pay-for-sessions" },
           { text: "Wallets", link: "/tools/wallet" },
         ],
       },

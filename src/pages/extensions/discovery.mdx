@@ -1,17 +1,17 @@
 ---
-description: "Advertise your API's payment terms with an OpenAPI discovery document so clients and agents know what endpoints cost before making requests."
-imageDescription: "Let clients automatically discover your API's pricing"
+description: "Advertise your API's payment terms with an OpenAPI discovery document so buyers know what endpoints cost before making requests."
+imageDescription: "Let buyers automatically discover your API's pricing"
 ---
 
 import { Cards } from 'vocs'
 import { SpecCard } from '../../components/SpecCard'
 import { EcosystemDiagram } from '../../components/EcosystemDiagram'
 
-# Discovery [Let clients automatically discover your API's pricing]
+# Discovery [Let buyers automatically discover your API's pricing]
 
 ## Overview
 
-MPP's discovery system lets clients and agents learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions that advertise one or more payment offers for each paid operation. Registries aggregate these documents so agents can find paid APIs automatically, and provide value-added services like reputation, search, and analytics.
+MPP's discovery system lets buyers—agents, apps, or people—learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions that advertise one or more payment offers for each paid operation. Registries aggregate these documents so agents can find paid APIs automatically, and provide value-added services like reputation, search, and analytics.
 
 <EcosystemDiagram />
 
@@ -21,7 +21,7 @@ Discovery documents are informational hints. The runtime `402` Challenge remains
 
 ## Registries
 
-Registries aggregate discovery documents from multiple services, making it easy for clients and agents to find paid APIs.
+Registries aggregate discovery documents from multiple services, so buyers can find paid APIs.
 
 | Registry | Description | How to add |
 |----------|-------------|------------|
@@ -123,6 +123,7 @@ const app = new Hono()
 const charge = tempo.charge({
   currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  testnet: true,
 })
 const card = stripe.spt({
   decimals: 2,

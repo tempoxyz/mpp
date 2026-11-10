@@ -1,5 +1,5 @@
 ---
-description: "Handle payment-gated resources in your app. Use the mppx client SDK to intercept 402 responses, pay, and retry—all automatically."
+description: "Let your app pay for paid APIs as a buyer. The mppx client SDK handles 402 responses, pays, and retries automatically."
 imageDescription: "Add payments to your app in minutes"
 ---
 
@@ -17,7 +17,7 @@ import { ServerQuickstartCard, MppxCreateReferenceCard } from '../../components/
 
 ## Overview
 
-Create a Tempo account and polyfill the global `fetch` to handle `402` responses. Your existing code works unchanged—payments happen in the background. Pick the path that suits you:
+Your app is the buyer: it pays sellers' APIs when they return `402`. Create a Tempo account and polyfill the global `fetch` to handle `402` responses. Your existing code works unchanged—payments happen in the background. Pick the path that suits you:
 
 - [**Prompt mode**](#prompt-mode): paste a prompt into your coding agent for fast setup
 - [**Manual mode**](#manual-mode): step-by-step setup with `mppx/client`
@@ -152,7 +152,7 @@ const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 
 ### Request protected resources
 
-Use `fetch`. Payment happens when a server returns `402`.
+Use `fetch`. Payment happens when a seller's server returns `402`.
 
 ```ts
 const response = await fetch('https://mpp.dev/api/ping/paid')
@@ -180,7 +180,7 @@ const config = createConfig({
   connectors,
   chains: [tempoModerato],
   transports: {
-    [tempoModerato.id]: http(),
+    [tempoModerato.id]: http('https://rpc.moderato.tempo.xyz'),
   },
 })
 
@@ -205,7 +205,7 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [tempoModerato.id]: http(),
+    [tempoModerato.id]: http('https://rpc.moderato.tempo.xyz'),
   },
 })
 ```

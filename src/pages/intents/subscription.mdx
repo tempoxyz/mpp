@@ -11,7 +11,7 @@ import { SpecCard } from '../../components/SpecCard'
 
 # Subscription [Recurring paid access]
 
-The `subscription` intent mediates recurring paid access. The client authorizes a fixed payment amount once, and the server reuses that authorization to collect at most one charge per billing period.
+The `subscription` intent mediates recurring paid access. The buyer authorizes a fixed payment amount once, and the seller's server reuses that authorization to collect at most one charge per billing period.
 
 ## How it works
 
@@ -53,6 +53,8 @@ Subscription is the best intent when access renews on a fixed schedule:
 - **Usage bundles**—Renew a fixed bundle on a schedule
 
 Use `charge` when each request maps to one payment. Use `session` when usage is metered and the final cost isn't known upfront.
+
+To build it, see the [Subscription](/guides/subscription-payments) guide.
 
 ## Request schema
 

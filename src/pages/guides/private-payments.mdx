@@ -1,6 +1,6 @@
 ---
 title: "Private payments on Tempo"
-description: "Let customers pay from a private Zone balance, so their wallet address and history stay off the public chain."
+description: "Let buyers pay from a private Zone balance, so their wallet address and history stay off the public chain."
 imageDescription: "Get paid without exposing who paid you"
 ---
 
@@ -68,7 +68,7 @@ The client sends `{ type: 'zone', zoneId, senderTag, hash }`. Your server verifi
 
 ## Server
 
-Pass accepted Zone IDs as [`tempo.charge`'s `zones`](/sdk/typescript/server/Method.tempo.charge#zones-optional). Other clients still pay on Tempo.
+Pass accepted Zone IDs as [`tempo.charge`'s `zones`](/sdk/typescript/server/Method.tempo.charge#zones-optional). Other buyers still pay on Tempo.
 
 ```ts
 import { Mppx, tempo } from 'mppx/server'
@@ -78,6 +78,7 @@ const mppx = Mppx.create({
     tempo.charge({
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      testnet: true,
       zones: [3, 7], // Zone IDs you accept // [!code hl]
     }),
   ],

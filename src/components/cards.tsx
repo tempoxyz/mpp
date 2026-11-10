@@ -39,7 +39,7 @@ export function QuickstartCard() {
 export function ClientQuickstartCard() {
   return (
     <Card
-      description="Learn how to pay for resources"
+      description="Pay for paid APIs as a buyer"
       icon="lucide:user"
       title="Client quickstart"
       to="/quickstart/client"
@@ -50,7 +50,7 @@ export function ClientQuickstartCard() {
 export function ServerQuickstartCard() {
   return (
     <Card
-      description="Learn how to charge for resources"
+      description="Charge for your API as a seller"
       icon="lucide:server"
       title="Server quickstart"
       to="/quickstart/server"
@@ -105,9 +105,9 @@ export function EvmChargeCard() {
 export function OneTimePaymentsCard() {
   return (
     <Card
-      description="Charge per request with a payment-gated API"
+      description="One payment per request, settled on-chain"
       icon="lucide:zap"
-      title="Accept one-time payments"
+      title="Charge"
       to="/guides/one-time-payments"
     />
   );
@@ -116,10 +116,32 @@ export function OneTimePaymentsCard() {
 export function PayAsYouGoCard() {
   return (
     <Card
-      description="Session-based billing with payment channels"
+      description="Bill per request or per token with off-chain vouchers"
       icon="lucide:repeat"
-      title="Accept pay-as-you-go payments"
-      to="/guides/usage-based#per-request"
+      title="Session"
+      to="/guides/usage-based"
+    />
+  );
+}
+
+export function PayForSessionsCard() {
+  return (
+    <Card
+      description="Open a session and pay per request as a buyer"
+      icon="lucide:wallet"
+      title="Pay for sessions"
+      to="/guides/pay-for-sessions"
+    />
+  );
+}
+
+export function SubscriptionPaymentsCard() {
+  return (
+    <Card
+      description="Bill buyers on a recurring schedule"
+      icon="lucide:calendar-sync"
+      title="Subscription"
+      to="/guides/subscription-payments"
     />
   );
 }
@@ -710,6 +732,7 @@ export const staticCards = [
   NearIntentsMethodCard,
   OneTimePaymentsCard,
   PayAsYouGoCard,
+  PayForSessionsCard,
   PaymentLinksCard,
   PaymentMethodsCard,
   ProtocolConceptsCard,
@@ -731,6 +754,7 @@ export const staticCards = [
   SolanaChargeCard,
   SolanaMethodCard,
   SolanaSessionCard,
+  SubscriptionPaymentsCard,
   StellarChannelCard,
   StellarChargeCard,
   XrplChargeCard,

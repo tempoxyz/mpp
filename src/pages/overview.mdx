@@ -1,5 +1,5 @@
 ---
-description: "MPP standardizes HTTP 402 for machine-to-machine payments. Learn how agents, apps, and services exchange payments in the same HTTP request."
+description: "MPP standardizes HTTP 402 for machine-to-machine payments. Buyers pay sellers in the same HTTP request—agents, apps, or people."
 imageDescription: "The open protocol for machine-to-machine payments"
 title: "What is MPP? Machine-to-machine HTTP 402 payments"
 ---
@@ -13,7 +13,7 @@ import { PaymentFlowDiagram } from '../components/PaymentFlowDiagram'
 
 # What is MPP? [Machine-to-machine payments over HTTP 402]
 
-The Machine Payments Protocol (MPP) is an open protocol co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). It lets any client—agents, apps, or humans—pay for any service in the same HTTP request. Developers use MPP to let their agents pay for services. Service operators use MPP to accept payments for their APIs.
+The Machine Payments Protocol (MPP) is an open protocol co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). It lets any buyer—an agent, app, or person—pay any seller in the same HTTP request.
 
 MPP is built around a simple, extensible core and is neutral to the implementation of underlying payment flows and methods.
 
@@ -25,11 +25,8 @@ MPP is built around a simple, extensible core and is neutral to the implementati
 
 ## Who is MPP for?
 
-MPP involves three parties:
-
-- **Developers** build apps and agents that consume paid services. You integrate an MPP client so your agent can discover, pay for, and use third-party APIs without manual signup or API keys.
-- **Agents** are the entities that take action—calling APIs, generating images, querying data. They pay for services autonomously on behalf of your users.
-- **Services** operate APIs that charge for access—LLM inference, image generation, web search, and more. You integrate an MPP server to accept payments with zero onboarding friction.
+- **Buyers** pay for what they use: agents, apps, or people calling paid APIs without signups or API keys. Start with the [client quickstart](/quickstart/client) or [use MPP with coding agents](/quickstart/agent).
+- **Sellers** charge for access: APIs, services, or sites selling inference, data, search, and more. Start with the [server quickstart](/quickstart/server).
 
 ## The problem with payments on the internet
 
@@ -39,7 +36,7 @@ However, the very things that make these payment flows familiar and fast for hum
 
 This is not the fault of any individual payment method or Credential. This is a global problem which exists at the _interface_ level: how buyer and seller negotiate cost, supported payment methods, and ultimately transact.
 
-The Machine Payments Protocol addresses this gap by providing a payment interface built for programmatic access that strips away the complexity of rich checkout flows, while still providing robust security and reliability. By using MPP, you can accept payments from any client—agents, apps, or humans—and across any payment method, without complex checkout flows and integrations.
+The Machine Payments Protocol addresses this gap by providing a payment interface built for programmatic access that strips away the complexity of rich checkout flows, while still providing robust security and reliability. By using MPP, sellers can accept payments from any buyer—agents, apps, or people—and across any payment method, without complex checkout flows and integrations.
 
 ## Try it out
 
@@ -52,7 +49,7 @@ See the full payment flow in action. The terminal creates an ephemeral wallet, f
 ## Use cases
 
 * **[Agentic payments](/use-cases/agentic-payments)**—Your agent calls LLM providers, search APIs, and image generators through MPP, paying per request without API keys or human intervention.
-* **[API monetization](/use-cases/api-monetization)**—Accept payments from any client—agents, apps, or humans—without requiring signups, billing accounts, or API keys.
+* **[API monetization](/use-cases/api-monetization)**—Accept payments from any buyer—agents, apps, or people—without requiring signups, billing accounts, or API keys.
 * **[Micropayments](/use-cases/micropayments)**—Charge sub-cent amounts per token, per query, or per request using off-chain payment sessions with on-chain settlement.
 
 ## Payment flow
