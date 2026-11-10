@@ -17,6 +17,25 @@ const HOP_BY_HOP = [
 const BASE = "/playground/identity";
 
 /**
+ * How long browsers and Vercel's CDN keep each response, so repeat visits skip the
+ * function and the Worker. Vite's assets are content-hashed, so they never change;
+ * the fonts rarely do. The page is never cached: a Worker deploy replaces the assets
+ * it names, so a stale copy would load chunks that no longer exist.
+ */
+function cacheControl(pathname: string) {
+  if (pathname.startsWith(`${BASE}/assets/`))
+    return {
+      browser: "public, max-age=31536000, immutable",
+      cdn: "max-age=31536000",
+    };
+  if (pathname.startsWith(`${BASE}/fonts/`))
+    return { browser: "public, max-age=86400", cdn: "max-age=604800" };
+  if (pathname === BASE || pathname === `${BASE}/`)
+    return { browser: "no-cache", cdn: "no-store" };
+  return undefined;
+}
+
+/**
  * Proxies a request under /playground/identity to the playground Worker.
  * A route, not a vercel.ts rewrite: Vocs's catch-all route answers before external rewrites.
  */
@@ -47,6 +66,14 @@ export async function proxy(request: Request) {
   // fetch already decoded the body; hop-by-hop headers don't cross the proxy.
   for (const name of [...HOP_BY_HOP, "content-encoding", "content-length"])
     responseHeaders.delete(name);
+  const cache =
+    request.method === "GET" && upstream.status === 200
+      ? cacheControl(url.pathname)
+      : undefined;
+  if (cache) {
+    responseHeaders.set("cache-control", cache.browser);
+    responseHeaders.set("vercel-cdn-cache-control", cache.cdn);
+  }
   return new Response(upstream.body, {
     headers: responseHeaders,
     status: upstream.status,

@@ -1,15 +1,39 @@
-import { File, MultiFileDiff } from "@pierre/diffs/react";
-import { Receipt } from "mppx";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { createClient, type Hex as HexValue, http } from "viem";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { Actions, Chain } from "viem/tempo";
-import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
-import { tempoModerato } from "wagmi/chains";
+import {
+  Component,
+  lazy,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import type { Address, Hex as HexValue } from "viem";
 
-import * as Client from "../client.js";
+import type * as Client from "../client.js";
 import { explanations, serverUsage, usage } from "./samples.js";
-import { ousd } from "./wallet.js";
+import { ousd, unloaded, type Wallet } from "./wallet-state.js";
+
+// The highlighter (Shiki) and the payment client (mppx) are most of the page's JavaScript:
+// load them after first paint, so the page shows while they download.
+const CodeView = lazy(() => import("./CodeView.js"));
+const loadClient = () => import("../client.js");
+const loadChain = () => import("./chain.js");
+const loadReceipt = () => import("mppx").then((m) => m.Receipt);
+const WalletBridge = lazy(() => import("./WalletBridge.js"));
+
+/** Shows the fallback if a lazy chunk fails to load (a network error, a blocker, a stale tab after a deploy), instead of unmounting the page. */
+class LoadBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
 type Tier = "anonymous" | "email" | "apiKey" | "link";
 /** The Worker's active tiers; Link is not implemented yet. */
@@ -36,11 +60,6 @@ type PendingCode = {
   resolve: (code: string | undefined) => void;
 };
 
-const rpc = createClient({
-  chain: Chain.testnet,
-  pollingInterval: 500,
-  transport: http(),
-});
 const explorer = "https://explore.testnet.tempo.xyz";
 /** Where mpp.dev serves the playground, with a trailing slash. */
 const basePath = import.meta.env.BASE_URL;
@@ -55,6 +74,11 @@ export function App() {
   const f = useDemo();
   return (
     <>
+      <LoadBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <WalletBridge onChange={f.setWallet} />
+        </Suspense>
+      </LoadBoundary>
       <Nav f={f} />
       <div className="page">
         <main className="main">
@@ -198,11 +222,13 @@ function Panel({ f }: { f: Demo }) {
           <span className="prompt">❯</span>
           <button
             className="action"
-            disabled={f.connect.isPending}
+            // Until the wallet stack loads, link can't open the wallet: replaying the click
+            // later would lose its user gesture, so the button waits instead.
+            disabled={!f.wallet.ready || f.wallet.linking}
             onClick={f.link}
             type="button"
           >
-            {f.connect.isPending ? "Linking…" : "Link Tempo Wallet"}
+            {f.wallet.linking ? "Linking…" : "Link Tempo Wallet"}
           </button>
           <span className="dim">or</span>
           <button className="action" onClick={f.useTestWallet} type="button">
@@ -212,8 +238,8 @@ function Panel({ f }: { f: Demo }) {
       ) : (
         <Composer f={f} />
       )}
-      {!f.address && f.connect.error && (
-        <div className="panel-row error">{f.connect.error.message}</div>
+      {!f.address && f.wallet.error && (
+        <div className="panel-row error">{f.wallet.error.message}</div>
       )}
     </section>
   );
@@ -403,29 +429,17 @@ function CodePanel({
         </button>
       </PanelHead>
       <div className="code-body">
-        {old === now ? (
-          <File
-            file={{ contents: now, name }}
-            lineAnnotations={annotations}
-            options={codeOptions}
-            renderAnnotation={renderExplanation}
-          />
-        ) : (
-          <MultiFileDiff
-            lineAnnotations={annotations.map((annotation) => ({
-              ...annotation,
-              side: "additions" as const,
-            }))}
-            renderAnnotation={renderExplanation}
-            newFile={{ contents: now, name }}
-            oldFile={{ contents: old, name }}
-            options={{
-              ...codeOptions,
-              diffStyle: "unified",
-              expandUnchanged: true,
-            }}
-          />
-        )}
+        <LoadBoundary fallback={<pre className="code-fallback">{now}</pre>}>
+          <Suspense fallback={<pre className="code-fallback">{now}</pre>}>
+            <CodeView
+              annotations={annotations}
+              name={name}
+              now={now}
+              old={old}
+              renderAnnotation={renderExplanation}
+            />
+          </Suspense>
+        </LoadBoundary>
       </div>
     </section>
   );
@@ -437,16 +451,28 @@ function renderExplanation({ metadata }: { metadata: string }) {
 
 /** Wallet, tier and request state shared by every layout. */
 function useDemo() {
-  const connection = useConnection();
-  const connectors = useConnectors();
-  const connect = useConnect();
-  const disconnect = useDisconnect();
+  const [wallet, setWallet] = useState<Wallet>(unloaded);
   const [testKey, setTestKey] = useState(
     () => localStorage.getItem("fortune.key") as HexValue | null,
   );
-  const address =
-    connection.address ??
-    (testKey ? privateKeyToAccount(testKey).address : undefined);
+  // The test wallet's address is stored beside its key, so it shows before viem loads.
+  const [testAddress, setTestAddress] = useState(
+    () =>
+      (localStorage.getItem("fortune.address") as Address | null) ?? undefined,
+  );
+  // Once viem loads, derive the address from the key, correcting a stored address that
+  // doesn't match it (another version of the page may have replaced the key).
+  useEffect(() => {
+    if (!testKey) return;
+    loadChain()
+      .then(({ privateKeyToAccount }) => {
+        const { address } = privateKeyToAccount(testKey);
+        localStorage.setItem("fortune.address", address);
+        setTestAddress(address);
+      })
+      .catch((e) => setError(`Couldn't load the test wallet: ${String(e)}`));
+  }, [testKey]);
+  const address = wallet.address ?? (testKey ? testAddress : undefined);
 
   const [config, setConfig] = useState<Config>();
   const [balance, setBalance] = useState<string>();
@@ -482,6 +508,7 @@ function useDemo() {
 
   async function refreshBalance(account = address) {
     if (!account) return;
+    const { Actions, rpc } = await loadChain();
     const value = await Actions.token.getBalance(rpc, { account, token: ousd });
     setBalance((Number(value.amount) / 1e6).toFixed(2));
   }
@@ -490,6 +517,7 @@ function useDemo() {
     if (!address) return;
     setFunding(true);
     try {
+      const { Actions, rpc } = await loadChain();
       await Actions.faucet.fundSync(rpc, { account: address, timeout: 30_000 });
       await refreshBalance();
     } catch (e) {
@@ -501,29 +529,36 @@ function useDemo() {
 
   function link() {
     setError(undefined);
-    const connector = connectors[0];
-    if (connector) connect.mutate({ chainId: tempoModerato.id, connector });
+    wallet.link();
   }
 
   function useTestWallet() {
-    const key = generatePrivateKey();
-    localStorage.setItem("fortune.key", key);
-    setTestKey(key);
+    loadChain()
+      .then(({ generatePrivateKey, privateKeyToAccount }) => {
+        const key = generatePrivateKey();
+        const { address } = privateKeyToAccount(key);
+        localStorage.setItem("fortune.key", key);
+        localStorage.setItem("fortune.address", address);
+        setTestKey(key);
+        setTestAddress(address);
+      })
+      .catch((e) => setError(`Couldn't create a test wallet: ${String(e)}`));
   }
 
   function unlink() {
-    if (connection.status === "connected") disconnect.mutate();
+    if (wallet.connected) wallet.disconnect();
     localStorage.removeItem("fortune.key");
+    localStorage.removeItem("fortune.address");
     setTestKey(null);
+    setTestAddress(undefined);
   }
 
-  async function wallet(): Promise<Client.Options["wallet"]> {
-    if (connection.status === "connected" && connection.connector) {
-      const provider = (await connection.connector.getProvider()) as {
-        getMppxParameters(): Client.Options["wallet"];
-      };
-      return provider.getMppxParameters();
-    }
+  async function payer(): Promise<Client.Options["wallet"]> {
+    const linked = (await wallet.mppx()) as
+      | Client.Options["wallet"]
+      | undefined;
+    if (linked) return linked;
+    const { privateKeyToAccount } = await loadChain();
     return { account: privateKeyToAccount(testKey!) };
   }
 
@@ -559,7 +594,8 @@ function useDemo() {
       // Reuse the client while its inputs hold: the email prover keeps its attestation,
       // so repeat purchases don't send a new code each time.
       const key = [tier, email, apiKey, address].join("|");
-      if (buyRef.current?.key !== key)
+      if (buyRef.current?.key !== key) {
+        const Client = await loadClient();
         buyRef.current = {
           buy: Client.create({
             apiKey: tier === "apiKey" ? apiKey : undefined,
@@ -574,10 +610,11 @@ function useDemo() {
               ? BigInt(Math.round(Number(price) * 1e6))
               : undefined,
             origin: location.origin,
-            wallet: await wallet(),
+            wallet: await payer(),
           }),
           key,
         };
+      }
       const response = await buyRef.current.buy(topic.trim() || undefined);
       // Rejections may be problem+json or plain text: show their reason either way.
       const text = await response.text();
@@ -600,6 +637,7 @@ function useDemo() {
               ? text.slice(0, 300)
               : `${response.status} ${response.statusText}`),
         );
+      const Receipt = await loadReceipt();
       setResult({ ...body, receipt: Receipt.fromResponse(response).reference });
       await refreshBalance();
     } catch (e) {
@@ -640,7 +678,6 @@ function useDemo() {
     busy,
     code,
     config,
-    connect,
     buy,
     email,
     error,
@@ -657,22 +694,16 @@ function useDemo() {
     setCode,
     setEmail,
     setTier,
+    setWallet,
     setTopic,
     source,
     tier,
     topic,
     unlink,
     useTestWallet,
+    wallet,
   };
 }
-
-const codeOptions = {
-  disableFileHeader: true,
-  disableLineNumbers: true,
-  overflow: "wrap",
-  theme: { dark: "github-dark-dimmed", light: "github-light" },
-  themeType: "dark",
-} as const;
 
 /** A terminal window's title bar, as on mpp.dev's demos. */
 function PanelHead({ children, name }: { children?: ReactNode; name: string }) {

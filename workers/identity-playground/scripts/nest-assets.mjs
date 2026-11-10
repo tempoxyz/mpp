@@ -8,7 +8,7 @@ const client = "dist/client";
 const target = join(client, "playground/identity");
 mkdirSync(target, { recursive: true });
 for (const entry of readdirSync(client)) {
-  // .assetsignore stays at the assets root, where Wrangler reads it.
-  if (entry === "playground" || entry === ".assetsignore") continue;
+  // .assetsignore and _headers stay at the assets root, where Wrangler reads them.
+  if (["playground", ".assetsignore", "_headers"].includes(entry)) continue;
   renameSync(join(client, entry), join(target, entry));
 }

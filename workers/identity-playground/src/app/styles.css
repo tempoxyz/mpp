@@ -335,6 +335,15 @@ button:disabled {
   overflow: auto;
   padding: 8px;
 }
+.code-fallback {
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 20px;
+  margin: 0;
+  padding: 0 8px;
+  white-space: pre-wrap;
+}
 .code-body * {
   --diffs-font-family: var(--mono);
   --diffs-bg: var(--panel);
