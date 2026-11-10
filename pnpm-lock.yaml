@@ -176,9 +176,6 @@ importers:
 
   workers/identity-playground:
     dependencies:
-      '@pierre/diffs':
-        specifier: ^1.6.4
-        version: 1.6.4(@shikijs/themes@4.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-query':
         specifier: ^5.107.1
         version: 5.107.1(@types/react@19.3.0)(react@19.3.1)
@@ -204,6 +201,9 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.67.0
         version: 1.68.0(@types/node@26.6.6)(vite@8.3.7(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(workerd@1.20261109.1)(wrangler@4.159.0(@types/node@26.6.6))
+      '@pierre/diffs':
+        specifier: ^1.6.4
+        version: 1.6.4(@shikijs/themes@4.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6

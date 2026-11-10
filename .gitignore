@@ -30,3 +30,6 @@ bun.lock
 package-lock.json
 yarn.lock
 _
+
+# Built from workers/identity-playground by scripts/copy-identity-playground.ts
+public/playground/identity/

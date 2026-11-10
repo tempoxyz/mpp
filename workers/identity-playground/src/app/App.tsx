@@ -1,4 +1,3 @@
-import prerendered from "virtual:prerendered-code";
 import {
   Component,
   lazy,
@@ -11,12 +10,13 @@ import {
 import type { Address, Hex as HexValue } from "viem";
 
 import type * as Client from "../client.js";
-import { explanations, serverUsage, usage } from "./samples.js";
+import { prices } from "../prices.js";
+import { CodeLines } from "./CodeLines.js";
+import { serverUsage, usage } from "./samples.js";
 import { ousd, unloaded, type Wallet } from "./wallet-state.js";
 
-// The highlighter (Shiki) and the payment client (mppx) are most of the page's JavaScript:
-// load them after first paint, so the page shows while they download.
-const CodeView = lazy(() => import("./CodeView.js"));
+// The payment client (mppx) is most of the page's JavaScript: load it after first paint, so the
+// page shows while it downloads.
 const loadClient = () => import("../client.js");
 const loadChain = () => import("./chain.js");
 const loadReceipt = () => import("mppx").then((m) => m.Receipt);
@@ -106,7 +106,7 @@ export function App() {
                 {t.id !== "link" && (
                   <span className="price">
                     {" "}
-                    {f.config?.prices[t.id] ?? "…"}
+                    {f.config?.prices[t.id] ?? prices[t.id]}
                   </span>
                 )}
               </button>
@@ -115,7 +115,7 @@ export function App() {
           <Panel f={f} />
           <Requests f={f} />
           <a className="link" href="https://mpp.dev/extensions/identity">
-            Read the docs →
+            Read the MPP docs →
           </a>
         </main>
         <aside>
@@ -332,7 +332,7 @@ function Composer({ f }: { f: Demo }) {
           ? "Paying…"
           : f.tier === "link"
             ? "Not set up"
-            : `Buy haiku · ${f.price ?? "…"} OUSD`}
+            : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
       </button>
       <div className="topic">
         <span className="dim">topic</span>
@@ -408,10 +408,21 @@ function Requests({ f }: { f: Demo }) {
 
 /** Client code on top, server code below, each shown as additions to its anonymous base. */
 function Code({ f }: { f: Demo }) {
+  const values = { apiKey: f.apiKey, email: f.email, topic: f.topic.trim() };
   return (
     <div className="code-stack">
-      <CodePanel name="client.ts" now={f.source.now} old={base} />
-      <CodePanel name="server.ts" now={serverUsage(f.tier)} old={serverBase} />
+      <CodePanel
+        name="client.ts"
+        now={f.source.now}
+        tier={f.tier}
+        values={values}
+      />
+      <CodePanel
+        name="server.ts"
+        now={serverUsage(f.tier)}
+        tier={f.tier}
+        values={values}
+      />
     </div>
   );
 }
@@ -419,14 +430,15 @@ function Code({ f }: { f: Demo }) {
 function CodePanel({
   name,
   now,
-  old,
+  tier,
+  values,
 }: {
   name: string;
   now: string;
-  old: string;
+  tier: Tier;
+  values: { apiKey: string; email: string; topic: string };
 }) {
   const [explain, setExplain] = useState(false);
-  const annotations = explain ? explanations(now) : [];
   return (
     <section className="panel code">
       <PanelHead name={name}>
@@ -440,51 +452,16 @@ function CodePanel({
         </button>
       </PanelHead>
       <div className="code-body">
-        <LoadBoundary
-          fallback={<CodeFallback name={name} now={now} old={old} />}
-        >
-          <Suspense fallback={<CodeFallback name={name} now={now} old={old} />}>
-            <CodeView
-              annotations={annotations}
-              name={name}
-              now={now}
-              old={old}
-              renderAnnotation={renderExplanation}
-            />
-          </Suspense>
-        </LoadBoundary>
+        <CodeLines
+          explain={explain}
+          name={name}
+          now={now}
+          tier={tier}
+          values={values}
+        />
       </div>
     </section>
   );
-}
-
-/**
- * What a code pane shows until the highlighter loads: the build-time highlighted sample while
- * the code is still that sample, or else the plain source.
- */
-function CodeFallback({
-  name,
-  now,
-  old,
-}: {
-  name: string;
-  now: string;
-  old: string;
-}) {
-  const pane = prerendered[name];
-  if (pane && old === now && pane.source === now)
-    return (
-      <pre
-        className="code-fallback code-prerendered"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted at build time from the page's own samples
-        dangerouslySetInnerHTML={{ __html: pane.html }}
-      />
-    );
-  return <pre className="code-fallback">{now}</pre>;
-}
-
-function renderExplanation({ metadata }: { metadata: string }) {
-  return <div className="code-explanation">{metadata}</div>;
 }
 
 /** Wallet, tier and request state shared by every layout. */
@@ -511,6 +488,18 @@ function useDemo() {
       .catch((e) => setError(`Couldn't load the test wallet: ${String(e)}`));
   }, [testKey]);
   const address = wallet.address ?? (testKey ? testAddress : undefined);
+
+  // Fetch what the next click needs while the visitor reads: viem for the test wallet and
+  // balances, and once there is a wallet, the payment client Buy runs.
+  useEffect(() => {
+    const warm = () => {
+      loadChain().catch(() => undefined);
+      if (address) loadClient().catch(() => undefined);
+    };
+    if (!("requestIdleCallback" in window)) return void setTimeout(warm, 1000);
+    const id = requestIdleCallback(warm, { timeout: 3000 });
+    return () => cancelIdleCallback(id);
+  }, [address]);
 
   const [config, setConfig] = useState<Config>();
   const [balance, setBalance] = useState<string>();
@@ -755,7 +744,3 @@ function Logo() {
     </svg>
   );
 }
-
-/** Anonymous baselines for the tier diffs. */
-const base = usage("anonymous");
-const serverBase = serverUsage("anonymous");
