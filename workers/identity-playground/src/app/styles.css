@@ -1,4 +1,4 @@
-/* mpp.dev's design system: Geist and Geist Mono, #101010 and #191919 surfaces,
+/* mpp.dev's homepage: Geist and Geist Mono, #060606 and #191919 surfaces,
  * uppercase mono labels and boxed controls, terminal-style panels. */
 @font-face {
   font-display: swap;
@@ -18,21 +18,21 @@
 :root {
   --sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --mono: "Geist Mono Variable", ui-monospace, monospace;
-  --bg: light-dark(#ffffff, #101010);
-  --panel: light-dark(#ffffff, #191919);
-  --panel-head: light-dark(oklch(0.97 0 0), oklch(0.17 0 0));
-  --ink: light-dark(#101010, #ebebeb);
-  --secondary: light-dark(#4d4d4d, #a6a6a6);
-  --dim: light-dark(#8a8a8a, #757575);
-  --line: light-dark(rgb(16 16 16 / 14%), rgb(235 235 235 / 20%));
-  --line-soft: light-dark(rgb(16 16 16 / 8%), rgb(235 235 235 / 10%));
-  --button: light-dark(oklch(0.97 0 0), #191919);
-  --button-hover: light-dark(oklch(0.93 0 0), #262626);
-  --purple: light-dark(#6f60d2, #9e94ff);
-  --green: light-dark(hsl(133 50% 32%), #98f3aa);
-  --orange: light-dark(hsl(25 95% 45%), hsl(25 95% 63%));
-  --red: light-dark(hsl(358 65% 48%), hsl(358 75% 65%));
-  color-scheme: light dark;
+  --bg: #060606;
+  --panel: #191919;
+  --panel-head: #191919;
+  --ink: #ebebeb;
+  --secondary: #a6a6a6;
+  --dim: #757575;
+  --line: rgb(235 235 235 / 20%);
+  --line-soft: rgb(235 235 235 / 10%);
+  --button: #191919;
+  --button-hover: #262626;
+  --purple: #9e94ff;
+  --green: #98f3aa;
+  --orange: hsl(25 95% 63%);
+  --red: hsl(358 75% 65%);
+  color-scheme: dark;
 }
 
 * {
@@ -137,14 +137,14 @@ button:disabled {
   padding-bottom: 8px;
 }
 .label {
-  color: var(--dim);
+  color: var(--purple);
   font-family: var(--mono);
   font-size: 13px;
   line-height: 16px;
   text-transform: uppercase;
 }
 .label::before {
-  color: var(--secondary);
+  color: currentColor;
   content: "■ ";
 }
 .title {
@@ -219,11 +219,11 @@ button:disabled {
   font-size: 12px;
 }
 
-/* Terminal-window panels, like mpp.dev's demos. */
+/* Match the homepage Terminal.tsx marketing frame and _root.css terminal theme. */
 .panel {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid #3c3c3c;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   font-family: var(--mono);
@@ -234,23 +234,16 @@ button:disabled {
 .panel-head {
   align-items: center;
   background: var(--panel-head);
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--dim);
+  border-bottom: 1px solid oklch(0.27 0 0);
+  color: oklch(0.9 0 0);
   display: flex;
   gap: 16px;
-  min-height: 40px;
+  min-height: 48px;
+  font-size: 14px;
+  letter-spacing: -0.14px;
+  line-height: 16px;
+  text-transform: uppercase;
   padding: 0 16px;
-}
-.dots {
-  display: flex;
-  gap: 8px;
-}
-.dots i {
-  background: var(--line);
-  border-radius: 50%;
-  display: block;
-  height: 12px;
-  width: 12px;
 }
 .panel-body {
   display: flex;
@@ -266,11 +259,6 @@ button:disabled {
   gap: 10px;
   min-height: 44px;
   padding: 8px 20px;
-}
-.panel-foot {
-  color: var(--dim);
-  flex-wrap: wrap;
-  justify-content: space-between;
 }
 .placeholder {
   color: var(--dim);
@@ -369,10 +357,9 @@ button:disabled {
   }
 }
 
-.warning {
-  border-left: 2px solid var(--orange);
-  color: var(--ink);
-  padding-left: 12px;
+.coming-soon {
+  color: #00d66f;
+  font-weight: 400;
 }
 .panel-row:has(.topic) {
   flex-wrap: wrap;
@@ -383,4 +370,86 @@ button:disabled {
   flex-basis: 100%;
   gap: 8px;
   padding-left: 20px;
+}
+
+.tab[data-tier="link"] {
+  color: #00d66f;
+}
+.tab[data-tier="link"][data-active="true"] {
+  border-color: #00d66f;
+}
+
+.explain-toggle {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.explain-toggle[aria-pressed="true"] {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.code-explanation {
+  background: #202024;
+  border-left: 2px solid var(--purple);
+  color: #b9b4d8;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 16px;
+  padding: 8px 12px;
+}
+
+.header .logo {
+  flex-shrink: 0;
+}
+.nav {
+  justify-content: flex-end;
+}
+.nav-dropdown {
+  position: relative;
+}
+.nav-dropdown summary {
+  cursor: pointer;
+  list-style: none;
+}
+.nav-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+.nav-dropdown-items {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 4px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+}
+.nav-dropdown-items a {
+  color: var(--secondary);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+.nav-dropdown-items a:hover,
+.nav-dropdown-items a:focus-visible {
+  background: var(--button-hover);
+  color: var(--ink);
+}
+@media (max-width: 640px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .nav {
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
+  }
+  .nav-dropdown {
+    position: static;
+  }
 }

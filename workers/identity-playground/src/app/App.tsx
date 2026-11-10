@@ -1,6 +1,6 @@
 import { File, MultiFileDiff } from "@pierre/diffs/react";
 import { Receipt } from "mppx";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { createClient, type Hex as HexValue, http } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { Actions, Chain } from "viem/tempo";
@@ -8,10 +8,11 @@ import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { tempoModerato } from "wagmi/chains";
 
 import * as Client from "../client.js";
+import { explanations, serverUsage, usage } from "./samples.js";
 import { ousd } from "./wallet.js";
 
 type Tier = "anonymous" | "email" | "apiKey" | "link";
-/** The Worker's tiers: Link is shown as code only until a Link OAuth client is configured. */
+/** The Worker's active tiers; Link is not implemented yet. */
 type Config = {
   issuer: string;
   limit: number;
@@ -50,11 +51,6 @@ const tiers: { id: Tier; label: string }[] = [
   { id: "link", label: "Link" },
 ];
 
-/** A tier's name as the page shows it. */
-function label(tier: string) {
-  return tiers.find((t) => t.id === tier)?.label ?? tier;
-}
-
 export function App() {
   const f = useDemo();
   return (
@@ -66,8 +62,8 @@ export function App() {
             <span className="label">Playground</span>
             <h1 className="title">Identity</h1>
             <p className="lede">
-              Buy a haiku. The more you prove, the less you pay and the more
-              personal it gets.
+              Buy a haiku using MPP. The more you prove, the less you pay and
+              the more personal it gets.
             </p>
           </div>
           <div className="tabs">
@@ -76,10 +72,12 @@ export function App() {
                 key={t.id}
                 className="tab"
                 data-active={t.id === f.tier}
+                data-tier={t.id}
                 onClick={() => f.setTier(t.id)}
                 type="button"
               >
                 {t.label}
+                {t.id === "link" && " (coming soon)"}
                 {t.id !== "link" && (
                   <span className="price">
                     {" "}
@@ -91,7 +89,7 @@ export function App() {
           </div>
           <Panel f={f} />
           <Requests f={f} />
-          <a className="link" href="https://mpp.dev/overview">
+          <a className="link" href="https://mpp.dev/extensions/identity">
             Read the MPP docs →
           </a>
         </main>
@@ -111,40 +109,69 @@ function Nav({ f }: { f: Demo }) {
       <a aria-label="MPP" className="logo" href="https://mpp.dev">
         <Logo />
       </a>
-      <nav className="nav">
+      <nav aria-label="Main navigation" className="nav">
         {f.address && (
           <button className="nav-item" onClick={f.unlink} type="button">
             Unlink
           </button>
         )}
-        <a className="nav-item" href="https://mpp.dev/overview">
-          Docs
-        </a>
+        {[
+          ["Docs", "https://mpp.dev/overview"],
+          ["SDKs", "https://mpp.dev/sdk"],
+          ["Services", "https://mpp.dev/services"],
+          ["Blog", "https://mpp.dev/blog"],
+        ].map(([label, href]) => (
+          <a className="nav-item" href={href} key={href}>
+            {label}
+          </a>
+        ))}
         <a
           className="nav-item"
-          href="https://github.com/tempoxyz/mpp/tree/main/workers/identity-playground"
+          href="https://paymentauth.org/"
           rel="noreferrer"
           target="_blank"
         >
-          GitHub
+          IETF Specification ↗
         </a>
+        <details
+          className="nav-dropdown"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.currentTarget.open = false;
+              event.currentTarget.querySelector("summary")?.focus();
+            }
+          }}
+        >
+          <summary className="nav-item">
+            GitHub <span aria-hidden>⌄</span>
+          </summary>
+          <div className="nav-dropdown-items">
+            {[
+              ["mppx (TypeScript)", "https://github.com/wevm/mppx"],
+              ["MPP-go (Go)", "https://github.com/tempoxyz/mpp-go"],
+              ["MPP-rb (Ruby)", "https://github.com/stripe/mpp-rb"],
+              ["MPP-rs (Rust)", "https://github.com/tempoxyz/mpp-rs"],
+              ["PyMPP (Python)", "https://github.com/tempoxyz/pympp"],
+            ].map(([label, href]) => (
+              <a href={href} key={href} rel="noreferrer" target="_blank">
+                {label}
+              </a>
+            ))}
+          </div>
+        </details>
       </nav>
     </header>
   );
 }
 
-/** The haiku: output on top, the input row and wallet status underneath. */
+/** The haiku output and input controls. */
 function Panel({ f }: { f: Demo }) {
   return (
     <section className="panel">
       <PanelHead name="haiku" />
       <div className="panel-body">
         {f.tier === "link" ? (
-          <div className="warning">
-            Link isn't set up yet. To get Link attestations and claims, the page
-            needs a Link OAuth client (login.link.com). For now the code shows
-            how Link fits in.
-          </div>
+          <div className="coming-soon">Coming soon</div>
         ) : f.result ? (
           <Haiku f={f} />
         ) : f.pending ? (
@@ -188,25 +215,6 @@ function Panel({ f }: { f: Demo }) {
       {!f.address && f.connect.error && (
         <div className="panel-row error">{f.connect.error.message}</div>
       )}
-      <div className="panel-row panel-foot">
-        <span className="dim">
-          {f.address
-            ? `${f.address.slice(0, 6)}…${f.address.slice(-4)}`
-            : "no wallet"}
-          {f.balance !== undefined && ` · ${f.balance} OUSD`}
-          {` · ${label(f.tier)}`}
-        </span>
-        {f.low && (
-          <button
-            className="action"
-            disabled={f.funding}
-            onClick={f.fund}
-            type="button"
-          >
-            {f.funding ? "funding…" : "get test OUSD"}
-          </button>
-        )}
-      </div>
     </section>
   );
 }
@@ -271,6 +279,16 @@ function Composer({ f }: { f: Demo }) {
       )}
       {f.tier === "link" && (
         <span className="input dim">needs a Link OAuth client</span>
+      )}
+      {f.low && f.tier !== "link" && (
+        <button
+          className="button"
+          disabled={f.funding}
+          onClick={f.fund}
+          type="button"
+        >
+          {f.funding ? "Funding…" : "Get test OUSD"}
+        </button>
       )}
       <button className="button" disabled={!f.ready || f.busy} type="submit">
         {f.busy
@@ -370,14 +388,35 @@ function CodePanel({
   now: string;
   old: string;
 }) {
+  const [explain, setExplain] = useState(false);
+  const annotations = explain ? explanations(now) : [];
   return (
     <section className="panel code">
-      <PanelHead name={name} />
+      <PanelHead name={name}>
+        <button
+          aria-pressed={explain}
+          className="button explain-toggle"
+          onClick={() => setExplain(!explain)}
+          type="button"
+        >
+          Explain code
+        </button>
+      </PanelHead>
       <div className="code-body">
         {old === now ? (
-          <File file={{ contents: now, name }} options={codeOptions} />
+          <File
+            file={{ contents: now, name }}
+            lineAnnotations={annotations}
+            options={codeOptions}
+            renderAnnotation={renderExplanation}
+          />
         ) : (
           <MultiFileDiff
+            lineAnnotations={annotations.map((annotation) => ({
+              ...annotation,
+              side: "additions" as const,
+            }))}
+            renderAnnotation={renderExplanation}
             newFile={{ contents: now, name }}
             oldFile={{ contents: old, name }}
             options={{
@@ -390,6 +429,10 @@ function CodePanel({
       </div>
     </section>
   );
+}
+
+function renderExplanation({ metadata }: { metadata: string }) {
+  return <div className="code-explanation">{metadata}</div>;
 }
 
 /** Wallet, tier and request state shared by every layout. */
@@ -433,7 +476,9 @@ function useDemo() {
   }, [address]);
 
   // The client code for the current inputs; the panel shows it as additions to the anonymous base.
-  const source = { now: usage(tier, email, apiKey, topic.trim()) };
+  const source = {
+    now: usage(tier, email, apiKey, topic.trim()),
+  };
 
   async function refreshBalance(account = address) {
     if (!account) return;
@@ -623,21 +668,18 @@ function useDemo() {
 
 const codeOptions = {
   disableFileHeader: true,
+  disableLineNumbers: true,
   overflow: "wrap",
-  theme: { dark: "pierre-dark", light: "pierre-light" },
-  themeType: "system",
+  theme: { dark: "github-dark-dimmed", light: "github-light" },
+  themeType: "dark",
 } as const;
 
 /** A terminal window's title bar, as on mpp.dev's demos. */
-function PanelHead({ name }: { name: string }) {
+function PanelHead({ children, name }: { children?: ReactNode; name: string }) {
   return (
     <div className="panel-head">
-      <span aria-hidden className="dots">
-        <i />
-        <i />
-        <i />
-      </span>
       <span>{name}</span>
+      {children}
     </div>
   );
 }
@@ -654,212 +696,6 @@ function Logo() {
   );
 }
 
-/** The anonymous client: every tier's code is this plus added lines. */
-const base = usage("anonymous", "");
-
-/** The client code for a tier: the lines you'd write. */
-function usage(tier: Tier, address: string, apiKey = "", topic = "") {
-  return [
-    "import { Mppx, tempo } from 'mppx/client'",
-    ...(tier === "email"
-      ? ["import { EmailOtp } from 'mppx/extensions/identity'"]
-      : []),
-    ...(tier === "link"
-      ? [
-          "import { Link } from '@stripe/link-sdk'",
-          "import * as LinkProver from './link.js'",
-        ]
-      : []),
-    "",
-    ...(tier === "link"
-      ? [
-          "// Needs a Link OAuth client (login.link.com): not set up yet.",
-          "// getAccessToken returns the signed-in Link customer's token.",
-          "const link = new Link({ getAccessToken })",
-          "",
-        ]
-      : []),
-    ...(tier === "email"
-      ? [
-          "// Verify the email once, up front: every request then carries the proof.",
-          "const { id } = await EmailOtp.Client.sendCode({",
-          "  audience: location.origin,",
-          `  email: '${address || "you@example.com"}',`,
-          "  issuer,",
-          "})",
-          "const { attestation } = await EmailOtp.Client.verifyCode({",
-          "  code: await askForCode(),",
-          "  id,",
-          "  issuer,",
-          "})",
-          "",
-        ]
-      : []),
-    "// The linked Tempo Wallet: its access key pays each request without a prompt.",
-    "const provider = await connector.getProvider()",
-    "",
-    "const mppx = Mppx.create({",
-    ...(tier === "email"
-      ? [
-          "  identity: [",
-          "    EmailOtp.Client.prover({",
-          "      attestations: [attestation], // verified up front",
-          "      code: askForCode,",
-          `      email: '${address || "you@example.com"}',`,
-          "      issuers: [issuer],",
-          "    }),",
-          "  ],",
-        ]
-      : []),
-    ...(tier === "apiKey"
-      ? [
-          "  identity: [",
-          "    // Sends your API key in the X-Api-Key header.",
-          `    apiKeyProver('${apiKey}'),`,
-          "  ],",
-        ]
-      : []),
-    ...(tier === "link"
-      ? [
-          "  identity: [",
-          "    // Attestation: a Link token showing Link vouches for this agent.",
-          "    LinkProver.attestation({ link }),",
-          "    // Claims: a verified email, signed by Link and this holder key.",
-          "    LinkProver.claims({",
-          "      link,",
-          "      claims: ['email', 'email_verified'],",
-          "    }),",
-          "  ],",
-        ]
-      : []),
-    "  methods: [",
-    "    tempo(provider.getMppxParameters()),",
-    "  ],",
-    "})",
-    "",
-    `const url = new URL('${basePath}api/haiku', location.origin)`,
-    ...(topic
-      ? [
-          "// Verified buyers only: anonymous gets a 403.",
-          `url.searchParams.set('topic', ${JSON.stringify(topic).replaceAll('"', "'")})`,
-        ]
-      : []),
-    "const res = await mppx.fetch(url)",
-    "",
-  ].join("\n");
-}
-
-/** The anonymous server: every tier's code is this plus added lines. */
+/** Anonymous baselines for the tier diffs. */
+const base = usage("anonymous");
 const serverBase = serverUsage("anonymous");
-
-/** The server code for a tier: the lines the Worker needs (src/server.ts and src/tiers.ts). */
-function serverUsage(tier: Tier) {
-  return [
-    "import { Mppx, tempo } from 'mppx/server'",
-    ...(tier === "email"
-      ? ["import * as EmailOtp from 'mppx/extensions/identity/email-otp'"]
-      : []),
-    ...(tier === "apiKey" ? ["import * as Identity from 'mppx/identity'"] : []),
-    ...(tier === "link"
-      ? [
-          "import { LinkVerifier } from '@stripe/agent-identity'",
-          "import * as LinkIdentity from './link.js'",
-        ]
-      : []),
-    "",
-    "// The payee: receives OUSD for every haiku.",
-    "const account = privateKeyToAccount(env.MPP_PRIVATE_KEY)",
-    "",
-    "const mppx = Mppx.create({",
-    "  methods: [",
-    "    tempo({",
-    "      account,",
-    "      chainId: 42431, // Tempo Moderato testnet",
-    "      currency: OUSD,",
-    "      recipient: account.address,",
-    "    }),",
-    "  ],",
-    "  secretKey,",
-    "})",
-    "",
-    ...(tier === "link"
-      ? [
-          "// Checks Link credentials with Link's public keys: no Stripe secret needed.",
-          "const link = new LinkVerifier({ origin })",
-          "",
-        ]
-      : []),
-    "// What each tier costs, and what the caller must prove for it.",
-    "const tiers = {",
-    "  anonymous: {",
-    "    amount: '0.03',",
-    "  },",
-    ...(tier === "email"
-      ? [
-          "  email: {",
-          "    amount: '0.02',",
-          "    identity: [",
-          "      EmailOtp.Server.verifier({",
-          "        audience: origin,",
-          "        issuer,",
-          "      }),",
-          "    ],",
-          "  },",
-        ]
-      : []),
-    ...(tier === "apiKey"
-      ? [
-          "  apiKey: {",
-          "    amount: '0.01',",
-          "    identity: [",
-          "      // Looks the X-Api-Key header up in our API key table.",
-          "      Identity.from({",
-          "        verify: (request) => {",
-          "          const key = request.headers.get('X-Api-Key')",
-          "          // Own keys only, so '__proto__' is not a key.",
-          "          return key && Object.hasOwn(apiKeys, key) ? apiKeys[key] : undefined",
-          "        },",
-          "      }),",
-          "    ],",
-          "  },",
-        ]
-      : []),
-    ...(tier === "link"
-      ? [
-          "  link: {",
-          "    amount: '0.01',",
-          "    identity: [",
-          "      // Checks the Link attestation token.",
-          "      LinkIdentity.attestation({ verifier: link }),",
-          "      // Checks the presentation: email and email_verified, signed by Link.",
-          "      LinkIdentity.claims({",
-          "        claims: ['email', 'email_verified'],",
-          "        purpose: 'Write a haiku about you',",
-          "        verifier: link,",
-          "      }),",
-          "    ],",
-          "  },",
-        ]
-      : []),
-    "}",
-    "",
-    "export default {",
-    "  async fetch(request) {",
-    "    // The best tier the request's proofs verify: the client never asks for one.",
-    "    const tier = await bestTier(request)",
-    "    // Custom topics are for verified buyers: refused before any charge.",
-    "    const topic = new URL(request.url).searchParams.get('topic')",
-    "    if (topic && tier === 'anonymous')",
-    "      return Response.json({ error: 'Verified buyers only.' }, { status: 403 })",
-    "    // Anonymous buyers get 3 a day per IP; any verified proof lifts the limit.",
-    "    if (tier === 'anonymous' && (await usedToday(request)) >= 3)",
-    "      return Response.json({ error: 'Daily limit reached.' }, { status: 429 })",
-    "    const result = await mppx.charge(tiers[tier])(request)",
-    "    if (result.status === 402) return result.challenge",
-    "    const haiku = await write(result.identity, topic)",
-    "    return result.withReceipt(Response.json({ haiku }))",
-    "  },",
-    "}",
-    "",
-  ].join("\n");
-}
