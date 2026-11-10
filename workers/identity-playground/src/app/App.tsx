@@ -114,7 +114,7 @@ export function App() {
           <Panel f={f} />
           <Requests f={f} />
           <a className="link" href="https://mpp.dev/extensions/identity">
-            Read the MPP docs →
+            Read the docs →
           </a>
         </main>
         <aside>
