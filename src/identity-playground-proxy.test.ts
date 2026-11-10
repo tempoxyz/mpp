@@ -33,7 +33,10 @@ describe("/playground/identity proxy", () => {
     const response = await proxy(
       new Request("https://mpp.dev/playground/identity/api/haiku?tier=email", {
         body: "{}",
-        headers: { "x-real-ip": "203.0.113.7" },
+        headers: {
+          "accept-encoding": "gzip, deflate, br, zstd",
+          "x-real-ip": "203.0.113.7",
+        },
         method: "POST",
       }),
     );
@@ -47,6 +50,9 @@ describe("/playground/identity proxy", () => {
     expect(new Headers(calls[0]?.init?.headers).get("x-real-ip")).toBe(
       "203.0.113.7",
     );
+    expect(
+      new Headers(calls[0]?.init?.headers).get("accept-encoding"),
+    ).toBeNull();
     expect(calls[0]?.init?.body).toBeInstanceOf(ArrayBuffer);
   });
 
