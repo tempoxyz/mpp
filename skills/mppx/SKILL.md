@@ -115,7 +115,7 @@ Server `tempo()` returns a charge/session pair per accepted currency. Individual
 
 ```sh
 npx mppx account create        # create wallet
-npx mppx mpp.dev/api/ping/paid # make paid request
+npx mppx mpp.dev/api/ping/paid --network testnet # make paid request (mpp.dev charges on testnet)
 npx mppx example.com -v        # verbose output
 ```
 

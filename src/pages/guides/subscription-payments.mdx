@@ -277,7 +277,7 @@ if (result) console.log(result.receipt.status)
 - Set `subscriptionExpires` to the maximum authorization lifetime you accept.
 - Add webhook or cron coverage for background renewals if access must stay warm.
 - Persist `subscriptionId` and `externalId` in your app database for support and reconciliation.
-- Before going live, remove `testnet: true` and fund a mainnet account.
+- Before going live, remove `testnet: true`, point `revoke.ts` at mainnet (`tempo` from `viem/chains`, `https://rpc.tempo.xyz`) and fund a mainnet account.
 
 ## Next steps
 
