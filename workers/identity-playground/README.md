@@ -17,7 +17,7 @@ The **Deploy MPP identity playground** workflow deploys on pushes to `main` that
 
 ## Setup
 
-1. Set the payee key: `wrangler secret put MPP_PRIVATE_KEY`.
+1. The deploy workflow generates the payee key with Foundry (`cast wallet new`) and stores it as the `MPP_PRIVATE_KEY` Worker secret the first time; later deploys keep it. To rotate, delete the secret and rerun the workflow.
 2. Set `IDENTITY_PLAYGROUND_WORKER_ORIGIN` in the Vercel project to the Worker's origin (for example `https://mpp-identity-playground.<account>.workers.dev`) and redeploy. Preview deployments skip the rewrite: attestations are bound to `https://mpp.dev`.
 
 ## Local development
