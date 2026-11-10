@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { createClient, type Hex as HexValue, http } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { Actions, Chain } from "viem/tempo";
-import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
+import { useConnect, useConnection, useConnectors } from "wagmi";
 import { tempoModerato } from "wagmi/chains";
 
 import * as Client from "../client.js";
@@ -55,7 +55,7 @@ export function App() {
   const f = useDemo();
   return (
     <>
-      <Nav f={f} />
+      <Nav />
       <div className="page">
         <main className="main">
           <div className="intro">
@@ -103,18 +103,13 @@ export function App() {
 
 type Demo = ReturnType<typeof useDemo>;
 
-function Nav({ f }: { f: Demo }) {
+function Nav() {
   return (
     <header className="header">
       <a aria-label="MPP" className="logo" href="https://mpp.dev">
         <Logo />
       </a>
       <nav aria-label="Main navigation" className="nav">
-        {f.address && (
-          <button className="nav-item" onClick={f.unlink} type="button">
-            Unlink
-          </button>
-        )}
         {[
           ["Docs", "https://mpp.dev/overview"],
           ["SDKs", "https://mpp.dev/sdk"],
@@ -440,7 +435,6 @@ function useDemo() {
   const connection = useConnection();
   const connectors = useConnectors();
   const connect = useConnect();
-  const disconnect = useDisconnect();
   const [testKey, setTestKey] = useState(
     () => localStorage.getItem("fortune.key") as HexValue | null,
   );
@@ -509,12 +503,6 @@ function useDemo() {
     const key = generatePrivateKey();
     localStorage.setItem("fortune.key", key);
     setTestKey(key);
-  }
-
-  function unlink() {
-    if (connection.status === "connected") disconnect.mutate();
-    localStorage.removeItem("fortune.key");
-    setTestKey(null);
   }
 
   async function wallet(): Promise<Client.Options["wallet"]> {
@@ -661,7 +649,6 @@ function useDemo() {
     source,
     tier,
     topic,
-    unlink,
     useTestWallet,
   };
 }
