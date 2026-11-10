@@ -133,6 +133,8 @@ Bun.serve({
     })(request) // [!code ++]
 
     if (result.status === 402) return result.challenge // [!code ++]
+    // Open, top-up, voucher and close POSTs carry no content: answer before paid work // [!code ++]
+    if (request.method === 'POST') return result.withReceipt() // [!code ++]
 
     const res = await fetch('https://picsum.photos/200/200')
     return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
