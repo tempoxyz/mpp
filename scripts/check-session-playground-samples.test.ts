@@ -2,6 +2,8 @@ import path from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import {
+  chargeClient,
+  chargeServer,
   clientBlocks,
   serverBlocks,
   source,
@@ -12,6 +14,9 @@ const samples = [
   { name: "session-client", source: source(clientBlocks()) },
   { name: "session-client-deposit", source: source(clientBlocks("0.5")) },
   { name: "session-server", source: source(serverBlocks()) },
+  // The per-request baselines the explained panes diff from.
+  { name: "charge-client", source: chargeClient() },
+  { name: "charge-server", source: chargeServer() },
 ];
 const sources = new Map(
   samples.map(({ name, source }) => [

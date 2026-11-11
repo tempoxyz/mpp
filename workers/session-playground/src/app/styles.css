@@ -538,6 +538,69 @@ button:disabled {
   margin-left: auto;
   padding: 2px 8px;
 }
+.explain-toggle {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+/* The step tag already pushes both to the right. */
+.step-tag + .explain-toggle {
+  margin-left: 0;
+}
+.explain-toggle[aria-pressed="true"] {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+/* Explained: what a session changes from paying per request, with notes between lines. */
+.code-line {
+  position: relative;
+}
+.code-lines[data-diff] .code-line {
+  padding-left: 14px;
+}
+.code-changed {
+  border-radius: 3px;
+}
+[data-change="add"] > .code-changed {
+  background: rgb(85 170 90 / 20%);
+}
+[data-change="del"] > .code-changed {
+  background: rgb(229 83 75 / 20%);
+}
+.code-line[data-change]::before {
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 4px;
+}
+.code-line[data-change="add"] {
+  background: linear-gradient(90deg, #222b21 6px, #263326 6px);
+}
+.code-line[data-change="add"]::before {
+  background: #57ab5a;
+}
+.code-line[data-change="del"] {
+  background: linear-gradient(90deg, #352420 6px, #3e2622 6px);
+}
+.code-line[data-change="del"]::before {
+  background: linear-gradient(0deg, #3d2723 50%, #e5534b 50%) 0 0 / 4px 4px;
+}
+.code-note {
+  background: #272727;
+  display: flow-root;
+}
+.code-explanation {
+  background: #202024;
+  border-left: 2px solid var(--purple);
+  color: #b9b4d8;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 16px;
+  padding: 8px 12px;
+  white-space: normal;
+}
 @media (prefers-reduced-motion: reduce) {
   .meter-spent,
   .code-lines[data-lit] .code-line {

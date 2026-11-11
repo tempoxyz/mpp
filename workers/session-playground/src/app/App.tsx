@@ -486,13 +486,29 @@ function CodePanel({
   step: Step | undefined;
   values: { deposit: string };
 }) {
+  const [explain, setExplain] = useState(false);
   return (
     <section className="panel code">
       <PanelHead name={name}>
         {step && <span className="step-tag">{stepLabels[step]}</span>}
+        <button
+          aria-pressed={explain}
+          className="button explain-toggle"
+          onClick={() => setExplain(!explain)}
+          title="What a session changes from paying per request"
+          type="button"
+        >
+          Explain code
+        </button>
       </PanelHead>
       <div className="code-body">
-        <CodeLines lit={lit} name={name} now={now} values={values} />
+        <CodeLines
+          explain={explain}
+          lit={lit}
+          name={name}
+          now={now}
+          values={values}
+        />
       </div>
     </section>
   );
@@ -872,6 +888,9 @@ function useDemo() {
 /** An error's message, without viem's multi-line details. */
 function message(error: unknown) {
   const text = error instanceof Error ? error.message : String(error);
+  // The manager refuses to sign past maxDeposit: the story stops where the ceiling ran out.
+  if (/exceeds local maxDeposit/.test(text))
+    return "The channel reached its max deposit, so the story stopped there. Close & settle, then pick a higher max to keep reading.";
   return text.split("\n")[0]!.slice(0, 300);
 }
 

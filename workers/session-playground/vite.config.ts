@@ -38,7 +38,8 @@ export default defineConfig(({ command }) => ({
  * The code panes, highlighted at build time: Shiki would be most of the page's JavaScript and
  * keep the panes plain for seconds on a first visit. virtual:code holds each pane's lines
  * (src/app/code.ts), virtual:code-theme.css the colors they use. The deposit the visitor picks
- * fills a slot in a string token (code.ts, fill).
+ * fills a slot in a string token (code.ts, fill). Explained panes are diffed from paying per
+ * request (samples.ts, chargeClient and chargeServer).
  */
 export function prerenderCode(): Plugin {
   const ids = { code: "virtual:code", css: "virtual:code-theme.css" };
@@ -54,6 +55,7 @@ export function prerenderCode(): Plugin {
       new URL("./src/app/code.ts", import.meta.url).href
     )) as typeof import("./src/app/code.js");
     type Token = import("./src/app/code.js").Token;
+    type PaneLine = import("./src/app/code.js").PaneLine;
     const highlighter = await getSharedHighlighter({
       langs: ["typescript"],
       themes: [theme],
@@ -87,6 +89,33 @@ export function prerenderCode(): Plugin {
         return index.get(key)!;
       });
     };
+    // A unified line diff (longest common subsequence), deletions before additions.
+    const diff = (old: number[], now: number[]) => {
+      const lcs = Array.from({ length: old.length + 1 }, () =>
+        new Array<number>(now.length + 1).fill(0),
+      );
+      for (let i = old.length - 1; i >= 0; i--)
+        for (let j = now.length - 1; j >= 0; j--)
+          lcs[i]![j] =
+            old[i] === now[j]
+              ? lcs[i + 1]![j + 1]! + 1
+              : Math.max(lcs[i + 1]![j]!, lcs[i]![j + 1]!);
+      const out: PaneLine[] = [];
+      let [i, j] = [0, 0];
+      while (i < old.length || j < now.length) {
+        if (i < old.length && j < now.length && old[i] === now[j]) {
+          out.push(now[j]!);
+          i++;
+          j++;
+        } else if (
+          i < old.length &&
+          (j === now.length || lcs[i + 1]![j]! >= lcs[i]![j + 1]!)
+        )
+          out.push([old[i++]!, -1]);
+        else out.push([now[j++]!, 1]);
+      }
+      return out;
+    };
     const client = samples.source(samples.clientBlocks(slots.deposit));
     // Filling the slot must give exactly what clientBlocks() writes.
     for (const deposit of ["0.1", "0.25"])
@@ -95,9 +124,13 @@ export function prerenderCode(): Plugin {
         samples.source(samples.clientBlocks(deposit))
       )
         throw new Error("code.ts fill() disagrees with clientBlocks()");
-    const panes = {
-      "client.ts": tokenize(client),
-      "server.ts": tokenize(samples.source(samples.serverBlocks())),
+    const server = tokenize(samples.source(samples.serverBlocks()));
+    const clientLines = tokenize(client);
+    const panes: Record<string, PaneLine[]> = {
+      "client.ts": clientLines,
+      "client.ts:explain": diff(tokenize(samples.chargeClient()), clientLines),
+      "server.ts": server,
+      "server.ts:explain": diff(tokenize(samples.chargeServer()), server),
     };
     return {
       code: `export default ${JSON.stringify({ lines, panes })};`,

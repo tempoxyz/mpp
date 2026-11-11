@@ -153,3 +153,124 @@ export function stepLines(blocks: readonly Block[]): Record<Step, Set<number>> {
   }
   return lines;
 }
+
+/** What the buyer would write without a session: one on-chain payment per word. */
+export function chargeClient(): string {
+  return `import { Mppx, tempo } from 'mppx/client'
+
+// Pass the connected Tempo Wallet's provider.getMppxParameters().
+type Wallet = NonNullable<Parameters<typeof tempo>[0]>
+
+export async function readStory(
+  wallet: Wallet,
+  render: (word: string) => void,
+) {
+  const baseUrl = location.origin + '/playground/session'
+
+  const mppx = Mppx.create({ methods: [tempo(wallet)], polyfill: false })
+
+  // Without a session, every word is its own on-chain payment.
+  for (let i = 0; i < 80; i++) {
+    const response = await mppx.fetch(baseUrl + '/api/word')
+    render(await response.text())
+  }
+}
+`;
+}
+
+/** What the seller would write without a session: a charge per word. */
+export function chargeServer(): string {
+  return `import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+type Env = {
+  MPP_PRIVATE_KEY: \`0x\${string}\`
+  MPP_SECRET_KEY: string
+}
+
+declare function writeWord(): Promise<string>
+
+export default {
+  async fetch(request: Request, env: Env) {
+    const mppx = Mppx.create({
+      methods: [
+        tempo.charge({
+          chainId: 42431, // Moderato testnet
+          currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+          recipient: privateKeyToAccount(env.MPP_PRIVATE_KEY).address,
+        }),
+      ],
+      realm: 'mpp.dev', // the host buyers pay at, behind its proxy
+      secretKey: env.MPP_SECRET_KEY,
+    })
+
+    // Without a session, every word is its own on-chain payment.
+    const result = await mppx.charge({ amount: '0.001' })(request)
+    if (result.status === 402) return result.challenge
+    return result.withReceipt(new Response(await writeWord()))
+  },
+}
+`;
+}
+
+/** Notes under the lines that matter, anchored to their text so edits can't shift them. */
+export function explanations(source: string) {
+  const notes = [
+    [
+      "const session = tempo.session.manager(",
+      "One manager per server: it opens the channel on the first request, signs a voucher for each word and tops up when the deposit runs low.",
+    ],
+    [
+      "maxDeposit:",
+      "A ceiling, not a payment: the channel opens with the server's suggested deposit and never holds more than this.",
+    ],
+    [
+      "topUpAmount:",
+      "When a story runs past the deposit, the manager adds this on-chain and the stream carries on.",
+    ],
+    [
+      "const stream = await session.sse(",
+      "The first request opens the channel: one transaction. Every word after it is a voucher, a signed message that costs no gas.",
+    ],
+    [
+      "await session.topUp(",
+      "Adds to the same channel, so vouchers keep counting up from where they were.",
+    ],
+    [
+      "return session.close()",
+      "Settles the latest voucher on-chain: the server is paid what you spent, and the rest of the deposit comes back.",
+    ],
+    [
+      "tempo.session({",
+      "Buyers lock stablecoins in a payment channel once, then pay each word with a voucher instead of a transaction.",
+    ],
+    [
+      "sse: { poll: true }",
+      "A Worker can't hand a promise from one request to another, so the stream polls the store for the next voucher.",
+    ],
+    [
+      "store: Store.durableObject(",
+      "Channel state lives in a Durable Object, so every request sees the latest voucher.",
+    ],
+    [
+      "voucherStateMaxAge:",
+      "Checks each voucher against channel state read in the last minute instead of reading the chain for every word.",
+    ],
+    [
+      "suggestedDeposit:",
+      "What buyers reserve when they open: enough for most of a story at 0.001 a word.",
+    ],
+    [
+      "return await result.withReceipt()",
+      "Opens, vouchers, top-ups and closes are management requests: each gets its own response, not a story.",
+    ],
+    [
+      "await stream.charge()",
+      "Takes one word's price from the latest voucher, and waits for the buyer's next voucher when it runs out.",
+    ],
+  ] as const;
+  return source.split("\n").flatMap((line, index) => {
+    const note = notes.find(([prefix]) => line.trimStart().startsWith(prefix));
+    return note ? [{ lineNumber: index + 1, metadata: note[1] }] : [];
+  });
+}
