@@ -207,6 +207,15 @@ describe("identity playground example changes", () => {
     expect(screen.getByText("Buy a haiku to start.")).not.toBeNull();
   });
 
+  it("shows the linked wallet and unlinks it", async () => {
+    const unlink = vi.fn();
+    mocks.wallet = { ...mocks.wallet, unlink };
+    render(<App />);
+    expect(await screen.findByText("Linked")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Unlink" }));
+    expect(unlink).toHaveBeenCalledOnce();
+  });
+
   it("offers a topic only to verified buyers", async () => {
     render(<App />);
     const topic = (await screen.findByLabelText("Topic")) as HTMLInputElement;
