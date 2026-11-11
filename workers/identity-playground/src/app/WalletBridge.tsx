@@ -33,14 +33,14 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: report only when what the page reads changes
   useEffect(() => {
     onChange({
-      address: connection.address,
+      address: connected ? connection.address : undefined,
       connected,
       error: connect.error ?? undefined,
       link: () => {
         if (first)
           connect.mutate({ chainId: tempoModerato.id, connector: first });
       },
-      linking: connect.isPending,
+      linking: connect.isPending || connection.status === "reconnecting",
       mppx: async () => {
         if (!connected || !connector) return undefined;
         const provider = (await connector.getProvider()) as {
@@ -52,6 +52,7 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
     });
   }, [
     connection.address,
+    connection.status,
     connected,
     connector,
     first,

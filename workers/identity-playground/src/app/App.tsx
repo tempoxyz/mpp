@@ -487,7 +487,11 @@ function useDemo() {
       })
       .catch((e) => setError(`Couldn't load the test wallet: ${String(e)}`));
   }, [testKey]);
-  const address = wallet.address ?? (testKey ? testAddress : undefined);
+  const address = wallet.connected
+    ? wallet.address
+    : testKey
+      ? testAddress
+      : undefined;
 
   // Fetch what the next click needs while the visitor reads: viem for the test wallet and
   // balances, and once there is a wallet, the payment client Buy runs.
@@ -577,8 +581,10 @@ function useDemo() {
       | Client.Options["wallet"]
       | undefined;
     if (linked) return linked;
+    if (wallet.connected || !testKey)
+      throw new Error("Wallet disconnected. Link Tempo Wallet and try again.");
     const { privateKeyToAccount } = await loadChain();
-    return { account: privateKeyToAccount(testKey!) };
+    return { account: privateKeyToAccount(testKey) };
   }
 
   // Records each HTTP hop for the request list.
