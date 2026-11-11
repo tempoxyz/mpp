@@ -28,6 +28,19 @@ export default function WalletBridge({
   );
 }
 
+/** The parts of the Tempo Accounts provider the page reads. */
+type Provider = {
+  getMppxParameters(options?: { accessKey?: string }): unknown;
+  store: {
+    accessKeys: {
+      list(query: {
+        account: string;
+        chainId: number;
+      }): { address: string; expiry?: number | undefined }[];
+    };
+  };
+};
+
 function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
   const connection = useConnection();
   const connectors = useConnectors();
@@ -49,11 +62,18 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
       },
       linking: connect.isPending || connection.status === "reconnecting",
       mppx: async () => {
-        if (!connected || !connector) return undefined;
-        const provider = (await connector.getProvider()) as {
-          getMppxParameters(): unknown;
-        };
-        return provider.getMppxParameters();
+        if (!connected || !connector || !connection.address) return undefined;
+        const provider = (await connector.getProvider()) as Provider;
+        // Name the page's access key: the SDK picks a key by the calls it will make, and a
+        // channel open or voucher names none, so it would fall back to the account itself and
+        // ask the wallet to approve the open and every voucher.
+        const now = Date.now() / 1000;
+        const key = provider.store.accessKeys
+          .list({ account: connection.address, chainId: tempoModerato.id })
+          .find((key) => !key.expiry || key.expiry > now);
+        return provider.getMppxParameters(
+          key ? { accessKey: key.address } : {},
+        );
       },
       ready: Boolean(first),
       unlink: () => disconnect.mutate(),
