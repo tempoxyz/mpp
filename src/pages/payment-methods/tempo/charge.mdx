@@ -111,6 +111,69 @@ const result = await mppx.charge({
 
 The client uses the canonical swapper for supported single-recipient charges when its account holds enough MACH and can execute the route. Otherwise, it follows the standard payment path—using `autoSwap` when configured or paying the stablecoin directly. A funded supported stablecoin pays the transaction fee. Don't advertise MACH as the charge currency.
 
+#### When the buyer has no MACH
+
+If the buyer holds neither enough MACH nor the requested stablecoin, the payment fails with a generic insufficient-balance error: the client's swap or transfer reverts, or your server answers `402` with a `verification-failed` Problem Details body. Neither error tells the buyer where to get MACH, so point them to the MACH onramp in Tempo Wallet:
+
+| Part | Value |
+|---|---|
+| **Base URL** | `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217` (required as written) |
+| **`address`** (optional) | The buyer's `0x` address. Tempo Wallet requires the signed-in account to match it, so add it only when you know the payer—for example, from the address in the Credential `source` DID. |
+| **`amount`** (optional) | The shortfall in USD: a positive decimal with at most two decimal places, such as `1.26`. MACH is worth 1 USD and has 6 decimals, so round the raw shortfall up to the cent. |
+
+For example, `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217&address=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266&amount=1.26` asks that wallet to buy 1.26 MACH.
+
+- MACH exists only on Tempo mainnet (`4217`), and `intent=mach` requires `chainId=4217`. Don't send the link for Moderato Challenges.
+- Without parameters, [`wallet.tempo.xyz/agent`](https://wallet.tempo.xyz/agent) explains how to buy MACH and works signed out.
+- MACH can't pay transaction fees. The buyer still needs a funded supported stablecoin for fees unless you [sponsor them](#with-fee-sponsorship).
+
+If your server reports payment failures itself, add the link to the [Problem Details](/protocol/http-402) body: mention it in `detail` for people and set a `fundingUrl` extension member for agents. Keep the `WWW-Authenticate` Challenge so the buyer can retry after funding.
+
+```ts twoslash
+declare const challenge: string; // Serialized WWW-Authenticate Challenge
+// ---cut---
+// [!code hl:start]
+function machFundingUrl(parameters: { address?: string; shortfall?: bigint } = {}) {
+  // The MACH onramp exists only on Tempo mainnet.
+  const query = new URLSearchParams({ action: "fund", chainId: "4217", intent: "mach" })
+  if (parameters.address) query.set("address", parameters.address)
+  if (parameters.shortfall && parameters.shortfall > 0n) {
+    const cents = (parameters.shortfall + 9_999n) / 10_000n // 6 decimals, rounded up to the cent
+    query.set("amount", `${cents / 100n}.${(cents % 100n).toString().padStart(2, "0")}`)
+  }
+  return `https://wallet.tempo.xyz/agent?${query}`
+}
+// [!code hl:end]
+
+const fundingUrl = machFundingUrl({
+  address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  shortfall: 1_250_001n, // Raw MACH base units: rounds up to 1.26
+})
+
+const response = Response.json(
+  {
+    detail: `Insufficient MACH: buy 1.26 MACH at ${fundingUrl}, then retry.`,
+    fundingUrl, // [!code hl]
+    status: 402,
+    title: "Payment Verification Failed",
+    type: "https://paymentauth.org/problems/verification-failed",
+  },
+  {
+    headers: {
+      "Content-Type": "application/problem+json",
+      "WWW-Authenticate": challenge,
+    },
+    status: 402,
+  },
+)
+```
+
+When an agent or tool relays the failure, say how much MACH is missing, give the full link as plain text, and say to retry after funding:
+
+> This payment needs 1.26 more MACH than wallet 0xf39F…2266 holds. Buy MACH at https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217&address=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266&amount=1.26 and retry the request.
+
+Don't tell the buyer to pay fees with MACH or to send MACH to the seller—MACH is recipient-restricted and moves only to approved recipients, such as the canonical swapper.
+
 ### Zero-dollar auth
 
 Set `amount: "0"` to issue an identity-only Challenge. The client returns a `proof` payload instead of `transaction` or `hash`, and the server verifies the signature against the `source` DID.

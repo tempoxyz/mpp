@@ -108,6 +108,8 @@ export async function handler(request: Request) {
 
 The client uses MACH only when the canonical route is available, its account holds enough MACH, and the wallet can execute the approval and swap calls. Otherwise, it follows the standard payment path—using `autoSwap` when configured or paying the stablecoin directly. MACH funding doesn't support split charges and uses a funded supported stablecoin for transaction fees.
 
+Buyers with neither enough MACH nor the stablecoin get a generic insufficient-balance error. If you return your own errors, include the MACH onramp link—see [When the buyer has no MACH](/payment-methods/tempo/charge#when-the-buyer-has-no-mach).
+
 ### With a custom fee payer policy
 
 Override the local fee-sponsor limits when you co-sign charge transactions.

@@ -34,6 +34,7 @@ TypeScript SDK for the "Payment" HTTP Authentication Scheme. Full 402 flow: chal
 - Use OUSD in single-currency Tempo examples. Omit `currencies` to offer OUSD first with network-specific fallbacks.
 - Factory `currencies` configures accepted tokens; wire requests and per-handler overrides retain singular `currency`.
 - Use complete token addresses. Preserve provider-specific token requirements.
+- When a MACH-enabled Tempo payment fails for lack of MACH on mainnet (`4217`), point the buyer to `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217`, adding `&address=<payer>` and `&amount=<USD shortfall, 2 decimals, rounded up>` when known. Servers can return it as a `fundingUrl` Problem Details member. See https://mpp.dev/payment-methods/tempo/charge#when-the-buyer-has-no-mach.
 
 ## Client
 

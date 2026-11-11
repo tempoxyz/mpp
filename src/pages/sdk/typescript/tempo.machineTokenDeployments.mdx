@@ -22,6 +22,10 @@ Use these addresses to inspect or allowlist the contracts used by [`machineToken
 
 Replace `mach(chainId).address` from earlier releases with `machineTokenDeployments[chainId].token`.
 
+### Funding link
+
+When a buyer lacks MACH, send them to the Tempo Wallet onramp: `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217`. Add `&address=<buyer address>` when you know the payer and `&amount=<USD shortfall>` (at most two decimal places, rounded up to the cent). The link works only for Tempo mainnet. See [When the buyer has no MACH](/payment-methods/tempo/charge#when-the-buyer-has-no-mach) for error responses and agent-facing wording.
+
 ## Return type
 
 ```ts
