@@ -519,6 +519,9 @@ function useDemo() {
     : testKey
       ? testAddress
       : undefined;
+  // The address balance replies must still match: a reply for an earlier wallet is dropped.
+  const addressRef = useRef(address);
+  addressRef.current = address;
 
   // Fetch what the next click needs while the visitor reads: viem for the test wallet and
   // balances, and once there is a wallet, the payment client Buy runs.
@@ -575,6 +578,7 @@ function useDemo() {
     if (!account) return;
     const { Actions, rpc } = await loadChain();
     const value = await Actions.token.getBalance(rpc, { account, token: ousd });
+    if (account !== addressRef.current) return;
     setBalance((Number(value.amount) / 1e6).toFixed(2));
   }
 
