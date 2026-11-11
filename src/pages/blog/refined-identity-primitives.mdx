@@ -1,0 +1,192 @@
+---
+layout: minimal
+title: "Refined identity primitives"
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Require a verified email, your own API keys, or a World ID-verified human before anyone pays for your API."
+imageDescription: "Know who's calling before they pay"
+publishedAt: "2026-11-11"
+---
+
+# Refined identity primitives [Know who's calling before they pay, with any identity provider]
+
+`mppx` now lets any paid route check who's calling before it shows a price: a verified email, your own API keys, a World ID-verified human, or a protocol you write yourself. Explore the API interactively in the [MPP playground](/playground/identity).
+
+## Identity sits alongside the protocol
+
+MPP doesn't pick an identity system for you. Identity runs next to the core flow, not inside it:
+
+- **Bring any provider.** Use a built-in verifier, or wrap the auth you already run.
+- **Check before the price.** Callers who don't pass get a standard unauthenticated HTTP response and never see payment terms.
+- **Keep the core flow.** Payments work the same with or without identity.
+
+## Add identity to a route
+
+Pass verifiers in a route's `identity` option, then read who passed from the result:
+
+```ts twoslash [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const verifier: Identity.Verifier<{ email: string }>
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export async function handler(request: Request) {
+  // [!code hl:start]
+  const result = await mppx.charge({
+    amount: '0.05',
+    identity: [verifier],
+  })(request)
+  // [!code hl:end]
+  if (result.status === 402) return result.challenge
+
+  const identity = result.identity?.get(verifier) // [!code hl]
+  return result.withReceipt(Response.json(identity))
+}
+```
+
+A list requires every verifier, and `Identity.anyOf` accepts any one. On the client, add the matching prover to `Mppx.create({ identity })`, and `mppx` attaches the proof to each request, including the payment.
+
+## Examples
+
+::::code-group
+
+```ts twoslash [Email]
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = EmailOtp.Server.verifier({
+  allow: (address) => address.endsWith('@example.com'),
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.05',
+  identity: [email],
+})
+```
+
+```ts twoslash [API keys]
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+// [!code hl:start]
+const customer = Identity.from({
+  challenge: { 'WWW-Authenticate': 'ApiKey' },
+  verify(request) {
+    const key = request.headers.get('X-Api-Key')
+    if (!key) return undefined
+    const identity = customers.get(key)
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { status: 'forbidden' })
+    return identity
+  },
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.05',
+  identity: [customer],
+})
+```
+
+```ts [World ID]
+import * as World from 'mppx/extensions/identity/world'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const human = World.Server.verifier({
+  acr: [World.Constants.acr.orb],
+  audience: 'https://api.example.com',
+  issuer: 'https://world-id.issuer.example',
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.01',
+  identity: [human],
+})
+```
+
+```ts twoslash [Any of]
+import type * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const email: ReturnType<typeof EmailOtp.Server.verifier>
+declare const customer: Identity.Verifier<{ customerId: string }>
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.05',
+  identity: [Identity.anyOf(email, customer)], // [!code hl]
+})
+```
+
+```ts twoslash [Custom]
+import { Mppx, tempo } from 'mppx/client'
+import type * as Identity from 'mppx/identity'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function signPartnerToken(request: Request): Promise<string>
+
+// [!code hl:start]
+const partner: Identity.Prover = {
+  headers: ['x-partner-token'],
+  async prove(request) {
+    const headers = new Headers(request.headers)
+    headers.set('X-Partner-Token', await signPartnerToken(request))
+    return new Request(request, { headers })
+  },
+  scope: ['https://api.example.com'],
+}
+// [!code hl:end]
+
+const client = Mppx.create({
+  identity: [partner],
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+::::
+
+- **Email:** Tempo's hosted issuer emails a code and attests the inbox, so you don't run a login.
+- **API keys:** `Identity.from` wraps the auth you already have.
+- **World ID:** requires a human verified with World ID behind the agent.
+- **Custom:** a prover adds your own proof, and a matching `Identity.Verifier` checks it on the server.
+
+## Explore the MPP playground
+
+Explore the API interactively in the [MPP playground](/playground/identity). Buy a haiku as an anonymous caller, with a verified email, or with an API key, and see how the price and the code change.
+
+## Get started
+
+- [Identity in MPP](/extensions/identity)
+- [`Identity.from` reference](/sdk/typescript/core/Identity.from)
+- [Email OTP example](https://github.com/wevm/mppx/tree/main/examples/email-otp)
