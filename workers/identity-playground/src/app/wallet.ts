@@ -34,6 +34,8 @@ export const config = createConfig({
     }),
   ],
   multiInjectedProviderDiscovery: false,
+  // Hydrate once after mount: render-time reconnects loop when Bridge updates the page.
+  ssr: true,
   transports: { [tempoModerato.id]: http() },
 });
 
