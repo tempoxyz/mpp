@@ -31,3 +31,16 @@ export const ousd = "0x20c0000000000000000000006a37DA5C996874BE" as const;
 export const pathUsd = "0x20c0000000000000000000000000000000000000" as const;
 /** Tempo's payment channel precompile (TIP-1034), where session deposits are reserved. */
 export const channels = "0x4d50500000000000000000000000000000000000" as const;
+
+/** Where the page keeps a payer's open channels, so a reload resumes one instead of opening another. */
+export function channelPrefix(payer: string) {
+  return `session.channel.${payer.toLowerCase()}.`;
+}
+
+/** Whether this payer left a channel open on an earlier visit. */
+export function hasStoredChannel(payer: string) {
+  const prefix = channelPrefix(payer);
+  for (let i = 0; i < localStorage.length; i++)
+    if (localStorage.key(i)?.startsWith(prefix)) return true;
+  return false;
+}

@@ -1,9 +1,10 @@
 // The browser client: an mppx session manager that pays with your linked Tempo Wallet or a
 // test wallet. It opens a channel on the first story, pays each word with a voucher, tops up
 // when a story runs past the deposit, and closes to settle.
-import { tempo } from "mppx/client";
+import { createJsonChannelStore, tempo } from "mppx/client";
 import { createClient, http } from "viem";
 import { Chain } from "viem/tempo";
+import { channelPrefix } from "./app/wallet-state.js";
 
 /** What pays: the linked wallet's `provider.getMppxParameters()`, or `{ account }`. */
 export type Wallet = Parameters<typeof tempo.session.manager>[0];
@@ -22,13 +23,22 @@ export function create(options: {
   fetch: typeof globalThis.fetch;
   /** Most OUSD the channel may ever hold. */
   maxDeposit: string;
+  /** The payer's address: channels persist per payer. */
+  payer: string;
   wallet: Wallet;
 }): Session {
-  const { fetch, maxDeposit, wallet } = options;
+  const { fetch, maxDeposit, payer, wallet } = options;
+  const prefix = channelPrefix(payer);
+  const channelStore = createJsonChannelStore({
+    delete: (key) => localStorage.removeItem(prefix + key),
+    get: (key) => localStorage.getItem(prefix + key) ?? undefined,
+    set: (key, value) => localStorage.setItem(prefix + key, value),
+  });
   return tempo.session.manager({
     getClient: () => rpc,
     ...wallet,
     allowedChainIds: [Chain.testnet.id],
+    channelStore,
     fetch,
     maxDeposit,
     topUpAmount,

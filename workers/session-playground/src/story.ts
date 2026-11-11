@@ -22,14 +22,6 @@ const subjects = [
   "a river that keeps receipts",
 ];
 
-/** A topic: up to 40 letters, digits and spaces, or undefined. */
-export function topic(raw: string | null): string | undefined {
-  const value = raw?.trim().replace(/\s+/g, " ");
-  if (!value || value.length > 40 || !/^[\p{L}\p{N} ]+$/u.test(value))
-    return undefined;
-  return value;
-}
-
 /** Writes a story about the topic (or a random subject) and splits it into words. */
 export async function write(parameters: {
   env: Env;

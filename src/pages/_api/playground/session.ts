@@ -25,7 +25,8 @@ const built = Object.values(
 )[0];
 
 function page(request: Request) {
-  if (!built) return proxy(request);
+  // Previews keep 404ing like the API, which only works on mpp.dev.
+  if (!built || process.env.VERCEL_ENV === "preview") return proxy(request);
   return new Response(request.method === "HEAD" ? null : built, {
     headers: {
       "cache-control": "public, max-age=0, must-revalidate",

@@ -19,8 +19,8 @@ mpp.dev serves the page itself, while its API comes from this Worker, so keep th
 ## Setup
 
 1. Set the payee key as the `MPP_PRIVATE_KEY` Worker secret, and `MPP_SECRET_KEY` for mppx.
-2. Production and preview deployments of mpp.dev proxy to that Worker by default; set `SESSION_PLAYGROUND_WORKER_ORIGIN` in Vercel only to point elsewhere.
+2. Production deployments of mpp.dev proxy to that Worker by default; set `SESSION_PLAYGROUND_WORKER_ORIGIN` in Vercel only to point elsewhere. Preview deployments answer 404: session Challenges name `mpp.dev` as their realm (`MPP_REALM` overrides it), and clients refuse to sign them from another host.
 
 ## Local development
 
-Create `.dev.vars` with `MPP_PRIVATE_KEY` and `MPP_SECRET_KEY`, then run `pnpm dev`. Without the AI binding the story falls back to a built-in one.
+Create `.dev.vars` with `MPP_PRIVATE_KEY`, `MPP_SECRET_KEY` and `MPP_REALM=localhost`, then run `pnpm dev`. Without the AI binding the story falls back to a built-in one.

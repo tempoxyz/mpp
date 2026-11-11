@@ -11,6 +11,7 @@ import type { Address, Hex as HexValue } from "viem";
 
 import type * as Client from "../client.js";
 import { price, suggestedDeposit } from "../prices.js";
+import { topic as cleanTopic } from "../topic.js";
 import { CodeLines } from "./CodeLines.js";
 import {
   clientBlocks,
@@ -19,7 +20,12 @@ import {
   source,
   stepLines,
 } from "./samples.js";
-import { ousd, unloaded, type Wallet } from "./wallet-state.js";
+import {
+  hasStoredChannel,
+  ousd,
+  unloaded,
+  type Wallet,
+} from "./wallet-state.js";
 
 // The payment client (mppx) is most of the page's JavaScript: load it after first paint, so the
 // page shows while it downloads.
@@ -221,6 +227,7 @@ function status(f: Demo) {
   if (f.phase === "toppingUp") return "Topping up";
   if (f.phase === "closing") return "Closing";
   if (f.open) return "Open";
+  if (f.resumable) return "Resumes on next story";
   return f.closed ? "Closed" : "No channel";
 }
 
@@ -542,6 +549,11 @@ function useDemo() {
   const [step, setStep] = useState<Step>();
   const [open, setOpen] = useState(false);
   const [closed, setClosed] = useState(false);
+  // A channel left open on an earlier visit: the next story resumes it.
+  const [resumable, setResumable] = useState(false);
+  useEffect(() => {
+    setResumable(address ? hasStoredChannel(address) : false);
+  }, [address]);
   const [deposit, setDeposit] = useState<bigint>();
   const [spent, setSpent] = useState(0n);
   const [vouchers, setVouchers] = useState(0);
@@ -631,7 +643,8 @@ function useDemo() {
     if (
       request.method === "POST" &&
       response.ok &&
-      phaseRef.current === "streaming"
+      phaseRef.current === "streaming" &&
+      action(request) === "voucher"
     ) {
       seen.current.vouchers++;
       setVouchers(seen.current.vouchers);
@@ -678,6 +691,7 @@ function useDemo() {
     const created = Client.create({
       fetch: tracedFetch,
       maxDeposit: budget,
+      payer: address ?? "",
       wallet: await payer(),
     });
     sessionRef.current = { key, session: created };
@@ -704,19 +718,29 @@ function useDemo() {
       const s = await session();
       // The topic is part of the path: vouchers post to this URL, and a query would make
       // the Worker treat them as story requests.
-      const about = topic.trim() ? `/${encodeURIComponent(topic.trim())}` : "";
+      const cleaned = cleanTopic(topic);
+      const about = cleaned ? `/${encodeURIComponent(cleaned)}` : "";
       const words = await s.sse(
         `${location.origin + basePath}api/story${about}`,
       );
       if (opening && s.opened) {
         setOpen(true);
-        setTransactions(1);
         await sync(s);
-        log({
-          detail: `opened a channel with ${ousdText(seen.current.deposit)}`,
-          kind: "open",
-          onChain: true,
-        });
+        if (resumable) {
+          setResumable(false);
+          log({
+            detail: `resumed your channel from last visit (${ousdText(seen.current.deposit)})`,
+            kind: "open",
+            onChain: false,
+          });
+        } else {
+          setTransactions(1);
+          log({
+            detail: `opened a channel with ${ousdText(seen.current.deposit)}`,
+            kind: "open",
+            onChain: true,
+          });
+        }
       }
       setPhase("streaming");
       setStep("stream");
@@ -803,7 +827,9 @@ function useDemo() {
 
   const busy = phase !== "idle";
   // OUSD pays the deposit; network fees are paid separately in pathUSD.
-  const low = balance !== undefined && Number(balance) < Number(budget);
+  // The channel opens with the suggested deposit (at most the budget) and tops up from there.
+  const opening = Math.min(Number(suggestedDeposit), Number(budget));
+  const low = balance !== undefined && Number(balance) < opening;
   const canStream =
     Boolean(address) && !busy && (open || balance === undefined || !low);
 
@@ -816,6 +842,7 @@ function useDemo() {
     close,
     closed,
     deposit,
+    resumable,
     error,
     events,
     fund: () => fund(),
@@ -879,4 +906,19 @@ function Logo() {
       <path d="M60.4063 17.9828H56.5226V2.84079e-05H78.5612C80.0068 2.84079e-05 81.1786 1.17531 81.1786 2.62538V8.65536C81.1786 10.1054 80.0068 11.2807 78.5612 11.2807H61.0204C60.6812 11.2807 60.4063 11.5556 60.4063 11.8948V17.9828ZM61.2788 7.62911H76.4223C76.9044 7.62911 77.2948 7.2375 77.2948 6.754V4.52674C77.2948 4.04324 76.9044 3.65162 76.4223 3.65162H61.2788C60.7968 3.65162 60.4063 4.04324 60.4063 4.52674V6.754C60.4063 7.2375 60.7968 7.62911 61.2788 7.62911Z" />
     </svg>
   );
+}
+
+/** The session action a request's Payment credential carries, such as voucher or topUp. */
+function action(request: Request): string | undefined {
+  const header = request.headers.get("authorization");
+  if (!header?.startsWith("Payment ")) return undefined;
+  try {
+    const json = atob(
+      header.slice("Payment ".length).replace(/-/g, "+").replace(/_/g, "/"),
+    );
+    return (JSON.parse(json) as { payload?: { action?: string } }).payload
+      ?.action;
+  } catch {
+    return undefined;
+  }
 }

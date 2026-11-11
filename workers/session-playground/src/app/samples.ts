@@ -89,6 +89,7 @@ export default {
           voucherStateMaxAge: 60_000, // no chain read per word
         }),
       ],
+      realm: 'mpp.dev', // the host buyers pay at, behind its proxy
       secretKey: env.MPP_SECRET_KEY,
     })
 `,

@@ -40,6 +40,11 @@ function cacheControl(pathname: string) {
  * A route, not a vercel.ts rewrite: Vocs's catch-all route answers before external rewrites.
  */
 export async function proxy(request: Request) {
+  // Production only: the Worker's session Challenges name mpp.dev as their realm, which
+  // session clients refuse to sign from any other host.
+  if (process.env.VERCEL_ENV === "preview")
+    return new Response("Not found", { status: 404 });
+
   const url = new URL(request.url);
   // Vercel drops trailing slashes, so the unslashed base serves the page itself
   // instead of following the Worker's redirect back to the slashed path.

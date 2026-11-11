@@ -18,6 +18,7 @@ import { Actions, Chain } from "viem/tempo";
 import * as Keys from "./keys.js";
 import { price, suggestedDeposit, unit } from "./prices.js";
 import * as Story from "./story.js";
+import * as Topic from "./topic.js";
 
 // The Durable Object class that stores session channels, bound as `MPPX_STORE`.
 export class MppxStore extends Store.DurableObjectStore {}
@@ -27,6 +28,8 @@ type Env = Story.Env & {
   MPPX_STORE: Store.durableObject.Namespace;
   /** Payee account key: receives payments and signs settlement and close transactions. */
   MPP_PRIVATE_KEY: string;
+  /** The host buyers pay at, which session clients check Challenges against. Defaults to mpp.dev. */
+  MPP_REALM?: string | undefined;
   /** Secret that binds challenge IDs. Optional: derived from MPP_PRIVATE_KEY. */
   MPP_SECRET_KEY?: string | undefined;
   /** Optional Tempo RPC URL. Defaults to the public testnet RPC. */
@@ -46,8 +49,6 @@ function createApp(env: Env) {
     transport: http(env.TEMPO_RPC_URL),
   });
   const mppx = Mppx.create({
-    secretKey:
-      env.MPP_SECRET_KEY?.trim() || Keys.secretKey(env.MPP_PRIVATE_KEY),
     methods: [
       tempo.session({
         account,
@@ -64,6 +65,10 @@ function createApp(env: Env) {
         voucherStateMaxAge: 60_000,
       }),
     ],
+    // Buyers reach the Worker through mpp.dev's proxy, so the request hostname is the Worker's own.
+    realm: env.MPP_REALM?.trim() || "mpp.dev",
+    secretKey:
+      env.MPP_SECRET_KEY?.trim() || Keys.secretKey(env.MPP_PRIVATE_KEY),
   });
   return {
     account,
@@ -125,12 +130,7 @@ async function story(
   const at = pathname.indexOf("/api/story/");
   const raw =
     at === -1 ? null : safeDecode(pathname.slice(at + "/api/story/".length));
-  const topic = Story.topic(raw);
-  if (raw !== null && !topic)
-    return Response.json(
-      { error: "A topic is up to 40 letters, digits and spaces." },
-      { status: 400 },
-    );
+  const topic = Topic.topic(raw);
 
   const result = await mppx.session({
     amount: price,
