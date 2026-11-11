@@ -15,6 +15,7 @@ pnpm check:generated                    # src/pages.gen.ts matches pnpm generate
 pnpm build                              # production build, type-checks every twoslash snippet; needs MPP_SECRET_KEY (CI uses a placeholder)
 pnpm mcp-services:check                 # workers/mcp-services Worker
 pnpm identity-playground:check          # workers/identity-playground Worker
+pnpm session-playground:check           # workers/session-playground Worker
 docker compose up -d --wait tempo && pnpm test:integration   # Tempo localnet integration tests
 ```
 
@@ -45,6 +46,7 @@ vocs.config.ts     — config file
 - `scripts/`: build-time generators (discovery, diagrams, CLI help, pages, OG images) and docs lint tests (`check-*.test.ts`).
 - `workers/mcp-services/`: the MPP Discovery Service MCP Worker.
 - `workers/identity-playground/`: the identity playground Worker at `mpp.dev/playground/identity`; `src/pages/_api/playground/` proxies it to the deployed Worker (`IDENTITY_PLAYGROUND_WORKER_ORIGIN` overrides it); a `vercel.ts` rewrite never fires, since Vocs's catch-all route answers first.
+- `workers/session-playground/`: the session playground Worker at `mpp.dev/playground/session`, proxied the same way (`SESSION_PLAYGROUND_WORKER_ORIGIN` overrides it). Its API takes the topic in the path, never a query string: mppx treats a POST with a query as a content request, so each voucher POST would open a new stream.
 - `integration/`, `e2e/`: localnet integration and terminal demo tests.
 - `public/AGENTS.md` is a published artifact, not guidance for this repository.
 - [MARKDOWN.md](./MARKDOWN.md): generated Markdown output rules.

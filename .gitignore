@@ -33,3 +33,5 @@ _
 
 # Built from workers/identity-playground by scripts/copy-identity-playground.ts
 public/playground/identity/
+# Built from workers/session-playground by scripts/copy-session-playground.ts
+public/playground/session/

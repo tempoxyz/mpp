@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter mpp-identity-playground build && node scripts/copy-identity-playground.ts && node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/generate-cli-help.ts && vite build",
+    "build": "pnpm --filter mpp-identity-playground build && node scripts/copy-identity-playground.ts && pnpm --filter mpp-session-playground build && node scripts/copy-session-playground.ts && node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/generate-cli-help.ts && vite build",
     "check": "biome check --write",
     "check:ci": "biome check",
     "check:markdown": "vocs markdown-audit",
@@ -18,6 +18,8 @@
     "generate:pages": "node scripts/generate-pages.ts",
     "identity-playground:check": "pnpm --filter mpp-identity-playground run check",
     "identity-playground:deploy": "pnpm --filter mpp-identity-playground run deploy",
+    "session-playground:check": "pnpm --filter mpp-session-playground run check",
+    "session-playground:deploy": "pnpm --filter mpp-session-playground run deploy",
     "mcp-services:check": "pnpm --filter mpp-services-mcp run check",
     "mcp-services:deploy": "pnpm --filter mpp-services-mcp run deploy",
     "og:generate": "node --use-system-ca scripts/generate-og-images.ts",
