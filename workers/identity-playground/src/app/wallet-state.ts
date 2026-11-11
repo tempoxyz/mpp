@@ -9,6 +9,8 @@ export type Wallet = {
   mppx: () => Promise<unknown>;
   /** Whether the wallet stack has loaded, so link works. */
   ready: boolean;
+  /** Disconnects the linked wallet; the page falls back to the test wallet, if any. */
+  unlink: () => void;
 };
 
 /** Before the wallet stack loads: nothing linked yet. */
@@ -20,6 +22,7 @@ export const unloaded: Wallet = {
   linking: false,
   mppx: async () => undefined,
   ready: false,
+  unlink: () => {},
 };
 
 /** OUSD on Tempo: what haiku are priced in. */

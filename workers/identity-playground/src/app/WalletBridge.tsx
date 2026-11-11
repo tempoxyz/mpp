@@ -2,7 +2,13 @@
 // paint: it is most of the page's JavaScript and opens the wallet's iframe.
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useConnect, useConnection, useConnectors, WagmiProvider } from "wagmi";
+import {
+  useConnect,
+  useConnection,
+  useConnectors,
+  useDisconnect,
+  WagmiProvider,
+} from "wagmi";
 import { tempoModerato } from "wagmi/chains";
 import { config, queryClient } from "./wallet.js";
 import type { Wallet } from "./wallet-state.js";
@@ -26,6 +32,7 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
   const connection = useConnection();
   const connectors = useConnectors();
   const connect = useConnect();
+  const disconnect = useDisconnect();
 
   const connected = connection.status === "connected";
   const connector = connection.connector;
@@ -49,6 +56,7 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
         return provider.getMppxParameters();
       },
       ready: Boolean(first),
+      unlink: () => disconnect.mutate(),
     });
   }, [
     connection.address,

@@ -116,7 +116,7 @@ export function App() {
           <Panel f={f} />
           <Requests f={f} />
           <a className="link" href="https://mpp.dev/extensions/identity">
-            Read the MPP docs →
+            Read the docs →
           </a>
         </main>
         <aside>
@@ -247,6 +247,31 @@ function Panel({ f }: { f: Demo }) {
             type="button"
           >
             {f.wallet.linking ? "Linking…" : "Link Tempo Wallet"}
+          </button>
+        </div>
+      )}
+      {f.address && f.wallet.connected && (
+        // A linked wallet stays visible, so visitors can see which account pays and switch.
+        <div className="panel-row">
+          <span className="dim">Linked</span>
+          <a
+            className="link"
+            href={`${explorer}/address/${f.address}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {shortAddress(f.address)}
+          </a>
+          {f.balance !== undefined && (
+            <span className="dim">· {f.balance} OUSD ·</span>
+          )}
+          <button
+            className="action"
+            disabled={f.busy}
+            onClick={f.wallet.unlink}
+            type="button"
+          >
+            Unlink
           </button>
         </div>
       )}
@@ -750,6 +775,11 @@ function useDemo() {
     useTestWallet,
     wallet,
   };
+}
+
+/** 0x1234…abcd: enough of an address to recognize it. */
+function shortAddress(address: string) {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
 /** A terminal window's title bar, as on mpp.dev's demos. */
