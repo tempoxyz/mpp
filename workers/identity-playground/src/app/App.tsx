@@ -98,7 +98,8 @@ export function App() {
                 className="tab"
                 data-active={t.id === f.tier}
                 data-tier={t.id}
-                onClick={() => f.setTier(t.id)}
+                disabled={f.busy}
+                onClick={() => f.selectTier(t.id)}
                 type="button"
               >
                 {t.label}
@@ -500,7 +501,10 @@ function useDemo() {
       loadChain().catch(() => undefined);
       if (address) loadClient().catch(() => undefined);
     };
-    if (!("requestIdleCallback" in window)) return void setTimeout(warm, 1000);
+    if (!("requestIdleCallback" in window)) {
+      const id = setTimeout(warm, 1000);
+      return () => clearTimeout(id);
+    }
     const id = requestIdleCallback(warm, { timeout: 3000 });
     return () => cancelIdleCallback(id);
   }, [address]);
@@ -607,6 +611,18 @@ function useDemo() {
   const buyRef = useRef<
     { buy: (topic?: string) => Promise<Response>; key: string } | undefined
   >(undefined);
+
+  function selectTier(next: Tier) {
+    if (next === tier || busy) return;
+    setTier(next);
+    setResult(undefined);
+    setError(undefined);
+    setTopic("");
+    setCode("");
+    hopsRef.current = [];
+    setHops([]);
+    buyRef.current = undefined;
+  }
 
   async function buy() {
     if (!config || !address) return;
@@ -718,7 +734,7 @@ function useDemo() {
     setApiKey,
     setCode,
     setEmail,
-    setTier,
+    selectTier,
     setWallet,
     setTopic,
     source,

@@ -52,12 +52,22 @@ beforeEach(() => {
   mocks.privateKeyToAccount.mockReturnValue({ address });
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () =>
-      Response.json({
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).includes("rpc.moderato.tempo.xyz")) {
+        const request = JSON.parse(String(init?.body));
+        const value =
+          request.params?.[0]?.data === "0x313ce567" ? 6 : 1_000_000;
+        return Response.json({
+          id: request.id,
+          jsonrpc: "2.0",
+          result: `0x${value.toString(16).padStart(64, "0")}`,
+        });
+      }
+      return Response.json({
         limit: 3,
         prices: { anonymous: "0.03", apiKey: "0.01", email: "0.02" },
-      }),
-    ),
+      });
+    }),
   );
 });
 afterEach(() => {
@@ -129,6 +139,103 @@ describe("identity playground wallet selection", () => {
       expect(mocks.create).toHaveBeenCalledWith(
         expect.objectContaining({ wallet: { account: { address } } }),
       ),
+    );
+  });
+});
+
+describe("identity playground example changes", () => {
+  beforeEach(() => {
+    mocks.wallet = {
+      ...unloaded,
+      address,
+      connected: true,
+      ready: true,
+      mppx: async () => ({}),
+    };
+  });
+
+  it("clears the previous error and topic when selecting another example", async () => {
+    render(<App />);
+    const buy = await screen.findByRole("button", { name: /Buy haiku/ });
+    await waitFor(() =>
+      expect((buy as HTMLButtonElement).disabled).toBe(false),
+    );
+    fireEvent.change(screen.getByLabelText("Topic"), {
+      target: { value: "old topic" },
+    });
+    fireEvent.click(buy);
+    await screen.findByText("Test response");
+    fireEvent.click(screen.getByRole("button", { name: "Email 0.02" }));
+    expect(screen.queryByText("Test response")).toBeNull();
+    expect((screen.getByLabelText("Topic") as HTMLInputElement).value).toBe("");
+  });
+
+  it("clears the previous poem, receipt, and request history", async () => {
+    mocks.create.mockImplementation((options) => async () => {
+      await options.fetch("http://localhost/api/haiku");
+      return Response.json(
+        {
+          haiku: ["Old poem", "Second line", "Third line"],
+          remaining: 2,
+        },
+        {
+          headers: {
+            "Payment-Receipt": btoa(
+              JSON.stringify({
+                method: "tempo",
+                reference: "0xreceipt",
+                status: "success",
+                timestamp: "2026-11-11T00:00:00Z",
+              }),
+            ),
+          },
+        },
+      );
+    });
+    render(<App />);
+    const buy = await screen.findByRole("button", { name: /Buy haiku/ });
+    await waitFor(() =>
+      expect((buy as HTMLButtonElement).disabled).toBe(false),
+    );
+    fireEvent.click(buy);
+    await screen.findByText("Old poem");
+    expect(screen.getByText("Requests")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "API key 0.01" }));
+    expect(screen.queryByText("Old poem")).toBeNull();
+    expect(screen.queryByText("Requests")).toBeNull();
+    expect(screen.queryByRole("link", { name: "receipt" })).toBeNull();
+    expect(screen.getByText("Buy a haiku to start.")).not.toBeNull();
+  });
+
+  it("keeps the active example while a purchase is in flight", async () => {
+    let finish!: (response: Response) => void;
+    mocks.create.mockReturnValue(
+      () =>
+        new Promise<Response>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    render(<App />);
+    const buy = await screen.findByRole("button", { name: /Buy haiku/ });
+    await waitFor(() =>
+      expect((buy as HTMLButtonElement).disabled).toBe(false),
+    );
+    fireEvent.click(buy);
+    await screen.findByRole("button", { name: "Paying…" });
+    expect(
+      (screen.getByRole("button", { name: "Email 0.02" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    await waitFor(() => expect(finish).toBeDefined());
+    finish(new Response("Test response", { status: 400 }));
+    await waitFor(() =>
+      expect(
+        (
+          screen.getByRole("button", {
+            name: "Email 0.02",
+          }) as HTMLButtonElement
+        ).disabled,
+      ).toBe(false),
     );
   });
 });
