@@ -2337,6 +2337,12 @@ html[data-route-transition] [data-v-main] {
 .blog-narrow > [data-v-code-container] + h2 {
   margin-top: 2.5rem;
 }
+.blog-narrow > h2 + [data-v-code-container],
+.blog-narrow > [data-v-code-container] + p,
+.blog-narrow > [data-v-code-container] + ul,
+.blog-narrow > [data-v-code-container] + ol {
+  margin-top: 1.5rem;
+}
 .blog-narrow [data-v-code-container] {
   background: #101010;
   border: 1px solid var(--mpp-line);
