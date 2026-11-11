@@ -2,25 +2,21 @@
 // service publishes its discovery document (server.ts).
 import type { Note } from "../../shared/code.js";
 
-export const client = `type Offer = { amount: string; currency: string; intent: string; method: string }
-type Service = { url: string; title: string; path: string; offer: Offer; schema: unknown }
+export const client = `import { DiscoveryDocument } from 'mppx/discovery'
 
-const origin = location.origin
+// 1. A registry lists where each service lives.
+const { services } = await fetch('/playground/discovery/api/registry').then((r) => r.json())
 
-// 1. Find services: a registry lists where each one lives.
-export async function findServices(): Promise<Service[]> {
-  const registry = origin + '/playground/discovery/api/registry'
-  const { services } = await fetch(registry).then((r) => r.json())
-  return Promise.all(
-    services.map(async ({ url }: { url: string }) => {
-      // 2. Read each one's discovery document: paths, schemas, prices.
-      const doc = await fetch(origin + url + '/openapi.json').then((r) => r.json())
-      const [[path, { post }]] = Object.entries<any>(doc.paths)
-      const offer: Offer = post['x-payment-info'].offers[0]
-      const schema = post.requestBody.content['application/json'].schema
-      return { url, title: doc.info.title, path, offer, schema }
-    }),
-  )
+for (const { url } of services) {
+  // 2. Each service publishes an OpenAPI document: paths, prices and schemas.
+  const json = await fetch(url + '/openapi.json').then((r) => r.json())
+  const doc = DiscoveryDocument.parse(json)
+
+  for (const [path, { post }] of Object.entries(doc.paths ?? {})) {
+    // 3. x-payment-info is the price tag; requestBody says how to call it.
+    const [offer] = post?.['x-payment-info']?.offers ?? []
+    console.log(doc.info.title, path, offer?.amount, post?.requestBody)
+  }
 }
 `;
 
@@ -97,20 +93,20 @@ export default {
 
 export const notes: readonly Note[] = [
   [
-    "const { services } = await fetch(registry)",
+    "const { services } = await fetch(",
     "Registries such as MPPScan and mpp.dev/services aggregate services. Here the registry is one small JSON list.",
   ],
   [
-    "const doc = await fetch(origin + url + '/openapi.json')",
+    "const json = await fetch(url + '/openapi.json')",
     "Every MPP service can publish an OpenAPI document at /openapi.json. No account or API key is needed to read it.",
   ],
   [
-    "const offer: Offer = post['x-payment-info']",
-    "x-payment-info lists what each operation costs: amount in base units, currency, method and intent.",
+    "const doc = DiscoveryDocument.parse(json)",
+    "mppx/discovery checks the document's shape and turns x-payment-info into a list of offers.",
   ],
   [
-    "const schema = post.requestBody",
-    "The request schema tells a buyer, or an agent, how to build a valid call without reading any docs.",
+    "const [offer] = post?.['x-payment-info']",
+    "Each offer has an amount in base units, a currency, a method and an intent. Discovery is advisory: the 402 Challenge is what you actually pay.",
   ],
   [
     "const pay = mppx.charge({",

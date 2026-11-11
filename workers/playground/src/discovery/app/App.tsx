@@ -215,9 +215,7 @@ function DocumentPanel({ listing }: { listing: Listing | undefined }) {
   );
   return (
     <section className="panel code">
-      <PanelHead
-        name={listing ? `${listing.slug}/openapi.json` : "openapi.json"}
-      >
+      <PanelHead name="openapi.json">
         <button
           aria-pressed={explain}
           className="button explain-toggle"
