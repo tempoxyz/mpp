@@ -174,7 +174,22 @@ importers:
         specifier: ^2.9.0
         version: 2.9.1
 
-  workers/identity-playground:
+  workers/mcp-services:
+    devDependencies:
+      '@types/node':
+        specifier: ^25.9.1
+        version: 25.9.8
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@edge-runtime/vm@3.2.0)(@types/node@25.9.8)(happy-dom@21.0.4)(vite@8.3.7(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      wrangler:
+        specifier: ^4.137.0
+        version: 4.137.0(@types/node@25.9.8)
+
+  workers/playground:
     dependencies:
       '@tanstack/react-query':
         specifier: ^5.107.1
@@ -228,21 +243,6 @@ importers:
       wrangler:
         specifier: ^4.158.0
         version: 4.159.0(@types/node@26.6.6)
-
-  workers/mcp-services:
-    devDependencies:
-      '@types/node':
-        specifier: ^25.9.1
-        version: 25.9.8
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^4.1.12
-        version: 4.1.12(@edge-runtime/vm@3.2.0)(@types/node@25.9.8)(happy-dom@21.0.4)(vite@8.3.7(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
-      wrangler:
-        specifier: ^4.137.0
-        version: 4.137.0(@types/node@25.9.8)
 
 packages:
 
@@ -8152,7 +8152,7 @@ snapshots:
       '@vue/shared': 3.5.43
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.31
+      postcss: 8.5.32
       source-map-js: 1.2.2
 
   '@vue/compiler-ssr@3.5.43':
@@ -11905,7 +11905,7 @@ snapshots:
       '@noble/ciphers': 2.4.0
       '@noble/hashes': 2.4.0
       hono: 4.13.11
-      ox: 0.14.47(typescript@6.0.3)(zod@4.6.7)
+      ox: 0.14.64(typescript@6.0.3)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       react: 19.3.1
