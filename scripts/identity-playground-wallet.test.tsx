@@ -207,6 +207,16 @@ describe("identity playground example changes", () => {
     expect(screen.getByText("Buy a haiku to start.")).not.toBeNull();
   });
 
+  it("offers a topic only to verified buyers", async () => {
+    render(<App />);
+    const topic = (await screen.findByLabelText("Topic")) as HTMLInputElement;
+    expect(topic.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "API key 0.01" }));
+    expect((screen.getByLabelText("Topic") as HTMLInputElement).disabled).toBe(
+      false,
+    );
+  });
+
   it("keeps the active example while a purchase is in flight", async () => {
     let finish!: (response: Response) => void;
     mocks.create.mockReturnValue(
