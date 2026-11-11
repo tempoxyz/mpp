@@ -425,9 +425,6 @@ button:disabled {
   font-variant-numeric: tabular-nums;
   margin: 0;
 }
-.meter-note {
-  font-size: 12px;
-}
 .status {
   color: var(--dim);
   font-size: 12px;
@@ -500,22 +497,15 @@ button:disabled {
   color: var(--ink);
   display: grid;
   gap: 12px;
-  grid-template-columns: 96px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 8px 0;
   text-decoration: none;
 }
 .method:last-child {
   border-bottom: 1px solid var(--line-soft);
 }
-.method:hover .method-note {
+.method:hover .dim {
   color: var(--ink);
-}
-.method-note {
-  color: var(--secondary);
-  font-family: var(--sans);
-}
-.method-live {
-  color: var(--green);
 }
 
 /* The lines the current step runs stay lit; the rest dim. */
@@ -550,42 +540,7 @@ button:disabled {
   border-color: var(--purple);
   color: var(--purple);
 }
-/* Explained: what a session changes from paying per request, with notes between lines. */
-.code-line {
-  position: relative;
-}
-.code-lines[data-diff] .code-line {
-  padding-left: 14px;
-}
-.code-changed {
-  border-radius: 3px;
-}
-[data-change="add"] > .code-changed {
-  background: rgb(85 170 90 / 20%);
-}
-[data-change="del"] > .code-changed {
-  background: rgb(229 83 75 / 20%);
-}
-.code-line[data-change]::before {
-  bottom: 0;
-  content: "";
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 4px;
-}
-.code-line[data-change="add"] {
-  background: linear-gradient(90deg, #222b21 6px, #263326 6px);
-}
-.code-line[data-change="add"]::before {
-  background: #57ab5a;
-}
-.code-line[data-change="del"] {
-  background: linear-gradient(90deg, #352420 6px, #3e2622 6px);
-}
-.code-line[data-change="del"]::before {
-  background: linear-gradient(0deg, #3d2723 50%, #e5534b 50%) 0 0 / 4px 4px;
-}
+/* Explained: notes between lines. */
 .code-note {
   background: #272727;
   display: flow-root;

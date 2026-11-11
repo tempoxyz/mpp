@@ -72,32 +72,26 @@ const methods = [
   {
     href: "https://mpp.dev/payment-methods/tempo/session",
     name: "Tempo",
-    note: "TIP-20 stablecoins over payment channels",
   },
   {
     href: "https://mpp.dev/payment-methods/stripe",
     name: "Stripe",
-    note: "Tempo sessions, recorded in Stripe",
   },
   {
     href: "https://mpp.dev/payment-methods/lightning#session",
     name: "Lightning",
-    note: "Prepaid Bitcoin sessions",
   },
   {
     href: "https://mpp.dev/payment-methods/solana#session",
     name: "Solana",
-    note: "SOL and SPL tokens over payment channels",
   },
   {
     href: "https://mpp.dev/payment-methods/xrpl#session",
     name: "XRPL",
-    note: "XRP payment channels",
   },
   {
     href: "https://mpp.dev/payment-methods/stellar#session",
     name: "Stellar",
-    note: "SEP-41 token channels (experimental)",
   },
 ] as const;
 
@@ -117,8 +111,8 @@ export function App() {
             <span className="label">Playground</span>
             <h1 className="title">Sessions</h1>
             <p className="lede">
-              Pay for a story word by word. Reserve a deposit once, pay every
-              word with an off-chain voucher, then close and get the rest back.
+              Use sessions to efficiently stream a response from a large
+              language model.
             </p>
           </div>
           <Panel f={f} />
@@ -250,15 +244,8 @@ function Meter({ f }: { f: Demo }) {
         />
         <Stat label="Spent" value={ousdText(f.spent)} />
         <Stat label="Vouchers" value={String(f.vouchers)} />
-        <Stat label="On-chain" value={String(f.transactions)} />
+        <Stat label="Transactions" value={String(f.transactions)} />
       </dl>
-      {f.vouchers > 0 && (
-        <div className="meter-note dim">
-          {f.vouchers} payments, {f.transactions}{" "}
-          {f.transactions === 1 ? "transaction" : "transactions"}. One charge
-          per word would have taken {f.vouchers}.
-        </div>
-      )}
     </div>
   );
 }
@@ -430,12 +417,7 @@ function Methods() {
       {methods.map((method) => (
         <a className="method" href={method.href} key={method.name}>
           <span className="method-name">{method.name}</span>
-          <span className="method-note">{method.note}</span>
-          {method.name === "Tempo" ? (
-            <span className="method-live">Live here</span>
-          ) : (
-            <span className="dim">Docs →</span>
-          )}
+          <span className="dim">Docs →</span>
         </a>
       ))}
     </section>
@@ -495,7 +477,6 @@ function CodePanel({
           aria-pressed={explain}
           className="button explain-toggle"
           onClick={() => setExplain(!explain)}
-          title="What a session changes from paying per request"
           type="button"
         >
           Explain code

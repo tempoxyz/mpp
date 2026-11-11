@@ -154,65 +154,6 @@ export function stepLines(blocks: readonly Block[]): Record<Step, Set<number>> {
   return lines;
 }
 
-/** What the buyer would write without a session: one on-chain payment per word. */
-export function chargeClient(): string {
-  return `import { Mppx, tempo } from 'mppx/client'
-
-// Pass the connected Tempo Wallet's provider.getMppxParameters().
-type Wallet = NonNullable<Parameters<typeof tempo>[0]>
-
-export async function readStory(
-  wallet: Wallet,
-  render: (word: string) => void,
-) {
-  const baseUrl = location.origin + '/playground/session'
-
-  const mppx = Mppx.create({ methods: [tempo(wallet)], polyfill: false })
-
-  // Without a session, every word is its own on-chain payment.
-  for (let i = 0; i < 80; i++) {
-    const response = await mppx.fetch(baseUrl + '/api/word')
-    render(await response.text())
-  }
-}
-`;
-}
-
-/** What the seller would write without a session: a charge per word. */
-export function chargeServer(): string {
-  return `import { Mppx, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-type Env = {
-  MPP_PRIVATE_KEY: \`0x\${string}\`
-  MPP_SECRET_KEY: string
-}
-
-declare function writeWord(): Promise<string>
-
-export default {
-  async fetch(request: Request, env: Env) {
-    const mppx = Mppx.create({
-      methods: [
-        tempo.charge({
-          chainId: 42431, // Moderato testnet
-          currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
-          recipient: privateKeyToAccount(env.MPP_PRIVATE_KEY).address,
-        }),
-      ],
-      realm: 'mpp.dev', // the host buyers pay at, behind its proxy
-      secretKey: env.MPP_SECRET_KEY,
-    })
-
-    // Without a session, every word is its own on-chain payment.
-    const result = await mppx.charge({ amount: '0.001' })(request)
-    if (result.status === 402) return result.challenge
-    return result.withReceipt(new Response(await writeWord()))
-  },
-}
-`;
-}
-
 /** Notes under the lines that matter, anchored to their text so edits can't shift them. */
 export function explanations(source: string) {
   const notes = [
