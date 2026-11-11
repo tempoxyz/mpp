@@ -1,20 +1,20 @@
 ---
 layout: minimal
-title: "Refined identity primitives"
+title: "Expanded identity primitives"
 outline: false
 showAskAi: false
 showFeedback: false
 showSearch: false
-description: "Require a verified email, your own API keys, or a World ID-verified human before anyone pays for your API."
+description: "Use any identity protocol alongside MPP"
 imageDescription: "Know who's calling before they pay"
 publishedAt: "2026-11-11"
 ---
 
-# Refined identity primitives [Know who's calling before they pay, with any identity provider]
+# Expanded identity primitives [Use any identity protocol alongside MPP]
 
 `mppx` now lets any paid route check who's calling before it shows a price: a verified email, your own API keys, a World ID-verified human, or a protocol you write yourself. Explore the API interactively in the [MPP playground](https://mpp.dev/playground/identity).
 
-## Identity sits alongside the protocol
+## Identity alongside payments
 
 MPP doesn't pick an identity system for you. Identity runs next to the core flow, not inside it:
 
@@ -22,7 +22,7 @@ MPP doesn't pick an identity system for you. Identity runs next to the core flow
 - **Check before the price.** Callers who don't pass get a standard unauthenticated HTTP response and never see payment terms.
 - **Keep the core flow.** Payments work the same with or without identity.
 
-## Add identity to a route
+## Add identity to a service
 
 Pass verifiers in a route's `identity` option, then read who passed from the result:
 
@@ -129,24 +129,6 @@ export const handler = mppx.charge({
 })
 ```
 
-```ts twoslash [Any of]
-import type * as EmailOtp from 'mppx/extensions/identity/email-otp'
-import * as Identity from 'mppx/identity'
-import { Mppx, tempo } from 'mppx/server'
-
-declare const email: ReturnType<typeof EmailOtp.Server.verifier>
-declare const customer: Identity.Verifier<{ customerId: string }>
-
-const mppx = Mppx.create({
-  methods: [tempo.charge({ testnet: true })],
-})
-
-export const handler = mppx.charge({
-  amount: '0.05',
-  identity: [Identity.anyOf(email, customer)], // [!code hl]
-})
-```
-
 ```ts twoslash [Custom]
 import { Mppx, tempo } from 'mppx/client'
 import type * as Identity from 'mppx/identity'
@@ -175,11 +157,6 @@ const client = Mppx.create({
 ```
 
 ::::
-
-- **Email:** Tempo's hosted issuer emails a code and attests the inbox, so you don't run a login.
-- **API keys:** `Identity.from` wraps the auth you already have.
-- **World ID:** requires a human verified with World ID behind the agent.
-- **Custom:** a prover adds your own proof, and a matching `Identity.Verifier` checks it on the server.
 
 ## Explore the MPP playground
 

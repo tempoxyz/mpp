@@ -11,13 +11,13 @@ type Page =
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
+  | { path: '/blog/expanded-identity-primitives'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/mppx-identity-support'; render: 'static' }
   | { path: '/blog/multi-method-discovery'; render: 'static' }
   | { path: '/blog/payment-hooks'; render: 'static' }
-  | { path: '/blog/refined-identity-primitives'; render: 'static' }
   | { path: '/blog/relays'; render: 'static' }
   | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
