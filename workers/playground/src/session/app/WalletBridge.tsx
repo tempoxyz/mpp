@@ -10,7 +10,12 @@ import {
   WagmiProvider,
 } from "wagmi";
 import { tempoModerato } from "wagmi/chains";
-import { config, queryClient } from "./wallet.js";
+import {
+  config,
+  type Provider,
+  queryClient,
+  sessionParameters,
+} from "./wallet.js";
 import type { Wallet } from "./wallet-state.js";
 
 /** Reports the linked Tempo Wallet to the page; renders nothing. */
@@ -48,12 +53,10 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
           connect.mutate({ chainId: tempoModerato.id, connector: first });
       },
       linking: connect.isPending || connection.status === "reconnecting",
-      mppx: async () => {
-        if (!connected || !connector) return undefined;
-        const provider = (await connector.getProvider()) as {
-          getMppxParameters(): unknown;
-        };
-        return provider.getMppxParameters();
+      mppx: async (budget: string) => {
+        if (!connected || !connector || !connection.address) return undefined;
+        const provider = (await connector.getProvider()) as Provider;
+        return sessionParameters(provider, connection.address, budget);
       },
       ready: Boolean(first),
       unlink: () => disconnect.mutate(),
