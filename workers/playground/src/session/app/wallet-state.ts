@@ -5,8 +5,8 @@ export type Wallet = {
   error: Error | undefined;
   link: () => void;
   linking: boolean;
-  /** The connected wallet's mppx parameters, or undefined without one. */
-  mppx: () => Promise<unknown>;
+  /** The connected wallet's mppx parameters for a session of up to `budget` OUSD, or undefined without one. */
+  mppx: (budget: string) => Promise<unknown>;
   /** Whether the wallet stack has loaded, so link works. */
   ready: boolean;
   /** Disconnects the linked wallet; the page falls back to the test wallet, if any. */

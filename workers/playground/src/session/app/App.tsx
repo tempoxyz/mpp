@@ -584,7 +584,7 @@ function useDemo() {
   }
 
   async function payer(): Promise<Client.Wallet> {
-    const linked = (await wallet.mppx()) as Client.Wallet | undefined;
+    const linked = (await wallet.mppx(budget)) as Client.Wallet | undefined;
     if (linked) return linked;
     if (wallet.connected || !testKey)
       throw new Error("Wallet disconnected. Link Tempo Wallet and try again.");

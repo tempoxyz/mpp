@@ -10,7 +10,12 @@ import {
   WagmiProvider,
 } from "wagmi";
 import { tempoModerato } from "wagmi/chains";
-import { config, queryClient } from "./wallet.js";
+import {
+  config,
+  type Provider,
+  queryClient,
+  sessionParameters,
+} from "./wallet.js";
 import type { Wallet } from "./wallet-state.js";
 
 /** Reports the linked Tempo Wallet to the page; renders nothing. */
@@ -27,19 +32,6 @@ export default function WalletBridge({
     </WagmiProvider>
   );
 }
-
-/** The parts of the Tempo Accounts provider the page reads. */
-type Provider = {
-  getMppxParameters(options?: { accessKey?: string }): unknown;
-  store: {
-    accessKeys: {
-      list(query: {
-        account: string;
-        chainId: number;
-      }): { address: string; expiry?: number | undefined }[];
-    };
-  };
-};
 
 function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
   const connection = useConnection();
@@ -61,19 +53,10 @@ function Bridge({ onChange }: { onChange: (wallet: Wallet) => void }) {
           connect.mutate({ chainId: tempoModerato.id, connector: first });
       },
       linking: connect.isPending || connection.status === "reconnecting",
-      mppx: async () => {
+      mppx: async (budget: string) => {
         if (!connected || !connector || !connection.address) return undefined;
         const provider = (await connector.getProvider()) as Provider;
-        // Name the page's access key: the SDK picks a key by the calls it will make, and a
-        // channel open or voucher names none, so it would fall back to the account itself and
-        // ask the wallet to approve the open and every voucher.
-        const now = Date.now() / 1000;
-        const key = provider.store.accessKeys
-          .list({ account: connection.address, chainId: tempoModerato.id })
-          .find((key) => !key.expiry || key.expiry > now);
-        return provider.getMppxParameters(
-          key ? { accessKey: key.address } : {},
-        );
+        return sessionParameters(provider, connection.address, budget);
       },
       ready: Boolean(first),
       unlink: () => disconnect.mutate(),
