@@ -1,22 +1,10 @@
 import code from "virtual:discovery-code";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CodeLines, Lines } from "../../shared/CodeLines.js";
-import { Bridge, Connect, PayerRow } from "../../shared/Payer.js";
-import {
-  explorer,
-  message,
-  Nav,
-  ousdText,
-  PanelHead,
-  short,
-} from "../../shared/ui.js";
-import { loadPay, useWallet } from "../../shared/useWallet.js";
+import { message, Nav, ousdText, PanelHead, Stat } from "../../shared/ui.js";
 import type { ObjectSchema, Schema } from "../services.js";
-import { defaults } from "../services.js";
 import { client, documentNotes, notes } from "./samples.js";
-
-const loadCore = () => import("mppx");
 
 /** Where mpp.dev serves the playground, with a trailing slash. */
 const basePath = `${import.meta.env.BASE_URL}discovery/`;
@@ -37,24 +25,16 @@ type Listing = {
   method: string;
   offer: Offer | undefined;
   path: string;
-  responseType: string;
   schema: ObjectSchema;
   slug: string;
   title: string;
   url: string;
 };
 
-type Hop = { line: string; status: number };
-type Output =
-  | { kind: "json"; text: string }
-  | { kind: "svg"; url: string }
-  | { kind: "error"; text: string };
-
 export function App() {
   const f = useDemo();
   return (
     <>
-      <Bridge p={f.p} />
       <Nav />
       <div className="page">
         <main className="main">
@@ -67,7 +47,7 @@ export function App() {
             </p>
           </div>
           <Registry f={f} />
-          {f.selected && <ServicePanel f={f} listing={f.selected} />}
+          {f.selected && <ServicePanel listing={f.selected} />}
           <a className="link" href="https://mpp.dev/extensions/discovery">
             Read the docs →
           </a>
@@ -113,7 +93,7 @@ function Registry({ f }: { f: Demo }) {
               className="service"
               disabled={!listing}
               key={slug}
-              onClick={() => f.select(slug)}
+              onClick={() => f.setSelectedSlug(slug)}
               type="button"
             >
               <span className="service-main">
@@ -135,213 +115,68 @@ function Registry({ f }: { f: Demo }) {
   );
 }
 
-/** The selected service: a form built from its schema, and the paid call. */
-function ServicePanel({ f, listing }: { f: Demo; listing: Listing }) {
-  const values = f.values[listing.slug] ?? defaults(listing.schema);
-  const set = (name: string, value: unknown) =>
-    f.setValues({ ...f.values, [listing.slug]: { ...values, [name]: value } });
+/** What a client reads from the selected service's document: its operation, price and fields. */
+function ServicePanel({ listing }: { listing: Listing }) {
   return (
     <section className="panel">
       <PanelHead name={listing.title}>
-        <span className="status" data-phase={f.calling ? "busy" : "idle"}>
-          {f.calling ? "Paying" : listing.categories.join(" · ")}
+        <span className="status" data-phase="idle">
+          {listing.categories.join(" · ")}
         </span>
       </PanelHead>
-      <div className="panel-body form-body">
-        {Object.entries(listing.schema.properties).map(([name, field]) => (
-          <Field
-            field={field}
-            key={name}
-            name={name}
-            onChange={(value) => set(name, value)}
-            required={listing.schema.required.includes(name)}
-            value={values[name]}
+      <div className="meter">
+        <dl className="stats">
+          <Stat
+            label="Price (OUSD)"
+            value={listing.offer ? ousdText(listing.offer.amount) : "Free"}
           />
-        ))}
+          <Stat label="Method" value={listing.offer?.method ?? "none"} />
+          <Stat label="Intent" value={listing.offer?.intent ?? "none"} />
+          <Stat
+            label="Fields"
+            value={String(Object.keys(listing.schema.properties).length)}
+          />
+        </dl>
       </div>
-      {!f.p.address ? (
-        <Connect p={f.p} />
-      ) : (
-        <div className="panel-row">
-          <span className="prompt">❯</span>
-          <span className="dim">
-            {listing.method.toUpperCase()} {listing.path}
-          </span>
-          <span className="spacer" />
-          <button
-            className="button"
-            disabled={f.calling || !listing.offer}
-            onClick={() => f.call(listing, values)}
-            type="button"
-          >
-            {f.calling
-              ? "Paying…"
-              : `Pay ${listing.offer ? ousdText(listing.offer.amount) : ""} & call`}
-          </button>
-        </div>
-      )}
-      {f.output && (
-        <div className="panel-body result-body">
-          {f.output?.kind === "svg" && (
-            <img
-              alt="The avatar the service drew"
-              className="output-image"
-              src={f.output.url}
-            />
-          )}
-          {f.output?.kind === "json" && (
-            <pre className="output-json">{f.output.text}</pre>
-          )}
-          {f.output?.kind === "error" && (
-            <div className="error">{f.output.text}</div>
-          )}
-          {f.receipt && (
-            <div className="dim">
-              Paid ·{" "}
-              <a
-                className="link"
-                href={`${explorer}/tx/${f.receipt}`}
-                rel="noreferrer"
-                target="_blank"
-              >
-                {short(f.receipt)}
-              </a>
-            </div>
-          )}
-        </div>
-      )}
-      {f.p.address && <PayerRow busy={f.calling} p={f.p} />}
+      <div className="panel-row">
+        <span className="prompt">❯</span>
+        <span className="dim">
+          {listing.method.toUpperCase()} {listing.url}
+          {listing.path}
+        </span>
+      </div>
+      <dl className="schema-fields">
+        {Object.entries(listing.schema.properties).map(([name, field]) => (
+          <div className="schema-field" key={name}>
+            <dt>
+              {name}
+              {listing.schema.required.includes(name) && (
+                <span className="prompt">*</span>
+              )}
+            </dt>
+            <dd className="dim">{describe(field)}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
 
-/** One form control, chosen by the field's JSON Schema type. */
-function Field({
-  field,
-  name,
-  onChange,
-  required,
-  value,
-}: {
-  field: Schema;
-  name: string;
-  onChange: (value: unknown) => void;
-  required: boolean;
-  value: unknown;
-}) {
-  return (
-    <div className="field">
-      <div className="field-label">
-        <span>
-          {name}
-          {required && <span className="prompt">*</span>}
-        </span>
-      </div>
-      <Control field={field} onChange={onChange} value={value} />
-    </div>
-  );
-}
-
-function Control({
-  field,
-  onChange,
-  value,
-}: {
-  field: Schema;
-  onChange: (value: unknown) => void;
-  value: unknown;
-}) {
-  if (field.type === "string" && field.enum)
-    return (
-      <div className="segments">
-        {field.enum.map((option) => (
-          <button
-            aria-pressed={value === option}
-            className="segment"
-            key={option}
-            onClick={() => onChange(option)}
-            type="button"
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-    );
+/** A field's type and limits in a few words, such as integer 1–7. */
+function describe(field: Schema) {
+  if (field.type === "string" && field.enum) return field.enum.join(" | ");
   if (field.type === "string")
-    return (
-      <input
-        className="input field-input"
-        maxLength={field.maxLength}
-        onChange={(e) => onChange(e.target.value)}
-        value={String(value ?? "")}
-      />
-    );
-  if (field.type === "integer" || field.type === "number")
-    return (
-      <input
-        className="input field-input"
-        max={field.maximum}
-        min={field.minimum}
-        onChange={(e) =>
-          onChange(e.target.value === "" ? undefined : Number(e.target.value))
-        }
-        step={field.type === "integer" ? 1 : "any"}
-        type="number"
-        value={value === undefined ? "" : String(value)}
-      />
-    );
-  if (field.type === "boolean")
-    return (
-      <div className="segments">
-        {[true, false].map((option) => (
-          <button
-            aria-pressed={value === option}
-            className="segment"
-            key={String(option)}
-            onClick={() => onChange(option)}
-            type="button"
-          >
-            {String(option)}
-          </button>
-        ))}
-      </div>
-    );
-  if (field.type !== "array") return null;
-  // An array of choices: add one per click, remove by clicking it.
-  const list = Array.isArray(value) ? (value as string[]) : [];
-  return (
-    <div className="array">
-      <div className="segments">
-        {list.map((item, i) => (
-          <button
-            className="segment chip"
-            // biome-ignore lint/suspicious/noArrayIndexKey: items repeat
-            key={i}
-            onClick={() => onChange(list.filter((_, j) => j !== i))}
-            type="button"
-          >
-            {item} ×
-          </button>
-        ))}
-        {list.length === 0 && <span className="dim">empty</span>}
-      </div>
-      <div className="segments">
-        {field.items.enum.map((option) => (
-          <button
-            className="segment"
-            disabled={
-              field.maxItems !== undefined && list.length >= field.maxItems
-            }
-            key={option}
-            onClick={() => onChange([...list, option])}
-            type="button"
-          >
-            + {option}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+    return field.maxLength === undefined
+      ? "string"
+      : `string ≤ ${field.maxLength}`;
+  if (field.type === "integer" || field.type === "number") {
+    if (field.minimum === undefined || field.maximum === undefined)
+      return field.type;
+    return `${field.type} ${field.minimum}–${field.maximum}`;
+  }
+  if (field.type === "boolean") return "boolean";
+  if (field.type !== "array") return field.type;
+  return `[${field.items.enum.join(" | ")}]${field.maxItems === undefined ? "" : ` ≤ ${field.maxItems}`}`;
 }
 
 function CodePanel({ name, source }: { name: string; source: string }) {
@@ -444,7 +279,6 @@ function parse(slug: string, url: string, doc: any): Listing {
   const [path, operations] = Object.entries<any>(doc.paths ?? {})[0] ?? [];
   const [method, operation] = Object.entries<any>(operations ?? {})[0] ?? [];
   const offer = operation?.["x-payment-info"]?.offers?.[0] as Offer | undefined;
-  const ok = operation?.responses?.["200"]?.content ?? {};
   return {
     categories: doc["x-service-info"]?.categories ?? [],
     description: operation?.description ?? operation?.summary ?? "",
@@ -452,7 +286,6 @@ function parse(slug: string, url: string, doc: any): Listing {
     method: method ?? "post",
     offer,
     path: path ?? "/",
-    responseType: Object.keys(ok)[0] ?? "application/json",
     schema: operation?.requestBody?.content?.["application/json"]?.schema ?? {
       additionalProperties: false,
       properties: {},
@@ -466,22 +299,12 @@ function parse(slug: string, url: string, doc: any): Listing {
 }
 
 function useDemo() {
-  const [error, setError] = useState<string>();
-  const p = useWallet(setError);
   const [urls, setUrls] = useState<{ slug: string; url: string }[]>();
   const [registryError, setRegistryError] = useState<string>();
   const [listings, setListings] = useState<Record<string, Listing>>({});
   const [selectedSlug, setSelectedSlug] = useState<string>();
-  const [values, setValues] = useState<Record<string, Record<string, unknown>>>(
-    {},
-  );
-  const [calling, setCalling] = useState(false);
-  const [hops, setHops] = useState<Hop[]>([]);
-  const hopsRef = useRef<Hop[]>([]);
-  const [output, setOutput] = useState<Output>();
-  const [receipt, setReceipt] = useState<string>();
 
-  // Discover: the registry, then every service's document, in parallel.
+  // Discover: the registry, then every service's document, in parallel. No wallet, no payment.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -514,97 +337,13 @@ function useDemo() {
     };
   }, []);
 
-  function select(slug: string) {
-    setSelectedSlug(slug);
-    hopsRef.current = [];
-    setHops([]);
-    setOutput(undefined);
-    setReceipt(undefined);
-  }
-
-  const tracedFetch: typeof globalThis.fetch = async (input, init) => {
-    const request = new Request(input, init);
-    const response = await fetch(request);
-    const paid = request.headers.get("authorization")?.startsWith("Payment ");
-    hopsRef.current = [
-      ...hopsRef.current,
-      {
-        line: `${request.method} ${new URL(request.url).pathname.replace(basePath, "/")}${paid ? "  + Credential" : ""}`,
-        status: response.status,
-      },
-    ];
-    setHops(hopsRef.current);
-    return response;
-  };
-
-  async function call(listing: Listing, body: Record<string, unknown>) {
-    setError(undefined);
-    setCalling(true);
-    hopsRef.current = [];
-    setHops([]);
-    setOutput(undefined);
-    setReceipt(undefined);
-    try {
-      const [Pay, { Receipt }] = await Promise.all([loadPay(), loadCore()]);
-      const mppx = Pay.create({
-        fetch: tracedFetch,
-        // Discovery is advisory: refuse a 402 above the advertised price.
-        maxAmount: listing.offer ? BigInt(listing.offer.amount) : undefined,
-        wallet: await p.payer(),
-      });
-      const response = await mppx.fetch(
-        `${location.origin}${listing.url}${listing.path}`,
-        {
-          body: JSON.stringify(body),
-          headers: { "content-type": "application/json" },
-          method: listing.method.toUpperCase(),
-        },
-      );
-      if (!response.ok) {
-        const text = await response.text();
-        let detail = text;
-        try {
-          detail = (JSON.parse(text) as { error?: string }).error ?? text;
-        } catch {}
-        setOutput({ kind: "error", text: `${response.status}: ${detail}` });
-        return;
-      }
-      if (response.headers.has("payment-receipt"))
-        setReceipt(Receipt.fromResponse(response).reference);
-      if (response.headers.get("content-type")?.includes("svg"))
-        setOutput({
-          kind: "svg",
-          url: URL.createObjectURL(await response.blob()),
-        });
-      else
-        setOutput({
-          kind: "json",
-          text: JSON.stringify(await response.json(), null, 2),
-        });
-    } catch (e) {
-      setOutput({ kind: "error", text: message(e) });
-    } finally {
-      setCalling(false);
-      p.refreshBalance();
-    }
-  }
-
   const selected = selectedSlug ? listings[selectedSlug] : undefined;
   return {
-    call,
-    calling,
-    error,
-    hops,
     listings,
-    output,
-    p,
-    receipt,
     registryError,
-    select,
     selected,
     selectedSlug,
-    setValues,
+    setSelectedSlug,
     urls,
-    values,
   };
 }

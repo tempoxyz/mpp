@@ -70,11 +70,7 @@ type Demo = ReturnType<typeof useDemo>;
 function Panel({ f }: { f: Demo }) {
   return (
     <section className="panel">
-      <PanelHead name="charge">
-        <span className="status" data-phase={f.buying ? "busy" : "idle"}>
-          {f.buying ? "Paying" : f.bought > 0 ? "Paid" : "Ready"}
-        </span>
-      </PanelHead>
+      <PanelHead name="charge" />
       <div className="meter">
         <dl className="stats">
           <Stat label="Price" value={`${price} OUSD`} />

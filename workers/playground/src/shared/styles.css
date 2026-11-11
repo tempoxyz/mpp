@@ -605,71 +605,30 @@ button:disabled {
 .op-method {
   color: var(--green);
 }
-.form-body {
-  gap: 16px;
-  min-height: 0;
-}
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.field-label {
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-.field-description {
-  font-family: var(--sans);
-  font-size: 13px;
-}
-.field-input {
-  border-bottom: 1px solid var(--line);
-  padding: 4px 0;
-}
-.field-input:focus {
-  border-bottom-color: var(--purple);
-}
-.array {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.segments {
-  flex-wrap: wrap;
-}
-.chip {
-  border-color: var(--line);
-  color: var(--ink);
-}
-.body-preview {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.result-body {
-  border-top: 1px solid var(--line-soft);
-  min-height: 0;
-}
-.output-json {
-  background: #141414;
-  font-size: 12px;
-  margin: 0;
-  max-height: 260px;
-  overflow: auto;
-  padding: 10px 12px;
-}
-.output-image {
-  align-self: flex-start;
-  max-width: 256px;
-}
 .tabs {
   margin-left: auto;
 }
 .tabs + .explain-toggle {
   margin-left: 0;
+}
+.schema-fields {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--mono);
+  font-size: 13px;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 20px 16px;
+}
+.schema-field {
+  display: flex;
+  gap: 16px;
+}
+.schema-field dt {
+  min-width: 96px;
+}
+.schema-field dd {
+  margin: 0;
 }
 /* The live openapi.json pane's colors (github-dark-dimmed). */
 .tjk {

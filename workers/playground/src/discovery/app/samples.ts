@@ -1,11 +1,8 @@
-// The code beside the demo: how a buyer finds and calls services (client.ts), and how one
+// The code beside the demo: how a buyer finds services and reads what they cost (client.ts), and how one
 // service publishes its discovery document (server.ts).
 import type { Note } from "../../shared/code.js";
 
-export const client = `import { Mppx, tempo } from 'mppx/client'
-
-type Wallet = NonNullable<Parameters<typeof tempo>[0]>
-type Offer = { amount: string; currency: string; intent: string; method: string }
+export const client = `type Offer = { amount: string; currency: string; intent: string; method: string }
 type Service = { url: string; title: string; path: string; offer: Offer; schema: unknown }
 
 const origin = location.origin
@@ -24,25 +21,6 @@ export async function findServices(): Promise<Service[]> {
       return { url, title: doc.info.title, path, offer, schema }
     }),
   )
-}
-
-// 3. Call one: build the body from its schema, then pay its 402.
-export async function call(wallet: Wallet, service: Service, body: unknown) {
-  const mppx = Mppx.create({
-    methods: [tempo(wallet)],
-    polyfill: false,
-    onChallenge: async (challenge, { createCredential }) => {
-      const { amount } = challenge.request as { amount: string }
-      if (BigInt(amount) > BigInt(service.offer.amount))
-        throw new Error('The price changed since discovery')
-      return createCredential()
-    },
-  })
-  return mppx.fetch(origin + service.url + service.path, {
-    body: JSON.stringify(body),
-    headers: { 'content-type': 'application/json' },
-    method: 'POST',
-  })
 }
 `;
 
@@ -135,10 +113,6 @@ export const notes: readonly Note[] = [
     "The request schema tells a buyer, or an agent, how to build a valid call without reading any docs.",
   ],
   [
-    "onChallenge: async",
-    "Discovery is advisory: the 402 Challenge is what you actually pay. Compare it with the advertised offer and refuse surprises.",
-  ],
-  [
     "const pay = mppx.charge({",
     "The same handler prices the route and feeds the discovery document, so the two can't drift apart.",
   ],
@@ -161,7 +135,7 @@ export const documentNotes: readonly Note[] = [
   ['"servers"', "Where the service lives. Paths below are relative to it."],
   [
     '"requestBody"',
-    "The request schema: every field, its type and limits. The form on the left is built from it.",
+    "The request schema: every field, its type and limits. Enough to build a valid call without reading any docs.",
   ],
   [
     '"x-payment-info"',
