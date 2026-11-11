@@ -1,5 +1,5 @@
 import code from "virtual:charge-code";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { CodeLines } from "../../shared/CodeLines.js";
 import { Bridge, Connect, PayerRow } from "../../shared/Payer.js";
@@ -20,18 +20,6 @@ const loadCore = () => import("mppx");
 
 /** Where mpp.dev serves the playground, with a trailing slash. */
 const basePath = `${import.meta.env.BASE_URL}charge/`;
-
-/** One line of what a message carried. */
-type Field = { href?: string | undefined; label: string; value: string };
-/** One HTTP message of the round trip. */
-type Step = {
-  fields: Field[];
-  /** What happened, in a few words. */
-  headline: string;
-  kind: "request" | "challenge" | "credential" | "receipt" | "error";
-  /** The request or status line, as the wire shows it. */
-  line: string;
-};
 
 /** Payment methods whose SDKs implement the charge intent; this page runs Tempo's. */
 const methods = [
@@ -61,7 +49,6 @@ export function App() {
             </p>
           </div>
           <Panel f={f} />
-          <RoundTrip f={f} />
           <Methods />
           <a className="link" href="https://mpp.dev/intents/charge">
             Read the docs →
@@ -93,7 +80,7 @@ function Panel({ f }: { f: Demo }) {
           <Stat label="Price" value={`${price} OUSD`} />
           <Stat label="Bought" value={String(f.bought)} />
           <Stat label="Spent" value={ousdText(f.spent)} />
-          <Stat label="Transactions" value={String(f.transactions)} />
+          <Stat label="Transactions" value={String(f.bought)} />
         </dl>
       </div>
       <div className="panel-body story-body">
@@ -103,6 +90,19 @@ function Panel({ f }: { f: Demo }) {
             <div className="dim">
               Lucky numbers {f.fortune.lucky.join(" · ")}
             </div>
+            {f.fortune.transaction && (
+              <div className="dim">
+                Paid {price} OUSD in one transaction ·{" "}
+                <a
+                  className="link"
+                  href={`${explorer}/tx/${f.fortune.transaction}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  receipt {short(f.fortune.transaction)}
+                </a>
+              </div>
+            )}
           </div>
         ) : (
           <div className="placeholder">
@@ -135,60 +135,6 @@ function Panel({ f }: { f: Demo }) {
         </div>
       )}
       {f.p.address && <PayerRow busy={f.buying} p={f.p} />}
-    </section>
-  );
-}
-
-/** The last purchase, message by message: price, payment, proof. */
-function RoundTrip({ f }: { f: Demo }) {
-  if (f.steps.length === 0) return null;
-  return (
-    <section className="trip">
-      <div className="label">Round trip</div>
-      {f.steps.map((step, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: steps never reorder
-        <div className="trip-step" data-kind={step.kind} key={i}>
-          <div className="trip-head">
-            <span className="trip-index">{i + 1}</span>
-            <span className="trip-headline">{step.headline}</span>
-          </div>
-          <div className="trip-line">{step.line}</div>
-          {step.fields.length > 0 && (
-            <dl className="trip-fields">
-              {step.fields.map((field) => (
-                <div key={field.label}>
-                  <dt>{field.label}</dt>
-                  <dd>
-                    {field.href ? (
-                      <a
-                        className="link"
-                        href={field.href}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        {field.value}
-                      </a>
-                    ) : (
-                      field.value
-                    )}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          )}
-        </div>
-      ))}
-      {f.bought > 0 && (
-        <p className="trip-note dim">
-          {f.bought} {f.bought === 1 ? "purchase" : "purchases"},{" "}
-          {f.transactions}{" "}
-          {f.transactions === 1 ? "transaction" : "transactions"}. Paying per
-          word or per token instead?{" "}
-          <a className="link" href={`${import.meta.env.BASE_URL}session/`}>
-            Try sessions →
-          </a>
-        </p>
-      )}
     </section>
   );
 }
@@ -240,147 +186,33 @@ function useDemo() {
   const [buying, setBuying] = useState(false);
   const [bought, setBought] = useState(0);
   const [spent, setSpent] = useState(0n);
-  const [transactions, setTransactions] = useState(0);
   const [fortune, setFortune] = useState<{
     fortune: string;
     lucky: number[];
+    transaction: string | undefined;
   }>();
-  const [steps, setSteps] = useState<Step[]>([]);
-  const stepsRef = useRef<Step[]>([]);
-
-  function record(step: Step) {
-    stepsRef.current = [...stepsRef.current, step];
-    setSteps(stepsRef.current);
-  }
-
-  // Shows each HTTP hop as the protocol message it carries.
-  const tracedFetch: typeof globalThis.fetch = async (input, init) => {
-    const { Challenge, Credential, Receipt } = await loadCore();
-    const request = new Request(input, init);
-    const path = new URL(request.url).pathname.replace(basePath, "/");
-    const authorization = request.headers.get("authorization");
-    if (authorization?.startsWith("Payment ")) {
-      const credential = Credential.deserialize<{ type?: string }>(
-        authorization,
-      );
-      record({
-        fields: [
-          {
-            label: "Pays",
-            value: `Challenge ${short(credential.challenge.id)}`,
-          },
-          {
-            label: "Payload",
-            value:
-              credential.payload.type === "hash"
-                ? "a transaction the client already sent"
-                : "a signed transfer for the server to send",
-          },
-          ...(credential.source
-            ? [
-                {
-                  label: "From",
-                  value: short(credential.source.split(":").at(-1)!),
-                },
-              ]
-            : []),
-        ],
-        headline: "The client pays exactly that",
-        kind: "credential",
-        line: `${request.method} ${path}  Authorization: Payment …`,
-      });
-    } else {
-      record({
-        fields: [],
-        headline: "The client asks for a fortune",
-        kind: "request",
-        line: `${request.method} ${path}`,
-      });
-    }
-    const response = await fetch(request);
-    if (response.status === 402) {
-      const challenge = Challenge.fromResponse(response);
-      const req = challenge.request as {
-        amount?: string;
-        recipient?: string;
-      };
-      const expires = challenge.expires
-        ? Math.round((Date.parse(challenge.expires) - Date.now()) / 60_000)
-        : undefined;
-      record({
-        fields: [
-          { label: "Amount", value: `${ousdText(req.amount ?? "0")} OUSD` },
-          ...(req.recipient
-            ? [
-                {
-                  href: `${explorer}/address/${req.recipient}`,
-                  label: "Pay to",
-                  value: short(req.recipient),
-                },
-              ]
-            : []),
-          {
-            label: "Method",
-            value: `${challenge.method} · ${challenge.intent}`,
-          },
-          ...(expires !== undefined
-            ? [{ label: "Expires", value: `in ${expires} min` }]
-            : []),
-        ],
-        headline: "The server names its price",
-        kind: "challenge",
-        line: "402 Payment Required  WWW-Authenticate: Payment …",
-      });
-    } else if (response.ok && response.headers.has("payment-receipt")) {
-      const receipt = Receipt.fromResponse(response);
-      record({
-        fields: [
-          { label: "Status", value: receipt.status },
-          {
-            href: `${explorer}/tx/${receipt.reference}`,
-            label: "Transaction",
-            value: short(receipt.reference),
-          },
-          {
-            label: "Settled",
-            value: new Date(receipt.timestamp).toLocaleTimeString(),
-          },
-        ],
-        headline: "The server delivers, with proof",
-        kind: "receipt",
-        line: "200 OK  Payment-Receipt: …",
-      });
-    } else if (!response.ok) {
-      record({
-        fields: [],
-        headline: "The server refused",
-        kind: "error",
-        line: `${response.status} ${response.statusText}`,
-      });
-    }
-    return response;
-  };
 
   async function buy() {
     setError(undefined);
     setBuying(true);
-    stepsRef.current = [];
-    setSteps([]);
     try {
-      const Pay = await loadPay();
+      const [Pay, { Receipt }] = await Promise.all([loadPay(), loadCore()]);
       const mppx = Pay.create({
-        fetch: tracedFetch,
+        fetch: globalThis.fetch.bind(globalThis),
         maxAmount: BigInt(Math.round(Number(price) * 1e6)),
         wallet: await p.payer(),
       });
+      // One call: the 402 comes back, mppx pays it and retries.
       const response = await mppx.fetch(
         `${location.origin + basePath}api/fortune`,
       );
       if (!response.ok)
         throw new Error(`The server answered ${response.status}.`);
-      setFortune(await response.json());
+      const transaction = response.headers.has("payment-receipt")
+        ? Receipt.fromResponse(response).reference
+        : undefined;
+      setFortune({ ...(await response.json()), transaction });
       setBought((n) => n + 1);
-      setTransactions((n) => n + 1);
       setSpent((n) => n + BigInt(Math.round(Number(price) * 1e6)));
     } catch (e) {
       setError(message(e));
@@ -390,15 +222,5 @@ function useDemo() {
     }
   }
 
-  return {
-    bought,
-    buy,
-    buying,
-    error,
-    fortune,
-    p,
-    spent,
-    steps,
-    transactions,
-  };
+  return { bought, buy, buying, error, fortune, p, spent };
 }

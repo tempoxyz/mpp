@@ -14,7 +14,7 @@ import {
 import { loadPay, useWallet } from "../../shared/useWallet.js";
 import type { ObjectSchema, Schema } from "../services.js";
 import { defaults } from "../services.js";
-import { client, documentNotes, notes, server } from "./samples.js";
+import { client, documentNotes, notes } from "./samples.js";
 
 const loadCore = () => import("mppx");
 
@@ -124,10 +124,7 @@ function Registry({ f }: { f: Demo }) {
               </span>
               {listing?.offer && (
                 <span className="service-price">
-                  <span>{ousdText(listing.offer.amount)} OUSD</span>
-                  <span className="dim">
-                    {listing.offer.method} · {listing.offer.intent}
-                  </span>
+                  {ousdText(listing.offer.amount)} OUSD
                 </span>
               )}
             </button>
@@ -150,16 +147,6 @@ function ServicePanel({ f, listing }: { f: Demo; listing: Listing }) {
           {f.calling ? "Paying" : listing.categories.join(" · ")}
         </span>
       </PanelHead>
-      <div className="operation">
-        <span className="op-method">{listing.method.toUpperCase()}</span>
-        <span>{listing.path}</span>
-        <span className="spacer" />
-        {listing.offer && (
-          <span className="dim">
-            {ousdText(listing.offer.amount)} OUSD per call
-          </span>
-        )}
-      </div>
       <div className="panel-body form-body">
         {Object.entries(listing.schema.properties).map(([name, field]) => (
           <Field
@@ -177,7 +164,10 @@ function ServicePanel({ f, listing }: { f: Demo; listing: Listing }) {
       ) : (
         <div className="panel-row">
           <span className="prompt">❯</span>
-          <span className="dim body-preview">{JSON.stringify(values)}</span>
+          <span className="dim">
+            {listing.method.toUpperCase()} {listing.path}
+          </span>
+          <span className="spacer" />
           <button
             className="button"
             disabled={f.calling || !listing.offer}
@@ -190,32 +180,8 @@ function ServicePanel({ f, listing }: { f: Demo; listing: Listing }) {
           </button>
         </div>
       )}
-      {(f.output || f.hops.length > 0) && (
+      {f.output && (
         <div className="panel-body result-body">
-          {f.hops.length > 0 && (
-            <div className="hops">
-              {f.hops.map((hop, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: hops never reorder
-                <div className="hop" key={i}>
-                  <span
-                    data-status={
-                      hop.status === 402 ? "pay" : hop.status < 300 ? "ok" : ""
-                    }
-                  >
-                    {hop.status}
-                  </span>
-                  <span className="hop-path">{hop.line}</span>
-                  <span className="dim">
-                    {hop.status === 402
-                      ? "Challenge"
-                      : hop.status < 300
-                        ? "Receipt"
-                        : ""}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
           {f.output?.kind === "svg" && (
             <img
               alt="The avatar the service drew"
@@ -270,14 +236,7 @@ function Field({
           {name}
           {required && <span className="prompt">*</span>}
         </span>
-        <span className="dim">
-          {field.type}
-          {hint(field)}
-        </span>
       </div>
-      {field.description && (
-        <div className="dim field-description">{field.description}</div>
-      )}
       <Control field={field} onChange={onChange} value={value} />
     </div>
   );
@@ -385,20 +344,6 @@ function Control({
   );
 }
 
-/** A field's limits, as a short suffix. */
-function hint(field: Schema) {
-  if (field.type === "string" && field.enum) return " · enum";
-  if (field.type === "string" && field.maxLength !== undefined)
-    return ` · ≤ ${field.maxLength} chars`;
-  if (field.type === "integer" || field.type === "number")
-    return field.minimum !== undefined && field.maximum !== undefined
-      ? ` · ${field.minimum}–${field.maximum}`
-      : "";
-  if (field.type === "array")
-    return ` · ${field.minItems ?? 0}–${field.maxItems ?? "∞"} items`;
-  return "";
-}
-
 function CodePanel({ name, source }: { name: string; source: string }) {
   const [explain, setExplain] = useState(false);
   return (
@@ -428,8 +373,7 @@ function CodePanel({ name, source }: { name: string; source: string }) {
 
 /** The selected service's live discovery document, or the seller's code. */
 function DocumentPanel({ listing }: { listing: Listing | undefined }) {
-  const [explain, setExplain] = useState(true);
-  const [tab, setTab] = useState<"openapi.json" | "server.ts">("openapi.json");
+  const [explain, setExplain] = useState(false);
   const json = useMemo(
     () => (listing ? JSON.stringify(listing.doc, null, 2) : ""),
     [listing],
@@ -437,25 +381,8 @@ function DocumentPanel({ listing }: { listing: Listing | undefined }) {
   return (
     <section className="panel code">
       <PanelHead
-        name={
-          tab === "openapi.json" && listing
-            ? `${listing.slug}/openapi.json`
-            : tab
-        }
+        name={listing ? `${listing.slug}/openapi.json` : "openapi.json"}
       >
-        <div className="segments tabs">
-          {(["openapi.json", "server.ts"] as const).map((name) => (
-            <button
-              aria-pressed={tab === name}
-              className="segment"
-              key={name}
-              onClick={() => setTab(name)}
-              type="button"
-            >
-              {name}
-            </button>
-          ))}
-        </div>
         <button
           aria-pressed={explain}
           className="button explain-toggle"
@@ -466,15 +393,7 @@ function DocumentPanel({ listing }: { listing: Listing | undefined }) {
         </button>
       </PanelHead>
       <div className="code-body">
-        {tab === "server.ts" ? (
-          <CodeLines
-            code={code}
-            explain={explain}
-            name="server.ts"
-            notes={notes}
-            now={server}
-          />
-        ) : listing ? (
+        {listing ? (
           <Lines
             explain={explain}
             notes={documentNotes}
