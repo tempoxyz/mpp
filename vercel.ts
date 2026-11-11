@@ -68,8 +68,7 @@ const STATIC_ASSET_CACHE_HEADERS = [
 ];
 
 const STATIC_ASSET_SOURCES = [
-  "/playground/identity/fonts/:path*",
-  "/playground/session/fonts/:path*",
+  "/playground/fonts/:path*",
   "/fonts/:path*",
   "/icons/:path*",
   "/lottie/:path*",
@@ -120,12 +119,8 @@ export const config = {
         "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
       ),
     ]),
-    // The identity playground's content-hashed assets (scripts/copy-identity-playground.ts).
-    headerRule("/playground/identity/assets/:path*", [
-      header("Cache-Control", "public, max-age=31536000, immutable"),
-    ]),
-    // The session playground's content-hashed assets (scripts/copy-session-playground.ts).
-    headerRule("/playground/session/assets/:path*", [
+    // The playgrounds' content-hashed assets (scripts/copy-playground.ts).
+    headerRule("/playground/assets/:path*", [
       header("Cache-Control", "public, max-age=31536000, immutable"),
     ]),
     ...STATIC_ASSET_SOURCES.map((source) =>

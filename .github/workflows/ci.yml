@@ -13,7 +13,7 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test, tempo-integration, mcp-services, identity-playground, build]
+    needs: [lint, typecheck, test, tempo-integration, mcp-services, playground, build]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -108,8 +108,8 @@ jobs:
       - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm mcp-services:check
 
-  identity-playground:
-    name: Identity playground Worker
+  playground:
+    name: Playground Worker
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -121,7 +121,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
-      - run: pnpm identity-playground:check
+      - run: pnpm playground:check
 
   build:
     name: Build

@@ -31,7 +31,6 @@ package-lock.json
 yarn.lock
 _
 
-# Built from workers/identity-playground by scripts/copy-identity-playground.ts
-public/playground/identity/
-# Built from workers/session-playground by scripts/copy-session-playground.ts
-public/playground/session/
+# Built from workers/playground by scripts/copy-playground.ts
+public/playground/assets/
+public/playground/fonts/

@@ -1,4 +1,4 @@
-import { proxy } from "../../../../session-playground-proxy.ts";
+import { proxy } from "../../../../playground-proxy.ts";
 
 export const GET = proxy;
 export const HEAD = proxy;

@@ -5,9 +5,9 @@ import {
   clientBlocks,
   serverBlocks,
   source,
-} from "../workers/session-playground/src/app/samples.js";
+} from "../workers/playground/src/session/app/samples.js";
 
-const directory = path.resolve("workers/session-playground/src/app");
+const directory = path.resolve("workers/playground/src/session/app");
 const samples = [
   { name: "session-client", source: source(clientBlocks()) },
   { name: "session-client-deposit", source: source(clientBlocks("0.5")) },
