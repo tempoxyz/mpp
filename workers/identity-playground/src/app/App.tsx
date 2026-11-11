@@ -340,13 +340,14 @@ function Composer({ f }: { f: Demo }) {
         <input
           aria-label="Topic"
           className="input"
+          disabled={!f.topicAllowed}
           maxLength={40}
           placeholder={
-            f.tier === "anonymous"
-              ? "verified buyers only…"
-              : "anything, such as the sea…"
+            f.topicAllowed
+              ? "anything, such as the sea…"
+              : "verified buyers only…"
           }
-          value={f.topic}
+          value={f.topicAllowed ? f.topic : ""}
           onChange={(e) => f.setTopic(e.target.value)}
         />
       </div>
@@ -392,7 +393,7 @@ function Requests({ f }: { f: Demo }) {
         <div key={i} className="hop">
           <span className="dim">{hop.method}</span>
           <span className="hop-path">
-            {hop.path.replace(`${basePath}api/`, "/")}
+            {hop.path.replace(`${basePath}api/`, "/").replace(basePath, "/")}
           </span>
           <span
             data-status={
@@ -409,7 +410,7 @@ function Requests({ f }: { f: Demo }) {
 
 /** Client code on top, server code below, each shown as additions to its anonymous base. */
 function Code({ f }: { f: Demo }) {
-  const values = { apiKey: f.apiKey, email: f.email, topic: f.topic.trim() };
+  const values = { apiKey: f.apiKey, email: f.email, topic: f.sentTopic };
   return (
     <div className="code-stack">
       <CodePanel
@@ -536,9 +537,13 @@ function useDemo() {
     if (address) refreshBalance(address);
   }, [address]);
 
+  // Custom topics are for verified tiers: the server refuses one from an anonymous buyer (403).
+  const topicAllowed = tier === "email" || tier === "apiKey";
+  const sentTopic = topicAllowed ? topic.trim() : "";
+
   // The client code for the current inputs; the panel shows it as additions to the anonymous base.
   const source = {
-    now: usage(tier, email, apiKey, topic.trim()),
+    now: usage(tier, email, apiKey, sentTopic),
   };
 
   async function refreshBalance(account = address) {
@@ -656,7 +661,7 @@ function useDemo() {
           key,
         };
       }
-      const response = await buyRef.current.buy(topic.trim() || undefined);
+      const response = await buyRef.current.buy(sentTopic || undefined);
       // Rejections may be problem+json or plain text: show their reason either way.
       const text = await response.text();
       const body = (() => {
@@ -735,11 +740,13 @@ function useDemo() {
     setCode,
     setEmail,
     selectTier,
+    sentTopic,
     setWallet,
     setTopic,
     source,
     tier,
     topic,
+    topicAllowed,
     useTestWallet,
     wallet,
   };
