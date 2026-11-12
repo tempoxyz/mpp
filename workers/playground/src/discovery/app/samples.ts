@@ -2,21 +2,16 @@
 // service publishes its discovery document (server.ts).
 import type { Note } from "../../shared/code.js";
 
-export const client = `import { DiscoveryDocument } from 'mppx/discovery'
+export const client = `import { listOperations } from 'mppx/discovery'
 
 // 1. A registry lists where each service lives.
 const { services } = await fetch('/playground/discovery/api/registry').then((r) => r.json())
 
 for (const { url } of services) {
-  // 2. Each service publishes an OpenAPI document: paths, prices and schemas.
-  const json = await fetch(url + '/openapi.json').then((r) => r.json())
-  const doc = DiscoveryDocument.parse(json)
-
-  for (const [path, { post }] of Object.entries(doc.paths ?? {})) {
-    // 3. x-payment-info is the price tag; requestBody says how to call it.
-    const [offer] = post?.['x-payment-info']?.offers ?? []
-    console.log(doc.info.title, path, offer?.amount, post?.requestBody)
-  }
+  // 2. Each service publishes an OpenAPI document; listOperations reads it.
+  const doc = await fetch(url + '/openapi.json').then((r) => r.json())
+  for (const { method, offers, path, requestSchema } of listOperations(doc))
+    console.log(method, path, offers[0]?.amount, requestSchema)
 }
 `;
 
@@ -97,16 +92,12 @@ export const notes: readonly Note[] = [
     "Registries such as MPPScan and mpp.dev/services aggregate services. Here the registry is one small JSON list.",
   ],
   [
-    "const json = await fetch(url + '/openapi.json')",
+    "const doc = await fetch(url + '/openapi.json')",
     "Every MPP service can publish an OpenAPI document at /openapi.json. No account or API key is needed to read it.",
   ],
   [
-    "const doc = DiscoveryDocument.parse(json)",
-    "mppx/discovery checks the document's shape and turns x-payment-info into a list of offers.",
-  ],
-  [
-    "const [offer] = post?.['x-payment-info']",
-    "Each offer has an amount in base units, a currency, a method and an intent. Discovery is advisory: the 402 Challenge is what you actually pay.",
+    "for (const { method, offers, path, requestSchema } of listOperations(doc))",
+    "listOperations validates the document and lists each operation with its offers (amount in base units, currency, method, intent) and JSON request schema. Discovery is advisory: the 402 Challenge is what you actually pay.",
   ],
   [
     "const pay = mppx.charge({",

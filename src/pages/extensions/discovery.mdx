@@ -408,6 +408,22 @@ Cache-Control: public, max-age=300
 
 ::::
 
+## Read discovery documents
+
+Use `listOperations` from `mppx/discovery` to list a service's operations with their payment offers and JSON request schemas:
+
+```ts twoslash [buyer.ts]
+import { listOperations } from 'mppx/discovery'
+
+const doc = await fetch('https://api.example.com/openapi.json').then((r) => r.json())
+
+for (const { method, offers, path, requestSchema } of listOperations(doc))
+  console.log(method, path, offers[0]?.amount, requestSchema)
+// @log: post /v1/forecast 2000 { type: 'object', properties: { city: { type: 'string' } } }
+```
+
+`listOperations` validates the document, follows local `$ref`s to request bodies and schemas, and throws on an invalid document. Offers are advisory—pay what the `402` Challenge asks.
+
 ## CLI
 
 Generate a static discovery document from a config module:
