@@ -11229,6 +11229,114 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "siteanalyzerfree",
+    name: "SiteAnalyzerFree",
+    description:
+      "Programmatic technical SEO auditing, AI search readiness (AIO), HTTP status tracking, Schema metadata extraction, and web diagnostics for autonomous AI agents.",
+    url: "https://siteanalyzerfree.com",
+    serviceUrl: "https://siteanalyzerfree.com",
+    icon: "https://siteanalyzerfree.com/favicon.ico",
+    categories: ["web", "data", "search"],
+    integration: "first-party",
+    tags: ["seo", "diagnostics", "crawler", "metadata", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://siteanalyzerfree.com/agent-api/",
+      apiReference: "https://siteanalyzerfree.com/openapi.json",
+      llmsTxt: "https://siteanalyzerfree.com/llms.txt",
+    },
+    provider: {
+      name: "SiteAnalyzerFree",
+      url: "https://siteanalyzerfree.com",
+    },
+    realm: "siteanalyzerfree.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/agent/checkup.php",
+        desc: "Quick technical SEO checkup scan (150+ checks)",
+        amount: "1000000",
+        unitType: "request",
+        healthCheck: {
+          body: { domain: "example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/ai-readiness.php",
+        desc: "AI search & LLM crawler readiness audit (GPTBot, ClaudeBot, PerplexityBot)",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: {
+          body: { domain: "example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/url-checker.php",
+        desc: "HTTP status & redirect chain latency audit",
+        amount: "1000",
+        unitType: "request",
+        healthCheck: {
+          body: { url: "https://example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/metadata-extractor.php",
+        desc: "Rich OpenGraph, Twitter Cards, and Schema.org JSON-LD extraction",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: { url: "https://example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/dns-auth.php",
+        desc: "DNS email security authentication validator (MX, SPF, DMARC)",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          body: { domain: "example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/contact-extractor.php",
+        desc: "Public business email, phone, and social profile discovery",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: {
+          body: { url: "https://example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/php-version.php",
+        desc: "PHP version detection, security CVE check, and EOL diagnostics",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: { domain: "example.com" },
+        },
+      },
+      {
+        route: "POST /api/v1/agent/deep-crawl.php",
+        desc: "Forensic multi-page technical SEO crawl up to 250 pages",
+        amount: "12000000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/agent/faq-generator.php",
+        desc: "Google Autocomplete question mining & FAQ Schema.org generator",
+        amount: "7000000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/agent/keyword-report.php",
+        desc: "Organic keyword intelligence & striking distance ranking report",
+        amount: "7000000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
