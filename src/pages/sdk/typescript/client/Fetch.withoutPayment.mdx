@@ -1,0 +1,43 @@
+---
+description: "Disable automatic payments for an individual fetch request."
+imageDescription: "Choose which requests never pay automatically"
+---
+
+# `Fetch.withoutPayment` [Skip automatic payment]
+
+Returns request options that disable automatic payments, including through identity-wrapped fetch clients.
+
+## Usage
+
+```ts twoslash
+import { Fetch, tempo } from 'mppx/client'
+
+const fetch = Fetch.from({ methods: [tempo.charge()] })
+const response = await fetch(
+  'https://api.example.com/resource',
+  Fetch.withoutPayment({ method: 'GET' }), // [!code hl]
+)
+console.log(response.status)
+// @log: 402 (when the resource requires payment)
+```
+
+Use this for requests that must never pay a Challenge automatically. Email OTP send and verify requests apply it internally.
+
+Custom forwarding fetch layers must preserve the returned options' symbol properties. Forward the original options or copy them with object spread; copying only named properties loses the opt-out.
+
+## Return type
+
+```ts
+type ReturnType = RequestInit
+```
+
+A copy of `init` with the per-request payment opt-out symbol set. The original object isn't mutated.
+
+## Parameters
+
+### init (optional)
+
+- **Type:** `RequestInit`
+- **Default:** `{}`
+
+Fetch request options to copy.

@@ -1,0 +1,55 @@
+---
+description: "Handle Persona API failures without exposing upstream response details."
+imageDescription: "Handle identity provider failures safely"
+---
+
+# `Persona.Server.PersonaError` [Handle Persona API errors]
+
+Identifies failed or malformed Persona API calls without including upstream response bodies.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+declare const referenceId: string
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+try {
+  await persona.startInquiry({ referenceId })
+} catch (error) {
+  // [!code hl:start]
+  if (error instanceof Persona.Server.PersonaError)
+    console.log(error.name)
+  // [!code hl:end]
+  // @log: PersonaError
+  else throw error
+}
+```
+
+## Return type
+
+An `Error` subclass with `name: 'PersonaError'` and the standard `Error` constructor and properties.
+
+## Parameters
+
+### message (optional)
+
+- **Type:** `string`
+
+Error message passed to the inherited `Error` constructor.
+
+### options (optional)
+
+- **Type:** `ErrorOptions`
+
+Standard `Error` options, including an optional `cause`.
+
+## When it occurs
+
+- A non-success Persona HTTP response, including a redirect: `The Persona API returned <status>.`
+- A malformed lookup list, missing string inquiry ID, or missing string one-time link: `The Persona API response is malformed.`
+
+[`startInquiry`](/sdk/typescript/server/Persona.startInquiry) propagates these errors. Request and payment checks catch lookup failures and return `unavailable` (`503`). Network, timeout, and JSON parsing failures aren't necessarily `PersonaError` instances. Don't log API keys or raw provider responses.

@@ -20,6 +20,8 @@ console.log(deployment.token)
 
 Use these addresses to inspect or allowlist the contracts used by [`machineTokenEnabled`](/sdk/typescript/server/Method.tempo.charge#machinetokenenabled-optional). Continue to advertise the stablecoin you want to receive as the charge currency—servers can't advertise MACH as the settlement currency.
 
+Use [`machineTokenFundingUrl`](/sdk/typescript/tempo.machineTokenFundingUrl) to send a buyer to the mainnet MACH onramp.
+
 Replace `mach(chainId).address` from earlier releases with `machineTokenDeployments[chainId].token`.
 
 ## Return type
