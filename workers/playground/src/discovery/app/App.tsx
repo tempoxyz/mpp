@@ -99,7 +99,11 @@ function Registry({ f }: { f: Demo }) {
               <span className="service-main">
                 <span className="service-title">{listing?.title ?? url}</span>
                 <span className="dim service-summary">
-                  {listing ? listing.description : `GET ${url}/openapi.json…`}
+                  {listing
+                    ? listing.description
+                    : f.docErrors[slug]
+                      ? `Couldn't load openapi.json: ${f.docErrors[slug]}`
+                      : `GET ${url}/openapi.json…`}
                 </span>
               </span>
               {listing?.offer && (
@@ -300,6 +304,7 @@ function useDemo() {
   const [urls, setUrls] = useState<{ slug: string; url: string }[]>();
   const [registryError, setRegistryError] = useState<string>();
   const [listings, setListings] = useState<Record<string, Listing>>({});
+  const [docErrors, setDocErrors] = useState<Record<string, string>>({});
   const [selectedSlug, setSelectedSlug] = useState<string>();
 
   // Discover: the registry, then every service's document, in parallel. No wallet, no payment.
@@ -316,13 +321,22 @@ function useDemo() {
         if (cancelled) return;
         setUrls(services);
         setSelectedSlug((current) => current ?? services[0]?.slug);
+        // Each document on its own, so one failing service leaves the others listed.
         await Promise.all(
           services.map(async ({ slug, url }) => {
-            const doc = await fetch(`${url}/openapi.json`).then((r) =>
-              r.json(),
-            );
-            if (!cancelled)
-              setListings((all) => ({ ...all, [slug]: parse(slug, url, doc) }));
+            try {
+              const response = await fetch(`${url}/openapi.json`);
+              if (!response.ok) throw new Error(`answered ${response.status}`);
+              const doc = await response.json();
+              if (!cancelled)
+                setListings((all) => ({
+                  ...all,
+                  [slug]: parse(slug, url, doc),
+                }));
+            } catch (e) {
+              if (!cancelled)
+                setDocErrors((all) => ({ ...all, [slug]: message(e) }));
+            }
           }),
         );
       } catch (e) {
@@ -337,6 +351,7 @@ function useDemo() {
 
   const selected = selectedSlug ? listings[selectedSlug] : undefined;
   return {
+    docErrors,
     listings,
     registryError,
     selected,

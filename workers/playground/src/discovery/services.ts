@@ -297,7 +297,10 @@ export function invalid(
   for (const name of schema.required)
     if (input[name] === undefined) return `${name} is required.`;
   for (const [name, value] of Object.entries(input)) {
-    const field = schema.properties[name];
+    // Own properties only, so keys such as constructor or __proto__ count as undeclared.
+    const field = Object.hasOwn(schema.properties, name)
+      ? schema.properties[name]
+      : undefined;
     if (!field) return `${name} is not a field.`;
     if (field.type === "string") {
       if (typeof value !== "string") return `${name} must be a string.`;
