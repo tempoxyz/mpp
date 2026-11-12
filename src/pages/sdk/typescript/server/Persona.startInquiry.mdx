@@ -1,0 +1,69 @@
+---
+description: "Send a verified wallet owner to Persona's hosted identity check."
+imageDescription: "Start KYC for a wallet you authenticated"
+---
+
+# `persona.startInquiry` [Start a Persona inquiry]
+
+Creates a Persona inquiry for a reference ID and returns a one-time link to its hosted KYC flow.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+declare const referenceId: string // From verifyWallet, not an untrusted request field.
+
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:start]
+const { inquiryId, url } = await persona.startInquiry({
+  redirectUri: 'https://api.example.com/kyc/complete',
+  referenceId,
+})
+// [!code hl:end]
+```
+
+Authenticate the person and [verify wallet ownership](/sdk/typescript/server/Persona.verifyWallet) before starting KYC with a wallet DID. Otherwise someone can pass KYC for another person's wallet. Store that reference ID in your authenticated session for later checks.
+
+## Return type
+
+`Promise<Persona.StartedInquiry>`:
+
+```ts
+type StartedInquiry = {
+  inquiryId: string
+  url: string
+}
+```
+
+The SDK creates the inquiry, then calls its `generate-one-time-link` endpoint. Completing the hosted flow doesn't by itself mean the inquiry is `approved`; your Persona workflow or reviewer decides that status.
+
+## Parameters
+
+### redirectUri (optional)
+
+- **Type:** `string`
+
+Where Persona sends the person after the hosted flow. Use a trusted return URL, not an unchecked caller-supplied redirect.
+
+### referenceId
+
+- **Type:** `string`
+
+Identifier matched by subsequent lookups, such as the DID returned by `verifyWallet`. This method doesn't verify wallet ownership or normalize the value.
+
+### templateId (optional)
+
+- **Type:** `string`
+- **Default:** The client's configured `templateId`.
+
+Template to start this inquiry from. Overrides the client for creation only, not its lookup filter; a different template isn't accepted by checks configured for the original one.
+
+## Errors
+
+- Throws `TypeError` for an empty `referenceId` or no effective `templateId`.
+- Throws [`Persona.Server.PersonaError`](/sdk/typescript/server/Persona.PersonaError) for non-success API responses, including redirects, or missing string inquiry ID or hosted link.
+- Network, timeout, and JSON parsing errors propagate. Upstream response bodies aren't included in `PersonaError` messages.

@@ -1,0 +1,81 @@
+---
+description: "Connect Persona identity verification to your paid API."
+imageDescription: "Require approved identities on paid requests"
+---
+
+# `Persona.Server.create` [Connect Persona KYC]
+
+Creates a server-side Persona client to start inquiries and require accepted KYC results.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+// [!code hl:start]
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:end]
+```
+
+Import `Persona` from `mppx/extensions/identity` or use the dedicated subpath above. Keep your API key on the server. See [Persona KYC](/extensions/identity#persona-kyc) for the wallet-binding flow.
+
+## Return type
+
+`Persona.Server.Persona`, a frozen object with:
+
+| Method | Returns | Purpose |
+|---|---|---|
+| [`paymentCheck`](/sdk/typescript/server/Persona.paymentCheck) | `Identity.PaymentCheck<Persona.VerifiedInquiry>` | Check KYC on the paid retry, before settlement |
+| [`startInquiry`](/sdk/typescript/server/Persona.startInquiry) | `Promise<Persona.StartedInquiry>` | Create an inquiry and a one-time hosted link |
+| [`verifier`](/sdk/typescript/server/Persona.verifier) | `Identity.Verifier<Persona.VerifiedInquiry>` | Check KYC before issuing a payment Challenge |
+
+## Parameters
+
+`Persona.Server.create.Config`:
+
+### apiKey
+
+- **Type:** `string`
+
+Persona API key for your organization and environment. An empty value throws `TypeError`.
+
+### apiUrl (optional)
+
+- **Type:** `string`
+- **Default:** `'https://api.withpersona.com'`
+
+Persona API origin. Configure only an origin you trust with the bearer API key. Redirects aren't followed; pagination follows only same-origin links.
+
+### apiVersion (optional)
+
+- **Type:** `string`
+- **Default:** `'2023-01-05'`
+
+Value of the `Persona-Version` request header.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`, resolved for each API call.
+
+Fetch for Persona API calls. Recognized MPP payment wrappers are unwrapped; use a plain fetch rather than a custom payment-forwarding wrapper.
+
+### templateId (optional)
+
+- **Type:** `string`
+
+Inquiry template (`itmpl_…`) used to start inquiries and filter accepted results. Prefer setting it here: lookup rejects inquiries from other templates or with no template relationship. Without it, lookup accepts any template for this organization; `startInquiry` then requires its own `templateId`.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `5000`
+
+Timeout per Persona API call, in milliseconds. Requires a positive safe integer no greater than `2147483647`; otherwise construction throws `TypeError`.
+
+## Errors
+
+Invalid API URLs throw `TypeError`. [`startInquiry`](/sdk/typescript/server/Persona.startInquiry#errors) propagates API and network errors. Lookup failures become `unavailable` (`503`); see [`paymentCheck`](/sdk/typescript/server/Persona.paymentCheck#errors).

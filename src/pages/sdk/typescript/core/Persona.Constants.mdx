@@ -1,0 +1,79 @@
+---
+description: "Use Persona's shared defaults in your identity integration."
+imageDescription: "Keep Persona verification settings consistent"
+---
+
+# `Persona.Constants` [Persona integration defaults]
+
+Exports the identity requirement, API settings, and lookup limits used by the Persona extension.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+console.log(Persona.Constants.statuses)
+// @log: ['approved']
+```
+
+## Properties
+
+### apiUrl
+
+- **Type:** `'https://api.withpersona.com'`
+
+Default Persona API origin.
+
+### apiVersion
+
+- **Type:** `'2023-01-05'`
+
+Default `Persona-Version` request header.
+
+### cacheTtl
+
+- **Type:** `300`
+
+Default cache freshness window, in seconds, when a cache is configured.
+
+### inquiriesPath
+
+- **Type:** `'/api/v1/inquiries'`
+
+Path for inquiry creation and lookup.
+
+### issuer
+
+- **Type:** `'https://api.withpersona.com'`
+
+Issuer in a payment check's `Identity-Required` requirement. This constant doesn't change when you override `apiUrl`.
+
+### maxPages
+
+- **Type:** `3`
+
+Maximum inquiry pages per lookup. Each page requests 25 inquiries.
+
+### rel
+
+- **Type:** `'kyc'`
+
+Relation in the onboarding `Link` header.
+
+### statuses
+
+- **Type:** `readonly ['approved']`
+
+Default accepted inquiry statuses.
+
+### timeout
+
+- **Type:** `5000`
+
+Default timeout per API call, in milliseconds.
+
+### type
+
+- **Type:** `'kyc'`
+
+Type in a payment check's `Identity-Required` requirement.

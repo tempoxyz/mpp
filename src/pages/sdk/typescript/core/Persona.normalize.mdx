@@ -1,0 +1,31 @@
+---
+description: "Match wallet DIDs consistently without changing case-sensitive addresses."
+imageDescription: "Keep wallet identifiers consistent across KYC"
+---
+
+# `Persona.normalize` [Normalize a wallet DID]
+
+Normalizes a `did:pkh` identifier while preserving case-sensitive non-EVM addresses.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+console.log(Persona.normalize('DID:PKH:EIP155:42431:0xAbC'))
+// @log: did:pkh:eip155:42431:0xabc
+```
+
+## Return type
+
+`string`. For five-part `did:pkh` values, lowercases the scheme, method, and namespace, and lowercases the address only for `eip155`. The chain reference is unchanged. Other strings are returned unchanged.
+
+Normalization doesn't validate a DID, verify a payment, or prove wallet ownership. It doesn't run automatically on identifiers passed to `startInquiry` or lookup callbacks; use the same normalized reference ID at both points.
+
+## Parameters
+
+### value
+
+- **Type:** `string`
+
+DID to normalize.

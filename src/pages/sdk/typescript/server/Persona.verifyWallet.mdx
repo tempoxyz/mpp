@@ -1,0 +1,110 @@
+---
+description: "Bind Persona verification to a wallet its owner proved they control."
+imageDescription: "Link KYC to the correct wallet and chain"
+---
+
+# `Persona.Server.verifyWallet` [Bind a wallet to KYC]
+
+Verifies a nonce-bearing wallet signature and returns its DID to use as the Persona inquiry reference ID.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+import type { Address, Hex } from 'viem'
+
+declare const address: Address
+declare const signature: Hex
+declare const nonce: string // Issued by your server for this authenticated person.
+
+const message = `Link ${Persona.did({ address, chainId: 42431 })} to api.example.com. Nonce: ${nonce}`
+// [!code hl:start]
+const referenceId = await Persona.Server.verifyWallet({
+  address,
+  chainId: 42431,
+  message,
+  nonce,
+  signature,
+})
+// [!code hl:end]
+```
+
+Authenticate the person, issue an unpredictable short-lived nonce, and have their wallet sign the exact message. On the server, retrieve that person's nonce and expected message; don't trust a nonce echoed by the caller. Atomically consume it after verification so the signature can't be replayed. Nonce issuance, storage, expiry, and consumption are application responsibilities.
+
+Start the inquiry with the returned DID and store it in the authenticated session. Keep that binding through the hosted flow and subsequent requests. `startInquiry` alone doesn't prove wallet ownership.
+
+## Return type
+
+`Promise<string>`, the normalized EVM DID from [`Persona.did`](/sdk/typescript/core/Persona.did), such as `did:pkh:eip155:42431:0x…`. A signature proves key control, not legal identity; the later Persona approval supplies KYC.
+
+## Parameters
+
+`Persona.Server.verifyWallet.Parameters`:
+
+### address
+
+- **Type:** `Address`
+
+EVM address the person claims to own.
+
+### chainId
+
+- **Type:** `number`
+
+Wallet's chain ID. Use `42431` for Tempo Moderato. The signed message must include the DID for this chain, not only the address.
+
+### message
+
+- **Type:** `string`
+
+Message signed by the wallet. It must contain the nonce verbatim and the wallet DID (case-insensitive). Verify your application's expected message and domain as well; the helper checks inclusion, not a complete sign-in message format.
+
+### nonce
+
+- **Type:** `string`
+
+Nonempty, single-use value issued by your server for this person.
+
+### signature
+
+- **Type:** `Hex`
+
+Signature over `message`.
+
+### verify (optional)
+
+- **Type:** `(parameters: { address: Address; chainId: number; message: string; signature: Hex }) => Promise<boolean>`
+- **Default:** viem's `verifyMessage` (EOA signatures only).
+
+Custom verification for smart accounts. Use a public client pinned to `chainId` for ERC-1271 and ERC-6492 support.
+
+## Advanced options
+
+### Verify smart accounts
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+import { createClient, http } from 'viem'
+import { verifyMessage } from 'viem/actions'
+import type { Address, Hex } from 'viem'
+import { tempoModerato } from 'viem/chains'
+
+declare const address: Address
+declare const message: string
+declare const nonce: string
+declare const signature: Hex
+
+const client = createClient({ chain: tempoModerato, transport: http() })
+const referenceId = await Persona.Server.verifyWallet({
+  address,
+  chainId: tempoModerato.id,
+  message,
+  nonce,
+  signature,
+  verify: (parameters) => verifyMessage(client, parameters), // [!code hl]
+})
+```
+
+## Errors
+
+Throws `TypeError` when the nonce is empty or absent from the message, the wallet DID is absent, or the signature doesn't match the address. A custom verifier that rejects or returns `false` becomes the same signature-mismatch error.

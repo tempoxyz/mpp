@@ -1,0 +1,82 @@
+---
+description: "Require Persona approval before showing callers payment terms."
+imageDescription: "Gate your API on an approved identity"
+---
+
+# `persona.verifier` [Require KYC before a Challenge]
+
+Creates a request-stage verifier that requires an accepted Persona inquiry before issuing payment terms.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function authenticatedCustomer(request: Request): Promise<string | undefined>
+
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:start]
+const kyc = persona.verifier({
+  onboarding: 'https://api.example.com/kyc',
+  referenceId: (request) => authenticatedCustomer(request),
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({ amount: '0.05', identity: [kyc] })
+```
+
+`authenticatedCustomer` is your session lookup, not an untrusted header. Match the reference ID used when you started the inquiry. This verifies the authenticated customer, not ownership of the paying wallet. Prefer [`paymentCheck`](/sdk/typescript/server/Persona.paymentCheck) when the check belongs on the paid retry.
+
+## Return type
+
+`Identity.Verifier<Persona.VerifiedInquiry>`. Read the frozen verified value with `result.identity?.get(kyc)` after success.
+
+The verifier runs on each request, including the initial unpaid request and paid retry. It returns `missing` (`401`) without a reference ID, `forbidden` (`403`) without an accepted inquiry, or `unavailable` (`503`) for lookup failures. Configured onboarding links appear on `401` and `403`; it doesn't advertise a payment-stage `Identity-Required` requirement.
+
+## Parameters
+
+`Persona.Server.LookupOptions` plus a request-stage `referenceId` callback. See [`paymentCheck` lookup options](/sdk/typescript/server/Persona.paymentCheck#parameters) for defaults, cache isolation, lookup limits, and errors.
+
+### cache (optional)
+
+- **Type:** `Store.Store`
+- **Default:** No cache.
+
+Cache accepted inquiries by organization, API origin, template, and reference ID.
+
+### cacheTtl (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Seconds an accepted lookup stays cached. Set `0` to revalidate every request.
+
+### maxAge (optional)
+
+- **Type:** `number`
+- **Default:** No age limit.
+
+Positive integer age limit in seconds since the inquiry was decisioned or completed.
+
+### onboarding (optional)
+
+- **Type:** `string | ((parameters: { referenceId: string | undefined; request: Request }) => string | undefined | Promise<string | undefined>)`
+
+KYC entry point included as `Link: <url>; rel="kyc"` on `401` and `403`.
+
+### referenceId
+
+- **Type:** `(request: Request) => string | undefined | Promise<string | undefined>`
+
+Returns your authenticated customer's inquiry reference ID, or `undefined` for no identity. No payment Challenge or Credential is passed to this callback.
+
+### statuses (optional)
+
+- **Type:** `readonly Persona.InquiryStatus[]`
+- **Default:** `['approved']`
+
+Accepted inquiry statuses. The list must not be empty.

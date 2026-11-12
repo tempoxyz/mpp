@@ -1,0 +1,120 @@
+---
+description: "Require Persona approval before settling a paid API request."
+imageDescription: "Check buyer identity before payment settles"
+---
+
+# `persona.paymentCheck` [Require KYC before settlement]
+
+Creates a payment-stage check that looks up an accepted Persona inquiry for an authenticated reference ID.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+import * as Persona from 'mppx/extensions/identity/persona'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function authenticatedWallet(request: Request): Promise<string | undefined>
+
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:start]
+const kyc = persona.paymentCheck({
+  cache: Store.memory(),
+  onboarding: 'https://api.example.com/kyc',
+  referenceId: ({ request }) => authenticatedWallet(request),
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: { payment: kyc } })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ inquiry: result.identity?.get(kyc)?.inquiryId }))
+}
+```
+
+`authenticatedWallet` is application code that reads the DID you stored after [wallet verification](/sdk/typescript/server/Persona.verifyWallet). Don't return a caller-supplied `credential.source` directly: some payment flows don't authenticate it against the payer. A session proves the session's identity; if policy requires the same paying wallet, separately authenticate and compare that payer. See [payer checks](/extensions/identity#check-the-payer-before-settlement).
+
+## Return type
+
+`Identity.PaymentCheck<Persona.VerifiedInquiry>` with `requires` and `verify`:
+
+- Every route `402` advertises `Identity-Required: kyc;issuer="https://api.withpersona.com"`.
+- On the paid retry, verification runs before settlement. With `authorize`, it runs without a Credential.
+- Success exposes a frozen [`Persona.VerifiedInquiry`](/sdk/typescript/core/Persona.Types#verifiedinquiry) through `result.identity?.get(kyc)`.
+- Rejections contain no fresh payment Challenge. The handler result still uses the `status === 402` branch; `result.challenge` carries the actual identity response.
+
+| Outcome | Status | HTTP | Onboarding link |
+|---|---|---|---|
+| No reference ID | `missing` | `401` | When configured |
+| No accepted inquiry | `forbidden` | `403` | When configured |
+| API, network, timeout, or malformed lookup response | `unavailable` | `503` | No |
+
+Payment checks are experimental. Routes with a payment check don't accept or offer x402; payment-checked offers in a composition must share the same check; unchecked offers must not overlap their payment terms.
+
+## Parameters
+
+`Persona.Server.LookupOptions` plus `referenceId`; shared lookup options also apply to [`persona.verifier`](/sdk/typescript/server/Persona.verifier).
+
+### cache (optional)
+
+- **Type:** `Store.Store`
+- **Default:** No cache.
+
+Caches accepted inquiries only. Missing or rejected identities aren't cached. Keys are scoped by API origin, API key digest, template, and exact reference ID. Use a shared store across instances when you need consistent caching; `Store.memory()` is per process.
+
+### cacheTtl (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Seconds an accepted lookup stays cached; ignored without `cache`. Each check reapplies its own TTL, status policy, and `maxAge` when reading shared entries. Set `0` to force revalidation. A cached approval can remain accepted until its TTL after a Persona decision changes.
+
+### maxAge (optional)
+
+- **Type:** `number`
+- **Default:** No age limit.
+
+Maximum age in seconds since `decisioned-at`, falling back to `completed-at`. Requires a positive integer. With a limit, inquiries without a parseable timestamp aren't accepted. Applies to cached and API results.
+
+### onboarding (optional)
+
+- **Type:** `string | ((parameters: { referenceId: string | undefined; request: Request }) => string | undefined | Promise<string | undefined>)`
+
+KYC entry point sent as `Link: <url>; rel="kyc"` on `401` and `403`. The callback also runs when no reference ID exists; return `undefined` to omit the link. It doesn't start an inquiry automatically.
+
+### referenceId
+
+- **Type:** `(parameters: Persona.Server.create.PaymentParameters) => string | undefined | Promise<string | undefined>`
+
+Returns an authenticated payer or customer identifier. Return `undefined` or an empty string for `missing`. Match the exact value used at inquiry creation; normalize wallet DIDs consistently.
+
+```ts
+type PaymentParameters = {
+  challenge: Challenge.Challenge
+  credential?: Credential.Credential | undefined
+  request: Request
+}
+```
+
+`challenge` names the payment terms; `credential` is absent on an `authorize` path. Parsing a Credential or normalizing its `source` doesn't prove ownership.
+
+### statuses (optional)
+
+- **Type:** `readonly Persona.InquiryStatus[]`
+- **Default:** `['approved']`
+
+Accepted inquiry statuses. An empty array throws `TypeError` at verification. Don't treat `completed` as approval unless your Persona policy explicitly allows it.
+
+## Lookup rules
+
+The lookup requests up to three pages of 25 inquiries, newest first. It accepts the first matching reference ID, status, template, and age; it rechecks those filters locally. Cross-origin pagination links aren't followed. Without a matching result within that bound, verification is `forbidden`, even if an older matching inquiry exists.
+
+## Errors
+
+- Persona lookup failures map to `unavailable` with a generic reason, not the upstream body.
+- Errors from `referenceId`, `onboarding`, or the cache propagate.
+- Invalid `maxAge` raises `RangeError` when freshness is evaluated. During API lookup that error maps to `unavailable`; during a cache hit it propagates. Configure a positive integer rather than relying on runtime validation.

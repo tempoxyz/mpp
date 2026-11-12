@@ -1,0 +1,95 @@
+---
+description: "Use typed API operations and payment offers to plan requests from discovery documents."
+imageDescription: "Build clients that understand API prices and inputs"
+---
+
+# Discovery types [Typed operations and payment offers]
+
+Describes the public types returned by [`listOperations`](/sdk/typescript/core/Discovery.listOperations).
+
+## Usage
+
+```ts twoslash [example.ts]
+import type { Operation, OperationMethod, PaymentOffer } from 'mppx/discovery'
+
+// [!code hl:start]
+const method: OperationMethod = 'post'
+const offer: PaymentOffer = { amount: '2000', intent: 'charge', method: 'tempo' }
+const operation: Operation = {
+  method,
+  offers: [offer],
+  path: '/v1/forecast',
+  requestSchema: { properties: { city: { type: 'string' } }, type: 'object' },
+  summary: 'Forecast',
+}
+// [!code hl:end]
+
+console.log(operation.offers[0]?.amount)
+// @log: 2000
+```
+
+Import these types directly from `mppx/discovery`; they have no runtime validation of their own.
+
+## Operation
+
+```ts
+// Shape only; OperationMethod and PaymentOffer are described below.
+type Operation = {
+  method: OperationMethod
+  offers: PaymentOffer[]
+  path: string
+  requestSchema: Record<string, unknown> | boolean | undefined
+  summary: string | undefined
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `method` | `OperationMethod` | Lowercase HTTP method |
+| `offers` | `PaymentOffer[]` | Ordered payment offers; empty without `x-payment-info` |
+| `path` | `string` | Path relative to the document's server |
+| `requestSchema` | `Record<string, unknown> \| boolean \| undefined` | JSON request schema, when available; nested references still point into the source document |
+| `summary` | `string \| undefined` | OpenAPI operation summary, when present |
+
+`requestSchema` and `summary` are required properties whose values can be `undefined`. See [`listOperations`](/sdk/typescript/core/Discovery.listOperations#reference-resolution) for resolution and extraction rules.
+
+## OperationMethod
+
+```ts
+type OperationMethod =
+  | 'delete'
+  | 'get'
+  | 'head'
+  | 'options'
+  | 'patch'
+  | 'post'
+  | 'put'
+  | 'trace'
+```
+
+The HTTP methods supported in OpenAPI path items.
+
+## PaymentOffer
+
+One offer from `x-payment-info.offers`, also used by the normalized `PaymentInfo` output.
+
+```ts
+type PaymentOffer = {
+  amount?: string | null | undefined
+  currency?: string | undefined
+  description?: string | undefined
+  intent?: string | undefined
+  method?: string | undefined
+  [key: string]: unknown
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `amount` (optional) | `string \| null` | Base-unit amount; a non-negative integer string without leading zeros except `"0"`, or `null` |
+| `currency` (optional) | `string` | Currency code or token address |
+| `description` (optional) | `string` | Human-readable payment description |
+| `intent` (optional) | `string` | Payment intent, such as `charge` or `session` |
+| `method` (optional) | `string` | Payment method identifier, such as `tempo` or `stripe` |
+
+All fields are optional because discovery is advisory. Unknown offer fields remain available as `unknown`. Don't infer a zero price from a missing or `null` amount; use the runtime `402` Challenge for payment terms.
