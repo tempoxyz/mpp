@@ -1020,7 +1020,7 @@ export default defineConfig({
                     link: "/sdk/typescript/core/Attestation.Jwks.resolver",
                   },
                   {
-                    text: "persona.verifier",
+                    text: ".Server.verifier",
                     link: "/sdk/typescript/server/Attestation.verifier",
                   },
                   {
@@ -1062,7 +1062,7 @@ export default defineConfig({
                     link: "/sdk/typescript/core/EmailOtp.Constants",
                   },
                   {
-                    text: "persona.verifier",
+                    text: ".Server.verifier",
                     link: "/sdk/typescript/server/EmailOtp.verifier",
                   },
                 ],
