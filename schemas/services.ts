@@ -11229,6 +11229,102 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Spraay ───────────────────────────────────────────────────────────
+  {
+    id: "spraay",
+    name: "Spraay Protocol",
+    url: "https://spraay.app",
+    serviceUrl: "https://gateway.spraay.app",
+    description:
+      "Multi-chain batch payment infrastructure. Send USDC or other ERC-20 tokens to up to 200 recipients in one atomic, non-custodial transaction on Base or peaq. Includes batch estimation, validation, token pricing, and chain status endpoints.",
+    icon: "https://raw.githubusercontent.com/plagtech/spraay-x402-mcp/main/spraay-logo-1000x1000.png",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["payments", "batch", "usdc", "base", "peaq", "payroll", "x402"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.spraay.app",
+      llmsTxt: "https://gateway.spraay.app/llms.txt",
+      apiReference: "https://gateway.spraay.app/openapi.json",
+    },
+    provider: { name: "Plagtech LLC", url: "https://plagtech.net" },
+    realm: "gateway.spraay.app",
+    intent: "charge",
+    // gateway.spraay.app's 402 offers tempo/charge (pathUSD on Tempo mainnet)
+    // and evm/charge (USDG on Robinhood Chain, eip155:4663, EIP-3009).
+    payments: [
+      {
+        currency: pathusd(4217).address,
+        decimals: 6,
+        method: "tempo",
+      },
+      {
+        currency: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", // USDG on Robinhood Chain
+        decimals: 6,
+        method: "evm",
+      },
+    ],
+    endpoints: [
+      {
+        healthCheck: {
+          body: {
+            amounts: ["1000000"],
+            recipients: ["0x1111111111111111111111111111111111111111"],
+            token: "USDC",
+          },
+        },
+        route: "POST /free/validate-batch",
+        desc: "Validate a Batch Payments for Agents (BPA) 1.0 payload (schema only)",
+      },
+      {
+        healthCheck: { path: "/free/estimate-batch?recipients=10&chain=base" },
+        route: "GET /free/estimate-batch",
+        desc: "Rough batch payment cost estimate by recipient count and chain",
+      },
+      {
+        route: "GET /free/prices",
+        desc: "USDC, ETH, and SOL spot prices in USD",
+      },
+      {
+        route: "GET /free/chain-status",
+        desc: "Block height and liveness for supported EVM chains",
+      },
+      {
+        route: "GET /api/v1/tokens",
+        desc: "Supported tokens with addresses, symbols, and decimals across chains",
+      },
+      {
+        healthCheck: {
+          body: {
+            amounts: ["1000000"],
+            recipients: ["0x1111111111111111111111111111111111111111"],
+            token: "USDC",
+          },
+        },
+        route: "POST /api/v1/batch/estimate",
+        desc: "Live gas, protocol fee, and total estimate for a batch payment",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: false,
+        route: "POST /api/v1/batch/execute",
+        desc: "Build a batch payment of USDC or ERC-20 tokens to up to 200 recipients in one transaction on Base or peaq",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          path: "/api/v1/balances?address=0xAd62f03C7514bb8c51f1eA70C2b75C37404695c8",
+        },
+        route: "GET /api/v1/balances",
+        desc: "Wallet token balances",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
