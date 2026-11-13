@@ -14,10 +14,10 @@
   "dependencies": {
     "@tanstack/react-query": "^5.107.1",
     "accounts": "0.21.1",
-    "mppx": "0.18.1",
+    "mppx": "0.0.0-main-20261112023234",
     "react": "~19.3.1",
     "react-dom": "~19.3.1",
-    "viem": "^2.57.19",
+    "viem": "^2.57.17",
     "wagmi": "^3.7.11"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 services:
   tempo:
-    image: ${TEMPO_LOCALNET_IMAGE:-ghcr.io/tempoxyz/tempo-localnet@sha256:86f199f161be85d3610d990e5bc2653ece29de3ee9c91e8c8e768cf2b8c05c3b}
+    image: ${TEMPO_LOCALNET_IMAGE:-ghcr.io/tempoxyz/tempo-localnet@sha256:9a8918581a08a463f8e4d115c442116ba131e1ccdce72ffb8581108d5b37af89}
     command: ["--block-time", "1ms"]
     ports:
       - "127.0.0.1:18545:8545"
