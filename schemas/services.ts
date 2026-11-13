@@ -11229,6 +11229,40 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Lasso ────────────────────────────────────────────────────────────
+  {
+    id: "lasso",
+    name: "Lasso",
+    url: "https://lasso.sh",
+    serviceUrl: "https://lasso.sh",
+    description:
+      "One EVM JSON-RPC endpoint that routes every request across several providers per chain, chosen by live measured latency and health, with failover for replay-safe reads. Custom profiles bring your own nodes and provider accounts: set each chain's providers in preference order and change routing without a new URL or a redeploy. Agents buy a funded key with USDC on Base (x402) or Tempo (MPP), from $0.05, with no signup, and can buy days of Custom access the same way.",
+    icon: "https://lasso.sh/favicon.ico",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "multichain", "router", "failover"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.lasso.sh",
+      llmsTxt: "https://lasso.sh/llms.txt",
+      apiReference: "https://lasso.sh/openapi.json",
+    },
+    provider: { name: "Lasso", url: "https://lasso.sh" },
+    realm: "lasso.sh",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: {} },
+        route: "POST /api/v1/credit",
+        desc: 'Buy a funded Lasso RPC key. Send {"usd": "0.05"} or more, up to $100, or an empty body for the minimum; the response returns the key with its RPC and WebSocket URL templates.',
+        dynamic: true,
+        amountHint: "buyer-chosen, $0.05 to $100",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
