@@ -19,6 +19,7 @@ const PAGES = [
   "/playground/session",
   "/playground/charge",
   "/playground/discovery",
+  "/playground/zones",
 ];
 
 /**
