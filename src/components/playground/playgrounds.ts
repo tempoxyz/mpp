@@ -34,4 +34,10 @@ export const playgrounds: readonly Playground[] = [
     slug: "discovery",
     title: "Discovery",
   },
+  {
+    description: "Pay from a private Zone balance: nobody can tell it was you.",
+    href: "/playground/zones",
+    slug: "zones",
+    title: "Zones",
+  },
 ];

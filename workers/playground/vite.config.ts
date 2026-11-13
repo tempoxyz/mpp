@@ -7,6 +7,7 @@ import { prerenderCode as chargeCode } from "./src/charge/prerender-code.ts";
 import { prerenderCode as discoveryCode } from "./src/discovery/prerender-code.ts";
 import { prerenderCode as identityCode } from "./src/identity/prerender-code.ts";
 import { prerenderCode as sessionCode } from "./src/session/prerender-code.ts";
+import { prerenderCode as zonesCode } from "./src/zones/prerender-code.ts";
 
 // One Worker for every playground: src/index.ts routes each one's API, and each page
 // (identity/index.html, session/index.html) is static assets from the same origin.
@@ -34,6 +35,7 @@ export default defineConfig(({ command }) => ({
             discovery: fileURLToPath(
               new URL("discovery/index.html", import.meta.url),
             ),
+            zones: fileURLToPath(new URL("zones/index.html", import.meta.url)),
           },
         },
       },
@@ -45,6 +47,7 @@ export default defineConfig(({ command }) => ({
     sessionCode(),
     chargeCode(),
     discoveryCode(),
+    zonesCode(),
     cloudflare(
       command === "serve" && process.env.PLAYGROUND_LOCAL
         ? {

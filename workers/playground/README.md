@@ -6,6 +6,7 @@ One Cloudflare Worker for every MPP playground under [mpp.dev/playground](https:
 - **Sessions** ([/playground/session](https://mpp.dev/playground/session), `src/session/`): open a payment channel, stream a story paid by the word with vouchers, top up and close. Each word costs 0.001 OUSD on Moderato testnet (chain 42431).
 - **Charge** ([/playground/charge](https://mpp.dev/playground/charge), `src/charge/`): buy a fortune for 0.01 OUSD and see the round trip: the 402 Challenge, the Credential that pays it and the Receipt.
 - **Discovery** ([/playground/discovery](https://mpp.dev/playground/discovery), `src/discovery/`): a registry of five small paid APIs, each publishing an OpenAPI document with `x-payment-info` and its own request schema. The page builds a form from each schema and pays the call.
+- **Zones** ([/playground/zones](https://mpp.dev/playground/zones), `src/zones/`): move pathUSD into a Tempo Zone, then buy a fortune from inside it. The page shows what the buyer, the merchant and Tempo each see (`?view=windows`), and a "spot the buyer" game over the merchant's payments on Tempo (`?view=spot`); the default shows both.
 
 Charge and discovery share `src/shared/` (the charge server, wallet and code panes) and one Durable Object store, `CHARGE_STORE`.
 
@@ -30,6 +31,23 @@ The session API takes the topic in the path (`/api/story/<topic>`), never a quer
 
 1. The deploy workflow generates the payee key with Foundry (`cast wallet new`) and stores it as the `MPP_PRIVATE_KEY` Worker secret the first time; later deploys keep it. To rotate, delete the secret and rerun the workflow.
 2. Production deployments of mpp.dev proxy to that Worker by default; set `PLAYGROUND_WORKER_ORIGIN` in Vercel only to point elsewhere. Preview deployments answer 404: identity attestations are bound to `https://mpp.dev`, and session Challenges name `mpp.dev` as their realm (`MPP_REALM` overrides it).
+
+## Zones
+
+The zones server is stock `tempo.charge({ zones: [ZONE_ID] })`. It needs a Zone whose sequencer we run; configure it with these vars:
+
+| Var | Meaning |
+| --- | --- |
+| `ZONE_ID`, `ZONE_CHAIN_ID`, `ZONE_RPC_URL` | The Zone and its (redacted) RPC. Without them the page shows the Zone as not configured. |
+| `ZONE_RPC_API_KEY` | Optional secret, sent upstream as `tempo-api-key`. |
+| `ZONE_NAME`, `ZONE_CURRENCY` | Display name, and the TIP-20 to charge in (default pathUSD, which also pays Zone gas). |
+| `TEMPO_RPC_URL`, `TEMPO_CHAIN_ID` | Tempo itself (default Moderato). |
+
+The page reaches both chains through `/playground/zones/api/rpc/{tempo,zone}`, an allowlisted JSON-RPC proxy that forwards the buyer's `x-authorization-token`.
+
+The client in `src/zones/zone.ts` pays without `WithdrawalRequested`, which a redacted Zone RPC hides from logs: it derives the sender tag from the outbox's `lastFallbackNonce()` and matches `WithdrawalProcessed` on Tempo. Drop it for mppx's zone client once mppx does the same.
+
+To run it locally, start a Tempo dev node and a `tempo-zone` dev sequencer, point the vars above at them in `.dev.vars`, then `pnpm build` and `npx vite preview --port 8790`.
 
 ## Local development
 

@@ -12,7 +12,8 @@
       "/playground/identity/issuer/*",
       "/playground/session/api/*",
       "/playground/charge/api/*",
-      "/playground/discovery/api/*"
+      "/playground/discovery/api/*",
+      "/playground/zones/api/*"
     ]
   },
   // Workers AI writes the haiku and the story. Without it (local dev without a Cloudflare

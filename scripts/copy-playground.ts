@@ -4,7 +4,7 @@ import { cpSync, existsSync, rmSync } from "node:fs";
 
 const from = "workers/playground/dist/client/playground";
 const to = "public/playground";
-for (const page of ["identity", "session", "charge", "discovery"])
+for (const page of ["identity", "session", "charge", "discovery", "zones"])
   if (!existsSync(`${from}/${page}/index.html`))
     throw new Error(
       `Build the playgrounds first: ${from}/${page}/index.html is missing`,

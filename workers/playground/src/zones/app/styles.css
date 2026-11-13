@@ -1,0 +1,99 @@
+/* The Zones playground: three windows on one payment, and the merchant's ledger. */
+.mono {
+  font-family: var(--mono);
+}
+.good {
+  color: var(--green);
+}
+.windows {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 720px) {
+  .windows {
+    grid-template-columns: 1fr;
+  }
+}
+.window {
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+.window[data-tone="you"] .label {
+  color: var(--purple);
+}
+.window[data-tone="merchant"] .label {
+  color: var(--orange);
+}
+.window[data-tone="public"] .label {
+  color: var(--green);
+}
+.window-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.window-row {
+  display: flex;
+  flex-direction: column;
+}
+.window-row dt {
+  color: var(--dim);
+  font: 11px / 1.4 var(--mono);
+  text-transform: uppercase;
+}
+.window-row dd {
+  font: 13px / 1.4 var(--mono);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.window-note {
+  font-size: 12px;
+  margin-top: auto;
+}
+.spot-prompt {
+  margin-bottom: 12px;
+}
+.ledger {
+  display: flex;
+  flex-direction: column;
+}
+.ledger-row {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line-soft);
+  color: var(--secondary);
+  cursor: default;
+  display: grid;
+  font: 12px / 1.4 var(--mono);
+  gap: 12px;
+  grid-template-columns: 80px 1.2fr 1fr 1.2fr 50px;
+  padding: 8px 4px;
+  text-align: left;
+}
+.ledger-row[data-fresh="true"] {
+  color: var(--ink);
+}
+.ledger-row[data-fresh="true"]:not(:disabled) {
+  cursor: pointer;
+}
+.ledger-row[data-fresh="true"]:not(:disabled):hover {
+  background: var(--button-hover);
+}
+.ledger-row[data-picked="true"] {
+  outline: 1px solid var(--orange);
+}
+.ledger-row[data-mine="true"] {
+  background: rgb(152 243 170 / 10%);
+}
+.ledger-mark {
+  color: var(--green);
+  text-align: right;
+  text-transform: uppercase;
+}

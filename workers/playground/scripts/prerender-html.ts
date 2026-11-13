@@ -12,6 +12,7 @@ import { prerenderCode as chargeCode } from "../src/charge/prerender-code.ts";
 import { prerenderCode as discoveryCode } from "../src/discovery/prerender-code.ts";
 import { prerenderCode as identityCode } from "../src/identity/prerender-code.ts";
 import { prerenderCode as sessionCode } from "../src/session/prerender-code.ts";
+import { prerenderCode as zonesCode } from "../src/zones/prerender-code.ts";
 
 // The first state is a new visitor's: no stored test wallet. Replaced outright, since Node 25+
 // defines a localStorage of its own that throws without --localstorage-file.
@@ -43,6 +44,12 @@ const pages = [
     preload:
       '<link rel="preload" as="fetch" crossorigin href="/playground/discovery/api/registry">',
   },
+  {
+    name: "zones",
+    // The Zone's config with the page: every button waits on it.
+    preload:
+      '<link rel="preload" as="fetch" crossorigin href="/playground/zones/api/config">',
+  },
 ];
 
 // fileURLToPath, not .pathname: a checkout path with spaces or non-ASCII characters stays intact.
@@ -59,6 +66,7 @@ const vite = await createServer({
     sessionCode(),
     chargeCode(),
     discoveryCode(),
+    zonesCode(),
   ],
   root,
   server: { middlewareMode: true },
