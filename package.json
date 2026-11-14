@@ -41,7 +41,7 @@
     "accounts": "^0.14.12",
     "cloudflare-worker-metrics": "^1.4.0",
     "gsap": "^3.15.0",
-    "hono": "^4.13.11",
+    "hono": "^4.13.16",
     "lottie-web": "^5.13.0",
     "mermaid": "^11.17.2",
     "mppx": "0.0.0-main-20261112023234",
