@@ -11229,6 +11229,53 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── LeadFuzion ───────────────────────────────────────────────────────
+  {
+    id: "leadfuzion",
+    name: "LeadFuzion",
+    url: "https://leadfuzion.ai",
+    serviceUrl: "https://mcp.leadfuzion.ai",
+    description:
+      "US probate and pre-probate lead packages by county. No account; pay per package by card or USDC.",
+    icon: "https://app.leadfuzion.ai/icons/leadfuzion-512.png",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["leads", "probate", "real-estate"],
+    status: "active",
+    docs: {
+      homepage: "https://leadfuzion.ai/agents/",
+      llmsTxt: "https://mcp.leadfuzion.ai/llms.txt",
+      apiReference: "https://mcp.leadfuzion.ai/openapi.json",
+    },
+    provider: { name: "LeadFuzion", url: "https://leadfuzion.ai" },
+    realm: "mcp.leadfuzion.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { path: "/api/v1/packages?state=AZ&county=Maricopa" },
+        route: "GET /api/v1/packages",
+        desc: "List lead packages for sale in one county (pass state and county), with their prices",
+      },
+      {
+        healthCheck: { path: "/api/v1/packages/172277" },
+        route: "GET /api/v1/packages/:item_id",
+        desc: "Price and details for one package, shown before any charge",
+      },
+      {
+        healthCheck: { path: "/api/v1/packages/172277/purchase", body: {} },
+        route: "POST /api/v1/packages/:item_id/purchase",
+        desc: "Buy one package at its listed price; the response carries the records",
+        dynamic: true,
+        amountHint: "$0.50 and up per package (one county and month)",
+      },
+      {
+        route: "POST /api/v1/mcp",
+        desc: "MCP server (Streamable HTTP): list_packages, get_package_quote, buy_package",
+      },
+    ],
+  },
 ];
 
 export {
