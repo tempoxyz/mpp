@@ -11229,6 +11229,160 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Spain Agent Toolkit (Red Tape API) ─────────────────────────────
+  {
+    id: "redtapeapi-spain",
+    name: "Spain Agent Toolkit",
+    url: "https://es.redtapeapi.com",
+    serviceUrl: "https://es.redtapeapi.com",
+    description:
+      "Pay-per-call Spanish and EU registry and compliance data for AI agents: IBAN validation, live EU VAT (VIES), Spanish tax-id (DNI/NIF/NIE/CIF) checks, Spanish holidays and business days, EU B2B invoice pre-check (single and batch), European day-ahead wholesale electricity prices, Spain's PVPC retail electricity price, and BOE gazette search. Prices $0.002–$0.015 (batch pre-check $0.005 per item, $0.005–$0.25). Free tier of 20 calls/day for PVPC and BOE search. Also available via MCP at https://mcp.redtapeapi.com/mcp. No accounts or API keys; charged only on HTTP 200.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "spain",
+      "eu",
+      "vat",
+      "vies",
+      "iban",
+      "tax-id",
+      "holidays",
+      "business-days",
+      "invoice",
+      "compliance",
+      "electricity",
+      "pvpc",
+      "boe",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://es.redtapeapi.com/llms.txt",
+      llmsTxt: "https://es.redtapeapi.com/llms.txt",
+      apiReference: "https://es.redtapeapi.com/openapi.json",
+    },
+    provider: { name: "Red Tape API", url: "https://es.redtapeapi.com" },
+    realm: "es.redtapeapi.com",
+    intent: "charge",
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: usdc(8453).address,
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/es/electricity/pvpc",
+        desc: "Spain's regulated household electricity price (PVPC, peninsula) for today or tomorrow, with cheapest hours and 2h/3h windows",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/es/boe/search",
+        desc: "Search the daily summary of Spain's Official State Gazette (BOE) by date, keywords, and section",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          path: "/v1/es/business-days?from=2026-12-01&to=2026-12-31",
+        },
+        route: "GET /v1/es/business-days",
+        desc: "Count Spanish business days between two dates, excluding weekends and national plus regional public holidays",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/v1/es/holidays?year=2027" },
+        route: "GET /v1/es/holidays",
+        desc: "Spanish public holidays for a year, optionally including a region's holidays",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/v1/es/tax-id/validate?id=B12345674" },
+        route: "GET /v1/es/tax-id/validate",
+        desc: "Validate a Spanish tax ID (DNI/NIF, NIE, or company CIF) by format and control character, offline",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          path: "/v1/iban/validate?iban=ES9121000418450200051332",
+        },
+        route: "GET /v1/iban/validate",
+        desc: "Validate an IBAN (length per country + mod-97 checksum; for Spain also the national check digits), offline",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/v1/eu/vat/validate?vat=IE6388047V" },
+        route: "GET /v1/eu/vat/validate",
+        desc: "Validate an EU VAT number live against the European Commission's VIES service",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          path: "/v1/eu/invoice/precheck?vatNumber=DE811569869&iban=DE89370400440532013000",
+        },
+        route: "GET /v1/eu/invoice/precheck",
+        desc: "One-call EU B2B invoice pre-check: live VIES VAT, IBAN, country match, optional Spanish tax-id, and due date on a business day",
+        amount: "15000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            vatNumber: "DE811569869",
+            iban: "DE89370400440532013000",
+            issueDate: "2026-11-02",
+            paymentTermDays: 30,
+          },
+        },
+        route: "POST /v1/eu/invoice/precheck",
+        desc: "One-call EU B2B invoice pre-check (POST JSON): live VIES VAT, IBAN, country match, optional Spanish tax-id, and due date on a business day",
+        amount: "15000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            items: [
+              {
+                vatNumber: "DE811569869",
+                iban: "DE89370400440532013000",
+                issueDate: "2026-11-02",
+                paymentTermDays: 30,
+              },
+            ],
+          },
+        },
+        route: "POST /v1/eu/invoice/precheck/batch",
+        desc: "Batch EU invoice pre-check for 1–50 invoices; priced per item",
+        dynamic: true,
+        amountHint: "$0.005 per item ($0.005–$0.25)",
+        unitType: "item",
+      },
+      {
+        healthCheck: { path: "/v1/eu/electricity/day-ahead?zone=DE-LU" },
+        route: "GET /v1/eu/electricity/day-ahead",
+        desc: "European wholesale day-ahead electricity prices for a bidding zone, today or tomorrow, with cheapest hours and windows",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /free/v1/es/electricity/pvpc",
+        desc: "Free tier (20 calls/day per client, shared with the other free route): Spain PVPC electricity prices",
+      },
+      {
+        route: "GET /free/v1/es/boe/search",
+        desc: "Free tier (20 calls/day per client, shared with the other free route): BOE gazette search",
+      },
+    ],
+  },
 ];
 
 export {
