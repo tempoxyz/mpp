@@ -7,6 +7,7 @@ import {
   fetchServices,
   type Service,
   serviceIconUrl,
+  withLogos,
 } from "../data/registry";
 import { AgentSetupPrompt } from "./AgentSetupPrompt";
 import { Button } from "./marketing/Button";
@@ -205,7 +206,11 @@ function ServiceTableRow({ service }: { service: Service }) {
             <img
               alt=""
               className="size-9 shrink-0 object-contain"
+              decoding="async"
+              height={36}
+              loading="lazy"
               src={serviceIconUrl(service)}
+              width={36}
             />
             <div className="flex min-w-0 flex-col gap-1">
               <h2 className="truncate font-sans text-lg font-normal leading-[1.1] text-offwhite">
@@ -427,7 +432,10 @@ function ServiceDetailModal({
             <img
               alt=""
               className="size-12 shrink-0 object-contain"
+              decoding="async"
+              height={48}
               src={serviceIconUrl(service)}
+              width={48}
             />
             <button
               aria-label="Close"
@@ -690,10 +698,13 @@ export function ServicesPage({
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const logos = Object.fromEntries(
+      initialServices.map((service) => [service.id, service.logo]),
+    );
     fetchServices()
-      .then((data) => setServices(orderServices(data)))
+      .then((data) => setServices(orderServices(withLogos(data, logos))))
       .catch(() => {});
-  }, []);
+  }, [initialServices]);
   const categories = useMemo(
     () =>
       Array.from(new Set(services.flatMap(allCategories))).sort((a, b) =>

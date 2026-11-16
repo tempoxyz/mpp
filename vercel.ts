@@ -133,6 +133,12 @@ export const config = {
         ...CONTENT_NEGOTIATION_HEADERS,
       ]),
     ),
+    // Content-hashed service logos (scripts/build-logos.ts). Last, so it wins
+    // over the /services/:path* rule above.
+    headerRule("/services/logos/:path*", [
+      header("Cache-Control", "public, max-age=31536000, immutable"),
+      header("Vary", "Accept-Encoding"),
+    ]),
   ],
   ...(REWRITES.length > 0 ? { rewrites: REWRITES } : {}),
   redirects: [

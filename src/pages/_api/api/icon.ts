@@ -1,8 +1,10 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { list } from "@vercel/blob";
 
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+/** Public Vercel Blob store that scripts/sync-logos.ts uploads to. */
+const LOGO_BLOB_BASE_URL =
+  process.env.LOGO_BLOB_BASE_URL ??
+  "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com";
 
 const CACHE_HEADERS = {
   "Cache-Control":
@@ -23,22 +25,17 @@ function letterSvg(id: string): string {
 async function blobGet(
   id: string,
 ): Promise<{ body: ReadableStream; contentType: string } | null> {
-  if (!BLOB_TOKEN) return null;
   try {
+    // The store is public: fetch the object directly instead of listing it.
     for (const ext of ["png", "svg"]) {
-      const { blobs } = await list({
-        prefix: `logos/${id}.${ext}`,
-        limit: 1,
-        token: BLOB_TOKEN,
-      });
-      if (blobs.length > 0) {
-        const res = await fetch(blobs[0].url);
-        if (res.ok && res.body) {
-          const ct =
-            res.headers.get("content-type") ??
-            (ext === "svg" ? "image/svg+xml" : `image/${ext}`);
-          return { body: res.body, contentType: ct };
-        }
+      const res = await fetch(
+        `${LOGO_BLOB_BASE_URL}/logos/${encodeURIComponent(id)}.${ext}`,
+      );
+      if (res.ok && res.body) {
+        const ct =
+          res.headers.get("content-type") ??
+          (ext === "svg" ? "image/svg+xml" : `image/${ext}`);
+        return { body: res.body, contentType: ct };
       }
     }
   } catch (e) {
@@ -52,25 +49,28 @@ async function staticIcon(
   id: string,
 ): Promise<Response | null> {
   try {
-    const origin = new URL(request.url).origin;
-    const url = `${origin}/icons/${id}.svg`;
+    const path = `/icons/${encodeURIComponent(id)}.svg`;
+    // Vercel hands the function an http:// request URL: probe over the
+    // client's protocol so the HEAD isn't redirected, and redirect with a
+    // relative Location so the browser stays on https.
+    const probe = new URL(path, request.url);
+    if (request.headers.get("x-forwarded-proto") === "https") {
+      probe.protocol = "https:";
+    }
     if (
       import.meta.env.DEV &&
       existsSync(join(process.cwd(), "public", "icons", `${id}.svg`))
     ) {
       return new Response(null, {
         status: 302,
-        headers: { ...CACHE_HEADERS, Location: url },
+        headers: { ...CACHE_HEADERS, Location: path },
       });
     }
-    const res = await fetch(url, { method: "HEAD" });
+    const res = await fetch(probe, { method: "HEAD" });
     if (res.ok) {
       return new Response(null, {
         status: 302,
-        headers: {
-          ...CACHE_HEADERS,
-          Location: url,
-        },
+        headers: { ...CACHE_HEADERS, Location: path },
       });
     }
   } catch {

@@ -21,7 +21,11 @@ export function ServiceCard({
           <img
             alt=""
             className="size-[43px] shrink-0 object-contain"
+            decoding="async"
+            height={43}
+            loading="lazy"
             src={serviceIconUrl(service)}
+            width={43}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
