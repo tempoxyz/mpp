@@ -8,11 +8,15 @@ const PAGES = resolve(ROOT, "src/pages");
 /** Dated blog posts keep the networks they were written for. */
 const EXCLUDED_DIRS = ["src/pages/blog"] as const;
 
-/**
- * Code lines that must show mainnet, as `<file>:<line>`. Keep it empty: put
- * mainnet in a Go live note or a network reference table instead.
- */
+/** Code lines that must show mainnet, as `<file>:<line>`. */
 const ALLOWLIST: readonly string[] = [];
+
+const MAINNET_SESSION_PAGES = new Set([
+  "src/pages/payment-methods/tempo/session.mdx",
+  "src/pages/sdk/typescript/client/Method.tempo.session-manager.mdx",
+  "src/pages/sdk/typescript/client/Method.tempo.session.mdx",
+  "src/pages/sdk/typescript/server/Method.tempo.session.mdx",
+]);
 
 const MAINNET_PATTERNS = [
   // chainId, allowedChainIds, expectedChainId, chain_id, ChainID, ...
@@ -43,7 +47,7 @@ async function listMdx(dir: string): Promise<string[]> {
 }
 
 describe("Tempo networks in docs examples", () => {
-  it("keeps code examples on Tempo testnet (Moderato)", async () => {
+  it("keeps general code examples on Tempo testnet (Moderato)", async () => {
     const violations: string[] = [];
 
     for (const path of await listMdx(PAGES)) {
@@ -68,6 +72,12 @@ describe("Tempo networks in docs examples", () => {
 
         const location = `${file}:${index + 1}`;
         if (ALLOWLIST.includes(location)) continue;
+        if (MAINNET_SESSION_PAGES.has(file)) continue;
+        if (
+          file === "src/pages/sdk/typescript/cli.mdx" &&
+          trimmed.startsWith("$ mppx sessions ")
+        )
+          continue;
         for (const pattern of MAINNET_PATTERNS) {
           if (pattern.test(line)) violations.push(`${location}  ${trimmed}`);
         }
@@ -76,7 +86,50 @@ describe("Tempo networks in docs examples", () => {
 
     expect(
       violations,
-      `Code examples must use Tempo testnet (testnet: true, chainId 42431, tempoModerato, --network testnet); mention mainnet only in a Go live note or network reference table.\n${violations.join("\n")}`,
+      `General code examples must use Tempo testnet (testnet: true, chainId 42431, tempoModerato, --network testnet). General Sessions examples use mainnet instead.\n${violations.join("\n")}`,
+    ).toHaveLength(0);
+  });
+
+  it("keeps general Sessions examples on Tempo mainnet", async () => {
+    const violations: string[] = [];
+    const testnetPatterns = [
+      /(?:chain_?ids?)\s*[:=]\s*\[?\s*42431\b/i,
+      /\btempoModerato\b/,
+      /\btestnet:\s*true\b/,
+      /--network testnet/,
+      /https:\/\/rpc\.moderato\.tempo\.xyz/,
+    ];
+
+    for (const file of MAINNET_SESSION_PAGES) {
+      const path = resolve(ROOT, file);
+      const lines = (await readFile(path, "utf-8")).split("\n");
+      let fence: string | undefined;
+
+      for (const [index, line] of lines.entries()) {
+        const trimmed = line.trim();
+        const marker = trimmed.match(/^(`{3,}|~{3,})/)?.[1];
+        if (marker) {
+          if (!fence) fence = marker;
+          else if (
+            trimmed === marker &&
+            marker[0] === fence[0] &&
+            marker.length >= fence.length
+          )
+            fence = undefined;
+          continue;
+        }
+        if (!fence) continue;
+
+        for (const pattern of testnetPatterns) {
+          if (pattern.test(line))
+            violations.push(`${file}:${index + 1}  ${trimmed}`);
+        }
+      }
+    }
+
+    expect(
+      violations,
+      `General Sessions code examples must use Tempo mainnet (chainId 4217, tempo, https://rpc.tempo.xyz).\n${violations.join("\n")}`,
     ).toHaveLength(0);
   });
 });
