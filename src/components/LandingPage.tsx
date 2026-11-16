@@ -1,7 +1,7 @@
 "use client";
 
 import blogPosts from "virtual:blog-posts";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FEATURED_SERVICE_IDS,
   type FeaturedService,
@@ -75,6 +75,46 @@ function DesignedBy() {
   );
 }
 
+/**
+ * A muted looping video that downloads and plays only while it's on screen.
+ * Under a hidden parent (this one is mobile-only) it never intersects, so
+ * desktop never fetches it, which autoPlay alone would.
+ */
+function PlayWhenVisible({
+  className,
+  src,
+}: {
+  className?: string;
+  src: string;
+}) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) void video.play().catch(() => {});
+        else video.pause();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <video
+      className={className}
+      loop
+      muted
+      playsInline
+      preload="none"
+      ref={ref}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
 export function LandingPage({ logos }: { logos?: Record<string, string> }) {
   const [services, setServices] = useState<FeaturedService[]>([]);
 
@@ -142,16 +182,10 @@ export function LandingPage({ logos }: { logos?: Record<string, string> }) {
             />
           </div>
           <div className="relative -mt-px w-full border border-border bg-[#191919] min-[1000px]:hidden">
-            <video
-              autoPlay
+            <PlayWhenVisible
               className="pointer-events-none block h-auto w-full"
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            >
-              <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
-            </video>
+              src="/marketing/mobile-terminal.mp4"
+            />
           </div>
         </div>
 

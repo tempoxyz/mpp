@@ -1,7 +1,8 @@
-import { gsap } from "gsap";
+import type { gsap as Gsap } from "gsap";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { cx } from "./cx";
 import { type LineLogoName, lineLogos } from "./lineLogos";
+import { loadGsap } from "./loadGsap";
 
 const slot = (rect: SVGRectElement) => ({
   width: Number(rect.dataset.sw),
@@ -37,14 +38,14 @@ export function LineLogo({
     const min = Math.min(...ys);
     const range = Math.max(...ys) - min || 1;
     let cancelled = false;
-    let context: gsap.Context | undefined;
+    let context: ReturnType<typeof Gsap.context> | undefined;
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         observer.disconnect();
         // Keep the server-rendered logo visible while the optional plugin loads.
-        void import("gsap/ScrollTrigger")
-          .then(({ ScrollTrigger }) => {
+        void Promise.all([loadGsap(), import("gsap/ScrollTrigger")])
+          .then(([gsap, { ScrollTrigger }]) => {
             if (cancelled) return;
             gsap.registerPlugin(ScrollTrigger);
             context = gsap.context(() => {
@@ -93,17 +94,19 @@ export function LineLogo({
       progress === 1 ? 1 : 1 - 2 ** (-10 * progress);
     const ease = (progress: number) =>
       progress === 0 ? 0 : 0.7 + 0.3 * expo(progress);
-    for (const rect of elements) {
-      gsap.set(rect, { attr: slot(rect), opacity: 0 });
-    }
-    svg.style.visibility = "visible";
-
+    // The logo stays hidden until GSAP has set its starting state. It plays on
+    // mpp:logo-lines or after 1s, whichever comes first, as soon as GSAP is in.
+    let gsap: typeof Gsap | undefined;
+    let wanted = false;
     let played = false;
+    let cancelled = false;
     const play = () => {
-      if (played) return;
+      wanted = true;
+      if (played || !gsap) return;
       played = true;
+      const g = gsap;
       elements.forEach((rect, index) => {
-        gsap.fromTo(
+        g.fromTo(
           rect,
           { attr: slot(rect), opacity: 0 },
           {
@@ -118,10 +121,25 @@ export function LineLogo({
     };
     window.addEventListener("mpp:logo-lines", play, { once: true });
     const fallback = window.setTimeout(play, 1_000);
+    void loadGsap()
+      .then((loaded) => {
+        if (cancelled) return;
+        gsap = loaded;
+        for (const rect of elements) {
+          loaded.set(rect, { attr: slot(rect), opacity: 0 });
+        }
+        svg.style.visibility = "visible";
+        if (wanted) play();
+      })
+      .catch(() => {
+        // Show the static logo if the animation can't load.
+        if (!cancelled) svg.style.visibility = "visible";
+      });
     return () => {
+      cancelled = true;
       window.clearTimeout(fallback);
       window.removeEventListener("mpp:logo-lines", play);
-      gsap.killTweensOf(elements);
+      gsap?.killTweensOf(elements);
     };
   }, [mode]);
 
