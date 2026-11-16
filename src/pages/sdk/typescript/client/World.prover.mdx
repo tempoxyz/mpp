@@ -1,0 +1,94 @@
+---
+description: "Obtain World ID approval when an API requires a verified human."
+imageDescription: "Ask a verified human to approve"
+---
+
+# `World.Client.prover` [Ask a verified human to approve]
+
+Creates an attestation prover for agents approved by a World ID-verified human. A device flow shows the human an approval link while the agent polls an issuer for the result; the issuer, not the agent, talks to World’s OpenID Connect identity service (World IdP).
+
+## Usage
+
+```ts twoslash
+import * as World from 'mppx/extensions/identity/world'
+
+// [!code hl:start]
+const human = World.Client.prover({
+  issuers: ['https://identity.example.com'],
+  scope: ['https://api.example.com'],
+  verification: ({ url, userCode }) => {
+    console.log(`Approve at ${url}, code ${userCode}`)
+  },
+})
+// [!code hl:end]
+```
+
+Pass `human` in client `Mppx.create({ identity: [human], methods })`. Pair it with [`World.Server.verifier`](/sdk/typescript/server/World.verifier). The access check is an attestation of type `world-id`, not a payment.
+
+## Return type
+
+`Identity.Prover`. It caches audience-bound attestations through [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover). Concurrent acquisitions for the same audience and issuer share one attempt. A failure or decline suppresses new attempts for `60` seconds. Paid requests are never retried to acquire identity.
+
+## Parameters
+
+Configuration type: `World.Client.prover.Config`.
+
+### attestations (optional)
+
+- **Type:** `readonly string[]`
+
+Previously obtained attestations. Defaults to none.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Fetch used to call the issuer. Defaults to `globalThis.fetch`; issuer calls never trigger automatic payment or follow redirects. Each call times out after `10000` milliseconds.
+
+### issuers
+
+- **Type:** `readonly string[]`
+
+Trusted World ID attestation issuers, not World IdP itself. HTTPS, except HTTP on localhost.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+API origins that may ask for and receive attestations. Prefer an explicit list.
+
+### verification
+
+- **Type:** `(parameters: { expiresAt: Date; issuer: string; origin: string; url: string; userCode: string }) => boolean | void | Promise<boolean | void>`
+
+`origin` is the requesting API origin; `url` is the issuer’s approval link, with its code filled in when available. Show the link and `userCode` to the human. Return `false` to decline; otherwise polling starts after the first interval.
+
+## Device-flow helpers
+
+For your own UI, call `World.Client.startDevice({ audience, fetch?, issuer })` with `World.Client.startDevice.Parameters`, returning `Promise<World.Device>`:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `expiresAt` | `Date` | Attempt expiry. |
+| `id` | `string` | Issuer attempt ID to poll. |
+| `interval` | `number` | Seconds between polls, default `5`. |
+| `userCode` | `string` | Code the human confirms. |
+| `verificationUri` | `string` | HTTPS approval page. |
+| `verificationUriComplete` (optional) | `string` | Approval page with code filled in. |
+
+`audience` and `issuer` are required strings; `fetch` is optional and defaults to `globalThis.fetch`.
+
+Call `World.Client.pollDevice({ fetch?, id, issuer })` with `World.Client.pollDevice.Parameters` once per interval. `id` and `issuer` are required strings; `fetch` has the same default. It returns `Promise<World.Poll>`:
+
+| `status` | Other fields | Action |
+|---|---|---|
+| `approved` | `attestation: string`, `expiresAt: Date` | Present the attestation. |
+| `pending` | None | Poll again after the interval. |
+| `slow_down` | None | Add `5` seconds to the interval. |
+| `unavailable` | None | Retry at the interval until the attempt expires. |
+
+The prover implements this loop. `429`, `5xx`, timeouts, and network failures during polling return `unavailable`, not a declined approval.
+
+## Errors
+
+`World.Client.WorldIdError` extends `Error` with optional `code` (OAuth error code) and `status` (HTTP status). Its constructor accepts `message: string` and optional `{ code?: string; status?: number }`. Device-start refusals and malformed responses throw it. Polling throws it for a terminal refusal, including `access_denied` and `expired_token`. Device-start network failures can propagate directly.

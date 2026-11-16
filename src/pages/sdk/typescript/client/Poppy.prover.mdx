@@ -1,0 +1,119 @@
+---
+description: "Present a delegated Poppy identity on each API request."
+imageDescription: "Identify the agent and its user"
+---
+
+# `Poppy.Client.prover` [Identify the agent and its user]
+
+Creates a prover for Poppy Personal Agent Protocol 1.0. A Personal Agent acts for a user at a Company (the seller); its signed Session JWT names that agent, user, and Company on each request.
+
+## Usage
+
+```ts twoslash
+import * as Poppy from 'mppx/extensions/identity/poppy'
+
+declare const key: Poppy.DelegatedKey
+declare function delegation(): Promise<string>
+
+// [!code hl:start]
+const session = Poppy.Client.prover({
+  audience: 'https://api.example.com',
+  clientId: 'https://agent.example.com/agent.json',
+  delegation,
+  key,
+  scope: ['https://api.example.com'],
+  userId: 'usr_Q7c1vK',
+})
+// [!code hl:end]
+```
+
+Pass `session` in client `Mppx.create({ identity: [session], methods })`. Pair it with [`Poppy.Server.verifier`](/sdk/typescript/server/Poppy.verifier). A Poppy Session identifies the agent and user; it doesn't grant access to the user's account or authorize payment.
+
+## Return type
+
+`Identity.Prover`. Sends a fresh ES256 `Poppy-Session` JWT and `Poppy-Version: 1.0` on every attempt, including the paid retry. It binds the method, URL without query or fragment, and any Bearer or DPoP access token (`ath`). A Payment Credential is not an access token and isn't bound.
+
+## Parameters
+
+Configuration type: `Poppy.Client.prover.Config`.
+
+### agentId (optional)
+
+- **Type:** `string`
+
+Agent ID when one Personal Agent runs several agents for the user.
+
+### audience
+
+- **Type:** `string`
+
+Company identifier: its OAuth issuer or `https://{organization.domain}`.
+
+### clientId
+
+- **Type:** `string`
+
+Personal Agent’s HTTPS client metadata URL.
+
+### delegation
+
+- **Type:** `() => string | Promise<string>`
+
+Returns a current delegation JWT for `key`, signed by a key published at the agent’s `jwks_uri`.
+
+### key
+
+- **Type:** `Poppy.DelegatedKey`
+
+`{ jwk: JsonWebKey; privateKey: CryptoKey }`, using ES256. Use this delegated key for only this user ID.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+Company API origins that receive the Session.
+
+### sessionId (optional)
+
+- **Type:** `string`
+
+Defaults to a random ID created once per prover.
+
+### userId
+
+- **Type:** `string`
+
+Stable, opaque user ID for this Company. Don’t derive it from personal information.
+
+## `Poppy.Client.delegate`
+
+Signs a delegation with an ES256 key the Personal Agent publishes. The delegation names a key, not a user or Company; that key signs each Session’s user and Company claims. Return this token from the prover’s `delegation` callback and replace it before expiry.
+
+```ts twoslash
+import * as Poppy from 'mppx/extensions/identity/poppy'
+
+declare const delegated: Poppy.DelegatedKey
+declare const privateKey: CryptoKey // Published ES256 signing key
+
+// [!code hl:start]
+const delegation = await Poppy.Client.delegate({
+  clientId: 'https://agent.example.com/agent.json',
+  expiresIn: 3600,
+  key: { kid: 'agent-key-1', privateKey },
+  publicKey: delegated.jwk,
+})
+// [!code hl:end]
+```
+
+Returns `Promise<string>`. `Poppy.Client.delegate.Parameters`:
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `clientId` | `string` | Personal Agent client metadata URL. |
+| `expiresIn` (optional) | `number` | Positive integer seconds, default `3600`, maximum `86400`. |
+| `key` | `{ readonly kid: string; readonly privateKey: CryptoKey }` | Published ES256 key that signs the delegation. |
+| `publicKey` | `JsonWebKey` | Public ES256 key receiving the delegation. |
+
+## Errors
+
+`delegate` throws `RangeError` for an invalid lifetime. The prover throws `TypeError` for a malformed or combined Bearer/DPoP `Authorization` value rather than silently omitting `ath`. Scheme matching is case-insensitive and accepts spaces or tabs; one unquoted token is required. Other schemes, including `Payment`, aren't treated as access tokens. Signing and callback failures propagate.

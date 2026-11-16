@@ -1,0 +1,119 @@
+---
+description: "Exchange Tempo ID sessions for origin-bound attestations."
+imageDescription: "Issue verified Tempo ID facts"
+---
+
+# `TempoId.Issuer.create` [Issue verified Tempo ID facts]
+
+Creates an issuer for `tempo-id` and verified `email` attestations.
+
+## Usage
+
+```ts twoslash
+import * as TempoId from 'mppx/extensions/identity/tempo'
+import type { Store } from 'mppx'
+
+declare const signingKey: CryptoKeyPair // Ed25519
+declare const store: Store.AtomicStore
+
+// [!code hl:start]
+const issuer = TempoId.Issuer.create({
+  chainId: 42431,
+  clientId: 'app_reports',
+  signingKey,
+  store,
+  url: 'https://identity.example.com',
+})
+// [!code hl:end]
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response(null, { status: 404 })
+}
+```
+
+Pair with [`TempoId.Client.attestations`](/sdk/typescript/client/TempoId.attestations). Sellers use [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) with this issuer URL and the desired type. Access tokens must be issued for this exchange service, not for another API.
+
+## Return type
+
+`TempoId.Issuer.Issuer` contains normalized `issuer: string`, `handle(request): Promise<Response | undefined>`, `jwks`, and `keyResolver`. The latter two have the same signatures as [`Attestation.Issuer.create`](/sdk/typescript/core/Attestation.Issuer.create#return-type).
+
+| Route relative to `url` | Result |
+|---|---|
+| `POST /tempo-id/attest` | JSON `{ audience: string, type: string }` becomes `{ attestation: string, expires_at: string }`, where `expires_at` is an ISO 8601 timestamp. |
+| `OPTIONS /tempo-id/attest` | CORS preflight, `204`. |
+| `GET`/`HEAD /.well-known/jwks.json` | Public attestation key. |
+
+`tempo-id` uses the user's ID as `sub`; `email` uses the verified lowercased address and requires a matching ID token. Both include `uid` (user ID) and `azp` (exchanging app). Use `validate` on the seller's attestation verifier to restrict `azp` if needed.
+
+## Parameters
+
+Configuration type: `TempoId.Issuer.create.Config`.
+
+### allow (optional)
+
+- **Type:** `(user: TempoId.Payer) => boolean | Promise<boolean>`
+
+Policy for verified users. Defaults to accept; can inspect their email and accounts.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Chain whose accounts `allow` sees. Defaults to Tempo mainnet; use `42431` for Moderato.
+
+### clientId
+
+- **Type:** `string | readonly string[]`
+
+Nonempty app allowlist for token exchange.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch` for Tempo ID keys.
+
+### issuer (optional)
+
+- **Type:** `string`
+
+Tempo ID origin, default `https://id.tempo.xyz`. This is not the attestation issuer URL.
+
+### signingKey
+
+- **Type:** `SigningKey`
+
+Ed25519 pair or [remote signer](/sdk/typescript/core/Identity.SigningKey), with an exportable public key.
+
+### store
+
+- **Type:** `Store.AtomicStore`
+
+Required shared atomic replay store, so a DPoP proof is exchanged only once.
+
+### tokenAudience (optional)
+
+- **Type:** `string`
+
+Required access-token audience. Defaults to this service’s `url`.
+
+### ttl (optional)
+
+- **Type:** `number`
+
+Attestation lifetime in seconds. Defaults to `3600`; positive integer, at most `31536000`.
+
+### types (optional)
+
+- **Type:** `readonly TempoId.Issuer.Type[]`
+
+Enabled types, default `['tempo-id', 'email']`. `TempoId.Issuer.Type` is `'tempo-id' | 'email'`.
+
+### url
+
+- **Type:** `string`
+
+Public attestation issuer URL. HTTPS, or HTTP on localhost, without query or fragment. Supports path prefixes.
+
+## Errors
+
+Invalid configuration throws `TypeError`, including unsupported types, missing `store`, or empty `clientId`. Exchanges return JSON `{ error }`: `400` for invalid JSON (maximum `4096` bytes), audience, type, or unsignable claims; `401` for missing/invalid tokens; `403` for policy or unverified email; `503` for key/replay-store or signer outages. Signer outages include `Retry-After: 5`. Other methods at the exchange route return `405`; unknown paths return `undefined`.

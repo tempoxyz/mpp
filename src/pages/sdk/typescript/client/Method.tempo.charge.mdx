@@ -97,6 +97,8 @@ import type { Method } from 'mppx'
 type ReturnType = Method.Client
 ```
 
+Transaction preparation maps spending-limit and token-balance reverts to `Errors.SpendingLimitExceededError` and `Errors.InsufficientBalanceError` before signing. This also applies to Session opens and top-ups. See [pre-signing errors](/sdk/typescript/core/Errors#spendinglimitexceedederror).
+
 ## Parameters
 
 ### account (optional)
@@ -189,6 +191,8 @@ const method = tempo.charge({
 
 Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
 
+Custom `tokenIn` entries accept addresses, chain-indexed tokens, or resolved tokens. Tokens resolve on the client’s chain; missing or mismatched-chain entries are skipped, and duplicate addresses are tried once. See [`Currency`](/sdk/typescript/core/Currency).
+
 ### clientId (optional)
 
 - **Type:** `string`
@@ -199,7 +203,7 @@ Client identifier used to derive the client fingerprint in attribution memos.
 
 - **Type:** `readonly Currency[]`
 
-Allowlist of TIP-20 addresses or tokens from `viem/tokens`, compared without case sensitivity. An empty list rejects every offer. Required when you set `maxAmount` or `maxAtomicAmount`.
+Allowlist of TIP-20 addresses, chain-indexed tokens, or resolved tokens from `viem/tokens`. Addresses match without case sensitivity; tokens must match on the signing chain. A resolved token only matches its own chain. Checked again before signing when the Challenge omits a chain. An empty list rejects every offer. Required with `maxAmount` or `maxAtomicAmount`. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### decimals (optional)
 
@@ -394,6 +398,7 @@ Pays from a [Zone](https://docs.tempo.xyz/docs/zones) when the Challenge's `meth
 - New withdrawals require more than `settlementTimeoutMs + 15_000` milliseconds of Challenge validity; otherwise payment uses Tempo. Pending waits stop at Challenge expiry.
 
 - Concurrent attempts for the same full Challenge share one withdrawal.
+- When a Zone RPC omits withdrawal events, the client derives candidate sender tags and looks for the settled one on Tempo. Timeout errors expose all candidates in `senderTags`; `senderTag` is set only for a single candidate.
 - After a lost send response, the client checks the signed transaction's known hash on the Zone for up to 15 seconds. An unknown outcome blocks another withdrawal for that Challenge; reconcile on-chain before paying another Challenge.
 - Pre-submission failures and confirmed reverts are safe to retry.
 - Pending state is in memory and cleared after settlement. Retain and reuse the resulting Credential instead of paying again.

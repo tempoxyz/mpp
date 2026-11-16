@@ -169,7 +169,7 @@ const method = evm.charge({
 
 ### assets (optional)
 
-- **Type:** `readonly (Address | KnownAsset)[]`
+- **Type:** `readonly (Currency.Currency | KnownAsset)[]`
 
 Legacy alias for `currencies`.
 
@@ -181,9 +181,9 @@ EIP-3009 token domain metadata for custom currencies. Known assets infer this va
 
 ### currencies (optional)
 
-- **Type:** `readonly (Address | KnownAsset)[]`
+- **Type:** `readonly (Currency.Currency | KnownAsset)[]`
 
-Allowlist of EVM currencies the client accepts. Use known assets when possible so mppx can infer chain, decimals, and transfer metadata.
+Allowlist of addresses, chain-indexed tokens, resolved tokens, or known EVM assets. Tokens match the offer’s chain; resolved tokens match only their own chain. `maxAmount` uses the matched token’s decimals. Raw addresses require a `networks` allowlist and explicit decimals with `maxAmount`. Prefer known assets to include authorization metadata as well. See [`Currency`](/sdk/typescript/core/Currency).
 
 ```ts twoslash
 import { evm } from 'mppx/client'

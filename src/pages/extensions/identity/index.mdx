@@ -18,6 +18,7 @@ Require a verified identity before payment, check the payer before settlement, o
 | [**Link**](#link) | Link-issued agent tokens or disclosed identity claims | Recognize Link agents or require a verified email |
 | [**Tempo ID**](#tempo-id) | A Tempo ID token and its authorized Tempo Accounts | Bind payment to a signed-in user |
 | [**World ID**](#world-id) | Approval by a World ID-verified human | Require a human behind an agent |
+| [**ERC-8004**](#erc-8004) | A registered agent and its wallet | Identify registered agents before or during payment |
 | [**Poppy**](#poppy) | A delegated Personal Agent Session | Identify an agent and pseudonymous user |
 | [**Email OTP**](#email-otp) | An email inbox, or any fact a trusted issuer attests | Verified-address access without your own login |
 | [**Agent signatures**](#agent-signatures) | The agent or bot that signed the request | Bot recognition and agent-specific policy |
@@ -44,7 +45,7 @@ Pass verifiers in a route's `identity` option. `mppx` runs each verifier at most
     end
 `} />
 
-Every verifier returns one fixed status:
+Every verifier returns an identity status. These are the default HTTP responses; protocols can override a rejection code, such as Poppy’s `400` for an invalid Session:
 
 | Status | Response | Meaning |
 |---|---|---|
@@ -82,7 +83,7 @@ export const handler = payment.charge({
 - Every `anyOf` member runs, so each presented proof's nonce is consumed. The first valid member wins.
 - If a verifier reads `Authorization`, set [`authorization: true`](/sdk/typescript/core/Identity.Verifier#authorization-optional) on its verifier object and create the server with `requiresAuth: true`. Payment Credentials then use `Payment-Authorization`, leaving the identity proof intact. This also applies inside nested `anyOf` groups; configuring the route without it throws a `TypeError`.
 - When every member rejects, the highest-precedence status decides and the headers of every rejection are merged.
-- Attestation members are listed as one group of alternatives, such as `Identity-Attestation-Required: (email;issuer="https://identity.mpp.tempo.xyz" email;issuer="https://identity.example.com")`. The client meets the group with one attestation it holds, or acquires the first that succeeds, so accepting several issuers costs the caller one code.
+- An attestation is an issuer-signed statement about the caller, such as a verified email. The `Identity-Attestation-Required` response header tells the client which statements a route accepts; the [Email OTP setup](#email-otp) below shows how the client acquires one by entering a code. Attestation members are listed as one group of alternatives, such as `Identity-Attestation-Required: (email;issuer="https://identity.mpp.tempo.xyz" email;issuer="https://identity.example.com")`. The client meets the group with one attestation it holds, or acquires the first that succeeds, so accepting several issuers costs the caller one code.
 
 ## Link
 
@@ -211,29 +212,306 @@ Keep proofs at their intended origin. The client strips sensitive identity heade
 
 ## Tempo ID
 
-Use `TempoId.Server.create` from `mppx/extensions/identity/tempo` to verify Tempo ID access tokens offline. Set `requiresAuth: true` because the token uses `Authorization`; the payment Credential then uses `Payment-Authorization`. Add `paymentCheck` to the route to require payment from a Tempo Account granted to that app and cleared by Tempo ID. Pass `clientId` to restrict the calling app, and a shared `store` to reject reused DPoP proofs.
+Tempo ID signs users in and lets them grant apps access to Tempo Accounts. Use direct token verification when your API is the access token's audience and needs to check the paying account. Use attestations when several APIs need identity without receiving the user's access token.
 
-```ts
+### Verify tokens and the payer
+
+The object form `identity: { request, payment }` separates checks before a Challenge (`request`) from a payer check before settlement (`payment`). The array form used above is shorthand for request checks. These examples use Tempo’s Moderato testnet, chain ID `42431`.
+
+[`TempoId.Server.create`](/sdk/typescript/server/TempoId.create) verifies access tokens against Tempo ID's published keys. Set `requiresAuth: true`: the token uses `Authorization`, while the payment Credential uses `Payment-Authorization`.
+
+```ts twoslash [server.ts]
 import * as TempoId from 'mppx/extensions/identity/tempo'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 
-const tempoId = TempoId.Server.create({ clientId: 'app_123', store })
-const mppx = Mppx.create({ methods: [tempo({ recipient, store })], requiresAuth: true })
-const handler = mppx.charge({
+// [!code hl:start]
+const tempoId = TempoId.Server.create({
+  audience: 'https://api.example.com',
+  chainId: 42431,
+  clientId: 'app_reports',
+  store: Store.memory(),
+})
+// [!code hl:end]
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true,
+})
+export const handler = mppx.charge({
   amount: '0.01',
   identity: { payment: tempoId.paymentCheck },
 })
 ```
 
-On the client, `TempoId.Client.prover({ accessToken, scope })` sends the access token. Pass `dpop` for a DPoP-bound token and `idToken` when the server's `allow` policy reads the user's verified email. The payment check rejects Zone payments because they don't reveal the paying account.
+- `verifier` checks the signed-in user before a payment Challenge. `paymentCheck` also requires a Tempo payment whose `source` names an account the user granted to the app on the configured chain. Zone payments are rejected.
+- Accounts with a compliance state reported in the Tempo ID access token other than `clear` cannot pay. An absent compliance entry is accepted; use `allow: (user) => boolean` on `TempoId.Server.create` if your policy requires explicit clearance.
+- Pass a shared atomic `store` across server instances to accept each DPoP proof once. `Store.memory()` is only for a single process. Omitting `store` allows proof reuse during its validity window.
+- Restrict `clientId` to your app or apps. Without it, any app's otherwise valid token passes. Set `audience` to the audience Tempo ID issues for this API; its default is the issuer's origin.
+
+[`TempoId.Client.prover`](/sdk/typescript/client/TempoId.prover) takes live token callbacks. Connect the application-owned session interface below to your Tempo ID session:
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as TempoId from 'mppx/extensions/identity/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare const session: {
+  accessToken(): Promise<string>
+  idToken(): Promise<string | undefined>
+}
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [TempoId.Client.prover({
+    accessToken: () => session.accessToken(),
+    idToken: () => session.idToken(),
+    scope: ['https://api.example.com'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+console.log((await client.fetch('https://api.example.com/report')).status)
+// @log: 200
+```
+
+DPoP (Demonstrating Proof of Possession) binds an access token to a signing key. Pass `dpop: { jwk, privateKey }` for such a token: the prover signs each request and paid retry afresh. `idToken` sends `Tempo-Id-Token` so an `allow` callback can read `email` and `emailVerified`; these fields are absent without an ID token. The payment account must be one the user granted to the app.
+
+### Exchange tokens for attestations
+
+A Tempo ID attestation issuer receives the user's access token; your APIs receive only origin-bound attestations. `tempo-id` identifies the user by user ID. `email` requires an ID token with a verified email. Both types carry `uid` to connect facts about the same user and `azp` to identify the app that exchanged the token.
+
+Run [`TempoId.Issuer.create`](/sdk/typescript/core/TempoId.Issuer.create) with persistent Ed25519 signing keys and a shared atomic store:
+
+```ts twoslash [issuer.ts]
+import * as TempoId from 'mppx/extensions/identity/tempo'
+import { Store } from 'mppx/server'
+
+declare const signingKey: CryptoKeyPair
+declare const store: Store.AtomicStore
+
+// [!code hl:start]
+const issuer = TempoId.Issuer.create({
+  chainId: 42431,
+  clientId: 'app_reports',
+  signingKey,
+  store,
+  url: 'https://attest.example.com',
+})
+// [!code hl:end]
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response('Not found', { status: 404 })
+}
+```
+
+The issuer serves `POST /tempo-id/attest` and `GET /.well-known/jwks.json`. Access tokens must name the issuer's `url` as their audience by default; use `tokenAudience` to match your registered token audience. `clientId` and `store` are required. Attestations last 3,600 seconds by default.
+
+At the API, require the attestation with the generic verifier:
+
+```ts twoslash [server.ts]
+import * as Attestation from 'mppx/extensions/identity/attestation'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const user = Attestation.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://attest.example.com',
+  type: 'tempo-id',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({ amount: '0.01', identity: [user] })
+```
+
+Configure [`TempoId.Client.attestations`](/sdk/typescript/client/TempoId.attestations) instead of the direct token prover:
+
+```ts twoslash [client.ts]
+import * as TempoId from 'mppx/extensions/identity/tempo'
+
+declare const session: {
+  accessToken(): Promise<string>
+  idToken(): Promise<string | undefined>
+}
+// [!code hl:start]
+const identity = TempoId.Client.attestations({
+  accessToken: () => session.accessToken(),
+  idToken: () => session.idToken(),
+  issuer: 'https://attest.example.com',
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+```
+
+Pass this prover in the MPP client's `identity` list. It obtains `tempo-id` and `email` by default, caches attestations per signed-in user, and drops the previous user's cache when the session changes. Issuer requests never trigger automatic payment. `TempoId.Client.attest` performs one exchange for your own UI: a `403` resolves to `undefined`, while other failures throw. Attestations prove identity, not ownership of the paying account; use direct `paymentCheck` for that binding.
 
 ## World ID
 
-Use `World.Server.verifier` from `mppx/extensions/identity/world` to require an attestation from a World ID issuer. The verified `issuer` and pairwise `subject` identify the human. `World.Client.prover` follows the issuer's device flow and calls `verification` with the approval link and code. You can run `World.Issuer.create` yourself or use a shared issuer; allowlist the API origins the issuer may attest for and persist its signing key and attempt store. See the [upstream World ID example](https://github.com/wevm/mppx/tree/main/examples/world-id).
+[`World.Server.verifier`](/sdk/typescript/server/World.verifier) requires approval from a World ID-verified human through an issuer you trust. A `world-id` attestation identifies the human by `(issuer, subject)`; a pairwise subject differs for each API audience, but only when the issuer uses that policy.
+
+```ts twoslash [server.ts]
+import * as World from 'mppx/extensions/identity/world'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const human = World.Server.verifier({
+  acr: [World.Constants.acr.orb, World.Constants.acr.orbFace],
+  audience: 'https://api.example.com',
+  issuer: 'https://world-id.example.com',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({ amount: '0.01', identity: [human] })
+```
+
+`acr` selects the accepted World authentication classes: this verifier accepts Orb verification, with or without Face Auth. Configure [`World.Client.prover`](/sdk/typescript/client/World.prover) to display the approval link, then pass it in the MPP client's `identity` list:
+
+```ts twoslash [client.ts]
+import * as World from 'mppx/extensions/identity/world'
+
+// [!code hl:start]
+const identity = World.Client.prover({
+  issuers: ['https://world-id.example.com'],
+  scope: ['https://api.example.com'],
+  verification: ({ url, userCode }) => {
+    console.log(`Approve at ${url}; confirm code ${userCode}`)
+  },
+})
+// [!code hl:end]
+```
+
+Concurrent requests to one origin share an approval attempt. Return `false` from `verification` to decline. The prover polls at the issuer's interval, adds five seconds when the issuer returns the OAuth `slow_down` polling response, and retries temporary issuer failures until expiry. Failed or declined attempts wait 60 seconds before another attempt; valid attestations are reused until expiry. Use `World.Client.startDevice` and `pollDevice` for your own UI.
+
+### Run a World ID issuer
+
+Register a confidential client with World IdP and configure [`World.Issuer.create`](/sdk/typescript/core/World.Issuer.create) with persistent Ed25519 signing keys. This setup uses the World sandbox:
+
+```ts twoslash [issuer.ts]
+import * as World from 'mppx/extensions/identity/world'
+import { Store } from 'mppx/server'
+
+declare const signingKey: CryptoKeyPair
+declare const store: Store.AtomicStore
+
+// [!code hl:start]
+const issuer = World.Issuer.create({
+  audiences: ['https://api.example.com'],
+  clientId: process.env.WORLD_CLIENT_ID!,
+  clientSecret: process.env.WORLD_CLIENT_SECRET!,
+  secretKey: process.env.MPP_SECRET_KEY!,
+  signingKey,
+  store,
+  url: 'https://world-id.example.com',
+  worldIssuer: World.Constants.worldSandboxIssuer,
+})
+// [!code hl:end]
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response('Not found', { status: 404 })
+}
+```
+
+The issuer serves `/world/device`, `/world/token`, and `/.well-known/jwks.json` under its `url`. Defaults are pairwise subjects derived from `secretKey`, Orb or Orb-with-Face authentication, and 3,600-second attestations. Persist `secretKey`: changing it changes every pairwise subject. `subject: 'world'` passes through World's subject instead. Use `authorize(request)` to restrict who can start approval attempts, or `limit: { key, max, window }` to cap starts per caller in a window measured in seconds, and allowlist `audiences`; without that policy it accepts any HTTPS origin. Production uses the default World IdP issuer rather than the sandbox.
 
 ## Poppy
 
-Use `Poppy.Server.verifier` from `mppx/extensions/identity/poppy` to check a Personal Agent Protocol Session JWT in `Poppy-Session`. Set the API's `audience` and an allowlist of HTTPS `client_id` URLs in `clients`. A valid Session identifies the agent, pseudonymous user, and session before the payment Challenge. `Poppy.Client.prover` signs a fresh JWT for each request and paid retry using a delegated ES256 key; `Poppy.Client.delegate` signs the delegation with a key published by the agent. A Session does not grant account access; verify any accompanying access token separately.
+A Poppy Personal Agent Session identifies an agent, its pseudonymous user, and its session before the payment Challenge. [`Poppy.Server.verifier`](/sdk/typescript/server/Poppy.verifier) reads `Poppy-Session` and fetches metadata only for the HTTPS `client_id` URLs you allowlist.
+
+```ts twoslash [server.ts]
+import * as Poppy from 'mppx/extensions/identity/poppy'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const session = Poppy.Server.verifier({
+  audience: 'https://api.example.com',
+  clients: ['https://agent.example.com/agent.json'],
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({ amount: '0.01', identity: [session] })
+```
+
+[`Poppy.Client.delegate` and `prover`](/sdk/typescript/client/Poppy.prover) sign a delegation for a per-user ES256 key, then use that key to sign each request:
+
+```ts twoslash [client.ts]
+import * as Poppy from 'mppx/extensions/identity/poppy'
+
+declare const agentKey: { kid: string; privateKey: CryptoKey }
+declare const userKey: Poppy.DelegatedKey
+
+// [!code hl:start]
+const delegation = await Poppy.Client.delegate({
+  clientId: 'https://agent.example.com/agent.json',
+  key: agentKey,
+  publicKey: userKey.jwk,
+})
+const identity = Poppy.Client.prover({
+  audience: 'https://api.example.com',
+  clientId: 'https://agent.example.com/agent.json',
+  delegation: () => delegation,
+  key: userKey,
+  scope: ['https://api.example.com'],
+  userId: 'usr_Q7c1vK',
+})
+// [!code hl:end]
+```
+
+Pass `identity` in the MPP client's identity list. Publish the agent key through the metadata document's `jwks_uri` on the same HTTPS hostname. Keep each delegated key exclusive to one user, use an opaque per-company `userId`, and refresh delegations before expiry (one hour by default, at most 24 hours). `sessionId` defaults to one random ID per prover; set `agentId` when one user runs several agents.
+
+Each request and paid retry gets a fresh Session JWT bound to its method and URL. When `Authorization` carries a Bearer or DPoP access token, the Session also binds to that token. A Session does not grant account access: verify that token separately and check it was issued to the Session's `clientId`. Invalid Sessions return HTTP `400` with `invalid_session`, not `401`; the default accepted Session age is 60 seconds. Poppy doesn't claim or store Session nonces.
+
+## ERC-8004
+
+Use an ERC-8004 Identity Registry when the caller is a registered agent. [`Erc8004.Server.create`](/sdk/typescript/server/Erc8004.create) resolves the wallet through `getAgentWallet` and checks a signed request, a payment, or both. Supply your deployed registry address; this example assumes a registry on Moderato.
+
+```ts twoslash [server.ts]
+import * as Erc8004 from 'mppx/extensions/identity/erc8004'
+import { Mppx, Store, tempo } from 'mppx/server'
+import type { Address } from 'viem'
+
+declare const registry: Address
+
+// [!code hl:start]
+const agents = Erc8004.Server.create({
+  chainId: 42431,
+  registry,
+  rpcUrl: 'https://rpc.moderato.tempo.xyz',
+  store: Store.memory(),
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+export const handler = mppx.charge({
+  amount: '0.01',
+  identity: { payment: agents.paymentCheck, request: [agents.verifier] },
+})
+```
+
+[`Erc8004.Client.prover`](/sdk/typescript/client/Erc8004.prover) signs with the registered wallet:
+
+```ts twoslash [client.ts]
+import * as Erc8004 from 'mppx/extensions/identity/erc8004'
+import type { Address } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare const registry: Address
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+// [!code hl:start]
+const identity = Erc8004.Client.prover({
+  account,
+  agentId: 42n,
+  chainId: 42431,
+  registry,
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+```
+
+Pass this prover and the same payment account to your MPP client. The agent ID is `eip155:<chainId>:<registry>:<agentId>`. The prover sends `Agent-Id` and `Agent-Signature`, signing anew for each request and paid retry.
+
+- `verifier` requires the registered wallet's request signature before a Challenge. It supports EOA and ERC-1271 wallet verification.
+- `paymentCheck` can use a Tempo charge transaction or zero-dollar proof signed by that wallet without a separate signature. Hash Credentials, sessions, Zones, other methods, and unpaid requests still require the signature.
+- Use a shared atomic `store` across server instances. Without it, signatures remain reusable for their six-minute validity window. A chain other than the default requires `client` or `rpcUrl`.
 
 ## Email OTP
 
@@ -380,6 +658,37 @@ const client = Mppx.create({
 
 See [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) and [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover) for every option.
 
+### Run your own attestation issuer
+
+Use [`Attestation.Issuer.create`](/sdk/typescript/core/Attestation.Issuer.create) after your own login flow has verified a fact. It signs one attestation per type and serves its public keys; it doesn't authenticate users for you.
+
+```ts twoslash [issuer.ts]
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const signingKey: CryptoKeyPair
+declare const verifiedUser: { id: string; phone: string }
+
+// [!code hl:start]
+const issuer = Attestation.Issuer.create({
+  issuer: 'https://phone.example.com',
+  signingKey,
+})
+const token = await issuer.sign({
+  audience: 'https://api.example.com',
+  sub: verifiedUser.phone,
+  type: 'phone',
+  uid: verifiedUser.id,
+})
+// [!code hl:end]
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response('Not found', { status: 404 })
+}
+```
+
+Persist an Ed25519 signing key, or use a [remote signer](#keep-signing-keys-outside-the-process). The issuer's `handle` serves `/.well-known/jwks.json` under its URL; `keyResolver` also resolves keys in process for a colocated verifier. Its default key ID is the public-key thumbprint, and tokens last 3,600 seconds unless you set `ttl`.
+
+Use a provider's stable account ID for `sub`, not a mutable handle. `uid` connects several attestation types from the same issuer to one user. Optional `cnf` describes key (`jkt`) or paying-account (`addr`) binding; the receiving application must enforce that binding—it isn't automatic. Extra `claims` cannot override registered issuer, audience, subject, type, or time fields. Invalid signing parameters throw `Attestation.Issuer.InvalidParametersError`; other errors indicate signing failure.
+
 ## Persona KYC
 
 Use Persona when a buyer needs an approved KYC inquiry linked to a wallet or customer in your system. Start an inquiry after authenticating that identity, then check its approval on paid requests. Keep the Persona API key on the server.
@@ -474,6 +783,26 @@ Agent signatures use [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.o
 | [**Trusted Agent Protocol**](#use-trusted-agent-protocol) | Public key provisioned by a trusted agent provider | Authority and path | Commerce agents with explicit browse or payment intent |
 
 Each client prover signs the initial request and every automatic MPP retry to the origins in its `scope`, with a fresh nonce and timestamp per attempt. Requests that carry proofs don't follow redirects. An unsigned request or a signature that doesn't verify gets `401`, and a key your resolver doesn't trust gets `403`.
+
+### Keep signing keys outside the process
+
+Web Bot Auth, TAP, and attestation issuers accept a local `CryptoKeyPair` or a remote [`Signer`](/sdk/typescript/core/Identity.SigningKey). A signer exposes a verification-capable public key and `sign({ payload })`; its private key stays in your KMS, HSM, or wallet service.
+
+```ts twoslash [signer.ts]
+import type { Signer } from 'mppx/extensions/identity'
+
+declare const publicKey: CryptoKey
+declare function signWithKms(payload: Uint8Array): Promise<Uint8Array>
+
+// [!code hl:start]
+const signingKey: Signer = {
+  publicKey,
+  sign: ({ payload }) => signWithKms(payload),
+}
+// [!code hl:end]
+```
+
+Pass it as the prover's `key` or issuer's `signingKey`. Make the public key extractable when the profile publishes a JWK or derives its thumbprint. Sign the complete payload, not a digest, and return raw bytes—not DER or base64. Ed25519 signatures are 64 bytes. RSA-PSS SHA-512 uses MGF1 SHA-512 and a 64-byte salt; attestation issuers accept Ed25519 only. `mppx` verifies every returned signature against `publicKey` before using it.
 
 ### Use Web Bot Auth
 

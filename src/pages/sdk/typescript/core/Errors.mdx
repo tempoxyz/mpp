@@ -70,7 +70,9 @@ A sponsored payment fails simulation before broadcast. Inspect `phase`, not node
 
 ### SpendingLimitExceededError
 
-The Tempo charge client simulates a payment before signing. If an access key's remaining spending limit is too low, it throws `SpendingLimitExceededError` with `account`, optional `accessKey`, and the simulation error in `cause`. Raise the limit, wait for its period to reset, or use another key. A sponsored fee payer is not charged for the rejected attempt.
+Tempo charge payments and Session opens or top-ups simulate during transaction preparation, before signing. A spending-limit revert throws `SpendingLimitExceededError` with `account`, optional `accessKey`, and the simulation error in `cause`. Raise the limit, wait for its period to reset, or use another key. No payment is signed for this failed preparation.
+
+A token-balance revert throws `InsufficientBalanceError` with the simulation error in `cause` and the available and required token amounts in its message. Fund the account or use another payment account. Other simulation failures keep their original errors; don’t classify them by node error text.
 
 ### ZoneSettlementPendingError
 
@@ -101,7 +103,7 @@ type PaymentOutcomeUnknownError = Errors.PaymentError & {
 
 - **Type:** `unknown`
 
-Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, or `ZoneSettlementPendingError`.
+Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, `SpendingLimitExceededError`, `InsufficientBalanceError`, or `ZoneSettlementPendingError`.
 
 ### fundingUrl (optional)
 

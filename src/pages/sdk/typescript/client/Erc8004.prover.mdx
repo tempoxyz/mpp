@@ -1,0 +1,72 @@
+---
+description: "Sign API requests with an ERC-8004 agent wallet."
+imageDescription: "Present a registered agent"
+---
+
+# `Erc8004.Client.prover` [Present a registered agent]
+
+Creates a prover that signs requests with the wallet registered for an ERC-8004 agent. ERC-8004 identifies agents by token IDs in an onchain Identity Registry; each ID names a wallet through `getAgentWallet`.
+
+## Usage
+
+```ts twoslash
+import * as Erc8004 from 'mppx/extensions/identity/erc8004'
+import type { Hex } from 'viem'
+
+declare const account: {
+  signMessage: (parameters: { message: string }) => Promise<Hex>
+}
+
+// [!code hl:start]
+const agent = Erc8004.Client.prover({
+  account,
+  agentId: 42n,
+  chainId: 42431,
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+```
+
+Pass `agent` in client `Mppx.create({ identity: [agent], methods })`. Use a registry deployed on the configured chain, with this agent's wallet set. Pair with [`Erc8004.Server.create`](/sdk/typescript/server/Erc8004.create) configured for the same registry and chain.
+
+## Return type
+
+`Identity.Prover`. Each attempt sends `Agent-Id: eip155:<chainId>:<registry>:<agentId>` and `Agent-Signature: <created>.<nonce>.<signature>`. The wallet signs the agent ID, request method and URL (including query), Unix creation time in seconds, and random nonce using EIP-191. The signature is hex-encoded.
+
+## Parameters
+
+Configuration type: `Erc8004.Client.prover.Config`.
+
+### account
+
+- **Type:** `{ readonly signMessage: (parameters: { message: string }) => Promise<Hex> }`
+
+Registered agent wallet, for example a viem account. Use it to pay when using the seller’s payment check.
+
+### agentId
+
+- **Type:** `bigint | number`
+
+Agent token ID in the Identity Registry.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Registry chain. Defaults to Tempo mainnet; set `42431` for Moderato.
+
+### registry (optional)
+
+- **Type:** `Address`
+
+Defaults to `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` (ERC-8004 Identity Registry).
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+API origins that receive the signature. Prefer an explicit list.
+
+## Errors
+
+Invalid values that cannot convert to `BigInt` throw during construction. Wallet signing failures propagate from the request attempt.

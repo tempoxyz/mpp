@@ -623,6 +623,8 @@ Acquires only the missing session currency before opens and top-ups.
 
 Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
 
+Custom `tokenIn` entries accept addresses, chain-indexed tokens, or resolved tokens. Tokens resolve on the client’s chain; missing or mismatched-chain entries are skipped, and duplicate addresses are tried once. See [`Currency`](/sdk/typescript/core/Currency).
+
 ### bootstrap (optional)
 
 - **Type:** `boolean`

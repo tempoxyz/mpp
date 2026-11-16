@@ -107,11 +107,13 @@ Mppx.create({
 ```
 
 - **`maxDeposit`**: caps funds reserved per channel, not total spend across channels.
-- **`maxAmount`**: caps the price per unit (request or token). Requires `currencies` and explicit `decimals`.
+- **`maxAmount`**: caps the price per unit (request or token). Requires `currencies` and explicit `decimals` for address currencies. Tokens from `viem/tokens` supply their own decimals.
 - **`currencies`**: tokens you're willing to pay with.
 - **`expectedRecipients`**: seller addresses you're willing to pay. Offers to anyone else are rejected before signing.
 - **`origin`**: the trusted API origin your saved channels belong to. Use one channel store per origin.
 - **Total budget**: set an [access-key spending limit](/guides/managing-agent-spend#add-spending-limits-and-scopes) to cap spend across channels, processes and restarts.
+
+Session opens and top-ups simulate during preparation. A spending-limit revert throws `Errors.SpendingLimitExceededError`; a token-balance revert throws `Errors.InsufficientBalanceError` before signing. See [pre-signing errors](/sdk/typescript/core/Errors#spendinglimitexceedederror).
 
 These limits apply to `tempo()` with `Mppx.create`. A session manager (used below for streaming and closing) doesn't support `currencies`, `expectedRecipients` or `maxAmount`.
 

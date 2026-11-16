@@ -173,7 +173,7 @@ const mppx = Mppx.create({
 });
 ```
 
-The client sends a `zone` Credential naming the withdrawal by its `senderTag` and the Tempo transaction that settled it. The server checks that the portal paid the recipient the exact amount with a Challenge-bound memo, then claims the `senderTag` against replay. Zone Credentials need push mode and don't support `splits`. Set `zones: true` to accept any Zone on the Challenge's chain. See the [private payments guide](/guides/private-payments) for the privacy model and a full walkthrough.
+The client sends a `zone` Credential naming the withdrawal by its `senderTag` and the Tempo transaction that settled it. The server checks that the portal paid the recipient the exact amount with a Challenge-bound memo, then claims the `senderTag` against replay. Use its `zone` Credential to redeem the portal payout. Upstream `main` additionally rejects an ordinary transaction-hash Credential for that payout; this check is unreleased after `mppx` 0.20.1. Zone Credentials need push mode and don't support `splits`. Set `zones: true` to accept any Zone on the Challenge's chain. See the [private payments guide](/guides/private-payments) for the privacy model and a full walkthrough.
 
 ### Payment links
 
@@ -499,7 +499,7 @@ Mppx.create({
 });
 ```
 
-If the withdrawal doesn't settle within `zone.settlementTimeoutMs`, the client throws `Errors.ZoneSettlementPendingError`. Create the Credential again from the same `402` response to resume waiting without withdrawing again—a repeated request gets a new Challenge and pays again. See [handle slow settlement](/guides/private-payments#handle-slow-settlement).
+If the withdrawal doesn't settle within `zone.settlementTimeoutMs`, the client throws `Errors.ZoneSettlementPendingError`. Inspect `senderTags` for candidate withdrawal identifiers; `senderTag` is set only when exactly one remains. The client recovers even when the Zone RPC omits withdrawal events. Create the Credential again from the same `402` response to resume waiting without withdrawing again—a repeated request gets a new Challenge and pays again. See [handle slow settlement](/guides/private-payments#handle-slow-settlement).
 
 ## Specification
 

@@ -1,0 +1,98 @@
+---
+description: "Exchange a Tempo ID session for origin-bound identity facts."
+imageDescription: "Share identity without sharing access tokens"
+---
+
+# `TempoId.Client.attestations` [Share identity without sharing access tokens]
+
+Creates an attestation prover that sends the access token only to a trusted Tempo ID attestation issuer.
+
+## Usage
+
+```ts twoslash
+import * as TempoId from 'mppx/extensions/identity/tempo'
+
+declare function accessToken(): Promise<string>
+declare function idToken(): string | undefined
+
+// [!code hl:start]
+const user = TempoId.Client.attestations({
+  accessToken,
+  idToken,
+  issuer: 'https://identity.example.com',
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+```
+
+Pass `user` in client `Mppx.create({ identity: [user], methods })`. Pair with [`TempoId.Issuer.create`](/sdk/typescript/core/TempoId.Issuer.create) and generic [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier). Unlike the direct-token prover, this API doesn't require sellers to receive Tempo ID access tokens or set `requiresAuth` for it.
+
+## Return type
+
+`Identity.Prover`. Obtains the requested type when the API challenges, caches attestations per signed-in user, and discards the previous user's cache on a user change. Stored tokens are restored only for the configured issuer and current token subject (`uid`). If the access token can't be read, it presents no cached tokens for that attempt.
+
+## Parameters
+
+Configuration type: `TempoId.Client.attestations.Config`.
+
+### accessToken
+
+- **Type:** `() => string | Promise<string>`
+
+Returns a live access token whose audience includes the attestation issuer.
+
+### attestations (optional)
+
+- **Type:** `readonly string[]`
+
+Tokens restored from storage. Defaults to none; only tokens for the current user and issuer are restored.
+
+### dpop (optional)
+
+- **Type:** `TempoId.DpopKey`
+
+ES256 `{ jwk, privateKey }` bound to the access token. Signs a fresh proof for the exchange endpoint; absent means Bearer.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch`. Exchanges never automatically pay a `402` or follow redirects.
+
+### idToken (optional)
+
+- **Type:** `() => string | undefined | Promise<string | undefined>`
+
+Matching ID token. Required to obtain `email`; issuer policy may read it for any type.
+
+### issuer
+
+- **Type:** `string`
+
+Trusted attestation issuer URL: HTTPS, or HTTP on localhost, with no query or fragment.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+API origins that may ask for and receive attestations.
+
+### timeout (optional)
+
+- **Type:** `number`
+
+Exchange timeout in seconds. Defaults to `10`.
+
+### types (optional)
+
+- **Type:** `readonly string[]`
+
+Types to acquire. Defaults to `['tempo-id', 'email']`.
+
+## `TempoId.Client.attest`
+
+Exchanges one token directly: `attest(parameters: TempoId.Client.attest.Parameters)`. It takes the same `accessToken`, `dpop`, `fetch`, `idToken`, `issuer`, and `timeout` fields above, plus required `audience: string` (the seller origin) and `type: string` (the requested attestation type). It has no `scope`, `attestations`, or `types` fields.
+
+Returns `Promise<{ readonly attestation: string; readonly expiresAt: Date } | undefined>`. A `403` returns `undefined`, such as an email request without a verified address. Other non-success responses or malformed success bodies throw `Error`; network and timeout failures propagate. Invalid issuer URLs throw `TypeError`.
+
+`attest` posts `{ audience, type }` to `<issuer>/tempo-id/attest`. Keep its returned token private, like a session token.

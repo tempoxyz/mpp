@@ -5,7 +5,7 @@ imageDescription: "Run your own identity issuer"
 
 # `Attestation.sign` [Sign an attestation]
 
-Signs attestation claims as a compact JWS with EdDSA over Ed25519. Use it in an issuer service after you check a fact about the subject, such as control of a phone number.
+Signs attestation claims as a compact JWS with EdDSA over Ed25519. Prefer [`Attestation.Issuer.create`](/sdk/typescript/core/Attestation.Issuer.create) to set claims and publish the verification key; use `sign` when you need to assemble claims yourself. Check the asserted fact before signing.
 
 ## Usage
 
@@ -47,20 +47,28 @@ Publish the public key at `<issuer>/.well-known/jwks.json` as an `OKP` key with 
 Signed as given; `sign` doesn't validate them. [`Attestation.verify`](/sdk/typescript/core/Attestation.verify) requires:
 
 - **`aud`:** origin of the API the attestation is for, such as `https://api.example.com`
+- **`cnf` (optional):** `Attestation.Confirmation`, an extensible object with optional string `addr` (paying account) and `jkt` (signing-key thumbprint)
 - **`exp`, `iat`:** expiry and issued-at times, as non-negative integer Unix seconds
 - **`iss`:** issuer URL, matching the URL servers trust
 - **`jti` (optional):** string attestation ID
-- **`sub`:** nonempty attested subject, such as an email address or phone number
+- **`sub`:** nonempty attested subject or stable provider account ID, never a mutable handle
 - **`type`:** attestation type, such as `email` or `phone`
+- **`uid` (optional):** nonempty issuer user ID shared across that user’s attestation types
+
+`Claims` accepts additional readonly claims. One token states one fact. Generic verification checks `cnf` shape only; your consuming verifier must enforce any binding.
 
 ### options.key
 
 - **Type:** `SigningKey` (`CryptoKeyPair | Signer`)
 
-Ed25519 key pair or remote signer with `publicKey` and `sign({ payload })`. `mppx` verifies the remote signature against the public key.
+Ed25519 key pair or [remote signer](/sdk/typescript/core/Identity.SigningKey) with `publicKey` and `sign({ payload })`. mppx verifies the remote signature against the public key. A private key alone is no longer accepted.
 
 ### options.keyId (optional)
 
 - **Type:** `string`
 
-Key ID for the JWS `kid` header. Defaults to the RFC 7638 thumbprint of the public key in your JSON Web Key Set.
+Key ID for the JWS `kid` header. Defaults to the RFC 7638 thumbprint of the public key in your JSON Web Key Set. The public key must be extractable when deriving the default ID.
+
+## Errors
+
+Invalid signing keys or non-byte remote signatures throw `TypeError`; remote signatures that fail verification throw `Error`. Signing and key-export failures propagate. This low-level function does not validate claim shapes or the token-length limit; use `Attestation.Issuer.create` for checked issuance.

@@ -18,7 +18,7 @@ Creates [Sessions](/payment-methods/tempo/session) server methods for voucher ve
 `tempo.session()` is the default Sessions implementation. It uses the [TIP-1034](https://tips.sh/1034) reserve precompile and advertises `sessionProtocol: "v2"` in Challenge method details.
 
 - Managed SSE and WebSocket streams check live reserve state before charging or delivery. Delivery stops if the channel closes or the check fails.
-- Await `stream.charge()` before billable work. A resolved charge stays committed if later work fails or is canceled.
+- Billable per-item streams require a generator function. Await `stream.charge()` before starting each item’s work, not after advancing an upstream iterator. Passing an already-created async iterable throws a `TypeError`. A resolved charge stays committed if later work fails or is canceled.
 - For custom `tempo.Sse.serve()` adapters, verify live reserve state in `beforeCharge: () => Promise<void>`.
 :::
 
@@ -104,7 +104,7 @@ If the resolver returns a known channel ID, the server responds with `Payment-Se
 
 Tempo Sessions support the split Credential lifecycle used by [`mppx.validateCredential`](/sdk/typescript/server/Mppx.validateCredential) and [`mppx.broadcastCredential`](/sdk/typescript/server/Mppx.broadcastCredential). Validation checks the Credential without changing channel state. Broadcasting validates again, accepts the voucher or management action, updates accounting, and returns a Receipt.
 
-Content requests require a voucher that advances the accepted cumulative amount before the server charges for another response. Management updates remain idempotent.
+Content requests require a voucher that advances the accepted cumulative amount before the server charges for another response. Management updates remain idempotent. An opening Credential’s declared `source`, when present, must match the channel payer and be authenticated by its transaction signature, including an active access-key authorization when applicable. Treat the verified payer as identity, not an unchecked `source` field.
 
 Use the split lifecycle for custom transports or background workflows. Normal route handlers invoke it automatically.
 
@@ -167,10 +167,10 @@ Charge request-priced content before the handler runs, when its voucher is accep
 
 ### currencies (optional)
 
-- **Type:** `readonly (string | Token)[]`
+- **Type:** `readonly Currency.Currency[]`
 - **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+Ordered accepted addresses, chain-indexed tokens such as `ousd`, or resolved tokens such as `ousd(42431)` from `viem/tokens`. An explicit list replaces the defaults. Tokens resolve on the configured chain; a resolved token only matches its own chain. Unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### currency (optional, deprecated)
 
@@ -183,7 +183,7 @@ Accepts one token address. Use `currencies: [currency]` instead. Don't set both 
 - **Type:** `number`
 - **Default:** `6`
 
-Decimal places for amount parsing.
+Decimal places for address currencies; defaults to `6`. Tokens supply their own decimals. An explicit value must match every accepted token’s decimals.
 
 ### escrowContract (optional)
 
@@ -372,7 +372,7 @@ Object options:
 - `poll`: poll the store instead of waiting on notifications. Defaults to `false`; enable when promises cannot resolve across request contexts.
 - `pollingInterval`: polling interval in milliseconds. Defaults to `10`.
 
-Request-priced automatic iterables charge once per request, not once per emitted value. Explicit `stream.charge(amount)` calls still charge independently; `stream.charge()` can consume a prepaid unit. A prepaid Receipt can back only one managed SSE response—verify a fresh payment before retrying delivery.
+Request-priced automatic iterables charge once before their iterator is acquired or advanced, not once per emitted value. Billable per-item iterables must instead use a generator function and await `stream.charge()` before work. Explicit `stream.charge(amount)` calls still charge independently; `stream.charge()` can consume a prepaid unit. A prepaid Receipt can back only one managed SSE response—verify a fresh payment before retrying delivery.
 
 ### store (optional)
 
@@ -422,6 +422,7 @@ Enable `sse: { autoCreditPrepaid: true }` to credit prepaid items that fail befo
 - Managed responses clear completed delivery records. Custom adapters must clear their own records after delivery or durable refund handoff.
 - Don't combine SDK credits with another automatic refund handler.
 - Delivered items, manual charges, and client cancellation aren't automatically refunded.
+- If the SDK rejects a billable per-item automatic iterable before starting it, it credits any undelivered prepaid unit even with `autoCreditPrepaid: false`. Failed reconciliation uses the same refund hook and durable recovery records.
 
 If credit cannot complete, `onRefundRequired` receives `tempo.Sse.PrepaidRefund`:
 
@@ -459,7 +460,7 @@ Custom `tempo.Sse.serve()` adapters accept these optional fields:
 | `prepaidUnits` | `number` (non-negative safe integer) | `0` |
 | `refundIdempotencyKey` | `string` (stable per-charge key) | Random stream key |
 
-`chargeOnce: true` charges an automatic iterable once per request; manual charges are unaffected. To persist before returning a custom response, call `tempo.Sse.preparePrepaidRefund(options): Promise<void>` with the same serve options and a stable `refundIdempotencyKey`. Otherwise, `serve` persists during stream startup.
+`chargeOnce: true` charges an automatic iterable before acquiring its iterator; manual charges are unaffected. With a positive `tickCost` and `chargeOnce: false`, pass a manual-charge generator function, not a raw async iterable. To persist before returning a custom response, call `tempo.Sse.preparePrepaidRefund(options): Promise<void>` with the same serve options and a stable `refundIdempotencyKey`. Otherwise, `serve` persists during stream startup.
 
 ## Related
 
