@@ -190,6 +190,9 @@ const searchable = (service: Service) =>
 
 function ServiceTableRow({ service }: { service: Service }) {
   const [open, setOpen] = useState(false);
+  // Endpoint rows are built on first open and kept for the close animation:
+  // rendering every row's endpoints up front built ~16k hidden DOM nodes.
+  const [expanded, setExpanded] = useState(false);
   const action =
     "flex size-8 shrink-0 items-center justify-center border border-border bg-[#101010] text-secondary transition-colors hover:text-offwhite";
 
@@ -258,7 +261,10 @@ function ServiceTableRow({ service }: { service: Service }) {
               aria-expanded={open}
               aria-label={`Show ${service.name} endpoints`}
               className={action}
-              onClick={() => setOpen((value) => !value)}
+              onClick={() => {
+                setExpanded(true);
+                setOpen((value) => !value);
+              }}
               type="button"
             >
               <Icon
@@ -283,65 +289,71 @@ function ServiceTableRow({ service }: { service: Service }) {
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <div className="min-h-0 overflow-hidden">
-          <div className="px-4 pb-2">
-            <div className="flex items-center gap-4 border-t border-border py-3 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
-              <span className="flex-1">Endpoint</span>
-              <span className="hidden flex-1 xl:block">Description</span>
-              <span className="w-[94px] shrink-0 text-right">Price</span>
-            </div>
-            {service.endpoints.map((endpoint) => (
-              <div
-                className="border-t border-border py-4"
-                key={`${endpoint.method}-${endpoint.path}`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <span
-                      className={cx(
-                        "inline-flex shrink-0 items-center justify-center px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px]",
-                        endpoint.method === "GET"
-                          ? "bg-[rgba(152,243,170,0.1)] text-term-green"
-                          : "bg-[rgba(158,148,255,0.1)] text-term-purple",
-                      )}
-                    >
-                      {endpoint.method}
-                    </span>
-                    <CopyBadge
-                      className="max-md:hidden"
-                      text={endpointUrl(service, endpoint)}
-                    />
-                    <span className="min-w-0 truncate font-mono text-sm uppercase leading-4 text-empty">
-                      {endpoint.path}
-                    </span>
-                  </div>
-                  <p className="hidden min-w-0 flex-1 font-sans text-sm leading-[1.3] text-secondary xl:block">
-                    {endpoint.description}
-                  </p>
-                  <span className="w-[94px] shrink-0 text-right font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
-                    {formatPrice(endpoint)}
-                  </span>
-                </div>
-                <div className="mt-3 flex flex-col items-start gap-3 xl:hidden">
-                  <p className="font-sans text-sm leading-[1.3] text-secondary">
-                    {endpoint.description}
-                  </p>
-                  <CopyBadge
-                    className="md:hidden"
-                    text={endpointUrl(service, endpoint)}
-                  />
-                </div>
-              </div>
-            ))}
-            {service.endpoints.length === 0 && (
-              <p className="border-t border-border py-4 font-sans text-sm text-secondary">
-                Endpoint details are available from the provider.
-              </p>
-            )}
-          </div>
+        <div className="min-h-0 overflow-hidden" inert={!open}>
+          {expanded && <ServiceEndpoints service={service} />}
         </div>
       </div>
     </article>
+  );
+}
+
+function ServiceEndpoints({ service }: { service: Service }) {
+  return (
+    <div className="px-4 pb-2">
+      <div className="flex items-center gap-4 border-t border-border py-3 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+        <span className="flex-1">Endpoint</span>
+        <span className="hidden flex-1 xl:block">Description</span>
+        <span className="w-[94px] shrink-0 text-right">Price</span>
+      </div>
+      {service.endpoints.map((endpoint) => (
+        <div
+          className="border-t border-border py-4"
+          key={`${endpoint.method}-${endpoint.path}`}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <span
+                className={cx(
+                  "inline-flex shrink-0 items-center justify-center px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px]",
+                  endpoint.method === "GET"
+                    ? "bg-[rgba(152,243,170,0.1)] text-term-green"
+                    : "bg-[rgba(158,148,255,0.1)] text-term-purple",
+                )}
+              >
+                {endpoint.method}
+              </span>
+              <CopyBadge
+                className="max-md:hidden"
+                text={endpointUrl(service, endpoint)}
+              />
+              <span className="min-w-0 truncate font-mono text-sm uppercase leading-4 text-empty">
+                {endpoint.path}
+              </span>
+            </div>
+            <p className="hidden min-w-0 flex-1 font-sans text-sm leading-[1.3] text-secondary xl:block">
+              {endpoint.description}
+            </p>
+            <span className="w-[94px] shrink-0 text-right font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+              {formatPrice(endpoint)}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-col items-start gap-3 xl:hidden">
+            <p className="font-sans text-sm leading-[1.3] text-secondary">
+              {endpoint.description}
+            </p>
+            <CopyBadge
+              className="md:hidden"
+              text={endpointUrl(service, endpoint)}
+            />
+          </div>
+        </div>
+      ))}
+      {service.endpoints.length === 0 && (
+        <p className="border-t border-border py-4 font-sans text-sm text-secondary">
+          Endpoint details are available from the provider.
+        </p>
+      )}
+    </div>
   );
 }
 
