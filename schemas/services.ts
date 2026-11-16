@@ -4385,6 +4385,56 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── SideQuest ───────────────────────────────────────────────────────────
+  {
+    id: "sidequest",
+    name: "SideQuest",
+    url: "https://sidequestpays.com",
+    serviceUrl: "https://sidequestpays.com",
+    description:
+      "Hire a verified human for a real-world or remote task: phone calls, store and sign checks, photos of a place, pickups and returns, waiting in line, translation, or human review of AI output. Paid upfront, released on approved proof.",
+
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "humans",
+      "tasks",
+      "phone-calls",
+      "verification",
+      "errands",
+      "physical",
+      "gig",
+    ],
+    docs: {
+      homepage: "https://sidequestpays.com/docs",
+      llmsTxt: "https://sidequestpays.com/llms.txt",
+      apiReference: "https://sidequestpays.com/openapi.json",
+    },
+    provider: {
+      name: "Crescent Harbor LLC",
+      url: "https://sidequestpays.com",
+    },
+    realm: "sidequestpays.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: false,
+        route: "POST /mpp/quests",
+        desc: "Post a quest and pay for it (reward plus 20% fee, $2 minimum)",
+        dynamic: true,
+        amountHint: "$7 to $1,200 per quest",
+      },
+      {
+        healthCheck: false,
+        route: "POST /mpp/balance",
+        desc: "Top up a prepaid balance (API key required)",
+        dynamic: true,
+        amountHint: "$5 to $1,000",
+      },
+    ],
+  },
+
   // ── Martin Estate Winery ────────────────────────────────────────────────
   {
     id: "martin-estate",
