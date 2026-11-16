@@ -42,6 +42,19 @@ This is an `Error`, not a `PaymentError`. Server HTTP handlers return a generic 
 | `transactionHash` | `` `0x${string}` `` | Hash to look up on chain. |
 | `validBefore` | `number \| undefined` | Last inclusion deadline, in Unix seconds. |
 
+### MACH funding errors
+
+`PaymentError.fundingUrl` is `string | undefined`. When present, `toProblemDetails()` includes it as an RFC 9457 extension member. `VerificationFailedError` and `InsufficientBalanceError` accept `fundingUrl` in their options and append `Add funds at <url>` to their message.
+
+On Tempo mainnet, MACH shortfalls link to Tempo Wallet, with the payer and missing amount when known. Session balance errors may link without an amount. Other networks don't receive a MACH onramp link. Present the link to the buyer; don't automatically open or pay it.
+
+- **Charge client:** without `autoSwap`, an eligible MACH route that can't be paid from either MACH or the requested stablecoin throws `InsufficientBalanceError` before signing.
+- **Session client:** a MACH channel open or manual top-up without `autoSwap` checks the deposit balance before signing and throws `InsufficientBalanceError` when short.
+- **Charge server:** a pre-broadcast failure with a confirmed MACH shortfall becomes `VerificationFailedError`. Existing typed payment errors and uncertain broadcast outcomes keep their original recovery paths. Settled replays remain `CredentialReplayedError` even when the spent balance is low.
+- **Session server:** an exhausted MACH channel returns `InsufficientBalanceError`, including from channel charges and SSE responses.
+
+Build your own link with [`machineTokenFundingUrl`](/sdk/typescript/tempo.machineTokenFundingUrl).
+
 ### PaymentSimulationError
 
 In a sponsored payment, a fee payer pays network fees for the sender. The sender phase simulates the sender's calls; the sponsored phase simulates the final transaction with that fee payer.
@@ -84,6 +97,12 @@ type PaymentOutcomeUnknownError = Errors.PaymentError & {
 - **Type:** `unknown`
 
 Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, or `ZoneSettlementPendingError`.
+
+### fundingUrl (optional)
+
+- **Type:** `string`
+
+Funding page for `VerificationFailedError` or `InsufficientBalanceError`; also supported by the protected `PaymentError` constructor for subclasses.
 
 ### reason (optional)
 

@@ -1,5 +1,5 @@
 ---
-description: "Require a verified email, your own customer login, an agent signature, or an allowed payer before you serve a paid request."
+description: "Require a verified email, Persona KYC, your own customer login, an agent signature, or an allowed payer for paid API access."
 imageDescription: "Know who's calling before they pay"
 ---
 
@@ -19,6 +19,7 @@ Require a verified identity before payment, check the payer before settlement, o
 | [**Email OTP**](#email-otp) | An email inbox, or any fact a trusted issuer attests | Verified-address access without your own login |
 | [**Agent signatures**](#agent-signatures) | The agent or bot that signed the request | Bot recognition and agent-specific policy |
 | [**Your own identity provider**](#your-own-identity-provider) | Your identity provider's API keys, sessions, or SSO, or your own protocol | Existing customer access policy |
+| [**Persona KYC**](#persona-kyc) | An accepted Persona inquiry for an authenticated reference ID | KYC-gated paid access with wallet binding |
 | [**Payer identity**](#payer-identity) | The payer named in the MPP Credential | Ownership, zero-dollar auth, and payer allowlists |
 
 ## How identity checks run
@@ -283,6 +284,7 @@ console.log(response.status)
 - The prover only contacts allowlisted `issuers` and only sends attestations to in-scope origins matching their audience. Never trust an issuer supplied only by a server—it could relay your code to another issuer.
 - The server returns `401` for missing or invalid attestations, `403` for a verified address rejected by `allow`, and `503` when issuer keys are unavailable. Only identity success reaches payment.
 - Cached attestations are reused in memory and refreshed near expiry before payment. The prover prompts at most three times for rejected codes; paid attempts aren't resent by identity recovery.
+- Issuer calls explicitly disable automatic payment, including through `Identity.Client.wrapFetch`. Custom fetch forwarding layers must preserve the request init's symbol properties so the opt-out reaches the payment wrapper; forwarding only a reconstructed `Request` drops it. An issuer `402` is an OTP error, not a payment to approve.
 - For your own send/verify form, use [`sendCode`](/sdk/typescript/client/EmailOtp.sendCode), [`verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode), and [pre-obtained attestations](/sdk/typescript/client/EmailOtp.prover#use-a-custom-email-form).
 
 :::warning[Keep attestations at their audience]
@@ -348,6 +350,90 @@ const client = Mppx.create({
 - To run an issuer, sign claims with [`Attestation.sign`](/sdk/typescript/core/Attestation.sign) and publish your Ed25519 keys at `/.well-known/jwks.json`. Servers read them with [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver).
 
 See [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) and [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover) for every option.
+
+## Persona KYC
+
+Use Persona when a buyer needs an approved KYC inquiry linked to a wallet or customer in your system. Start an inquiry after authenticating that identity, then check its approval on paid requests. Keep the Persona API key on the server.
+
+### Bind the wallet before KYC
+
+1. Authenticate the person and issue a short-lived, single-use nonce for their session.
+2. Ask their wallet to sign a message containing that nonce, your domain, and its [`Persona.did`](/sdk/typescript/core/Persona.did).
+3. Retrieve the session's nonce and expected message on the server, verify the signature, and atomically consume the nonce. Don't accept a caller's nonce as the server-issued value.
+4. Start the inquiry with the returned DID and store it in that authenticated session.
+
+```ts twoslash [onboarding.ts]
+import * as Persona from 'mppx/extensions/identity/persona'
+import type { Address, Hex } from 'viem'
+
+declare const address: Address
+declare const message: string // Server-expected message containing the nonce and wallet DID.
+declare const nonce: string // Retrieved from the authenticated person's server-side session.
+declare const signature: Hex
+declare function consumeNonce(nonce: string): Promise<void>
+declare function saveWallet(referenceId: string): Promise<void>
+
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:start]
+const referenceId = await Persona.Server.verifyWallet({
+  address,
+  chainId: 42431,
+  message,
+  nonce,
+  signature,
+})
+// [!code hl:end]
+await consumeNonce(nonce) // Atomically reject an already-consumed nonce.
+await saveWallet(referenceId)
+const { url } = await persona.startInquiry({ referenceId })
+```
+
+Send the one-time `url` to the person to complete Persona's hosted flow. `consumeNonce` and `saveWallet` are application code. Without wallet verification, anyone can complete KYC for another wallet. The default signature check supports EOAs; use a chain-pinned verifier for [smart accounts](/sdk/typescript/server/Persona.verifyWallet#verify-smart-accounts).
+
+### Require approval before settlement
+
+[`persona.paymentCheck`](/sdk/typescript/server/Persona.paymentCheck) advertises KYC on the initial `402` and checks the inquiry on the paid retry, before settlement:
+
+```ts twoslash [server.ts]
+import { Store } from 'mppx'
+import * as Persona from 'mppx/extensions/identity/persona'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function authenticatedWallet(request: Request): Promise<string | undefined>
+
+const persona = Persona.Server.create({
+  apiKey: process.env.PERSONA_API_KEY!,
+  templateId: 'itmpl_example',
+})
+// [!code hl:start]
+const kyc = persona.paymentCheck({
+  cache: Store.memory(),
+  onboarding: 'https://api.example.com/kyc',
+  referenceId: ({ request }) => authenticatedWallet(request),
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: { payment: kyc } })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ inquiry: result.identity?.get(kyc)?.inquiryId }))
+}
+```
+
+`authenticatedWallet` reads the verified DID stored in your session. It must not read an unauthenticated header or return `credential.source` unchecked. A session authenticates its own identity; separately authenticate and compare the payer if your policy requires that exact wallet to pay. See [payer checks](#check-the-payer-before-settlement).
+
+- The route's `402` advertises `Identity-Required: kyc;issuer="https://api.withpersona.com"`. No Persona client prover or automatic hosted-flow completion is provided.
+- Missing identity gets `401`; no accepted inquiry gets `403`. Both include the configured onboarding `Link`. Persona lookup failures get `503`, without an onboarding link or provider response details.
+- Only `approved` is accepted by default. Completing the flow isn't approval. A configured cache retains accepted results for 300 seconds; no cache is enabled by default.
+- Set `templateId` when creating the client to accept only that inquiry template. See the reference for [freshness, caching, and lookup limits](/sdk/typescript/server/Persona.paymentCheck#parameters).
+
+### Advanced options
+
+Use [`persona.verifier`](/sdk/typescript/server/Persona.verifier) with a session-derived customer reference ID to require KYC before any payment Challenge: `identity: [kyc]`. Unlike `paymentCheck`, it runs on the initial unpaid request too and doesn't receive a payment Credential. For non-wallet identities, start the inquiry with your authenticated customer's identifier instead of a DID.
 
 ## Agent signatures
 

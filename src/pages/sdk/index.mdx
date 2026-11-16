@@ -23,7 +23,9 @@ See the [SDK feature matrix](/sdk/features) for current support across every off
 
 The TypeScript SDK includes [SQL-backed stores](/sdk/typescript/core/Store.sql) and [Cloudflare Workers storage and settlement](/sdk/typescript/cloudflare). Use these adapters to share payment state across server instances.
 
-Use [email OTP](/sdk/typescript/server/EmailOtp.verifier) to require a verified email address before payment, [Link attestation](/sdk/typescript/server/Link.attestation) to verify a buyer's Link token, or [Link claims](/sdk/typescript/server/Link.claims) to request verified profile fields. Adapt an existing identity system with [`Identity.from`](/sdk/typescript/core/Identity.from). The [identity guide](/extensions/identity) covers client and server setup.
+Read typed operations, price offers, and JSON request schemas with [`listOperations`](/sdk/typescript/core/Discovery.listOperations). Discovery prices are advisory; the `402` Challenge remains authoritative.
+
+Use [Persona KYC](/sdk/typescript/server/Persona.create) to link a verified wallet and require an approved inquiry before settlement. Use [email OTP](/sdk/typescript/server/EmailOtp.verifier) to require a verified email address before payment, [Link attestation](/sdk/typescript/server/Link.attestation) to verify a buyer's Link token, or [Link claims](/sdk/typescript/server/Link.claims) to request verified profile fields. Adapt an existing identity system with [`Identity.from`](/sdk/typescript/core/Identity.from). The [identity guide](/extensions/identity) covers client and server setup.
 
 ## Other languages
 

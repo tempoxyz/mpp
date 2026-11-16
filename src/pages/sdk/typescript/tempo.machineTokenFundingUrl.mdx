@@ -1,0 +1,54 @@
+---
+description: "Send buyers to Tempo Wallet to fund MACH payments."
+imageDescription: "Help buyers add MACH to their wallet"
+---
+
+# `machineTokenFundingUrl` [Link to MACH funding]
+
+Builds a Tempo Wallet link to buy MACH, optionally prefilled with a payer and amount.
+
+## Usage
+
+```ts twoslash
+import { machineTokenFundingUrl } from 'mppx/tempo'
+
+// The onramp sells MACH only on mainnet; Moderato has no funding link.
+const url = machineTokenFundingUrl({ chainId: 42431 }) // [!code hl]
+console.log(url)
+// @log: undefined
+```
+
+The onramp supports Tempo mainnet only. Omitting `chainId` uses that network. `Tempo.machineTokenFundingUrl` from `mppx` exposes the same helper.
+
+`machineTokenFundingBaseUrl`, also exported from `mppx/tempo` and `Tempo`, is `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217`.
+
+## Return type
+
+```ts
+type ReturnType = string | undefined
+```
+
+Returns `undefined` for any chain other than Tempo mainnet. Invalid addresses and non-positive amounts are omitted from the URL. Valid addresses are checksummed; amounts round up to whole cents and omit trailing zeroes. For example, `1_250_001n` produces an `amount=1.26` query parameter.
+
+## Parameters
+
+All properties are optional. The parameter object defaults to `{}`.
+
+### address (optional)
+
+- **Type:** `` `0x${string}` ``
+
+Payer to fund. Tempo Wallet asks the buyer to sign in with this address.
+
+### amount (optional)
+
+- **Type:** `bigint`
+
+MACH to buy in base units (6 decimals), rounded up to cents.
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** Tempo mainnet.
+
+Network of the payment. The wallet doesn't sell MACH on testnet.

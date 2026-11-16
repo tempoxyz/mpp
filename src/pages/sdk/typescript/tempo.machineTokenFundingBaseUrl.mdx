@@ -1,0 +1,31 @@
+---
+description: "Use the Tempo Wallet destination for MACH funding links."
+imageDescription: "Send buyers to the MACH funding flow"
+---
+
+# `machineTokenFundingBaseUrl` [MACH onramp destination]
+
+Provides the base Tempo Wallet URL for buying MACH on Tempo mainnet.
+
+## Usage
+
+```ts twoslash
+import { machineTokenFundingBaseUrl } from 'mppx/tempo'
+
+console.log(new URL(machineTokenFundingBaseUrl).hostname) // [!code hl]
+// @log: wallet.tempo.xyz
+```
+
+Prefer [`machineTokenFundingUrl`](/sdk/typescript/tempo.machineTokenFundingUrl) to add a payer and amount. The onramp sells MACH only on mainnet, not Moderato. `Tempo.machineTokenFundingBaseUrl` from `mppx` exposes the same constant.
+
+The constant is `https://wallet.tempo.xyz/agent?action=fund&intent=mach&chainId=4217`.
+
+## Return type
+
+```ts
+type Value = typeof machineTokenFundingBaseUrl
+```
+
+## Parameters
+
+None.

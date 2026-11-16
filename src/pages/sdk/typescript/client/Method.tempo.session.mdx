@@ -101,6 +101,8 @@ Mppx.create({
 </Tab>
 </Tabs>
 
+For MACH channels without `autoSwap`, opens and manual top-ups check the deposit balance before signing. A shortfall throws `InsufficientBalanceError`; on mainnet, `fundingUrl` links to Tempo Wallet with the payer and missing MACH. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
+
 ## Automatic open retries
 
 `Fetch.from` and `Mppx.create` keep automatic opens provisional until the server accepts the response or acknowledges the open with a matching Receipt or snapshot. Rejected or unacknowledged opens retry on the next paid request. Opens sharing a payment scope and channel store are serialized.

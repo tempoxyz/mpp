@@ -101,6 +101,7 @@ type Page =
   | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/Fetch.withoutPayment'; render: 'static' }
   | { path: '/sdk/typescript/client/Link.attestation'; render: 'static' }
   | { path: '/sdk/typescript/client/Link.claims'; render: 'static' }
   | { path: '/sdk/typescript/client/Link.claimsChallenge'; render: 'static' }
@@ -142,6 +143,8 @@ type Page =
   | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Discovery.Types'; render: 'static' }
+  | { path: '/sdk/typescript/core/Discovery.listOperations'; render: 'static' }
   | { path: '/sdk/typescript/core/EmailOtp.Constants'; render: 'static' }
   | { path: '/sdk/typescript/core/Errors'; render: 'static' }
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
@@ -159,6 +162,10 @@ type Page =
   | { path: '/sdk/typescript/core/PaymentRequest.deserialize'; render: 'static' }
   | { path: '/sdk/typescript/core/PaymentRequest.from'; render: 'static' }
   | { path: '/sdk/typescript/core/PaymentRequest.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.Types'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.did'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.normalize'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.deserialize'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
@@ -202,6 +209,12 @@ type Page =
   | { path: '/sdk/typescript/server/Mppx.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.validateCredential'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.verifyCredential'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.PersonaError'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.create'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.paymentCheck'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.startInquiry'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.verifyWallet'; render: 'static' }
   | { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.from'; render: 'static' }
@@ -211,6 +224,8 @@ type Page =
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
   | { path: '/sdk/typescript/tempo.Attribution'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenDeployments'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.machineTokenFundingBaseUrl'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.machineTokenFundingUrl'; render: 'static' }
   | { path: '/sdk/typescript/x402/express'; render: 'static' }
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }

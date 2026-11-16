@@ -22,6 +22,8 @@ Creates [Sessions](/payment-methods/tempo/session) server methods for voucher ve
 - For custom `tempo.Sse.serve()` adapters, verify live reserve state in `beforeCharge: () => Promise<void>`.
 :::
 
+Insufficient balance on a mainnet MACH channel includes a Tempo Wallet `fundingUrl` in `InsufficientBalanceError` and its Problem Details. This applies to channel charges and SSE payment-required responses. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
+
 ## Usage
 
 Creates one payment offer per accepted stablecoin: OUSD first, then USDC.e on mainnet or pathUSD on Moderato (`chainId: 42431`). Set `currencies` to accept a different list.

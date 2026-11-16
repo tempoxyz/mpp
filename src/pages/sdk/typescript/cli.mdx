@@ -208,6 +208,8 @@ export default defineConfig({
 
 Configured methods remain authoritative throughout payment selection, retries, and Session voucher renewal. The CLI preserves their Challenge ordering, signing policy, chain allowlists, and channel stores.
 
+For a MACH-enabled Tempo charge without splits, the CLI also checks the MACH balance when the requested stablecoin balance is too low. Enough MACH makes the offer payable; split charges still need the advertised currency.
+
 ### Configure payment extensions
 
 Use extensions to enforce policy or prepare funds after the CLI selects and confirms a Challenge, immediately before it creates a Credential.

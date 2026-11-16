@@ -768,6 +768,10 @@ export default defineConfig({
                     text: ".restore",
                     link: "/sdk/typescript/client/Fetch.restore",
                   },
+                  {
+                    text: ".withoutPayment",
+                    link: "/sdk/typescript/client/Fetch.withoutPayment",
+                  },
                 ],
               },
               {
@@ -940,6 +944,14 @@ export default defineConfig({
                   {
                     text: "tempo.machineTokenDeployments",
                     link: "/sdk/typescript/tempo.machineTokenDeployments",
+                  },
+                  {
+                    text: "tempo.machineTokenFundingBaseUrl",
+                    link: "/sdk/typescript/tempo.machineTokenFundingBaseUrl",
+                  },
+                  {
+                    text: "tempo.machineTokenFundingUrl",
+                    link: "/sdk/typescript/tempo.machineTokenFundingUrl",
                   },
                 ],
               },
@@ -1127,6 +1139,52 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "Persona",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Persona.Constants",
+                  },
+                  {
+                    text: ".Server.PersonaError",
+                    link: "/sdk/typescript/server/Persona.PersonaError",
+                  },
+                  {
+                    text: ".Server.create",
+                    link: "/sdk/typescript/server/Persona.create",
+                  },
+                  {
+                    text: "persona.paymentCheck",
+                    link: "/sdk/typescript/server/Persona.paymentCheck",
+                  },
+                  {
+                    text: "persona.startInquiry",
+                    link: "/sdk/typescript/server/Persona.startInquiry",
+                  },
+                  {
+                    text: "persona.verifier",
+                    link: "/sdk/typescript/server/Persona.verifier",
+                  },
+                  {
+                    text: ".Server.verifyWallet",
+                    link: "/sdk/typescript/server/Persona.verifyWallet",
+                  },
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Persona.Types",
+                  },
+                  {
+                    text: ".did",
+                    link: "/sdk/typescript/core/Persona.did",
+                  },
+                  {
+                    text: ".normalize",
+                    link: "/sdk/typescript/core/Persona.normalize",
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1215,6 +1273,20 @@ export default defineConfig({
                   {
                     text: ".serialize",
                     link: "/sdk/typescript/core/Credential.serialize",
+                  },
+                ],
+              },
+              {
+                text: "Discovery",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Discovery.Types",
+                  },
+                  {
+                    text: ".listOperations",
+                    link: "/sdk/typescript/core/Discovery.listOperations",
                   },
                 ],
               },
