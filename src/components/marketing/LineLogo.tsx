@@ -96,9 +96,12 @@ export function LineLogo({
       progress === 0 ? 0 : 0.7 + 0.3 * expo(progress);
     // The logo stays hidden until GSAP has set its starting state. It plays on
     // mpp:logo-lines or after 1s, whichever comes first, as soon as GSAP is in.
+    // If GSAP still isn't in at 1s, the static logo shows and the intro is
+    // skipped, so a slow chunk never leaves a blank space.
     let gsap: typeof Gsap | undefined;
     let wanted = false;
     let played = false;
+    let skipped = false;
     let cancelled = false;
     const play = () => {
       wanted = true;
@@ -120,10 +123,14 @@ export function LineLogo({
       });
     };
     window.addEventListener("mpp:logo-lines", play, { once: true });
-    const fallback = window.setTimeout(play, 1_000);
+    const fallback = window.setTimeout(() => {
+      if (gsap) return play();
+      skipped = true;
+      svg.style.visibility = "visible";
+    }, 1_000);
     void loadGsap()
       .then((loaded) => {
-        if (cancelled) return;
+        if (cancelled || skipped) return;
         gsap = loaded;
         for (const rect of elements) {
           loaded.set(rect, { attr: slot(rect), opacity: 0 });

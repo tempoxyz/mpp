@@ -82,17 +82,24 @@ function DesignedBy() {
  */
 function PlayWhenVisible({
   className,
+  height,
   src,
+  width,
 }: {
   className?: string;
+  /** The clip's pixel size, so its box is reserved before metadata loads. */
+  height: number;
   src: string;
+  width: number;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        // Several entries can queue up; the last one is the current state.
+        const entry = entries[entries.length - 1];
         if (entry?.isIntersecting) void video.play().catch(() => {});
         else video.pause();
       },
@@ -104,11 +111,13 @@ function PlayWhenVisible({
   return (
     <video
       className={className}
+      height={height}
       loop
       muted
       playsInline
       preload="none"
       ref={ref}
+      width={width}
     >
       <source src={src} type="video/mp4" />
     </video>
@@ -184,7 +193,9 @@ export function LandingPage({ logos }: { logos?: Record<string, string> }) {
           <div className="relative -mt-px w-full border border-border bg-[#191919] min-[1000px]:hidden">
             <PlayWhenVisible
               className="pointer-events-none block h-auto w-full"
+              height={940}
               src="/marketing/mobile-terminal.mp4"
+              width={1694}
             />
           </div>
         </div>
