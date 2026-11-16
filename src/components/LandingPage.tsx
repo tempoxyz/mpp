@@ -2,7 +2,12 @@
 
 import blogPosts from "virtual:blog-posts";
 import { useEffect, useState } from "react";
-import { type FeaturedService, fetchFeaturedServices } from "../data/registry";
+import {
+  FEATURED_SERVICE_IDS,
+  type FeaturedService,
+  fetchFeaturedServices,
+  withLogos,
+} from "../data/registry";
 import { BlogRow } from "./marketing/BlogRow";
 import { Button } from "./marketing/Button";
 import { Header } from "./marketing/Header";
@@ -10,7 +15,6 @@ import { SectionLabel } from "./marketing/SectionLabel";
 import { ServiceCard } from "./marketing/ServiceCard";
 import { Terminal } from "./Terminal";
 
-const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
 const integrations = [
   { href: "https://www.amazon.com", name: "Amazon", slug: "amazon" },
   { href: "https://www.alchemy.com", name: "Alchemy", slug: "alchemy" },
@@ -71,16 +75,16 @@ function DesignedBy() {
   );
 }
 
-export function LandingPage() {
+export function LandingPage({ logos }: { logos?: Record<string, string> }) {
   const [services, setServices] = useState<FeaturedService[]>([]);
 
   useEffect(() => {
     document.body.classList.add("marketing-home");
     fetchFeaturedServices(FEATURED_SERVICE_IDS)
-      .then(setServices)
+      .then((featured) => setServices(withLogos(featured, logos ?? {})))
       .catch(() => {});
     return () => document.body.classList.remove("marketing-home");
-  }, []);
+  }, [logos]);
 
   return (
     <div className="marketing-route not-prose bg-[#060606] text-offwhite [--marketing-page-bg:#060606]">

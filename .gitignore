@@ -20,6 +20,10 @@ schemas/discovery.example.json
 public/services/catalog.json
 public/services/llms.txt
 
+# Built by scripts/build-logos.ts
+public/services/logos/
+public/services/logos.json
+
 # Generated from skills/ by `pnpm generate:discovery`
 public/.well-known/agent-skills/
 
