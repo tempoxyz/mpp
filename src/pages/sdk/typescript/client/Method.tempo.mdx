@@ -198,7 +198,7 @@ Store for reusable Sessions channels. Defaults to an in-memory store.
 
 ### currencies (optional)
 
-- **Type:** `readonly Address[]`
+- **Type:** `readonly Currency[]`
 
 Case-insensitive currency allowlist for both charges and Sessions. Required with either amount cap; an empty list rejects all offers.
 
@@ -206,7 +206,7 @@ Case-insensitive currency allowlist for both charges and Sessions. Required with
 
 - **Type:** `number`
 
-Currency decimals. Set explicitly with `maxAmount`.
+Decimals for address currencies. Tokens carry their own. Set explicitly with `maxAmount` when accepting addresses.
 
 ### expectedChainId (optional)
 
@@ -232,7 +232,7 @@ Function that returns a viem client for the given chain ID.
 
 - **Type:** `string`
 
-Maximum display-unit price per charge or Session unit. Requires `currencies` and `decimals`. This is not a total session-spend limit.
+Maximum display-unit price per charge or Session unit. Requires `currencies` and decimals for every address currency. This is not a total session-spend limit.
 
 ### maxAtomicAmount (optional)
 

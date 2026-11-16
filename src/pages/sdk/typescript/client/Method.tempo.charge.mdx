@@ -148,7 +148,7 @@ Allowed Tempo chain IDs; use `[4217]` for mainnet.
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }`
 
 Swaps supported stablecoins through the Tempo DEX precompile to acquire only the missing balance. Quote and balance reads work with new access keys before on-chain authorization.
 
@@ -197,15 +197,15 @@ Client identifier used to derive the client fingerprint in attribution memos.
 
 ### currencies (optional)
 
-- **Type:** `readonly Address[]`
+- **Type:** `readonly Currency[]`
 
-Allowlist of TIP-20 currency addresses, compared without case sensitivity. An empty list rejects every offer. Required when you set `maxAmount` or `maxAtomicAmount`.
+Allowlist of TIP-20 addresses or tokens from `viem/tokens`, compared without case sensitivity. An empty list rejects every offer. Required when you set `maxAmount` or `maxAtomicAmount`.
 
 ### decimals (optional)
 
 - **Type:** `number`
 
-Decimals shared by the allowed currencies. Required to parse `maxAmount` because a Challenge doesn't carry currency decimals.
+Decimals for address currencies. Tokens carry their own decimals. Required to parse `maxAmount` for any address currency.
 
 ### expectedChainId (optional)
 
@@ -322,7 +322,7 @@ Function that returns a viem client for the given chain ID.
 
 - **Type:** `string`
 
-Maximum display-unit amount per charge, parsed with `decimals`. Requires `currencies` and `decimals`. Values that require rounding are rejected. The cap includes split payments and applies to each Credential, not cumulatively across retries.
+Maximum display-unit amount per charge, parsed with the matched token's decimals or `decimals` for an address. Requires `currencies` and decimals for every address currency. Values that require rounding are rejected. The cap includes split payments and applies to each Credential, not cumulatively across retries.
 
 ### maxAtomicAmount (optional)
 

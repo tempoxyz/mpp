@@ -200,7 +200,7 @@ Allowed Tempo chain IDs; use `[4217]` for mainnet.
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }`
 
 Acquires only the missing session currency before opens and top-ups.
 
@@ -218,16 +218,16 @@ Pluggable persistence for reusable channels. Defaults to an in-memory store. Use
 
 ### currencies (optional)
 
-- **Type:** `readonly Address[]`
+- **Type:** `readonly Currency[]`
 
-Case-insensitive allowlist of session currencies. An empty list rejects all offers. Required with `maxAmount` or `maxAtomicAmount`.
+Case-insensitive allowlist of session currency addresses or tokens from `viem/tokens`. An empty list rejects all offers. Required with `maxAmount` or `maxAtomicAmount`.
 
 ### decimals (optional)
 
 - **Type:** `number`
 - **Default:** `6`
 
-Token decimals for parsing human-readable amounts. Set this explicitly with `maxAmount`; omitting it rejects that cap rather than assuming six decimals.
+Decimals for address currencies when parsing human-readable amounts. Tokens carry their own. Set this explicitly with `maxAmount` for any address currency; omitting it rejects that cap rather than assuming six decimals.
 
 ### escrow (optional)
 
@@ -303,7 +303,7 @@ type SessionContext = {
   action?: 'open' | 'topUp' | 'voucher' | 'close'
   additionalDeposit?: string
   additionalDepositRaw?: string
-  autoSwap?: boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }
+  autoSwap?: boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }
   channelId?: Hex
   cumulativeAmount?: string
   cumulativeAmountRaw?: string

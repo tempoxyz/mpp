@@ -16,6 +16,9 @@ Require a verified identity before payment, check the payer before settlement, o
 | Option | Verifies | Use it for |
 |---|---|---|
 | [**Link**](#link) | Link-issued agent tokens or disclosed identity claims | Recognize Link agents or require a verified email |
+| [**Tempo ID**](#tempo-id) | A Tempo ID token and its authorized Tempo Accounts | Bind payment to a signed-in user |
+| [**World ID**](#world-id) | Approval by a World ID-verified human | Require a human behind an agent |
+| [**Poppy**](#poppy) | A delegated Personal Agent Session | Identify an agent and pseudonymous user |
 | [**Email OTP**](#email-otp) | An email inbox, or any fact a trusted issuer attests | Verified-address access without your own login |
 | [**Agent signatures**](#agent-signatures) | The agent or bot that signed the request | Bot recognition and agent-specific policy |
 | [**Your own identity provider**](#your-own-identity-provider) | Your identity provider's API keys, sessions, or SSO, or your own protocol | Existing customer access policy |
@@ -205,6 +208,32 @@ console.log(response.status)
 - See [`Link.Client.claimsChallenge`](/sdk/typescript/client/Link.claimsChallenge) to parse the challenge yourself and [`Link.Server.presentationVerifier`](/sdk/typescript/server/Link.presentationVerifier) for verification options.
 
 Keep proofs at their intended origin. The client strips sensitive identity headers on cross-origin redirects, and the [proxy](/sdk/typescript/proxy) removes them before forwarding upstream. See [`Identity.Headers`](/sdk/typescript/core/Identity.Headers).
+
+## Tempo ID
+
+Use `TempoId.Server.create` from `mppx/extensions/identity/tempo` to verify Tempo ID access tokens offline. Set `requiresAuth: true` because the token uses `Authorization`; the payment Credential then uses `Payment-Authorization`. Add `paymentCheck` to the route to require payment from a Tempo Account granted to that app and cleared by Tempo ID. Pass `clientId` to restrict the calling app, and a shared `store` to reject reused DPoP proofs.
+
+```ts
+import * as TempoId from 'mppx/extensions/identity/tempo'
+import { Mppx, tempo } from 'mppx/server'
+
+const tempoId = TempoId.Server.create({ clientId: 'app_123', store })
+const mppx = Mppx.create({ methods: [tempo({ recipient, store })], requiresAuth: true })
+const handler = mppx.charge({
+  amount: '0.01',
+  identity: { payment: tempoId.paymentCheck },
+})
+```
+
+On the client, `TempoId.Client.prover({ accessToken, scope })` sends the access token. Pass `dpop` for a DPoP-bound token and `idToken` when the server's `allow` policy reads the user's verified email. The payment check rejects Zone payments because they don't reveal the paying account.
+
+## World ID
+
+Use `World.Server.verifier` from `mppx/extensions/identity/world` to require an attestation from a World ID issuer. The verified `issuer` and pairwise `subject` identify the human. `World.Client.prover` follows the issuer's device flow and calls `verification` with the approval link and code. You can run `World.Issuer.create` yourself or use a shared issuer; allowlist the API origins the issuer may attest for and persist its signing key and attempt store. See the [upstream World ID example](https://github.com/wevm/mppx/tree/main/examples/world-id).
+
+## Poppy
+
+Use `Poppy.Server.verifier` from `mppx/extensions/identity/poppy` to check a Personal Agent Protocol Session JWT in `Poppy-Session`. Set the API's `audience` and an allowlist of HTTPS `client_id` URLs in `clients`. A valid Session identifies the agent, pseudonymous user, and session before the payment Challenge. `Poppy.Client.prover` signs a fresh JWT for each request and paid retry using a delegated ES256 key; `Poppy.Client.delegate` signs the delegation with a key published by the agent. A Session does not grant account access; verify any accompanying access token separately.
 
 ## Email OTP
 
@@ -450,7 +479,7 @@ Each client prover signs the initial request and every automatic MPP retry to th
 
 [Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture) identifies automated HTTP clients through a signed `Signature-Agent` header. Use the HTTPS-directory profile when the agent publishes its keys through a directory origin that your server trusts.
 
-Configure the prover on the MPP client. `keyId` must be the RFC 7638 SHA-256 thumbprint of the public key registered for the bot, and `scope` lists the origins that receive the signature.
+Configure the prover on the MPP client. It derives `keyId` from the public key registered for the bot. `scope` lists the origins that receive the signature. Pass a key pair or a remote signer with `publicKey` and `sign({ payload })`.
 
 ```ts twoslash [client.ts]
 import { Mppx, tempo } from 'mppx/client'
@@ -458,7 +487,7 @@ import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 import type { Account } from 'viem'
 
 declare const account: Account
-declare const botPrivateKey: CryptoKey
+declare const botKeys: CryptoKeyPair
 
 const botIdentity = {
   keyId: 'poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U',
@@ -469,8 +498,7 @@ const client = Mppx.create({
   // [!code hl:start]
   identity: [
     WebBotAuth.Client.prover({
-      key: botPrivateKey,
-      keyId: botIdentity.keyId,
+      key: botKeys,
       scope: ['https://api.example.com'],
       signatureAgent: botIdentity.signatureAgent,
     }),
@@ -533,14 +561,14 @@ import * as Tap from 'mppx/extensions/identity/tap'
 import type { Account } from 'viem'
 
 declare const account: Account
-declare const agentPrivateKey: CryptoKey
+declare const agentKeys: CryptoKeyPair
 
 const client = Mppx.create({
   // [!code hl:start]
   identity: [
     Tap.Client.prover({
       intent: 'payment',
-      key: agentPrivateKey,
+      key: agentKeys,
       keyId: 'agent-provider-key-1',
       scope: ['https://merchant.example'],
     }),

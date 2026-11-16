@@ -12,7 +12,7 @@ Signs attestation claims as a compact JWS with EdDSA over Ed25519. Use it in an 
 ```ts twoslash
 import * as Attestation from 'mppx/extensions/identity/attestation'
 
-declare const privateKey: CryptoKey // Ed25519
+declare const keys: CryptoKeyPair // Ed25519
 
 const now = Math.floor(Date.now() / 1000)
 
@@ -27,7 +27,7 @@ const attestation = await Attestation.sign(
     sub: '+14155550123',
     type: 'phone',
   },
-  { key: privateKey, keyId: 'NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs' },
+  { key: keys },
 )
 // [!code hl:end]
 ```
@@ -55,12 +55,12 @@ Signed as given; `sign` doesn't validate them. [`Attestation.verify`](/sdk/types
 
 ### options.key
 
-- **Type:** `CryptoKey`
+- **Type:** `SigningKey` (`CryptoKeyPair | Signer`)
 
-Ed25519 private key.
+Ed25519 key pair or remote signer with `publicKey` and `sign({ payload })`. `mppx` verifies the remote signature against the public key.
 
-### options.keyId
+### options.keyId (optional)
 
 - **Type:** `string`
 
-Key ID for the JWS `kid` header. Use the RFC 7638 thumbprint of the public key in your JSON Web Key Set.
+Key ID for the JWS `kid` header. Defaults to the RFC 7638 thumbprint of the public key in your JSON Web Key Set.

@@ -409,7 +409,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currencies` lists the accepted TIP-20 token addresses; this example accepts only OUSD on Tempo. Omit the list to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists accepted TIP-20 token addresses or tokens from `viem/tokens`, such as `ousd` and `ousd(4217)`. Tokens carry their decimals; an address uses the configured `decimals`. This example accepts only OUSD on Tempo. Omit the list to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
