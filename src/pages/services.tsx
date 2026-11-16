@@ -21,6 +21,7 @@ async function loadServices(): Promise<Service[]> {
     docs: service.docs,
     endpoints: [],
     id: service.id,
+    integration: service.integration,
     logo: logos[service.id],
     methods: {},
     name: service.name,

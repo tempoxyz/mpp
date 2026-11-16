@@ -835,7 +835,7 @@ export function ServicesPage({
                 label={category ? CATEGORY_LABELS[category] : "Showing all"}
               />
               <Dropdown
-                className="order-3 hidden md:order-2 md:block"
+                className="order-3 md:order-2"
                 items={[
                   {
                     label: "Any payment",
