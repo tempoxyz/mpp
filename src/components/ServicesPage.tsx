@@ -153,6 +153,7 @@ export function ServiceBadges({
 export const isFirstParty = (service: Pick<Service, "integration">) =>
   service.integration === "first-party";
 
+/** Purple "First-party" tag, shown only for services the provider runs itself. */
 export function FirstPartyTag({
   service,
 }: {
