@@ -149,6 +149,23 @@ export function ServiceBadges({
   );
 }
 
+/** Whether the provider runs MPP itself rather than through a proxy. */
+export const isFirstParty = (service: Pick<Service, "integration">) =>
+  service.integration === "first-party";
+
+export function FirstPartyTag({
+  service,
+}: {
+  service: Pick<Service, "integration">;
+}) {
+  if (!isFirstParty(service)) return null;
+  return (
+    <span className="inline-flex shrink-0 items-center bg-[rgba(158,148,255,0.1)] px-1.5 py-0.5 font-mono text-xs uppercase leading-4 tracking-[-0.12px] text-term-purple">
+      First-party
+    </span>
+  );
+}
+
 const serviceUrl = (service: Service) => service.serviceUrl ?? service.url;
 export const providerUrl = (service: Pick<Service, "provider" | "url">) =>
   service.provider?.url ?? service.url;
@@ -202,7 +219,7 @@ function ServiceTableRow({ service }: { service: Service }) {
     >
       <div className="px-4 py-5">
         <div className="flex items-start gap-4">
-          <div className="flex min-w-0 items-center gap-3 xl:w-[200px] xl:flex-none">
+          <div className="flex min-w-0 items-center gap-3 xl:w-[240px] xl:flex-none">
             <img
               alt=""
               className="size-9 shrink-0 object-contain"
@@ -216,10 +233,12 @@ function ServiceTableRow({ service }: { service: Service }) {
               <h2 className="truncate font-sans text-lg font-normal leading-[1.1] text-offwhite">
                 {service.name}
               </h2>
-              <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
-                {categoryLabel(service)}
-              </p>
-              <ServiceBadges service={service} />
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
+                  {categoryLabel(service)}
+                </p>
+                <FirstPartyTag service={service} />
+              </div>
             </div>
           </div>
 
@@ -454,6 +473,7 @@ function ServiceDetailModal({
               <span className="inline-flex items-center border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
                 {categoryLabel(service)}
               </span>
+              <FirstPartyTag service={service} />
               <ServiceBadges service={service} />
             </div>
             <p className="font-sans text-sm leading-[1.3] text-secondary">
@@ -814,35 +834,28 @@ export function ServicesPage({
                 ]}
                 label={category ? CATEGORY_LABELS[category] : "Showing all"}
               />
-              <fieldset className="order-3 flex shrink-0 gap-2 md:order-2">
-                <legend className="sr-only">Filter by payment support</legend>
-                {SERVICE_BADGES.map((badge) => {
-                  const active = badges.includes(badge);
-                  return (
-                    <button
-                      aria-pressed={active}
-                      className={cx(
-                        "flex h-10 items-center gap-2 border px-4 font-mono text-sm uppercase leading-4 tracking-[-0.14px] transition-colors",
-                        active
-                          ? "border-[rgba(235,235,235,0.4)] bg-[#262626] text-offwhite"
-                          : "border-border bg-[#101010] text-secondary hover:text-offwhite",
-                      )}
-                      key={badge}
-                      onClick={() => {
-                        setBadges((current) =>
-                          current.includes(badge)
-                            ? current.filter((value) => value !== badge)
-                            : [...current, badge],
-                        );
-                        setPage(0);
-                      }}
-                      type="button"
-                    >
-                      {BADGE_LABELS[badge]}
-                    </button>
-                  );
-                })}
-              </fieldset>
+              <Dropdown
+                className="order-3 hidden md:order-2 md:block"
+                items={[
+                  {
+                    label: "Any payment",
+                    onSelect: () => {
+                      setBadges([]);
+                      setPage(0);
+                    },
+                    selected: !badges.length,
+                  },
+                  ...SERVICE_BADGES.map((badge) => ({
+                    label: BADGE_LABELS[badge],
+                    onSelect: () => {
+                      setBadges([badge]);
+                      setPage(0);
+                    },
+                    selected: badges.length === 1 && badges[0] === badge,
+                  })),
+                ]}
+                label={badges.length ? BADGE_LABELS[badges[0]] : "Any payment"}
+              />
               <div className="order-4 hidden md:block">
                 <Button href="/overview" variant="primary">
                   Learn more
@@ -853,7 +866,7 @@ export function ServicesPage({
             {view === "list" ? (
               <div className="flex flex-col">
                 <div className="hidden items-end gap-4 border-b border-border px-4 pb-4 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary xl:flex">
-                  <div className="w-[200px] shrink-0">Provider</div>
+                  <div className="w-[240px] shrink-0">Provider</div>
                   <div className="flex-1">Description</div>
                   <div className="flex-1 text-right">Service URL</div>
                 </div>
@@ -878,7 +891,7 @@ export function ServicesPage({
                     tabIndex={0}
                   >
                     <ServiceCard
-                      badges={<ServiceBadges service={service} />}
+                      badges={<FirstPartyTag service={service} />}
                       headingLevel="h2"
                       service={service}
                     />
