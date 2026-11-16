@@ -3,14 +3,17 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import * as Charge from "../workers/playground/src/charge/app/samples.js";
 import * as Discovery from "../workers/playground/src/discovery/app/samples.js";
+import * as Zones from "../workers/playground/src/zones/app/samples.js";
 
-// The charge and discovery playgrounds' code panes, compiled against the Worker's SDK.
+// The charge, discovery and zones playgrounds' code panes, compiled against the Worker's SDK.
 const directory = path.resolve("workers/playground/src/shared");
 const samples = [
   { name: "charge-client", source: Charge.client },
   { name: "charge-server", source: Charge.server },
   { name: "discovery-client", source: Discovery.client },
   { name: "discovery-server", source: Discovery.server },
+  { name: "zones-client", source: Zones.client },
+  { name: "zones-server", source: Zones.server },
 ];
 const sources = new Map(
   samples.map(({ name, source }) => [
@@ -60,7 +63,7 @@ const formatHost: ts.FormatDiagnosticsHost = {
   getNewLine: () => "\n",
 };
 
-describe("charge and discovery playground displayed samples", () => {
+describe("charge, discovery and zones playground displayed samples", () => {
   it("rejects an invalid sample", () => {
     expect(
       diagnostics.some((d) => d.file?.fileName === invalid && d.code === 2551),
