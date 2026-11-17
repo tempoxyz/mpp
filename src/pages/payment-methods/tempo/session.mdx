@@ -75,7 +75,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account, // signs settlement and close transactions
-      chainId: 42431, // Tempo testnet (Moderato)
+      chainId: 4217, // Tempo mainnet
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(), // use a shared atomic store in production
     }),
@@ -100,8 +100,8 @@ export async function handler(request: Request) {
 
 A production server also needs a [settlement schedule](#settlement) to collect spend and [close supervision](#close-supervision) to protect it.
 
-:::info[Go live]
-Before going live, set `chainId: 4217` (Tempo mainnet) and fund a mainnet account.
+:::info[Test on Moderato]
+Set `chainId: 42431` to test on Moderato, and fund a testnet account before making requests.
 :::
 
 ### Settlement
@@ -118,7 +118,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 42431, // Tempo testnet (Moderato)
+      chainId: 4217, // Tempo mainnet
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       settlementSchedule: { // [!code hl]
         amount: '10',
@@ -139,15 +139,15 @@ To settle at a time you pick—for example, end-of-period reconciliation or befo
 import { Store, tempo } from 'mppx/server'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
+import { tempo as tempoChain } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 const store = Store.memory()
 
 const client = createWalletClient({
   account,
-  chain: tempoModerato,
-  transport: http('https://rpc.moderato.tempo.xyz'),
+  chain: tempoChain,
+  transport: http('https://rpc.tempo.xyz'),
 })
 
 const channelIds = [
@@ -175,13 +175,13 @@ Run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.sessio
 import { Mppx, Store, tempo } from 'mppx/server'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
+import { tempo as tempoChain } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 const client = createWalletClient({
   account,
-  chain: tempoModerato,
-  transport: http('https://rpc.moderato.tempo.xyz'),
+  chain: tempoChain,
+  transport: http('https://rpc.tempo.xyz'),
 })
 const store = Store.memory()
 
@@ -193,7 +193,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 42431,
+      chainId: 4217,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       onPaymentSuccess({ receipt }) { // [!code hl:start]
         channelIds.add(receipt.reference as `0x${string}`)
@@ -263,7 +263,7 @@ type SessionReceipt = {
 - **Credit undelivered prepaid items**: with `sse: true` and `unitType: 'request'`, buyers pay before your handler runs. The charge atomically records the pending delivery, blocking automatic bounded closure until delivery or refund reconciliation completes. Set `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit items lost to SSE failures, and persist refund jobs in `onRefundRequired`. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits).
 - **Charge dynamic amounts**: pass a `bigint` in base units, such as `stream.charge(2_000n)`, to price one event differently from the route's tick cost.
 - **Use WebSocket for bidirectional streams**: serve with [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) and connect with [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
-- **Go live**: before going live, set `chainId: 4217` and fund a mainnet account.
+- **Fund the settlement account**: keep enough mainnet fee tokens available for settlement and close transactions.
 
 ## Client
 

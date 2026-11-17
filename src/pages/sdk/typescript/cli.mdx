@@ -55,6 +55,10 @@ $ mppx --help
 ```
 :::
 
+:::note[Credential field]
+The top-level help describes `mppx sign` as outputting an Authorization header because `Authorization` is the default Credential field. The command outputs only the serialized Payment Credential value. Send it in the field advertised by the Challenge's `header` parameter, or in `Authorization` when `header` is omitted.
+:::
+
 ## Choose a payment protocol
 
 Keep the default `--protocol auto` for most requests. The CLI prefers MPP when the server offers both protocols and uses x402 when MPP isn't available.
@@ -118,6 +122,31 @@ console.log(result.summary.suggested)
 ```
 
 The `summary` contains `failed`, `passed`, `skipped`, `suggested`, and `warnings` counts. Individual checks use the matching `severity`, including `'suggested'` for optional improvements such as publishing `/llms.txt`. Suggested checks don't make validation fail.
+
+## Discovery commands
+
+Generate a static OpenAPI discovery document from a module that default-exports a discovery config:
+
+```bash [test.sh]
+$ mppx discover generate ./discovery.ts --output ./openapi.json
+```
+
+Validate a discovery document from a file or URL:
+
+```bash [test.sh]
+$ mppx discover validate ./openapi.json
+$ mppx discover validate https://api.example.com/openapi.json
+```
+
+## Service directory commands
+
+List one service's endpoints, search the MPP service directory, or inspect one service:
+
+```bash [test.sh]
+$ mppx services endpoints exa
+$ mppx services list --query search
+$ mppx services show exa
+```
 
 ## Environment variables
 
@@ -253,6 +282,7 @@ Manage local keychain-backed accounts with `mppx account`.
 ```bash [test.sh]
 $ mppx account create --account main
 $ mppx account default --account main
+$ mppx account fund --account main --network testnet
 $ mppx account list
 $ mppx account view --account main
 ```
@@ -266,6 +296,28 @@ $ mppx account export --account main
 :::warning
 `mppx account export` prints the private key. Don't commit it, paste it into shared logs, or use it in client-side code.
 :::
+
+Delete a local account when you no longer need it:
+
+```bash [test.sh]
+$ mppx account delete --account main
+```
+
+## Session commands
+
+Close a persistent Session cooperatively, list Sessions, or inspect one by its full channel ID:
+
+```bash [test.sh]
+$ mppx sessions close 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+$ mppx sessions list --network mainnet
+$ mppx sessions view 0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+
+Close every Session matching the optional account and network filters only when you intend to reclaim all their remaining reserves:
+
+```bash [test.sh]
+$ mppx sessions close --all --network mainnet --yes
+```
 
 ## Stripe address
 
@@ -355,10 +407,22 @@ $ mppx mcp add
 
 The MCP server exposes `mppx stripe address` as the `stripe_address` tool.
 
+Verify that the MCP server starts and lists its tools:
+
+```bash [test.sh]
+$ mppx mcp doctor
+```
+
 Sync skill files to your agent's skill directory:
 
 ```bash [test.sh]
 $ mppx skills add
+```
+
+List the available skills:
+
+```bash [test.sh]
+$ mppx skills list
 ```
 
 Generate and load shell completions—for example, with Zsh:
