@@ -250,12 +250,6 @@ button:disabled {
   top: 50%;
   transform: translateY(-60%);
 }
-.sample-blurb {
-  color: var(--dim);
-  flex-basis: 100%;
-  font-size: 13px;
-  margin: 0;
-}
 
 /* Match the homepage Terminal.tsx marketing frame and _root.css terminal theme. */
 .panel {

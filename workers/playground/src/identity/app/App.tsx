@@ -84,23 +84,20 @@ const basePath = `${import.meta.env.BASE_URL}identity/`;
 /** The samples, grouped as the dropdown lists them. */
 const groups: {
   label: string;
-  tiers: { blurb: string; id: Tier; label: string }[];
+  tiers: { id: Tier; label: string }[];
 }[] = [
   {
     label: "People",
     tiers: [
       {
-        blurb: "No proof: full price, a few a day.",
         id: "anonymous",
         label: "Anonymous",
       },
       {
-        blurb: "Verify an email once and reuse the attestation.",
         id: "email",
         label: "Email",
       },
       {
-        blurb: "Your own member lookup, sent as a scoped header.",
         id: "apiKey",
         label: "API key",
       },
@@ -110,19 +107,14 @@ const groups: {
     label: "Agents",
     tiers: [
       {
-        blurb:
-          "A Personal Agent signs a Session for a pseudonymous user (Poppy).",
         id: "poppy",
         label: "Personal Agent",
       },
       {
-        blurb:
-          "An agent registered on Tempo (ERC-8004) signs each request with its wallet.",
         id: "erc8004",
         label: "ERC-8004 agent",
       },
       {
-        blurb: "A bot signs each request with a key from its HTTPS directory.",
         id: "webBotAuth",
         label: "Web Bot Auth",
       },
@@ -132,7 +124,6 @@ const groups: {
     label: "Coming soon",
     tiers: [
       {
-        blurb: "Link attests an agent without sharing personal details.",
         id: "link",
         label: "Link",
       },
@@ -237,7 +228,6 @@ function Nav() {
 
 /** The sample dropdown: who is buying, grouped into people, agents and what's coming. */
 function SamplePicker({ f }: { f: Demo }) {
-  const current = tiers.find((t) => t.id === f.tier);
   // A Worker that predates the agent tiers can't serve them yet.
   const offline = f.config !== undefined && !f.config.agents;
   return (
@@ -272,7 +262,6 @@ function SamplePicker({ f }: { f: Demo }) {
           ⌄
         </span>
       </div>
-      {current && <p className="sample-blurb">{current.blurb}</p>}
     </div>
   );
 }
