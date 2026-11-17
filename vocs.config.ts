@@ -1,8 +1,193 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
 import { loadBlogPosts } from "./scripts/blog";
+import { transformMarkdownOutput } from "./scripts/markdown-output.ts";
 import remarkMppMarkdown from "./scripts/remark-mpp-markdown.ts";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
+
+// Pages merged into their parent page. Each also redirects its Markdown
+// URL (/page.md) to the parent's Markdown, which has no anchors.
+const mergedPageRedirects: {
+  source: string;
+  destination: string;
+  status: 308;
+}[] = [
+  {
+    source: "/payment-methods/evm/charge",
+    destination: "/payment-methods/evm#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/card/charge",
+    destination: "/payment-methods/card#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stripe/charge",
+    destination: "/payment-methods/stripe#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/lightning/charge",
+    destination: "/payment-methods/lightning#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/lightning/session",
+    destination: "/payment-methods/lightning#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/solana/charge",
+    destination: "/payment-methods/solana#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/solana/session",
+    destination: "/payment-methods/solana#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/xrpl/charge",
+    destination: "/payment-methods/xrpl#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/xrpl/session",
+    destination: "/payment-methods/xrpl#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stellar/charge",
+    destination: "/payment-methods/stellar#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/stellar/session",
+    destination: "/payment-methods/stellar#session",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/monad/charge",
+    destination: "/payment-methods/monad#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/nearintents/charge",
+    destination: "/payment-methods/nearintents#charge",
+    status: 308,
+  },
+  {
+    source: "/payment-methods/redotpay/charge",
+    destination: "/payment-methods/redotpay#charge",
+    status: 308,
+  },
+  {
+    source: "/guides/pay-as-you-go",
+    destination: "/guides/usage-based#per-request",
+    status: 308,
+  },
+  {
+    source: "/guides/streamed-payments",
+    destination: "/guides/usage-based#streaming",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/http",
+    destination: "/protocol/transports#http",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/mcp",
+    destination: "/protocol/transports#mcp-and-json-rpc",
+    status: 308,
+  },
+  {
+    source: "/protocol/transports/websocket",
+    destination: "/protocol/transports#websocket",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/email-otp",
+    destination: "/extensions/identity#email-otp",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/agent-signatures",
+    destination: "/extensions/identity#agent-signatures",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/custom",
+    destination: "/extensions/identity#your-own-identity-provider",
+    status: 308,
+  },
+  {
+    source: "/extensions/identity/payer",
+    destination: "/extensions/identity#payer-identity",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/core",
+    destination: "/sdk/python#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/client",
+    destination: "/sdk/python#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/python/server",
+    destination: "/sdk/python#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/core",
+    destination: "/sdk/rust#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/client",
+    destination: "/sdk/rust#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/rust/server",
+    destination: "/sdk/rust#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/core",
+    destination: "/sdk/go#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/client",
+    destination: "/sdk/go#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/go/server",
+    destination: "/sdk/go#server",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/core",
+    destination: "/sdk/ruby#core-types",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/client",
+    destination: "/sdk/ruby#client",
+    status: 308,
+  },
+  {
+    source: "/sdk/ruby/server",
+    destination: "/sdk/ruby#server",
+    status: 308,
+  },
+];
 
 const baseUrl = (() => {
   if (process.env.VERCEL_ENV === "production")
@@ -49,6 +234,7 @@ export default defineConfig({
     return undefined;
   },
   markdown: {
+    output: { validation: "fail", transform: transformMarkdownOutput },
     outputRemarkPlugins: [
       // Production bundles may omit source MDX after Markdown artifacts exist.
       // Builds still fail on missing or invalid posts; only runtime config load
@@ -96,6 +282,13 @@ export default defineConfig({
       destination: "/payment-methods/stripe",
     },
 
+    ...mergedPageRedirects,
+    ...mergedPageRedirects.map(({ source, destination }) => ({
+      source: `${source}.md`,
+      destination: `${destination.split("#")[0]}.md`,
+      status: 308 as const,
+    })),
+
     // Protocol concept shortcuts
     { source: "/402", destination: "/protocol/http-402" },
     {
@@ -115,7 +308,7 @@ export default defineConfig({
     { source: "/receipt", destination: "/protocol/receipts" },
     { source: "/transports", destination: "/protocol/transports" },
     { source: "/transport", destination: "/protocol/transports" },
-    { source: "/mcp", destination: "/protocol/transports/mcp" },
+    { source: "/mcp", destination: "/protocol/transports#mcp-and-json-rpc" },
 
     // SDK shortcuts
     { source: "/typescript", destination: "/sdk/typescript" },
@@ -259,27 +452,52 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Request.toNodeListener",
     },
 
-    // Advanced features aliases
+    // Extensions aliases
     {
       source: "/authentication",
-      destination: "/advanced/identity",
+      destination: "/extensions/identity",
     },
     {
       source: "/advanced/authentication",
-      destination: "/advanced/identity",
+      destination: "/extensions/identity",
     },
-    { source: "/identity", destination: "/advanced/identity" },
+    { source: "/identity", destination: "/extensions/identity" },
     {
       source: "/protocol/discovery",
-      destination: "/advanced/discovery",
+      destination: "/extensions/discovery",
       status: 308,
     },
-    { source: "/refunds", destination: "/advanced/refunds" },
+    { source: "/refunds", destination: "/extensions/refunds" },
+    {
+      source: "/advanced/discovery",
+      destination: "/extensions/discovery",
+      status: 308,
+    },
+    {
+      source: "/advanced/identity",
+      destination: "/extensions/identity",
+      status: 308,
+    },
+    {
+      source: "/advanced/payment-hooks",
+      destination: "/extensions/payment-hooks",
+      status: 308,
+    },
+    {
+      source: "/advanced/refunds",
+      destination: "/extensions/refunds",
+      status: 308,
+    },
+    {
+      source: "/advanced/relays",
+      destination: "/extensions/relays",
+      status: 308,
+    },
 
-    // Extensions aliases
-    { source: "/awesome", destination: "/extensions" },
-    { source: "/community", destination: "/extensions" },
-    { source: "/ecosystem", destination: "/extensions" },
+    // Third-party extensions aliases
+    { source: "/awesome", destination: "/extensions/third-party" },
+    { source: "/community", destination: "/extensions/third-party" },
+    { source: "/ecosystem", destination: "/extensions/third-party" },
 
     // Services aliases
     { source: "/service", destination: "/services" },
@@ -287,7 +505,7 @@ export default defineConfig({
     { source: "/directory", destination: "/services" },
   ],
   description:
-    "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402.",
+    "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402, co-authored by Tempo and Stripe.",
   checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
@@ -323,806 +541,871 @@ export default defineConfig({
   sidebar: {
     "/": [
       {
-        text: "Introduction",
+        text: "Get started",
         items: [
           { text: "Overview", link: "/overview" },
           {
-            text: "IETF Specs",
-            link: "https://paymentauth.org",
+            text: "Quickstart",
+            link: "/quickstart",
+            items: [
+              { text: "Add payments to your API", link: "/quickstart/server" },
+              { text: "Use with agents", link: "/quickstart/agent" },
+              { text: "Use with your app", link: "/quickstart/client" },
+            ],
           },
-          { text: "Governance", link: "/governance" },
-          { text: "FAQ", link: "/faq" },
           { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
+          { text: "Security best practices", link: "/advanced/security" },
         ],
       },
       {
-        text: "Quick Start",
+        text: "For sellers",
         items: [
-          { text: "Overview", link: "/quickstart" },
-          { text: "Add payments to your API", link: "/quickstart/server" },
-          { text: "Use with agents", link: "/quickstart/agent" },
-          { text: "Use with your app", link: "/quickstart/client" },
+          { text: "Charge per request", link: "/guides/one-time-payments" },
+          { text: "Bill by usage", link: "/guides/usage-based" },
+          { text: "Sell subscriptions", link: "/guides/subscription-payments" },
+          { text: "Accept cards", link: "/guides/accept-card-payments" },
+          { text: "Split payments", link: "/guides/split-payments" },
+          {
+            text: "Accept multiple methods",
+            link: "/guides/multiple-payment-methods",
+          },
+          { text: "Create payment links", link: "/guides/payment-links" },
+          {
+            text: "Proxy an existing service",
+            link: "/guides/proxy-existing-service",
+          },
+          { text: "Monetize MCP servers", link: "/guides/monetize-mcp-server" },
+          { text: "Monetize WebMCP tools", link: "/guides/webmcp-payments" },
+          { text: "Accept x402 payments", link: "/guides/use-mpp-with-x402" },
         ],
       },
       {
-        text: "Guides",
+        text: "For buyers",
         items: [
           {
-            text: "Accept one-time payments",
-            link: "/guides/one-time-payments",
-          },
-          {
-            text: "Accept pay-as-you-go payments",
-            link: "/guides/pay-as-you-go",
-          },
-          {
-            text: "Accept streamed payments",
-            link: "/guides/streamed-payments",
-          },
-          {
-            text: "Create and manage subscriptions",
-            link: "/guides/subscription-payments",
-          },
-          {
-            text: "Use MPP with x402",
-            link: "/guides/use-mpp-with-x402",
-          },
-          {
-            text: "Managing agent spend",
-            link: "/guides/managing-agent-spend",
-          },
-          {
-            text: "Advanced",
+            text: "Agents",
             items: [
+              { text: "Manage spend", link: "/guides/managing-agent-spend" },
               {
-                text: "Accept card payments",
-                link: "/guides/accept-card-payments",
+                text: "Agent SDKs",
+                items: [
+                  {
+                    text: "Cloudflare Agents",
+                    link: "/partner-integrations/cloudflare-agents",
+                  },
+                  { text: "MCP SDK", link: "/partner-integrations/mcp-sdk" },
+                  { text: "OpenClaw", link: "/partner-integrations/openclaw" },
+                  {
+                    text: "Vercel AI SDK",
+                    link: "/partner-integrations/vercel-ai-sdk",
+                  },
+                ],
               },
+            ],
+          },
+          { text: "Pay for sessions", link: "/guides/pay-for-sessions" },
+          { text: "Wallets", link: "/tools/wallet" },
+        ],
+      },
+      {
+        text: "Concepts",
+        items: [
+          {
+            text: "Protocol",
+            link: "/protocol",
+            collapsed: false,
+            items: [
+              { text: "HTTP 402", link: "/protocol/http-402" },
+              { text: "Challenges", link: "/protocol/challenges" },
+              { text: "Credentials", link: "/protocol/credentials" },
+              { text: "Receipts", link: "/protocol/receipts" },
+              { text: "Transports", link: "/protocol/transports" },
+            ],
+          },
+          {
+            text: "Intents",
+            link: "/intents",
+            collapsed: false,
+            items: [
+              { text: "Charge", link: "/intents/charge" },
+              { text: "Session", link: "/intents/session" },
+              { text: "Subscription", link: "/intents/subscription" },
+            ],
+          },
+          {
+            text: "Extensions",
+            link: "/extensions",
+            collapsed: false,
+            items: [
+              { text: "Discovery", link: "/extensions/discovery" },
+              { text: "Identity", link: "/extensions/identity" },
+              { text: "Payment hooks", link: "/extensions/payment-hooks" },
+              { text: "Refunds", link: "/extensions/refunds" },
+              { text: "Relays", link: "/extensions/relays" },
               {
-                text: "Accept split payments",
-                link: "/guides/split-payments",
-              },
-              {
-                text: "Accept multiple payment methods",
-                link: "/guides/multiple-payment-methods",
-              },
-              {
-                text: "Create a payment link",
-                link: "/guides/payment-links",
-              },
-              {
-                text: "Monetize your MCP server",
-                link: "/guides/monetize-mcp-server",
-              },
-              {
-                text: "Monetize WebMCP tools",
-                link: "/guides/webmcp-payments",
-              },
-              {
-                text: "Proxy an existing service",
-                link: "/guides/proxy-existing-service",
+                text: "Third-party extensions",
+                link: "/extensions/third-party",
               },
             ],
           },
         ],
       },
       {
-        text: "Protocol",
-        items: [
-          { text: "Overview", link: "/protocol" },
-          { text: "HTTP 402", link: "/protocol/http-402" },
-          { text: "Challenges", link: "/protocol/challenges" },
-          { text: "Credentials", link: "/protocol/credentials" },
-          { text: "Receipts", link: "/protocol/receipts" },
-          {
-            text: "Transports",
-            link: "/protocol/transports",
-            items: [
-              { text: "HTTP", link: "/protocol/transports/http" },
-              { text: "MCP and JSON-RPC", link: "/protocol/transports/mcp" },
-              { text: "WebSocket", link: "/protocol/transports/websocket" },
-            ],
-          },
-        ],
-      },
-      {
-        text: "Partner Integrations",
-        items: [
-          {
-            text: "Cloudflare Agents",
-            link: "/partner-integrations/cloudflare-agents",
-          },
-          {
-            text: "Official MCP SDK",
-            link: "/partner-integrations/mcp-sdk",
-          },
-          {
-            text: "OpenClaw",
-            link: "/partner-integrations/openclaw",
-          },
-          {
-            text: "Vercel AI SDK",
-            link: "/partner-integrations/vercel-ai-sdk",
-          },
-        ],
-      },
-
-      {
-        text: "Advanced Features",
-        items: [
-          { text: "Relays", link: "/advanced/relays" },
-          { text: "Discovery", link: "/advanced/discovery" },
-          { text: "Identity", link: "/advanced/identity" },
-          { text: "Payment hooks", link: "/advanced/payment-hooks" },
-          { text: "Refunds", link: "/advanced/refunds" },
-        ],
-      },
-      {
-        text: "Security",
-        items: [
-          { text: "Security Best Practices", link: "/advanced/security" },
-        ],
-      },
-      {
-        text: "Intents",
-        items: [
-          { text: "Overview", link: "/intents" },
-          { text: "Charge", link: "/intents/charge" },
-          { text: "Session", link: "/intents/session" },
-          { text: "Subscription", link: "/intents/subscription" },
-        ],
-      },
-      {
-        text: "Payment Methods",
+        text: "Payment methods",
         items: [
           { text: "Overview", link: "/payment-methods" },
           {
             text: "Tempo",
+            link: "/payment-methods/tempo",
             collapsed: true,
             items: [
-              { text: "Overview", link: "/payment-methods/tempo" },
               { text: "Charge", link: "/payment-methods/tempo/charge" },
               { text: "Session", link: "/payment-methods/tempo/session" },
               {
                 text: "Subscription",
                 link: "/payment-methods/tempo/subscription",
               },
+              { text: "Private payments", link: "/guides/private-payments" },
             ],
           },
-          {
-            text: "EVM",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/evm" },
-              { text: "Charge", link: "/payment-methods/evm/charge" },
-            ],
-          },
-          {
-            text: "Stripe",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/stripe" },
-              { text: "SPT charge", link: "/payment-methods/stripe/charge" },
-            ],
-          },
-          {
-            text: "Card",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/card" },
-              { text: "Charge", link: "/payment-methods/card/charge" },
-            ],
-          },
-          {
-            text: "Lightning",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/lightning" },
-              { text: "Charge", link: "/payment-methods/lightning/charge" },
-              { text: "Session", link: "/payment-methods/lightning/session" },
-            ],
-          },
-          {
-            text: "Solana",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/solana" },
-              { text: "Charge", link: "/payment-methods/solana/charge" },
-              { text: "Session", link: "/payment-methods/solana/session" },
-            ],
-          },
-          {
-            text: "XRPL",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/xrpl" },
-              { text: "Charge", link: "/payment-methods/xrpl/charge" },
-              { text: "Session", link: "/payment-methods/xrpl/session" },
-            ],
-          },
-          {
-            text: "Stellar",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/stellar" },
-              { text: "Charge", link: "/payment-methods/stellar/charge" },
-              { text: "Channel", link: "/payment-methods/stellar/session" },
-            ],
-          },
-          {
-            text: "Monad",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/monad" },
-              { text: "Charge", link: "/payment-methods/monad/charge" },
-            ],
-          },
-          {
-            text: "NEAR Intents",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/nearintents" },
-              { text: "Charge", link: "/payment-methods/nearintents/charge" },
-            ],
-          },
-          {
-            text: "RedotPay",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/redotpay" },
-              { text: "Charge", link: "/payment-methods/redotpay/charge" },
-            ],
-          },
+          { text: "EVM", link: "/payment-methods/evm" },
+          { text: "Stripe", link: "/payment-methods/stripe" },
+          { text: "Card", link: "/payment-methods/card" },
+          { text: "Lightning", link: "/payment-methods/lightning" },
+          { text: "Solana", link: "/payment-methods/solana" },
+          { text: "XRPL", link: "/payment-methods/xrpl" },
+          { text: "Stellar", link: "/payment-methods/stellar" },
+          { text: "Monad", link: "/payment-methods/monad" },
+          { text: "NEAR Intents", link: "/payment-methods/nearintents" },
+          { text: "RedotPay", link: "/payment-methods/redotpay" },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },
+    ],
+    "/sdk": [
+      { text: "Overview", link: "/sdk" },
+      { text: "SDK features", link: "/sdk/features" },
       {
-        text: "SDKs",
+        text: "TypeScript",
         items: [
-          { text: "Overview", link: "/sdk" },
-          { text: "SDK features", link: "/sdk/features" },
+          { text: "Getting started", link: "/sdk/typescript" },
           {
-            text: "TypeScript",
+            text: "Client reference",
             items: [
-              { text: "Getting started", link: "/sdk/typescript" },
               {
-                text: "Client reference",
+                text: "Methods",
+                collapsed: true,
                 items: [
                   {
-                    text: "Methods",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "evm",
-                        link: "/sdk/typescript/client/Method.evm",
-                      },
-                      {
-                        text: "evm.charge",
-                        link: "/sdk/typescript/client/Method.evm.charge",
-                      },
-                      {
-                        text: "tempo",
-                        link: "/sdk/typescript/client/Method.tempo",
-                      },
-                      {
-                        text: "tempo.charge",
-                        link: "/sdk/typescript/client/Method.tempo.charge",
-                      },
-                      {
-                        text: "tempo.session",
-                        link: "/sdk/typescript/client/Method.tempo.session",
-                      },
-                      {
-                        text: "tempo.session (manager)",
-                        link: "/sdk/typescript/client/Method.tempo.session-manager",
-                      },
-                      {
-                        text: "tempo.subscription",
-                        link: "/sdk/typescript/client/Method.tempo.subscription",
-                      },
-                      {
-                        text: "stripe",
-                        link: "/sdk/typescript/client/Method.stripe",
-                      },
-                      {
-                        text: "stripe.charge",
-                        link: "/sdk/typescript/client/Method.stripe.charge",
-                      },
-                    ],
+                    text: "evm",
+                    link: "/sdk/typescript/client/Method.evm",
                   },
                   {
-                    text: "Mppx",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".create",
-                        link: "/sdk/typescript/client/Mppx.create",
-                      },
-                      {
-                        text: ".preparePayment",
-                        link: "/sdk/typescript/client/Mppx.preparePayment",
-                      },
-                      {
-                        text: ".restore",
-                        link: "/sdk/typescript/client/Mppx.restore",
-                      },
-                    ],
+                    text: "evm.charge",
+                    link: "/sdk/typescript/client/Method.evm.charge",
                   },
                   {
-                    text: "Fetch",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/client/Fetch.from",
-                      },
-                      {
-                        text: ".polyfill",
-                        link: "/sdk/typescript/client/Fetch.polyfill",
-                      },
-                      {
-                        text: ".restore",
-                        link: "/sdk/typescript/client/Fetch.restore",
-                      },
-                    ],
+                    text: "tempo",
+                    link: "/sdk/typescript/client/Method.tempo",
                   },
                   {
-                    text: "Transport",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/client/Transport.from",
-                      },
-                      {
-                        text: ".http",
-                        link: "/sdk/typescript/client/Transport.http",
-                      },
-                      {
-                        text: ".mcp",
-                        link: "/sdk/typescript/client/Transport.mcp",
-                      },
-                    ],
+                    text: "tempo.charge",
+                    link: "/sdk/typescript/client/Method.tempo.charge",
                   },
                   {
-                    text: "MCP",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "McpClient.wrap",
-                        link: "/sdk/typescript/client/McpClient.wrap",
-                      },
-                    ],
+                    text: "tempo.session",
+                    link: "/sdk/typescript/client/Method.tempo.session",
+                  },
+                  {
+                    text: "tempo.session (manager)",
+                    link: "/sdk/typescript/client/Method.tempo.session-manager",
+                  },
+                  {
+                    text: "tempo.subscription",
+                    link: "/sdk/typescript/client/Method.tempo.subscription",
+                  },
+                  {
+                    text: "stripe",
+                    link: "/sdk/typescript/client/Method.stripe",
+                  },
+                  {
+                    text: "stripe.charge",
+                    link: "/sdk/typescript/client/Method.stripe.charge",
                   },
                 ],
               },
               {
-                text: "Server reference",
+                text: "Mppx",
+                collapsed: true,
                 items: [
                   {
-                    text: "Methods",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "evm",
-                        link: "/sdk/typescript/server/Method.evm",
-                      },
-                      {
-                        text: "evm.charge",
-                        link: "/sdk/typescript/server/Method.evm.charge",
-                      },
-                      {
-                        text: "tempo",
-                        link: "/sdk/typescript/server/Method.tempo",
-                      },
-                      {
-                        text: "tempo.charge",
-                        link: "/sdk/typescript/server/Method.tempo.charge",
-                      },
-                      {
-                        text: "tempo.session",
-                        link: "/sdk/typescript/server/Method.tempo.session",
-                      },
-                      {
-                        text: "tempo.subscription",
-                        link: "/sdk/typescript/server/Method.tempo.subscription",
-                      },
-                      {
-                        text: "stripe",
-                        link: "/sdk/typescript/server/Method.stripe",
-                      },
-                      {
-                        text: "stripe.charge",
-                        link: "/sdk/typescript/server/Method.stripe.charge",
-                      },
-                      {
-                        text: "stripe.create",
-                        link: "/sdk/typescript/server/Method.stripe.create",
-                      },
-                      {
-                        text: "stripe.findOrCreateDepositAddress",
-                        link: "/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress",
-                      },
-                      {
-                        text: "stripe.spt",
-                        link: "/sdk/typescript/server/Method.stripe.spt",
-                      },
-                    ],
+                    text: ".create",
+                    link: "/sdk/typescript/client/Mppx.create",
                   },
                   {
-                    text: "Mppx",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".broadcastCredential",
-                        link: "/sdk/typescript/server/Mppx.broadcastCredential",
-                      },
-                      {
-                        text: ".compose",
-                        link: "/sdk/typescript/server/Mppx.compose",
-                      },
-                      {
-                        text: ".create",
-                        link: "/sdk/typescript/server/Mppx.create",
-                      },
-                      {
-                        text: ".toNodeListener",
-                        link: "/sdk/typescript/server/Mppx.toNodeListener",
-                      },
-                      {
-                        text: ".validateCredential",
-                        link: "/sdk/typescript/server/Mppx.validateCredential",
-                      },
-                      {
-                        text: ".verifyCredential",
-                        link: "/sdk/typescript/server/Mppx.verifyCredential",
-                      },
-                    ],
+                    text: ".preparePayment",
+                    link: "/sdk/typescript/client/Mppx.preparePayment",
                   },
                   {
-                    text: "Transport",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/server/Transport.from",
-                      },
-                      {
-                        text: ".http",
-                        link: "/sdk/typescript/server/Transport.http",
-                      },
-                      {
-                        text: ".mcp",
-                        link: "/sdk/typescript/server/Transport.mcp",
-                      },
-                      {
-                        text: ".mcpSdk",
-                        link: "/sdk/typescript/server/Transport.mcpSdk",
-                      },
-                    ],
-                  },
-                  {
-                    text: "WebSocket",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "session.serveWebSocket",
-                        link: "/sdk/typescript/server/Ws.serve",
-                      },
-                    ],
-                  },
-                  {
-                    text: "Utilities",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "Request.toNodeListener",
-                        link: "/sdk/typescript/server/Request.toNodeListener",
-                      },
-                      {
-                        text: "Response.requirePayment",
-                        link: "/sdk/typescript/server/Response.requirePayment",
-                      },
-                      {
-                        text: "tempo.machineTokenDeployments",
-                        link: "/sdk/typescript/tempo.machineTokenDeployments",
-                      },
-                      {
-                        text: "tempo.renewSubscription",
-                        link: "/sdk/typescript/server/Method.tempo.renewSubscription",
-                      },
-                    ],
+                    text: ".restore",
+                    link: "/sdk/typescript/client/Mppx.restore",
                   },
                 ],
               },
               {
-                text: "Middleware reference",
+                text: "Fetch",
+                collapsed: true,
                 items: [
                   {
-                    text: "Elysia",
-                    link: "/sdk/typescript/middlewares/elysia",
+                    text: ".from",
+                    link: "/sdk/typescript/client/Fetch.from",
                   },
                   {
-                    text: "Express",
-                    link: "/sdk/typescript/middlewares/express",
+                    text: ".polyfill",
+                    link: "/sdk/typescript/client/Fetch.polyfill",
                   },
                   {
-                    text: "Hono",
-                    link: "/sdk/typescript/middlewares/hono",
+                    text: ".restore",
+                    link: "/sdk/typescript/client/Fetch.restore",
                   },
                   {
-                    text: "Next.js",
-                    link: "/sdk/typescript/middlewares/nextjs",
+                    text: ".withoutPayment",
+                    link: "/sdk/typescript/client/Fetch.withoutPayment",
                   },
                 ],
               },
               {
-                text: "x402 compatibility",
+                text: "Transport",
+                collapsed: true,
                 items: [
                   {
-                    text: "Express",
-                    link: "/sdk/typescript/x402/express",
+                    text: ".from",
+                    link: "/sdk/typescript/client/Transport.from",
                   },
                   {
-                    text: "Hono",
-                    link: "/sdk/typescript/x402/hono",
+                    text: ".http",
+                    link: "/sdk/typescript/client/Transport.http",
                   },
                   {
-                    text: "MCP",
-                    link: "/sdk/typescript/x402/mcp",
-                  },
-                  {
-                    text: "Next.js",
-                    link: "/sdk/typescript/x402/next",
+                    text: ".mcp",
+                    link: "/sdk/typescript/client/Transport.mcp",
                   },
                 ],
               },
               {
-                text: "Proxy",
-                link: "/sdk/typescript/proxy",
-              },
-              {
-                text: "Core reference",
+                text: "MCP",
+                collapsed: true,
                 items: [
                   {
-                    text: "BodyDigest",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".compute",
-                        link: "/sdk/typescript/core/BodyDigest.compute",
-                      },
-                      {
-                        text: ".verify",
-                        link: "/sdk/typescript/core/BodyDigest.verify",
-                      },
-                    ],
-                  },
-                  {
-                    text: "Challenge",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".credentialHeader",
-                        link: "/sdk/typescript/core/Challenge.credentialHeader",
-                      },
-                      {
-                        text: ".deserialize",
-                        link: "/sdk/typescript/core/Challenge.deserialize",
-                      },
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/core/Challenge.from",
-                      },
-                      {
-                        text: ".fromHeaders",
-                        link: "/sdk/typescript/core/Challenge.fromHeaders",
-                      },
-                      {
-                        text: ".fromMethod",
-                        link: "/sdk/typescript/core/Challenge.fromMethod",
-                      },
-                      {
-                        text: ".fromResponse",
-                        link: "/sdk/typescript/core/Challenge.fromResponse",
-                      },
-                      {
-                        text: ".fromResponseList",
-                        link: "/sdk/typescript/core/Challenge.fromResponseList",
-                      },
-                      {
-                        text: ".meta",
-                        link: "/sdk/typescript/core/Challenge.meta",
-                      },
-                      {
-                        text: ".serialize",
-                        link: "/sdk/typescript/core/Challenge.serialize",
-                      },
-                      {
-                        text: ".verify",
-                        link: "/sdk/typescript/core/Challenge.verify",
-                      },
-                    ],
-                  },
-                  {
-                    text: "Credential",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".deserialize",
-                        link: "/sdk/typescript/core/Credential.deserialize",
-                      },
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/core/Credential.from",
-                      },
-                      {
-                        text: ".fromRequest",
-                        link: "/sdk/typescript/core/Credential.fromRequest",
-                      },
-                      {
-                        text: ".serialize",
-                        link: "/sdk/typescript/core/Credential.serialize",
-                      },
-                    ],
-                  },
-                  { text: "Expires", link: "/sdk/typescript/core/Expires" },
-                  {
-                    text: "Method",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/core/Method.from",
-                      },
-                      {
-                        text: ".toClient",
-                        link: "/sdk/typescript/core/Method.toClient",
-                      },
-                      {
-                        text: ".toServer",
-                        link: "/sdk/typescript/core/Method.toServer",
-                      },
-                    ],
-                  },
-                  {
-                    text: "PaymentRequest",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".deserialize",
-                        link: "/sdk/typescript/core/PaymentRequest.deserialize",
-                      },
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/core/PaymentRequest.from",
-                      },
-                      {
-                        text: ".serialize",
-                        link: "/sdk/typescript/core/PaymentRequest.serialize",
-                      },
-                    ],
-                  },
-                  {
-                    text: "Receipt",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".deserialize",
-                        link: "/sdk/typescript/core/Receipt.deserialize",
-                      },
-                      {
-                        text: ".from",
-                        link: "/sdk/typescript/core/Receipt.from",
-                      },
-                      {
-                        text: ".fromResponse",
-                        link: "/sdk/typescript/core/Receipt.fromResponse",
-                      },
-                      {
-                        text: ".serialize",
-                        link: "/sdk/typescript/core/Receipt.serialize",
-                      },
-                    ],
-                  },
-                  {
-                    text: "Store",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: ".tryClaim",
-                        link: "/sdk/typescript/core/Store.tryClaim",
-                      },
-                    ],
+                    text: "McpClient.wrap",
+                    link: "/sdk/typescript/client/McpClient.wrap",
                   },
                 ],
               },
-              {
-                text: "HTML reference",
-                items: [
-                  {
-                    text: "Html.init",
-                    link: "/sdk/typescript/Html.init",
-                  },
-                  {
-                    text: "Custom",
-                    link: "/sdk/typescript/html/custom",
-                  },
-                ],
-              },
-              { text: "CLI reference", link: "/sdk/typescript/cli" },
             ],
           },
           {
-            text: "Python",
+            text: "Server reference",
+            items: [
+              {
+                text: "Methods",
+                collapsed: true,
+                items: [
+                  {
+                    text: "evm",
+                    link: "/sdk/typescript/server/Method.evm",
+                  },
+                  {
+                    text: "evm.charge",
+                    link: "/sdk/typescript/server/Method.evm.charge",
+                  },
+                  {
+                    text: "tempo",
+                    link: "/sdk/typescript/server/Method.tempo",
+                  },
+                  {
+                    text: "tempo.charge",
+                    link: "/sdk/typescript/server/Method.tempo.charge",
+                  },
+                  {
+                    text: "tempo.session",
+                    link: "/sdk/typescript/server/Method.tempo.session",
+                  },
+                  {
+                    text: "tempo.session (Cloudflare)",
+                    link: "/sdk/typescript/cloudflare",
+                  },
+                  {
+                    text: "tempo.session (WebSocket)",
+                    link: "/sdk/typescript/server/Ws.serve",
+                  },
+                  {
+                    text: "tempo.subscription",
+                    link: "/sdk/typescript/server/Method.tempo.subscription",
+                  },
+                  {
+                    text: "tempo.renewSubscription",
+                    link: "/sdk/typescript/server/Method.tempo.renewSubscription",
+                  },
+                  {
+                    text: "stripe",
+                    link: "/sdk/typescript/server/Method.stripe",
+                  },
+                  {
+                    text: "stripe.charge",
+                    link: "/sdk/typescript/server/Method.stripe.charge",
+                  },
+                  {
+                    text: "stripe.create",
+                    link: "/sdk/typescript/server/Method.stripe.create",
+                  },
+                  {
+                    text: "stripe.findOrCreateDepositAddress",
+                    link: "/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress",
+                  },
+                  {
+                    text: "stripe.recordPayment",
+                    link: "/sdk/typescript/server/Method.stripe.recordPayment",
+                  },
+                  {
+                    text: "stripe.spt",
+                    link: "/sdk/typescript/server/Method.stripe.spt",
+                  },
+                ],
+              },
+              {
+                text: "Mppx",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".broadcastCredential",
+                    link: "/sdk/typescript/server/Mppx.broadcastCredential",
+                  },
+                  {
+                    text: ".compose",
+                    link: "/sdk/typescript/server/Mppx.compose",
+                  },
+                  {
+                    text: ".create",
+                    link: "/sdk/typescript/server/Mppx.create",
+                  },
+                  {
+                    text: ".toNodeListener",
+                    link: "/sdk/typescript/server/Mppx.toNodeListener",
+                  },
+                  {
+                    text: ".validateCredential",
+                    link: "/sdk/typescript/server/Mppx.validateCredential",
+                  },
+                  {
+                    text: ".verifyCredential",
+                    link: "/sdk/typescript/server/Mppx.verifyCredential",
+                  },
+                ],
+              },
+              {
+                text: "Transport",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/server/Transport.from",
+                  },
+                  {
+                    text: ".http",
+                    link: "/sdk/typescript/server/Transport.http",
+                  },
+                  {
+                    text: ".mcp",
+                    link: "/sdk/typescript/server/Transport.mcp",
+                  },
+                  {
+                    text: ".mcpSdk",
+                    link: "/sdk/typescript/server/Transport.mcpSdk",
+                  },
+                ],
+              },
+              {
+                text: "Utilities",
+                collapsed: true,
+                items: [
+                  {
+                    text: "Request.toNodeListener",
+                    link: "/sdk/typescript/server/Request.toNodeListener",
+                  },
+                  {
+                    text: "Response.requirePayment",
+                    link: "/sdk/typescript/server/Response.requirePayment",
+                  },
+                  {
+                    text: "tempo.Attribution",
+                    link: "/sdk/typescript/tempo.Attribution",
+                  },
+                  {
+                    text: "tempo.machineTokenDeployments",
+                    link: "/sdk/typescript/tempo.machineTokenDeployments",
+                  },
+                  {
+                    text: "tempo.machineTokenFundingBaseUrl",
+                    link: "/sdk/typescript/tempo.machineTokenFundingBaseUrl",
+                  },
+                  {
+                    text: "tempo.machineTokenFundingUrl",
+                    link: "/sdk/typescript/tempo.machineTokenFundingUrl",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: "Middleware reference",
+            items: [
+              {
+                text: "Elysia",
+                link: "/sdk/typescript/middlewares/elysia",
+              },
+              {
+                text: "Express",
+                link: "/sdk/typescript/middlewares/express",
+              },
+              {
+                text: "Hono",
+                link: "/sdk/typescript/middlewares/hono",
+              },
+              {
+                text: "Next.js",
+                link: "/sdk/typescript/middlewares/nextjs",
+              },
+            ],
+          },
+          {
+            text: "x402 compatibility",
+            items: [
+              {
+                text: "Express",
+                link: "/sdk/typescript/x402/express",
+              },
+              {
+                text: "Hono",
+                link: "/sdk/typescript/x402/hono",
+              },
+              {
+                text: "MCP",
+                link: "/sdk/typescript/x402/mcp",
+              },
+              {
+                text: "Next.js",
+                link: "/sdk/typescript/x402/next",
+              },
+            ],
+          },
+          {
+            text: "Identity",
             collapsed: true,
             items: [
-              { text: "Overview", link: "/sdk/python" },
-              { text: "Core types", link: "/sdk/python/core" },
-              { text: "Client", link: "/sdk/python/client" },
-              { text: "Server", link: "/sdk/python/server" },
+              {
+                text: "Attestation",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/Attestation.prover",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Attestation.Constants",
+                  },
+                  {
+                    text: ".Jwks.resolver",
+                    link: "/sdk/typescript/core/Attestation.Jwks.resolver",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/Attestation.verifier",
+                  },
+                  {
+                    text: ".decode",
+                    link: "/sdk/typescript/core/Attestation.decode",
+                  },
+                  {
+                    text: ".sign",
+                    link: "/sdk/typescript/core/Attestation.sign",
+                  },
+                  {
+                    text: ".verify",
+                    link: "/sdk/typescript/core/Attestation.verify",
+                  },
+                ],
+              },
+              {
+                text: "EmailOtp",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.EmailOtpError",
+                    link: "/sdk/typescript/client/EmailOtp.EmailOtpError",
+                  },
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/EmailOtp.prover",
+                  },
+                  {
+                    text: ".Client.sendCode",
+                    link: "/sdk/typescript/client/EmailOtp.sendCode",
+                  },
+                  {
+                    text: ".Client.verifyCode",
+                    link: "/sdk/typescript/client/EmailOtp.verifyCode",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/EmailOtp.Constants",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/EmailOtp.verifier",
+                  },
+                ],
+              },
+              {
+                text: "Identity",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Headers",
+                    link: "/sdk/typescript/core/Identity.Headers",
+                  },
+                  {
+                    text: ".Rejection",
+                    link: "/sdk/typescript/core/Identity.Rejection",
+                  },
+                  {
+                    text: ".Status",
+                    link: "/sdk/typescript/core/Identity.Status",
+                  },
+                  {
+                    text: ".Verifier",
+                    link: "/sdk/typescript/core/Identity.Verifier",
+                  },
+                  {
+                    text: ".anyOf",
+                    link: "/sdk/typescript/core/Identity.anyOf",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Identity.from",
+                  },
+                ],
+              },
+              {
+                text: "Link",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.attestation",
+                    link: "/sdk/typescript/client/Link.attestation",
+                  },
+                  {
+                    text: ".Client.claims",
+                    link: "/sdk/typescript/client/Link.claims",
+                  },
+                  {
+                    text: ".Client.claimsChallenge",
+                    link: "/sdk/typescript/client/Link.claimsChallenge",
+                  },
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Link.Constants",
+                  },
+                  {
+                    text: ".Server.attestation",
+                    link: "/sdk/typescript/server/Link.attestation",
+                  },
+                  {
+                    text: ".Server.claims",
+                    link: "/sdk/typescript/server/Link.claims",
+                  },
+                  {
+                    text: ".Server.presentationVerifier",
+                    link: "/sdk/typescript/server/Link.presentationVerifier",
+                  },
+                  {
+                    text: ".Server.tokenVerifier",
+                    link: "/sdk/typescript/server/Link.tokenVerifier",
+                  },
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Link.Types",
+                  },
+                ],
+              },
+              {
+                text: "Persona",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Constants",
+                    link: "/sdk/typescript/core/Persona.Constants",
+                  },
+                  {
+                    text: ".Server.PersonaError",
+                    link: "/sdk/typescript/server/Persona.PersonaError",
+                  },
+                  {
+                    text: ".Server.create",
+                    link: "/sdk/typescript/server/Persona.create",
+                  },
+                  {
+                    text: "persona.paymentCheck",
+                    link: "/sdk/typescript/server/Persona.paymentCheck",
+                  },
+                  {
+                    text: "persona.startInquiry",
+                    link: "/sdk/typescript/server/Persona.startInquiry",
+                  },
+                  {
+                    text: "persona.verifier",
+                    link: "/sdk/typescript/server/Persona.verifier",
+                  },
+                  {
+                    text: ".Server.verifyWallet",
+                    link: "/sdk/typescript/server/Persona.verifyWallet",
+                  },
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Persona.Types",
+                  },
+                  {
+                    text: ".did",
+                    link: "/sdk/typescript/core/Persona.did",
+                  },
+                  {
+                    text: ".normalize",
+                    link: "/sdk/typescript/core/Persona.normalize",
+                  },
+                ],
+              },
             ],
           },
           {
-            text: "Rust",
-            collapsed: true,
+            text: "Proxy",
+            link: "/sdk/typescript/proxy",
+          },
+          {
+            text: "Core reference",
             items: [
-              { text: "Overview", link: "/sdk/rust" },
-              { text: "Core types", link: "/sdk/rust/core" },
-              { text: "Client", link: "/sdk/rust/client" },
-              { text: "Server", link: "/sdk/rust/server" },
+              {
+                text: "BodyDigest",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".compute",
+                    link: "/sdk/typescript/core/BodyDigest.compute",
+                  },
+                  {
+                    text: ".verify",
+                    link: "/sdk/typescript/core/BodyDigest.verify",
+                  },
+                ],
+              },
+              {
+                text: "Challenge",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".credentialHeader",
+                    link: "/sdk/typescript/core/Challenge.credentialHeader",
+                  },
+                  {
+                    text: ".deserialize",
+                    link: "/sdk/typescript/core/Challenge.deserialize",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Challenge.from",
+                  },
+                  {
+                    text: ".fromHeaders",
+                    link: "/sdk/typescript/core/Challenge.fromHeaders",
+                  },
+                  {
+                    text: ".fromMethod",
+                    link: "/sdk/typescript/core/Challenge.fromMethod",
+                  },
+                  {
+                    text: ".fromResponse",
+                    link: "/sdk/typescript/core/Challenge.fromResponse",
+                  },
+                  {
+                    text: ".fromResponseList",
+                    link: "/sdk/typescript/core/Challenge.fromResponseList",
+                  },
+                  {
+                    text: ".meta",
+                    link: "/sdk/typescript/core/Challenge.meta",
+                  },
+                  {
+                    text: ".serialize",
+                    link: "/sdk/typescript/core/Challenge.serialize",
+                  },
+                  {
+                    text: ".verify",
+                    link: "/sdk/typescript/core/Challenge.verify",
+                  },
+                ],
+              },
+              {
+                text: "Credential",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".deserialize",
+                    link: "/sdk/typescript/core/Credential.deserialize",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Credential.from",
+                  },
+                  {
+                    text: ".fromRequest",
+                    link: "/sdk/typescript/core/Credential.fromRequest",
+                  },
+                  {
+                    text: ".serialize",
+                    link: "/sdk/typescript/core/Credential.serialize",
+                  },
+                ],
+              },
+              {
+                text: "Discovery",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Types",
+                    link: "/sdk/typescript/core/Discovery.Types",
+                  },
+                  {
+                    text: ".listOperations",
+                    link: "/sdk/typescript/core/Discovery.listOperations",
+                  },
+                ],
+              },
+              { text: "Errors", link: "/sdk/typescript/core/Errors" },
+              { text: "Expires", link: "/sdk/typescript/core/Expires" },
+              {
+                text: "Method",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Method.from",
+                  },
+                  {
+                    text: ".toClient",
+                    link: "/sdk/typescript/core/Method.toClient",
+                  },
+                  {
+                    text: ".toServer",
+                    link: "/sdk/typescript/core/Method.toServer",
+                  },
+                ],
+              },
+              {
+                text: "PaymentRequest",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".deserialize",
+                    link: "/sdk/typescript/core/PaymentRequest.deserialize",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/PaymentRequest.from",
+                  },
+                  {
+                    text: ".serialize",
+                    link: "/sdk/typescript/core/PaymentRequest.serialize",
+                  },
+                ],
+              },
+              {
+                text: "Receipt",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".deserialize",
+                    link: "/sdk/typescript/core/Receipt.deserialize",
+                  },
+                  {
+                    text: ".from",
+                    link: "/sdk/typescript/core/Receipt.from",
+                  },
+                  {
+                    text: ".fromResponse",
+                    link: "/sdk/typescript/core/Receipt.fromResponse",
+                  },
+                  {
+                    text: ".serialize",
+                    link: "/sdk/typescript/core/Receipt.serialize",
+                  },
+                ],
+              },
+              {
+                text: "Store",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".DurableObjectStore",
+                    link: "/sdk/typescript/core/Store.DurableObjectStore",
+                  },
+                  {
+                    text: ".d1",
+                    link: "/sdk/typescript/core/Store.d1",
+                  },
+                  {
+                    text: ".durableObject",
+                    link: "/sdk/typescript/core/Store.durableObject",
+                  },
+                  {
+                    text: ".postgres",
+                    link: "/sdk/typescript/core/Store.postgres",
+                  },
+                  {
+                    text: ".sql",
+                    link: "/sdk/typescript/core/Store.sql",
+                  },
+                  {
+                    text: ".sqlite",
+                    link: "/sdk/typescript/core/Store.sqlite",
+                  },
+                  {
+                    text: ".tryClaim",
+                    link: "/sdk/typescript/core/Store.tryClaim",
+                  },
+                ],
+              },
             ],
           },
           {
-            text: "Go",
-            collapsed: true,
+            text: "HTML reference",
             items: [
-              { text: "Overview", link: "/sdk/go" },
-              { text: "Core types", link: "/sdk/go/core" },
-              { text: "Client", link: "/sdk/go/client" },
-              { text: "Server", link: "/sdk/go/server" },
+              {
+                text: "Html.init",
+                link: "/sdk/typescript/Html.init",
+              },
+              {
+                text: "Custom",
+                link: "/sdk/typescript/html/custom",
+              },
             ],
           },
-          {
-            text: "Ruby",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/sdk/ruby" },
-              { text: "Core types", link: "/sdk/ruby/core" },
-              { text: "Client", link: "/sdk/ruby/client" },
-              { text: "Server", link: "/sdk/ruby/server" },
-            ],
-          },
+          { text: "CLI reference", link: "/sdk/typescript/cli" },
         ],
       },
-      {
-        text: "Tools",
-        items: [{ text: "Wallets", link: "/tools/wallet" }],
-      },
-      {
-        text: "Use Cases",
-        items: [
-          {
-            text: "Agentic payments",
-            link: "/use-cases/agentic-payments",
-          },
-          {
-            text: "API monetization",
-            link: "/use-cases/api-monetization",
-          },
-          {
-            text: "Micropayments",
-            link: "/use-cases/micropayments",
-          },
-        ],
-      },
-      {
-        text: "Resources",
-        items: [
-          { text: "Extensions", link: "/extensions" },
-          { text: "Brand", link: "/brand" },
-        ],
-      },
+      { text: "Python", link: "/sdk/python" },
+      { text: "Rust", link: "/sdk/rust" },
+      { text: "Go", link: "/sdk/go" },
+      { text: "Ruby", link: "/sdk/ruby" },
     ],
   },
   socials: [
@@ -1134,6 +1417,7 @@ export default defineConfig({
   // Replaces repeated inline Shiki color styles with CSS classes, reducing
   // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
+    engine: "highlights",
     langs: ruby,
     transformers: [shikiStyleToClass()],
   },
@@ -1146,10 +1430,20 @@ export default defineConfig({
     },
   },
   topNav: [
-    { text: "Docs", link: "/overview", match: (path) => path !== "/" },
+    {
+      text: "Docs",
+      link: "/overview",
+      match: (path) => path !== "/" && !path?.startsWith("/sdk"),
+    },
+    {
+      text: "SDKs",
+      link: "/sdk",
+      match: (path) => Boolean(path?.startsWith("/sdk")),
+    },
     { text: "Services", link: "/services" },
+    { text: "Playground", link: "/playground" },
     { text: "Blog", link: "/blog" },
-    { text: "IETF Specs", link: "https://paymentauth.org" },
+    { text: "IETF Specification", link: "https://paymentauth.org" },
     {
       text: "GitHub",
       items: [

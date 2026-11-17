@@ -8,14 +8,10 @@ type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
   | { path: '/_slots'; render: 'static' }
-  | { path: '/advanced/discovery'; render: 'static' }
-  | { path: '/advanced/identity'; render: 'static' }
-  | { path: '/advanced/payment-hooks'; render: 'static' }
-  | { path: '/advanced/refunds'; render: 'static' }
-  | { path: '/advanced/relays'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
+  | { path: '/blog/expanded-identity-primitives'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
@@ -26,7 +22,13 @@ type Page =
   | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
+  | { path: '/extensions/discovery'; render: 'static' }
+  | { path: '/extensions/identity'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
+  | { path: '/extensions/payment-hooks'; render: 'static' }
+  | { path: '/extensions/refunds'; render: 'static' }
+  | { path: '/extensions/relays'; render: 'static' }
+  | { path: '/extensions/third-party'; render: 'static' }
   | { path: '/faq'; render: 'static' }
   | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
@@ -35,12 +37,13 @@ type Page =
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
   | { path: '/guides/one-time-payments'; render: 'static' }
-  | { path: '/guides/pay-as-you-go'; render: 'static' }
+  | { path: '/guides/pay-for-sessions'; render: 'static' }
   | { path: '/guides/payment-links'; render: 'static' }
+  | { path: '/guides/private-payments'; render: 'static' }
   | { path: '/guides/proxy-existing-service'; render: 'static' }
   | { path: '/guides/split-payments'; render: 'static' }
-  | { path: '/guides/streamed-payments'; render: 'static' }
   | { path: '/guides/subscription-payments'; render: 'static' }
+  | { path: '/guides/usage-based'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
   | { path: '/guides/webmcp-payments'; render: 'static' }
   | { path: '/'; render: 'static' }
@@ -54,73 +57,54 @@ type Page =
   | { path: '/partner-integrations/mcp-sdk'; render: 'static' }
   | { path: '/partner-integrations/openclaw'; render: 'static' }
   | { path: '/partner-integrations/vercel-ai-sdk'; render: 'static' }
-  | { path: '/payment-methods/card/charge'; render: 'static' }
   | { path: '/payment-methods/card'; render: 'static' }
   | { path: '/payment-methods/custom'; render: 'static' }
-  | { path: '/payment-methods/evm/charge'; render: 'static' }
   | { path: '/payment-methods/evm'; render: 'static' }
   | { path: '/payment-methods'; render: 'static' }
-  | { path: '/payment-methods/lightning/charge'; render: 'static' }
   | { path: '/payment-methods/lightning'; render: 'static' }
-  | { path: '/payment-methods/lightning/session'; render: 'static' }
-  | { path: '/payment-methods/monad/charge'; render: 'static' }
   | { path: '/payment-methods/monad'; render: 'static' }
-  | { path: '/payment-methods/nearintents/charge'; render: 'static' }
   | { path: '/payment-methods/nearintents'; render: 'static' }
-  | { path: '/payment-methods/redotpay/charge'; render: 'static' }
   | { path: '/payment-methods/redotpay'; render: 'static' }
-  | { path: '/payment-methods/solana/charge'; render: 'static' }
   | { path: '/payment-methods/solana'; render: 'static' }
-  | { path: '/payment-methods/solana/session'; render: 'static' }
-  | { path: '/payment-methods/stellar/charge'; render: 'static' }
   | { path: '/payment-methods/stellar'; render: 'static' }
-  | { path: '/payment-methods/stellar/session'; render: 'static' }
-  | { path: '/payment-methods/stripe/charge'; render: 'static' }
   | { path: '/payment-methods/stripe'; render: 'static' }
   | { path: '/payment-methods/tempo/charge'; render: 'static' }
   | { path: '/payment-methods/tempo'; render: 'static' }
   | { path: '/payment-methods/tempo/session'; render: 'static' }
   | { path: '/payment-methods/tempo/subscription'; render: 'static' }
-  | { path: '/payment-methods/xrpl/charge'; render: 'static' }
   | { path: '/payment-methods/xrpl'; render: 'static' }
-  | { path: '/payment-methods/xrpl/session'; render: 'static' }
+  | { path: '/playground'; render: 'static' }
   | { path: '/protocol/challenges'; render: 'static' }
   | { path: '/protocol/credentials'; render: 'static' }
   | { path: '/protocol/http-402'; render: 'static' }
   | { path: '/protocol'; render: 'static' }
   | { path: '/protocol/receipts'; render: 'static' }
-  | { path: '/protocol/transports/http'; render: 'static' }
   | { path: '/protocol/transports'; render: 'static' }
-  | { path: '/protocol/transports/mcp'; render: 'static' }
-  | { path: '/protocol/transports/websocket'; render: 'static' }
   | { path: '/quickstart/agent'; render: 'static' }
   | { path: '/quickstart/client'; render: 'static' }
   | { path: '/quickstart'; render: 'static' }
   | { path: '/quickstart/server'; render: 'static' }
   | { path: '/sdk/features'; render: 'static' }
-  | { path: '/sdk/go/client'; render: 'static' }
-  | { path: '/sdk/go/core'; render: 'static' }
   | { path: '/sdk/go'; render: 'static' }
-  | { path: '/sdk/go/server'; render: 'static' }
   | { path: '/sdk'; render: 'static' }
-  | { path: '/sdk/python/client'; render: 'static' }
-  | { path: '/sdk/python/core'; render: 'static' }
   | { path: '/sdk/python'; render: 'static' }
-  | { path: '/sdk/python/server'; render: 'static' }
-  | { path: '/sdk/ruby/client'; render: 'static' }
-  | { path: '/sdk/ruby/core'; render: 'static' }
   | { path: '/sdk/ruby'; render: 'static' }
-  | { path: '/sdk/ruby/server'; render: 'static' }
-  | { path: '/sdk/rust/client'; render: 'static' }
-  | { path: '/sdk/rust/core'; render: 'static' }
   | { path: '/sdk/rust'; render: 'static' }
-  | { path: '/sdk/rust/server'; render: 'static' }
   | { path: '/sdk/typescript/Html.init'; render: 'static' }
   | { path: '/sdk/typescript/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/cli'; render: 'static' }
+  | { path: '/sdk/typescript/client/Attestation.prover'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.EmailOtpError'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.prover'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.sendCode'; render: 'static' }
+  | { path: '/sdk/typescript/client/EmailOtp.verifyCode'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/Fetch.withoutPayment'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.attestation'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.claims'; render: 'static' }
+  | { path: '/sdk/typescript/client/Link.claimsChallenge'; render: 'static' }
   | { path: '/sdk/typescript/client/McpClient.wrap'; render: 'static' }
   | { path: '/sdk/typescript/client/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/client/Method.evm'; render: 'static' }
@@ -137,6 +121,12 @@ type Page =
   | { path: '/sdk/typescript/client/Transport.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
+  | { path: '/sdk/typescript/cloudflare'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.Jwks.resolver'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.decode'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.sign'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.verify'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.credentialHeader'; render: 'static' }
@@ -153,17 +143,39 @@ type Page =
   | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Discovery.Types'; render: 'static' }
+  | { path: '/sdk/typescript/core/Discovery.listOperations'; render: 'static' }
+  | { path: '/sdk/typescript/core/EmailOtp.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Errors'; render: 'static' }
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Headers'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Rejection'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Status'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.Verifier'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.anyOf'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Link.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Link.Types'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toServer'; render: 'static' }
   | { path: '/sdk/typescript/core/PaymentRequest.deserialize'; render: 'static' }
   | { path: '/sdk/typescript/core/PaymentRequest.from'; render: 'static' }
   | { path: '/sdk/typescript/core/PaymentRequest.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.Types'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.did'; render: 'static' }
+  | { path: '/sdk/typescript/core/Persona.normalize'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.deserialize'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.DurableObjectStore'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.d1'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.durableObject'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.postgres'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.sql'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.sqlite'; render: 'static' }
   | { path: '/sdk/typescript/core/Store.tryClaim'; render: 'static' }
   | { path: '/sdk/typescript/html/custom'; render: 'static' }
   | { path: '/sdk/typescript'; render: 'static' }
@@ -172,12 +184,19 @@ type Page =
   | { path: '/sdk/typescript/middlewares/hono'; render: 'static' }
   | { path: '/sdk/typescript/middlewares/nextjs'; render: 'static' }
   | { path: '/sdk/typescript/proxy'; render: 'static' }
+  | { path: '/sdk/typescript/server/Attestation.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/EmailOtp.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.attestation'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.claims'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.presentationVerifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Link.tokenVerifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.create'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.recordPayment'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.spt'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }
@@ -190,6 +209,12 @@ type Page =
   | { path: '/sdk/typescript/server/Mppx.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.validateCredential'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.verifyCredential'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.PersonaError'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.create'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.paymentCheck'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.startInquiry'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Persona.verifyWallet'; render: 'static' }
   | { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.from'; render: 'static' }
@@ -197,7 +222,10 @@ type Page =
   | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.Attribution'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenDeployments'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.machineTokenFundingBaseUrl'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.machineTokenFundingUrl'; render: 'static' }
   | { path: '/sdk/typescript/x402/express'; render: 'static' }
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }

@@ -1,5 +1,5 @@
 ---
-description: "Create a payment link for any API endpoint. Share it anywhere—users pay directly from the page, no integration required."
+description: "Create a payment link for any API endpoint. Share it anywhere—buyers pay directly from the page, no integration required."
 imageDescription: "Create a payment link. Sell anywhere."
 ---
 
@@ -10,7 +10,7 @@ import { PromptBlock } from '../../components/PromptBlock'
 
 # Create a payment link [Share a link. Get paid.]
 
-Create a full payment page for any API endpoint—no frontend required. Share the link anywhere and users pay directly from the page.
+Create a full payment page for any API endpoint—no frontend required. Share the link anywhere and buyers pay directly from the page.
 
 ## Supported methods
 
@@ -18,7 +18,7 @@ Create a full payment page for any API endpoint—no frontend required. Share th
 | --- | --- | --- |
 | [`tempo`](/sdk/typescript/server/Method.tempo) | `boolean` or config object | "Continue with Tempo" wallet UI |
 | [`stripe`](/sdk/typescript/server/Method.stripe) | Config object | Full Stripe Elements card form |
-| [`solana.charge`](/payment-methods/solana/charge#payment-links) | `boolean` | "Continue with Solana" wallet UI |
+| [`solana.charge`](/payment-methods/solana#payment-links) | `boolean` | "Continue with Solana" wallet UI |
 
 For Tempo and Stripe, `html` also accepts an object so you can customize page text and theme without building a frontend.
 
@@ -116,7 +116,7 @@ Open `http://localhost:3000/api/photo` in your browser. The server returns a pay
 Programmatic clients work the same way:
 
 ```bash [test.sh]
-$ npx mppx http://localhost:3000/api/photo
+$ npx mppx http://localhost:3000/api/photo --network testnet
 ```
 
 ::::
@@ -194,7 +194,7 @@ app.get(
 Open `http://localhost:3000/api/photo` in your browser.
 
 ```bash [test.sh]
-$ npx mppx http://localhost:3000/api/photo
+$ npx mppx http://localhost:3000/api/photo --network testnet
 ```
 
 ::::
@@ -272,7 +272,7 @@ app.get(
 Open `http://localhost:3000/api/photo` in your browser.
 
 ```bash [test.sh]
-$ npx mppx http://localhost:3000/api/photo
+$ npx mppx http://localhost:3000/api/photo --network testnet
 ```
 
 ::::
@@ -356,7 +356,7 @@ Bun.serve({
 Open `http://localhost:3000` in your browser.
 
 ```bash [test.sh]
-$ npx mppx http://localhost:3000
+$ npx mppx http://localhost:3000 --network testnet
 ```
 
 ::::

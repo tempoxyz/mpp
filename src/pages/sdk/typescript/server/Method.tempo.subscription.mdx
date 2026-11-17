@@ -4,6 +4,10 @@ Creates a Tempo subscription method for server-side activation, access reuse, an
 
 Activation verifies that the signed Tempo key authorization witness matches the server-issued Challenge ID, preventing reuse across equivalent Challenges.
 
+Anonymous setup carries an authenticated encrypted key token in the Challenge. A successful payment retains the billing key; abandoned Challenges do not create pending key records. A new Challenge can activate an expired subscription for the same payer.
+
+Composed routes keep their configured dispatch terms across requests, including rejected Credentials. An identity-checked offer can't overlap an unchecked offer, even when one chain is unresolved and could match the other. See [`Mppx.compose`](/sdk/typescript/server/Mppx.compose#behavior).
+
 ## Usage
 
 Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Existing subscriptions retain their authorized currency during reuse and renewal.
@@ -28,6 +32,7 @@ const mppx = Mppx.create({
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
+      testnet: true,
     }),
     // [!code focus:end]
   ],
@@ -65,6 +70,7 @@ const mppx = Mppx.create({
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
+      testnet: true,
     }),
   ],
 })
@@ -121,6 +127,7 @@ const mppx = Mppx.create({
       resolve: async () => ({ key: 'user:123:plan:pro' }),
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
+      testnet: true,
     }),
   ],
 })
@@ -245,7 +252,16 @@ Application-defined identifier for reconciliation.
 
 Overrides the fee-sponsor limits used for subscription activation and renewal transactions.
 
-`allowKeyAuthorization` defaults to `true`. Setting it to `false` rejects sponsored transactions that install the subscription access key.
+Sponsored transactions may carry a `keyAuthorization`, so the activation transaction can install the subscription access key. `maxGas` and `maxTotalFee` bound the sponsor's cost.
+
+Sponsored activation and renewal transactions must have at least 15 seconds of remaining validity when signed and submitted.
+
+Sponsorship preflight:
+
+- Simulates sender execution at the signed gas limit with zero fees, then the sponsored envelope with the sponsor's `feePayerSignature` and explicit zero priority fee when needed.
+- Caps a local sponsor's simulation-only gas buffer by `maxGas` and `maxTotalFee`; broadcast gas stays unchanged.
+- Tolerates only final-phase out-of-gas errors in hosted or capped simulations, after the sender check succeeds.
+- Raises [`Errors.PaymentSimulationError`](/sdk/typescript/core/Errors#paymentsimulationerror) with phase `'sender'` or `'sponsored'` for other node rejections. Transport failures remain unchanged.
 
 ### getClient (optional)
 
@@ -311,9 +327,10 @@ Maps a request to a subscription lookup key. With `requireCredential: true`, ret
 ### store (optional)
 
 - **Type:** `Store.AtomicStore<Record<string, unknown>>`
-- **Default:** `Store.memory()`
 
 Atomic store for access keys, activation locks, renewal locks, and subscription records. Use [`Subscription.fromStore`](/payment-methods/tempo/subscription#cancellation) from `mppx/tempo` when you need to update subscription records directly, such as marking `canceledAt`.
+
+Without a `store`, the method throws at construction when `NODE_ENV` is `production`, on multi-instance platforms (Vercel, AWS Lambda, Netlify, Fly.io, Cloud Run, Render, Railway, Heroku, Deno Deploy), and on Cloudflare Workers. Elsewhere, such as local development and tests, it warns once and falls back to an in-memory store. Pass a shared store, or `store: Store.memory()` to keep state instance-local.
 
 ### storeKeyPrefix (optional)
 

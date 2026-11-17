@@ -1,16 +1,16 @@
 ---
 title: "EVM payment method"
-description: "Use EVM payment methods in MPP to accept stablecoin payments and run x402 exact flows inline."
+description: "Use EVM payment methods in MPP to accept one-time stablecoin payments and run x402 exact flows inline."
 imageDescription: "Accept stablecoin payments on EVM chains"
 ---
 
 import { Cards } from 'vocs'
-import { EvmChargeCard } from '../../../components/cards'
+import { SigningAccountTabs } from '../../../components/SigningAccountTabs'
 import { SpecCard } from '../../../components/SpecCard'
 
 # EVM [Stablecoin payments on EVM chains]
 
-The EVM payment method enables MPP payments using EIP-3009 token authorizations. It supports the **charge** intent for one-time stablecoin payments and can run x402 exact flows inline when x402 options are enabled.
+The EVM payment method enables MPP payments using EIP-3009 token authorizations. It supports the [charge](#charge) intent for one-time stablecoin payments and can run x402 exact flows inline when x402 options are enabled.
 
 Use `evm.charge` when you want one payment method that handles native MPP EVM charge Challenges and x402 exact Challenges on the same route.
 
@@ -28,15 +28,135 @@ $ bun add mppx viem
 ```
 :::
 
-## Intents
+## Charge
 
-<Cards>
-  <EvmChargeCard />
-</Cards>
+The EVM implementation of the [charge](/intents/charge) intent.
 
-## x402 compatibility
+The server issues a Challenge describing the amount, currency, and recipient. The client signs an EIP-3009 authorization and returns it as a Credential. When x402 options are enabled, the same route also handles x402 exact flows.
 
-Configure `x402.facilitator` on the server to return x402-compatible Challenges and accept x402 exact Credentials inline with the MPP flow. See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for more details.
+This method is best for fixed-price API calls, paid content, and inline x402-compatible stablecoin payments.
+
+### Choose a signing account
+
+<SigningAccountTabs />
+
+### Server
+
+Use `evm.charge` to gate an endpoint behind a one-time EVM stablecoin payment. Configure `x402.facilitator` when the same endpoint also accepts x402 exact Credentials.
+
+```ts twoslash [server.ts]
+import { Mppx, evm } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+    // [!code hl:end]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.evm.charge({
+    amount: '0.01',
+    description: 'Premium API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+EVM charge supports the split validation lifecycle. [`validateCredential()`](/sdk/typescript/server/Mppx.validateCredential) checks the signature, Challenge binding, payment terms, validity window, and source without settlement. Facilitator-backed methods also verify with the facilitator, then [`broadcastCredential()`](/sdk/typescript/server/Mppx.broadcastCredential) rechecks before settling. Custom `settle` callbacks remain responsible for chain-state checks and replay protection.
+
+### Client
+
+Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension, including Challenges from official Coinbase x402 resource servers.
+
+```ts twoslash [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    evm.charge({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+// @log: 200
+```
+
+To inspect payment terms before selecting a signer, omit `account`, call [`preparePayment()`](/sdk/typescript/client/Mppx.preparePayment), then pass `{ account }` to the prepared payment's `createCredential()` method.
+
+### Known assets
+
+`mppx` ships known assets for the following networks:
+
+| Network      | Chain ID   | Known assets                                   |
+| ------------ | ---------- | ---------------------------------------------- |
+| Base         | `8453`     | `evm.assets.base.USDC`                         |
+| Base Sepolia | `84532`    | `evm.assets.baseSepolia.USDC`                  |
+| Celo         | `42220`    | `evm.assets.celo.USDC`, `evm.assets.celo.USDT` |
+| Celo Sepolia | `11142220` | `evm.assets.celoSepolia.USDC`                  |
+
+Use known assets when possible so `mppx` can infer the chain ID, token decimals, and authorization metadata:
+
+```ts twoslash
+import { evm } from 'mppx/server'
+
+const method = evm.charge({
+  currency: evm.assets.baseSepolia.USDC, // [!code hl]
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  x402: {
+    facilitator: 'https://x402.org/facilitator',
+  },
+})
+```
+
+Use a custom asset when you provide the EIP-3009 authorization metadata:
+
+```ts twoslash
+import { evm } from 'mppx/server'
+
+const method = evm.charge({
+  authorization: {
+    name: 'USD Coin',
+    version: '2',
+  },
+  chainId: 84532,
+  currency: '0x1234567890abcdef1234567890abcdef12345678',
+  decimals: 6,
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  x402: {
+    facilitator: 'https://x402.org/facilitator',
+  },
+})
+```
+
+### x402 compatibility
+
+When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline for `GET`, body-bearing, and route-scoped endpoints. The default `routeBinding: 'required'` requires the `mppx` extension and route-bound nonce whenever a Challenge includes route metadata. It also verifies any body digest against the request.
+
+Set `routeBinding: 'resource'` only when scoped routes must accept standard x402 clients that don't implement the extension. This compares the echoed resource URL and payment requirements, but those fields sit outside the EIP-3009 signature.
+
+On the client, `evm.charge` validates x402 offers before signing. Each offer must include resource information and EIP-3009 token name and version metadata, then pass the configured network, currency, and amount policies. The client skips unsupported or rejected offers and selects a later compatible offer when available.
+
+See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for the full guide.
 
 ## Specification
 

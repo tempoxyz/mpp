@@ -52,10 +52,14 @@ export interface Service {
   serviceUrl?: string;
   description?: string;
   icon?: string;
+  /** Static logo built by scripts/build-logos.ts, when there is one. */
+  logo?: string;
   categories?: Category[];
   integration?: "first-party" | "third-party";
   tags?: string[];
   status?: "active" | "beta" | "deprecated" | "maintenance";
+  /** Advisory MACH support; the runtime 402 Challenge determines payment terms. */
+  supportsMACH?: true;
   docs?: {
     homepage?: string;
     llmsTxt?: string;
@@ -70,8 +74,22 @@ export interface Service {
 
 export type FeaturedService = Pick<
   Service,
-  "categories" | "description" | "id" | "name" | "serviceUrl" | "url"
+  "categories" | "description" | "id" | "logo" | "name" | "serviceUrl" | "url"
 >;
+
+export const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
+
+/** Copies each service's static logo, as the server read it, onto services. */
+export function withLogos<T extends Pick<Service, "id" | "logo">>(
+  services: readonly T[],
+  logos: Readonly<Record<string, string | undefined>>,
+): T[] {
+  return services.map((service) =>
+    service.logo || !logos[service.id]
+      ? service
+      : { ...service, logo: logos[service.id] },
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Module-level cache for rate limiting
@@ -124,8 +142,8 @@ export function iconUrl(serviceId: string): string {
   return `/api/icon?id=${encodeURIComponent(serviceId)}`;
 }
 
-export function serviceIconUrl(service: Pick<Service, "id">): string {
-  return iconUrl(service.id);
+export function serviceIconUrl(service: Pick<Service, "id" | "logo">): string {
+  return service.logo ?? iconUrl(service.id);
 }
 
 export function useIsDark(): boolean {

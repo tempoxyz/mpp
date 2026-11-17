@@ -1,0 +1,118 @@
+---
+description: "Send identity attestations to paid APIs and fetch new ones when they ask."
+imageDescription: "Prove who you are, then pay, in one request"
+---
+
+# `Attestation.Client.prover` [Present and obtain attestations]
+
+Presents cached identity attestations to the APIs you scope, and obtains new ones when an API asks. An attestation is a signed bearer token in which an issuer confirms one fact about you, bound to one API origin.
+
+## Usage
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import * as Attestation from 'mppx/extensions/identity/attestation'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function obtainPhoneAttestation(parameters: {
+  audience: string
+  issuer: string
+}): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [Attestation.Client.prover({
+    acquire: ({ audience, issuer }) => obtainPhoneAttestation({ audience, issuer }),
+    issuers: ['https://issuer.example.com'],
+    scope: ['https://api.example.com'],
+    types: ['phone'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+The API rejects an unpaid request with `401` or `403` and an `Identity-Attestation-Required` header, such as `phone;issuer="https://issuer.example.com"`. The prover calls `acquire` for a trusted requirement and resends once. A following `402` goes through payment as usual; paid attempts are never resent. For email, use [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover), which wraps this prover.
+
+### Present attestations only
+
+Pass tokens you obtained beforehand and omit `acquire`:
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const attestation: string
+
+const prover = Attestation.Client.prover({
+  attestations: [attestation], // [!code hl]
+  scope: ['https://api.example.com'],
+})
+```
+
+## Return type
+
+`Identity.Prover`, for `Mppx.create({ identity: [prover] })` or `Identity.Client.wrapFetch`.
+
+- **Sending:** each in-scope request over HTTPS (HTTP only on `localhost` or `127.0.0.1`) carries the cached attestations whose audience is the request's origin, in `Identity-Attestation`.
+- **Caching:** the prover keeps one attestation per audience, issuer, and type, in memory. Concurrent retries share one acquisition.
+- **Refresh:** a paid attempt sends every attestation not expired beyond the `60`-second clock tolerance. An unpaid attempt withholds one within the refresh margin, `min(300, floor(lifetime / 2))` seconds before expiry, so it's replaced before paying. Lifetime runs from when the client received the attestation, or from `iat` for `attestations`.
+- **Grouped alternatives:** each group in `Identity-Attestation-Required` needs one attestation. For a group of alternatives, such as one from [`Identity.anyOf`](/extensions/identity#combine-verifiers), the prover prefers one it holds, then acquires in listed order until one succeeds. A route accepting any of several issuers costs one acquisition.
+- **Replacement:** an attestation the API rejected is acquired again. The resend keeps the other attestations the request carried.
+
+## Parameters
+
+### acquire (optional)
+
+- **Type:** `(requirement: { audience: string; issuer: string; type: string }) => string | undefined | Promise<string | undefined>`
+
+Obtains an attestation for a trusted requirement. Return `undefined` to decline. `audience` is always the request's origin, never one the API names. A returned token is kept only if its `aud`, `iss`, and `type` match the requirement. Without `acquire`, the prover only presents attestations.
+
+### attestations (optional)
+
+- **Type:** `readonly string[]`
+- **Default:** `[]`
+
+Attestations obtained beforehand. The client decodes them for routing and expiry; only the server verifies signatures. Malformed tokens throw `TypeError` at construction.
+
+### issuers (optional)
+
+- **Type:** `readonly string[]`
+
+Issuers `acquire` may be asked for. Required with `acquire`; omitting it throws `TypeError` at construction. Trailing slashes are removed for matching. An API only names an issuer: an untrusted one could relay a code and obtain an attestation for another origin.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+API origins that receive attestations and may ask for new ones. Prefer an explicit origin list.
+
+### types (optional)
+
+- **Type:** `readonly string[]`
+
+Attestation types `acquire` may be asked for. Defaults to any type.
+
+## Errors
+
+Errors from `acquire` don't stop the next alternative or the other groups. The first error propagates only when the retry obtains nothing. A declined acquisition leaves the rejected response unchanged.
+
+## `Attestation.Client.requirements`
+
+Parses a rejected response's `Identity-Attestation-Required` header into groups. A request must meet every group with any one of its requirements.
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const response: Response
+
+const groups = Attestation.Client.requirements(response.headers)
+// @log: [[{ type: 'email', issuer: 'https://identity.mpp.tempo.xyz' }, { type: 'email', issuer: 'https://identity.example.com' }]]
+```
+
+An item is a group of one; an inner list is a group of alternatives. Malformed members, including issuers that aren't HTTPS (or HTTP on `localhost`), are skipped. A missing or unparseable header returns `[]`.

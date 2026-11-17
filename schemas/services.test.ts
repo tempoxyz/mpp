@@ -215,6 +215,11 @@ describe("services registry", () => {
       intent: "session",
       payments: [
         {
+          currency: "0x20c0000000000000000000006a37DA5C996874BE",
+          decimals: 6,
+          method: "tempo",
+        },
+        {
           currency: "0x20c0000000000000000000000000000000000000",
           decimals: 6,
           method: "tempo",

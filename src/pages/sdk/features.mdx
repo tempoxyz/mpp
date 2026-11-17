@@ -24,29 +24,29 @@ This page tracks which features are implemented in each official SDK.
 | [Tempo](/payment-methods/tempo) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | [Stripe](/payment-methods/stripe) | ✓ | ✓ | ✓ | — | ✓ |
 
-Additional payment methods implement their own SDKs. Refer to the maintaining organizations for support and availability.
+Other payment methods ship their own SDKs. See [Status and capabilities](/payment-methods#status-and-capabilities) for each method's intents, SDKs, status, and maintainer.
 
 ## Intents
 
 | Intent | TypeScript | Rust | Python | Go | Ruby |
 |---|---|---|---|---|---|
 | [Charge](/intents/charge) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| [Session](/payment-methods/tempo/session) | ✓ | ✓ | — | — | — |
+| [Session](/payment-methods/tempo/session) | ✓ | ✓ | ✓ | — | — |
 | [Subscription](/intents/subscription) | ✓ | — | — | — | — |
 
 ## Transports
 
 | Transport | TypeScript | Rust | Python | Go | Ruby |
 |---|---|---|---|---|---|
-| [HTTP](/protocol/transports/http) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| [MCP](/protocol/transports/mcp) | ✓ | ✓ | ✓ | — | ✓ |
+| [HTTP](/protocol/transports#http) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [MCP](/protocol/transports#mcp-and-json-rpc) | ✓ | ✓ | ✓ | — | ✓ |
 
 ### HTTP framework integrations
 
 | Role | TypeScript | Rust | Python | Go | Ruby |
 |---|---|---|---|---|---|
 | **Client** | fetch | reqwest | httpx | `http.RoundTripper` | async-http |
-| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | Decorator (`@server.pay`) | `net/http`, Chi, Echo, Fiber, Gin | Rack |
+| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | FastAPI, Starlette, Django, Flask (`@pay`) | `net/http`, Chi, Echo, Fiber, Gin | Rack |
 
 ### MCP framework integrations
 
@@ -65,6 +65,7 @@ Additional payment methods implement their own SDKs. Refer to the maintaining or
 | Fee payer co-signing | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `hash` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `proof` payload type | ✓ | ✓ | — | ✓ | ✓ |
-| Session channels (open/voucher/topUp/close) | ✓ | ✓ | — | — | — |
+| Session channels (open/voucher/topUp/close) | ✓ | ✓ | ✓ | — | — |
 | SSE metered streaming | ✓ | ✓ | — | — | — |
 | `transaction` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `zone` payload type (Zone payments) | ✓ | — | — | — | — |

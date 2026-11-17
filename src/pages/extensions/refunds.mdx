@@ -1,0 +1,141 @@
+---
+description: "Return funds to buyers after a charge, or let sessions refund unused deposits automatically."
+imageDescription: "Return funds to buyers in charge and session flows"
+---
+
+import { Tab, Tabs } from 'vocs'
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Refunds [Return funds to buyers]
+
+## Overview
+
+MPP does not define a dedicated refund protocol. How refunds work depends on the payment flow your service uses.
+
+## Charge flow
+
+In the charge flow, funds transfer to the server immediately when the client pays. Refunds are **out-of-protocol**—the server sends funds back to the client's address directly.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request + Credential
+    Note over Server: Funds transfer
+    Server-->>Client: 200 OK + Receipt
+    Note over Server: Refund triggered
+    Server->>Client: Direct transfer back
+`} />
+
+Refund to the payer address recorded during payment verification. Parsing the optional Credential `source` doesn't authenticate an address.
+
+Private [Zone payments](/guides/private-payments) omit `source` and Receipt `payer`. Authenticate a refund destination separately and reconcile the withdrawal before transferring funds.
+
+### Implementation
+
+For a charge with a verified payer address, refund to the address recorded during payment verification:
+
+```ts twoslash [server.ts]
+// @noEmit
+declare const payment: { payer: string }
+declare function sendTransfer(params: { amount: string; to: string }): Promise<void>
+// ---cut---
+async function refundCharge(payment: { payer: string }, amount: string) {
+  await sendTransfer({ amount, to: payment.payer })
+}
+```
+
+Refund decisions are up to your service. Common triggers include failed processing, service errors, or customer support requests.
+
+## Session flow
+
+In the v2 session flow, funds are reserved in a Tempo channel but not immediately claimed. If the server never claims the reserved funds, they return to the client after the session expires or closes.
+
+This gives sessions a **built-in refund mechanism**—unclaimed funds are refunded by default.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Tempo
+    Client->>Tempo: Deposit tokens
+    Tempo-->>Client: Channel created
+    Client->>Server: Open Credential
+    Server-->>Client: 200 OK (session established)
+    loop Per request
+        Client->>Server: Request + voucher
+        Server-->>Client: 200 OK + Receipt
+    end
+    Note over Server: Close channel with last voucher
+    Server->>Tempo: close(channelId, voucher)
+    Note over Tempo: Settle claimed amount to server
+    Tempo-->>Client: Refund unclaimed deposit
+`} />
+
+| Scenario | Outcome |
+|----------|---------|
+| Server claims funds | Payment completes, no refund |
+| Server never claims | Funds return to client after session expiry |
+| Server claims partial amount | Remaining funds return to client |
+
+### Credit undelivered content
+
+- Use [`tempo.session.credit`](/sdk/typescript/server/Method.tempo.session#temposessioncredit) to reduce unserved spend above the settlement floor. A declined credit leaves spend unchanged.
+- Retry an `unknown` outcome with the same `idempotencyKey`, amount, and units within the configured retention window (24 hours by default) before refunding externally.
+- For managed SSE failures, use [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits), not a second refund handler. Persist recovery jobs in `onRefundRequired`; transfer only a non-null `externalRefundAmount`.
+- Delivered content and client cancellation aren't automatically refunded.
+
+### Refunding via channel close
+
+To refund a session, close the channel with the last accepted voucher. Any unclaimed deposit returns to the client automatically.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts [client.ts]
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '10',
+})
+
+await session.fetch('https://api.example.com/resource')
+
+const receipt = await session.close()
+console.log(receipt?.txHash)
+// @log: 0x...
+```
+
+</Tab>
+<Tab title="viem">
+
+```ts [client.ts]
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session.manager({
+  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  maxDeposit: '10',
+})
+
+await session.fetch('https://api.example.com/resource')
+
+const receipt = await session.close()
+console.log(receipt?.txHash)
+// @log: 0x...
+```
+
+</Tab>
+</Tabs>
+
+## Best practices
+
+- **Track the original payment**—Record the Challenge ID, settlement reference, and verified payer when available. Zone payments use a withdrawal `senderTag`, not a public payer identity.
+- **Authenticate the refund destination**—Use the recorded, verified payer address for ordinary charges. Private payments need a separate authenticated policy; never trust an unverified refund address.
+- **Treat refunds as a feedback mechanism** — Like traditional payment systems, refunds avoid costly disputes. Handle them promptly through your service's support process.
+- **Log refund transactions** — Keep a record of the original payment and the refund transaction for reconciliation.

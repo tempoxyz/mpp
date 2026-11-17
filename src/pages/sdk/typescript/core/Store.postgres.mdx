@@ -1,0 +1,53 @@
+---
+description: "Share consistent payment state across your servers with Postgres."
+imageDescription: "Keep payment state in Postgres"
+---
+
+# `Store.postgres` [Postgres storage]
+
+Creates an atomic store from a Postgres client's `query` method.
+
+## Usage
+
+```ts [store.ts]
+import { Store } from 'mppx'
+import { Pool } from 'pg'
+
+const db = new Pool({ connectionString: process.env.DATABASE_URL })
+const store = Store.postgres(db) // [!code hl]
+
+console.log(await Store.tryClaim(store, 'request:customer-42:1', Date.now() + 60_000))
+// @log: true
+```
+
+Supports `pg`, Neon's `query` clients, `@vercel/postgres`, Supabase Postgres connections, and PGlite. For Postgres.js `unsafe`, use [Store.sql](/sdk/typescript/core/Store.sql).
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
+
+## Parameters
+
+### client
+
+- **Type:** `Store.postgres.Client`
+
+Client exposing `query(text: string, values: unknown[]): Promise<{ rows: Store.sql.Row[] } | Store.sql.Row[]>`, including `RETURNING` rows.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every backing key. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+See [Store.sql](/sdk/typescript/core/Store.sql) for schema, migrations, serialization, and conflict errors.

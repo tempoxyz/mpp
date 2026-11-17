@@ -22,6 +22,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       settlementSchedule: { units: 100 },
       store,
@@ -50,6 +51,8 @@ The helper shares the `Store` and `settlementSchedule` configured by `tempo.sess
 
 Retryable scheduled settlement failures keep charged messages served and leave the charge due for a later settlement. Configure [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to observe failures. Reverts and configuration errors still fail the charge.
 
+The helper checks the live reserve before charging and delivering each message. If the channel closes or verification fails, delivery stops. Await `stream.charge()` before billable work; it commits the charge before returning, even if later work fails or the connection closes.
+
 ### With dynamic amounts
 
 Pass an amount in base units when each message has a different price. An explicit amount reserves that amount for the next emitted message, including when the request already authorized an implicit tick.
@@ -75,7 +78,7 @@ Resolves when the WebSocket session completes or the connection closes.
 
 - **Type:** `string`
 
-Expected per-tick amount. When set, Credentials with mismatched amounts are rejected.
+Expected per-tick amount. Set this for custom routes that do not return their canonical Challenge. The helper rejects a route without canonical pricing or an explicit amount. Credentials with mismatched amounts are rejected.
 
 ### generate
 
@@ -95,7 +98,7 @@ Maximum queued outbound WebSocket bytes. The helper closes the socket when its b
 - **Type:** `number`
 - **Default:** `65_536`
 
-Maximum accepted inbound WebSocket frame size. The helper returns a payment error and closes the socket with code `1009` when a frame exceeds this limit.
+Maximum accepted inbound WebSocket frame size. The helper queues a payment error and closes with code `1009` when a frame exceeds this limit, without waiting for a stalled send. At most 32 payment actions can queue; exceeding that limit reports `429` and closes with code `1008`. Authorization failures use a short, fixed close reason; full payment diagnostics remain in the error frame. Adapter close failures are contained.
 
 ### pollIntervalMs (optional)
 
@@ -108,7 +111,7 @@ Polling interval in milliseconds for voucher balance checks.
 
 - **Type:** `Parameters<typeof mppx.session.serveWebSocket>[0]['route']`
 
-Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
+Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, or other headers from the original WebSocket upgrade request. It retains query parameters present in the supplied `url`.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -118,6 +121,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+      chainId: 42431,
     }),
   ],
 })
@@ -136,11 +140,13 @@ WebSocket instance. Accepts a browser `WebSocket`, a `ws` library socket, or any
 
 - **Type:** `string`
 
-URL used for constructing synthetic route requests. `ws://` and `wss://` schemes are normalized to `http://` and `https://`.
+URL used for constructing synthetic route requests. `ws://` and `wss://` schemes are normalized to `http://` and `https://`. Keep application parameters in an encoded path segment and match that server route, rather than putting them in a query string: Session accounting classifies POSTs with a query string as content, including payment authorization frames.
 
 ## Advanced options
 
-Use `tempo.Ws.serve()` when a custom integration manages its own store or post-charge behavior. Pass `onChargeCommitted` to run a hook after each nonzero stream charge commits. The legacy `settleScheduled` option remains as a deprecated alias.
+Use `tempo.Ws.serve()` when a custom integration manages its own store or post-charge behavior. Pass `beforeCharge` to verify live reserve state and `onChargeCommitted` to run a hook after each nonzero stream charge commits. The legacy `settleScheduled` option remains as a deprecated alias.
+
+`beforeCharge` has type `(channelId: Hex) => void | Promise<void>`. `mppx.session.serveWebSocket()` supplies the configured Session method's reserve verifier automatically.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -151,6 +157,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+      chainId: 42431,
       settlementSchedule: { units: 100 },
       store,
     }),
@@ -175,7 +182,7 @@ await tempo.Ws.serve({
 })
 ```
 
-Credential verification routes each in-band authorization frame through `route` as a synthetic `POST` request carrying only the `Authorization` header. It doesn't include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
+Credential verification routes each in-band authorization frame through `route` as a synthetic `POST` request carrying only the `Authorization` header. It doesn't include cookies, bodies, or other headers from the original WebSocket upgrade request. Query parameters in the supplied `url` are retained.
 
 ## Helper functions
 

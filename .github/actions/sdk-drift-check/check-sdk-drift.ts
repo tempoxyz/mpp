@@ -259,6 +259,47 @@ export function parseLink(
     };
   }
 
+  if (symbolPart.startsWith("EmailOtp.")) {
+    return {
+      link,
+      area,
+      namespace: { client: "Client", core: "EmailOtp", server: "Server" }[area],
+      member: symbolPart.slice("EmailOtp.".length),
+      entrypoint: "extensions/identity/email-otp",
+    };
+  }
+
+  if (symbolPart.startsWith("Attestation.")) {
+    const rest = symbolPart.slice("Attestation.".length);
+    if (area !== "core")
+      return {
+        link,
+        area,
+        namespace: area === "client" ? "Client" : "Server",
+        member: rest,
+        entrypoint: "extensions/identity/attestation",
+      };
+    // Core links name a top-level export (sign, Constants) or a namespace member (Jwks.resolver).
+    const [head, ...tail] = rest.split(".");
+    return {
+      link,
+      area,
+      namespace: tail.length > 0 ? head : "Attestation",
+      member: tail.length > 0 ? tail.join(".") : rest,
+      entrypoint: "extensions/identity/attestation",
+    };
+  }
+
+  if (area === "core" && symbolPart.startsWith("Identity.")) {
+    return {
+      link,
+      area,
+      namespace: "Identity",
+      member: symbolPart.slice("Identity.".length),
+      entrypoint: "identity",
+    };
+  }
+
   if (area === "core" && symbolPart.startsWith("Html.")) {
     return {
       link,
@@ -362,6 +403,15 @@ export async function getSdkExports(
     { area: "core", path: packageName },
     { area: "client", path: `${packageName}/client` },
     { area: "server", path: `${packageName}/server` },
+    {
+      area: "extensions/identity/attestation",
+      path: `${packageName}/extensions/identity/attestation`,
+    },
+    {
+      area: "extensions/identity/email-otp",
+      path: `${packageName}/extensions/identity/email-otp`,
+    },
+    { area: "identity", path: `${packageName}/identity` },
     { area: "html", path: `${packageName}/html` },
     { area: "mcp-sdk/client", path: `${packageName}/mcp-sdk/client` },
     { area: "tempo", path: `${packageName}/tempo` },

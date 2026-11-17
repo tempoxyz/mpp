@@ -4,11 +4,12 @@ description: "Use Stellar payment methods in MPP to accept SEP-41 token payments
 imageDescription: "Accept stablecoin payments on the Stellar network"
 ---
 
-import { Badge } from 'vocs'
+import { Tab, Tabs } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Stellar [SEP-41 token payments on the Stellar network]
 
-The [Stellar](https://stellar.org) payment method enables payments using SEP-41-compliant tokens on the Stellar network. Stellar supports two intents – **charge** for one-time on-chain transfers and **channel** for high-frequency off-chain payment channels – covering everything from single API calls to metered billing at token-level granularity.
+The [Stellar](https://stellar.org) payment method enables payments using SEP-41-compliant tokens on the Stellar network. Stellar supports two intents – [charge](#charge) for one-time on-chain transfers and [session](#session) (named `channel` in the SDK) for high-frequency off-chain payment channels – covering everything from single API calls to metered billing at token-level granularity.
 
 The reference implementation is provided by [`@stellar/mpp`](https://github.com/stellar/stellar-mpp-sdk), which extends [`mppx`](https://github.com/wevm/mppx) with Stellar-native client and server handlers.
 
@@ -32,14 +33,14 @@ Stellar enables several useful capabilities for MPP:
 
 - **5-second finality**: Transactions settle with deterministic confirmation, no probabilistic waiting
 - **Sub-cent fees**: Transaction costs low enough for micropayments and per-request billing
-- **Fee sponsorship**: Servers can pay transaction fees on behalf of clients, removing wallet friction entirely
+- **Fee sponsorship**: Servers can pay transaction fees on behalf of clients, removing wallet friction entirely (see [with fee sponsorship](#with-fee-sponsorship))
 - **Stellar smart contracts**: Payment channels run as auditable on-chain contracts for secure reserve and settlement
 - **Flexible token support**: Any SEP-41 compliant token is supported, which includes smart contract transfers and classic assets (via SAC).
 - **Payment channels**: Off-chain cumulative commitments enable high-frequency metered billing without per-request on-chain cost
 
 ## Choosing an intent
 
-| | **Charge** | **Channel** |
+| | **Charge** | **Session** |
 |---|---|---|
 | **Pattern** | One-time payment per request | Deposit once, pay incrementally with commitments |
 | **Latency overhead** | ~5s (on-chain confirmation) | Near-zero after channel open |
@@ -48,30 +49,97 @@ Stellar enables several useful capabilities for MPP:
 | **On-chain cost** | Per request | Amortized across many requests |
 | **Settlement** | Immediate on-chain token transfer | Off-chain commitments, on-chain close |
 
-## Intents
+## Supported assets
 
-<div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
-  <a href="/payment-methods/stellar/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
-    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.003 1.716c-1.37 0-2.7.27-3.948.78A10.18 10.18 0 0 0 2.66 7.901a10.136 10.136 0 0 0-.797 3.954c0 .258.01.516.027.775a1.942 1.942 0 0 1-1.055 1.88L0 14.934v1.902l2.463-1.26.072-.032v.005l.77-.39.758-.385.066-.039 14.807-7.56 1.666-.847 3.392-1.732V2.694L17.792 5.86 3.744 13.025l-.104.055-.017-.115a8.286 8.286 0 0 1-.071-1.105c0-2.255.88-4.377 2.474-5.977a8.462 8.462 0 0 1 2.71-1.82 8.513 8.513 0 0 1 3.2-.654h.067a8.41 8.41 0 0 1 4.09 1.055l1.628-.83.126-.066a10.11 10.11 0 0 0-5.845-1.853zM24 7.143 5.047 16.808l-1.666.847L0 19.382v1.902l3.282-1.671 2.91-1.485 14.058-7.153.105-.055.016.115c.05.369.072.743.072 1.11 0 2.255-.88 4.383-2.475 5.978a8.461 8.461 0 0 1-2.71 1.82 8.305 8.305 0 0 1-3.2.654h-.06c-1.441 0-2.86-.369-4.102-1.061l-.066.033-1.683.857c.594.418 1.232.776 1.903 1.062a10.11 10.11 0 0 0 3.947.797 10.09 10.09 0 0 0 7.17-2.975 10.136 10.136 0 0 0 2.969-7.18c0-.259-.005-.523-.027-.781a1.942 1.942 0 0 1 1.055-1.88L24 9.044z"/></svg>
-    </div>
-    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Stellar charge</div>
-    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time smart contract token transfers settled on-chain</div>
-  </a>
-  <a href="/payment-methods/stellar/session" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
-    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.003 1.716c-1.37 0-2.7.27-3.948.78A10.18 10.18 0 0 0 2.66 7.901a10.136 10.136 0 0 0-.797 3.954c0 .258.01.516.027.775a1.942 1.942 0 0 1-1.055 1.88L0 14.934v1.902l2.463-1.26.072-.032v.005l.77-.39.758-.385.066-.039 14.807-7.56 1.666-.847 3.392-1.732V2.694L17.792 5.86 3.744 13.025l-.104.055-.017-.115a8.286 8.286 0 0 1-.071-1.105c0-2.255.88-4.377 2.474-5.977a8.462 8.462 0 0 1 2.71-1.82 8.513 8.513 0 0 1 3.2-.654h.067a8.41 8.41 0 0 1 4.09 1.055l1.628-.83.126-.066a10.11 10.11 0 0 0-5.845-1.853zM24 7.143 5.047 16.808l-1.666.847L0 19.382v1.902l3.282-1.671 2.91-1.485 14.058-7.153.105-.055.016.115c.05.369.072.743.072 1.11 0 2.255-.88 4.383-2.475 5.978a8.461 8.461 0 0 1-2.71 1.82 8.305 8.305 0 0 1-3.2.654h-.06c-1.441 0-2.86-.369-4.102-1.061l-.066.033-1.683.857c.594.418 1.232.776 1.903 1.062a10.11 10.11 0 0 0 3.947.797 10.09 10.09 0 0 0 7.17-2.975 10.136 10.136 0 0 0 2.969-7.18c0-.259-.005-.523-.027-.781a1.942 1.942 0 0 1 1.055-1.88L24 9.044z"/></svg>
-    </div>
-    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Stellar channel</div>
-    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">Pay-as-you-go payments over one-way payment channels</div>
-  </a>
-</div>
+Any [SEP-41](https://stellar.org/protocol/sep-41) compliant token is supported. This includes classic Stellar assets wrapped via SAC, as well as custom smart contract tokens that implement the SEP-41 interface. A few common examples:
 
-## Fee sponsorship
+- **USDC** – Circle's USD stablecoin on Stellar
+- **XLM** – Stellar's native asset, wrapped as a SEP-41 token via SAC
+- **Any custom SEP-41 token** – smart contracts implementing the SEP-41 token interface
 
-Stellar supports server-paid transaction fees for charge intents. When enabled, the server rebuilds the transaction with its own source account and optionally wraps it in a fee bump. The client signs only the Stellar auth entries – no need to hold XLM for gas.
+The `@stellar/mpp` package exports constants for commonly used token addresses (`USDC_SAC_MAINNET`, `USDC_SAC_TESTNET`, `XLM_SAC_MAINNET`, `XLM_SAC_TESTNET`).
 
-Pass a `feePayer` configuration to `stellar.charge()` to enable this:
+## Charge
+
+The Stellar implementation of the [charge](/intents/charge) intent.
+
+The client signs a SEP-41 `transfer` invocation, and the server verifies and broadcasts the transaction on-chain. Settlement completes in ~5 seconds with deterministic finality.
+
+Stellar charge supports two Credential modes:
+
+- **Pull mode** (default): The client signs Stellar auth entries and sends the transaction XDR. The server broadcasts it. Two variants: sponsored (server holds an envelope signer and optionally wraps with a fee bump) or unsponsored (server broadcasts the transaction as-is, without modification).
+- **Push mode**: The client builds, signs, and broadcasts the transaction itself, then sends the transaction hash. The server polls for confirmation.
+
+This method is best for single API calls, content access, or one-off purchases.
+
+### How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Stellar
+    Client->>Server: (1) GET /resource
+    Server-->>Client: 402 + Challenge (amount, currency, recipient)
+    Client->>Client: (2) Build SEP-41 transfer, sign auth entries
+    Client->>Server: (3) Retry with Credential (signed XDR)
+    Server->>Stellar: (4) Simulate + broadcast transaction
+    Stellar-->>Server: Transaction confirmed
+    Server-->>Client: 200 OK + Receipt
+`} />
+
+### Server
+
+Use `stellar.charge` to gate any endpoint behind a one-time SEP-41 token payment. The method handles Challenge generation, Credential verification, transaction broadcast, and Receipt creation.
+
+```ts
+import express from 'express'
+import { Mppx } from 'mppx/server'
+import { stellar } from '@stellar/mpp/charge/server'
+import { USDC_SAC_TESTNET } from '@stellar/mpp'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
+  methods: [
+    stellar.charge({
+      recipient: process.env.STELLAR_RECIPIENT,
+      currency: USDC_SAC_TESTNET,
+      network: 'stellar:testnet',
+    }),
+  ],
+})
+
+const app = express()
+
+app.get('/my-service', async (req, res) => {
+  const webReq = new Request(`http://localhost:3000${req.url}`, {
+    method: req.method,
+    headers: new Headers(req.headers as Record<string, string>),
+  })
+
+  const result = await mppx.charge({
+    amount: '0.01',
+    description: 'Premium API access',
+  })(webReq)
+
+  if (result.status === 402) {
+    const challenge = result.challenge
+    challenge.headers.forEach((value, key) => res.setHeader(key, value))
+    return res.status(402).send(await challenge.text())
+  }
+
+  const response = result.withReceipt(
+    Response.json({ message: 'Payment verified' }),
+  )
+  response.headers.forEach((value, key) => res.setHeader(key, value))
+  return res.status(response.status).send(await response.text())
+})
+
+app.listen(3000)
+```
+
+#### With fee sponsorship
+
+When `feePayer` is configured, the server adds its own source account and optionally wraps the transaction in a fee bump before broadcasting. The client doesn't need XLM for gas – it signs only the Stellar auth entries.
 
 ```ts
 import { Mppx } from 'mppx/server'
@@ -88,7 +156,8 @@ const mppx = Mppx.create({
       network: 'stellar:testnet',
       // [!code hl:start]
       feePayer: {
-        envelopeSigner: Keypair.fromSecret('S...'),
+        envelopeSigner: Keypair.fromSecret(process.env.FEE_PAYER_SECRET),
+        feeBumpSigner: Keypair.fromSecret(process.env.FEE_BUMP_SECRET), // optional
       },
       // [!code hl:end]
     }),
@@ -96,12 +165,390 @@ const mppx = Mppx.create({
 })
 ```
 
-## Supported assets
+#### Server configuration
 
-Any [SEP-41](https://stellar.org/protocol/sep-41) compliant token is supported. This includes classic Stellar assets wrapped via SAC, as well as custom smart contract tokens that implement the SEP-41 interface. A few common examples:
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `currency` | `string` | – | SEP-41 token contract address |
+| `decimals` | `number` | `7` | Token decimal precision |
+| `feePayer` | `object` | – | Fee sponsorship configuration |
+| `maxFeeBumpStroops` | `number` | `10,000,000` | Maximum fee bump amount in stroops |
+| `network` | `string` | – | `'stellar:testnet'` or `'stellar:pubnet'` |
+| `pollDelayMs` | `number` | `1,000` | Delay between transaction poll attempts |
+| `pollMaxAttempts` | `number` | `30` | Maximum transaction poll attempts |
+| `pollTimeoutMs` | `number` | `30,000` | Total poll timeout |
+| `recipient` | `string` | – | Stellar public key (`G...`) or contract (`C...`) |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `store` | `Store` | – | State store for replay protection |
 
-- **USDC** – Circle's USD stablecoin on Stellar
-- **XLM** – Stellar's native asset, wrapped as a SEP-41 token via SAC
-- **Any custom SEP-41 token** – smart contracts implementing the SEP-41 token interface
+### Client
 
-The `@stellar/mpp` package exports constants for commonly used token addresses (`USDC_SAC_MAINNET`, `USDC_SAC_TESTNET`, `XLM_SAC_MAINNET`, `XLM_SAC_TESTNET`).
+Use `stellar.charge` with `Mppx.create` to automatically handle `402` responses. The client signs SEP-41 transfer auth entries and retries with the Credential.
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/charge/client'
+
+Mppx.create({
+  methods: [
+    stellar.charge({
+      keypair: Keypair.fromSecret('S...'),
+      mode: 'pull',
+      onProgress(event) {
+        console.log(event.type) // challenge → signing → signed → paying → confirming → paid
+      },
+    }),
+  ],
+})
+
+const response = await fetch('http://localhost:3000/my-service')
+const data = await response.json()
+```
+
+#### Push mode
+
+In push mode, the client broadcasts the transaction and sends the hash for server verification:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/charge/client'
+
+Mppx.create({
+  methods: [
+    stellar.charge({
+      keypair: Keypair.fromSecret('S...'),
+      mode: 'push', // [!code hl]
+    }),
+  ],
+})
+```
+
+#### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/charge/client'
+
+const mppx = Mppx.create({
+  methods: [
+    stellar.charge({
+      keypair: Keypair.fromSecret('S...'),
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('http://localhost:3000/my-service')
+```
+
+#### Client configuration
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `decimals` | `number` | `7` | Token decimal precision |
+| `keypair` | `Keypair` | – | Stellar keypair for signing |
+| `mode` | `'pull' \| 'push'` | `'pull'` | Credential mode |
+| `onProgress` | `function` | – | Lifecycle event callback |
+| `pollDelayMs` | `number` | `1,000` | Delay between poll attempts (push mode) |
+| `pollMaxAttempts` | `number` | `30` | Maximum poll attempts (push mode) |
+| `pollTimeoutMs` | `number` | `30,000` | Total poll timeout (push mode) |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `secretKey` | `string` | – | Stellar secret key (alternative to `keypair`) |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `timeout` | `number` | `180` | Transaction timeout in seconds |
+
+#### Progress events
+
+The `onProgress` callback fires at each stage of the charge flow:
+
+| Event | Description |
+|---|---|
+| `challenge` | Challenge received from server |
+| `signing` | Building and signing SEP-41 transfer |
+| `signed` | Transaction signed |
+| `paying` | Sending Credential to server |
+| `confirming` | Waiting for on-chain confirmation (push mode) |
+| `paid` | Payment confirmed, Receipt received |
+
+## Session
+
+:::info
+Stellar uses the term "channel" for its streaming payment intent. This corresponds to the MPP [session](/intents/session) concept used by other payment methods.
+:::
+
+:::warning[Spec in progress]
+The formal specification for the Stellar channel intent is still being drafted. An initial implementation is available in [`@stellar/mpp`](https://github.com/stellar/stellar-mpp-sdk) and this documentation reflects that implementation. Details may change as the spec is finalized.
+:::
+
+The `channel` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels on Stellar. Clients deposit tokens into an on-chain contract reserve and sign off-chain cumulative commitments as they consume resources. The server verifies commitments via contract simulation–no per-request on-chain transactions–and closes the channel to settle the final balance.
+
+Payment channels reduce payment verification to a single contract simulation per request, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
+
+### How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Stellar
+    Client->>Stellar: (1) Deploy channel + deposit tokens
+    Stellar-->>Client: Channel contract created
+    Client->>Server: (2) Open Credential (channel address)
+    Note over Server: Verify on-chain deposit
+    Server-->>Client: 200 OK (session established)
+    loop Per request
+        Client->>Server: (3) Request + commitment signature
+        Note over Server: Verify via prepare_commitment simulation
+        Server-->>Client: 200 OK + Receipt
+    end
+    Server->>Stellar: (4) Close channel with highest commitment
+    Stellar-->>Client: Refund remaining deposit
+`} />
+
+A payment channel has four phases:
+
+::::steps
+
+#### Open
+
+The client deploys a one-way-channel smart contract with a commitment key and an `asset` deposit. This creates a payment channel between the client (funder) and server (recipient). The channel contract holds the deposited tokens on-chain.
+
+#### Session
+
+The client signs ed25519 cumulative commitment amounts as service is consumed. Each commitment authorizes "I have now consumed up to X total." The server verifies the commitment signature by simulating `prepare_commitment` on the channel contract and checks that the cumulative amount is higher than the previous commitment.
+
+Commitment verification requires a single contract simulation per request. This is what enables per-token LLM billing without significant latency overhead.
+
+#### Top up
+
+If the channel runs low on funds, the client deposits additional tokens via the `top_up` function without closing the channel. The session continues uninterrupted.
+
+#### Close
+
+Either party can close the channel. The server calls `close()` on the channel contract with the highest commitment amount and signature, settling the final balance on-chain and refunding any unused deposit to the funder.
+
+::::
+
+### Integration
+
+<Tabs stateKey="platform">
+  <Tab title="Server">
+  <div className="space-y-4">
+
+Use `stellar.channel` to accept payment channels. The server needs the channel contract address, commitment public key, and a storage backend for channel state.
+
+```ts
+import { Mppx, Store } from 'mppx/server'
+import { stellar } from '@stellar/mpp/channel/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
+  methods: [
+    stellar.channel({
+      channel: process.env.CHANNEL_CONTRACT, // C... address
+      commitmentKey: process.env.COMMITMENT_PUBLIC_KEY,
+      network: 'stellar:testnet',
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+During a session, the server verifies each commitment by simulating `prepare_commitment` on the channel contract. On-chain interaction only happens during open and close.
+
+Use `mppx.session` in your request handler to meter access:
+
+```ts
+import { Mppx, Store } from 'mppx/server'
+import { stellar } from '@stellar/mpp/channel/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
+  methods: [
+    stellar.channel({
+      channel: process.env.CHANNEL_CONTRACT,
+      commitmentKey: process.env.COMMITMENT_PUBLIC_KEY,
+      network: 'stellar:testnet',
+      store: Store.memory(),
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.session({
+    amount: '0.01',
+    description: 'API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+#### Server configuration
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | `string` | – | On-chain channel contract address (`C...`) |
+| `checkOnChainState` | `boolean` | `false` | Verify on-chain state during voucher verification |
+| `commitmentKey` | `string \| Keypair` | – | Commitment verification public key |
+| `decimals` | `number` | `7` | Token decimal precision |
+| `feePayer` | `object` | – | Fee sponsorship configuration for close transactions |
+| `feePayer.envelopeSigner` | `Keypair \| string` | – | Signer for close transaction envelopes |
+| `feePayer.feeBumpSigner` | `Keypair \| string` | – | Optional fee bump signer for close transactions |
+| `maxFeeBumpStroops` | `number` | `10,000,000` | Maximum fee bump amount |
+| `network` | `string` | – | `'stellar:testnet'` or `'stellar:pubnet'` |
+| `onDisputeDetected` | `function` | – | Callback when on-chain dispute is detected |
+| `pollDelayMs` | `number` | `1,000` | Delay between poll attempts |
+| `pollMaxAttempts` | `number` | `30` | Maximum poll attempts |
+| `pollTimeoutMs` | `number` | `30,000` | Total poll timeout |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `sourceAccount` | `string` | – | Source account for transactions |
+| `store` | `Store` | – | State store for channel data |
+
+  </div>
+  </Tab>
+  <Tab title="Client">
+  <div className="space-y-4">
+
+Use `stellar.channel` with `Mppx.create` to sign commitment amounts automatically when the server requests payment channels.
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/channel/client'
+
+Mppx.create({
+  methods: [
+    stellar.channel({
+      commitmentKey: Keypair.fromSecret('S...'),
+      onProgress(event) {
+        console.log(event.type) // challenge → signing → signed
+      },
+    }),
+  ],
+})
+
+const response = await fetch('http://localhost:3000/my-service')
+// Automatically signs cumulative commitments per request
+```
+
+#### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/channel/client'
+
+const mppx = Mppx.create({
+  methods: [
+    stellar.channel({
+      commitmentKey: Keypair.fromSecret('S...'),
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('http://localhost:3000/my-service')
+```
+
+#### With multiple methods
+
+Register both charge and channel methods so the client can handle servers that offer either:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/charge/client'
+import { stellar as stellarChannel } from '@stellar/mpp/channel/client'
+
+Mppx.create({
+  methods: [
+    stellar.charge({ keypair: Keypair.fromSecret('S...') }),
+    stellarChannel.channel({ commitmentKey: Keypair.fromSecret('S...') }),
+  ],
+})
+```
+
+#### Client configuration
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `commitmentKey` | `Keypair` | – | Ed25519 keypair for signing commitments |
+| `commitmentSecret` | `string` | – | Secret key (alternative to `commitmentKey`) |
+| `onProgress` | `function` | – | Lifecycle event callback |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `sourceAccount` | `string` | – | Source account for transactions |
+
+  </div>
+  </Tab>
+</Tabs>
+
+### Closing the channel
+
+The server closes the channel by submitting the highest cumulative commitment amount and signature on-chain. The `close` function is exported from the server package:
+
+```ts
+import { close } from '@stellar/mpp/channel/server'
+import { Keypair } from '@stellar/stellar-sdk'
+
+const txHash = await close({
+  channel: 'CABC...', // channel contract address
+  amount: 2000000n, // cumulative amount in base units (bigint)
+  signature: lastCommitmentSignature, // Uint8Array
+  feePayer: { envelopeSigner: Keypair.fromSecret('S...') },
+  network: 'stellar:testnet',
+})
+```
+
+:::warning
+Channels do not close automatically. If you don't call `close()`, the deposit stays locked in the channel contract until the funder initiates a refund after the waiting period expires.
+:::
+
+### Monitoring channels
+
+Use `getChannelState` to query the on-chain state of a channel, and `watchChannel` to poll for contract events:
+
+```ts
+import { getChannelState, watchChannel } from '@stellar/mpp/channel/server'
+
+// Query current state
+const state = await getChannelState({
+  channel: 'CABC...',
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+})
+
+// Watch for events (close, refund, top_up)
+const stop = watchChannel({
+  channel: 'CABC...',
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+  onEvent(event) {
+    console.log(event.type, event.data)
+  },
+})
+
+// Stop watching
+stop()
+```
+
+### Channel contract
+
+Payment channels use the [one-way-channel](https://github.com/stellar-experimental/one-way-channel) smart contract for on-chain deposits, commitment verification, and settlement.
+
+The contract lifecycle: **Open** (deploy + deposit) -> **Off-chain payments** (signed commitments) -> **Settle** (partial withdrawal) -> **Close** (final settlement) or **Close Start** -> **Refund** (funder reclaims after waiting period).
+
+Commitment signatures use ed25519 over XDR-encoded `ScVal::Map` containing the amount, channel address, domain separator (`chancmmt`), and network ID–preventing replay across channels and networks.
+
+:::info
+The one-way-channel contract is experimental and has not been audited. See the [repository](https://github.com/stellar-experimental/one-way-channel) for the latest status.
+:::

@@ -29,7 +29,11 @@ export interface Rule {
  */
 export const RULES: Record<string, Rule> = {
   "service-directory": {
-    paths: ["schemas/services.ts", "schemas/discovery.*"],
+    paths: [
+      "schemas/services.ts",
+      "schemas/discovery.*",
+      "schemas/mpp-proxy.json",
+    ],
     tokens: ["[service]", "service directory", "add service"],
   },
   docs: {

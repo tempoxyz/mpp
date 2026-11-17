@@ -61,6 +61,12 @@ A client-configured method that can be passed to `Mppx.create`.
 
 ## Parameters
 
+### canHandleChallenge (optional)
+
+- **Type:** `(parameters: { challenge: Challenge; context?: unknown }) => boolean`
+
+Selects among client implementations that share a method and intent. `context` contains the caller's Credential context when supplied before selection, including an explicit Session close. It can be absent during `preparePayment`; validate the final context in `createCredential` too.
+
 ### context (optional)
 
 - **Type:** `ZodMiniType`

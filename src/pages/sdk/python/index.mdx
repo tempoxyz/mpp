@@ -1,15 +1,13 @@
 ---
 description: "Use the Python SDK to build MPP clients and servers with typed Challenge, Credential, and Receipt primitives."
-imageDescription: "MPP client and server library for Python"
+imageDescription: "Add paid requests to Python applications"
 ---
 
 import * as SdkBadge from '../../../components/SdkBadge'
 
 # Python SDK [The pympp Python library]
 
-## Overview
-
-The `mpp` Python library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `pympp` package provides payment-aware HTTP clients, server handlers, and protocol primitives.
 
 <div className="flex gap-2">
   <SdkBadge.GitHub repo="tempoxyz/pympp" />
@@ -19,88 +17,223 @@ The `mpp` Python library provides a typed interface over the Machine Payments Pr
 ## Install
 
 ```bash [test.sh]
-$ pip install pympp
-```
-
-With Tempo blockchain support:
-
-```bash [test.sh]
 $ pip install "pympp[tempo]"
 ```
 
-## Requirements
-
-- Python 3.11+
-- `httpx` for async HTTP
-- `eth-account` for Tempo signing (with `[tempo]` extra)
+`pympp` requires Python 3.11 or newer. The `tempo` extra installs Tempo signing dependencies.
 
 ## Quick start
 
-### Server
+### Server example
 
 ```python [server.py]
-import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from mpp import Challenge
-from mpp.server import Mpp
-from mpp.methods.tempo import tempo, ChargeIntent
+from mpp import Credential, Receipt
+from mpp.methods.tempo import server as tempo
+from mpp.server import Mpp, pay
 
 app = FastAPI()
-
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-        intents={"charge": ChargeIntent()},
+payment = Mpp(
+    methods=tempo.charge(
+        chain_id=42431,  # Tempo testnet (Moderato)
         recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
-    secret_key=os.environ["MPP_SECRET_KEY"],
 )
 
 @app.get("/resource")
-async def get_resource(request: Request):
-    result = await mpp.charge(
-        authorization=request.headers.get("Authorization"),
-        amount="0.50",
-    )
-
-    if isinstance(result, Challenge):
-        return JSONResponse(
-            status_code=402,
-            content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
-        )
-
-    credential, receipt = result
-    return {"data": "paid content", "payer": credential.source}
+@pay(payment.charge(amount="0.50"))
+async def get_resource(
+    request: Request,
+    credential: Credential,
+    receipt: Receipt,
+):
+    return JSONResponse({"data": "paid content", "payer": receipt.payer})
 ```
 
-Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `secret_key` explicitly to `Mpp.create()`.
+`@pay` converts FastAPI, Starlette, Django, and Flask requests into the framework-neutral payment flow. It returns the `402` response or adds the Receipt to a successful response.
 
-### Client
+### Client example
 
 ```python [client.py]
-import asyncio
-from mpp.client import Client
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import Mpp
+from mpp.methods.tempo import OUSD, TempoAccount
+from mpp.methods.tempo import client as tempo
 
-async def main():
-    account = TempoAccount.from_env()
+account = TempoAccount.from_key("0x...")
+method = tempo.charge(
+    account=account,
+    allowed_chain_ids=[42431],  # Tempo testnet (Moderato)
+    currency=OUSD,
+    max_amount="0.50",
+    max_amount_decimals=6,
+)
 
-    async with Client(methods=[tempo(account=account, intents={"charge": ChargeIntent()})]) as client:
-        response = await client.get("https://mpp.dev/api/ping/paid")
-        print(response.json())
-
-asyncio.run(main())
+async with Mpp(
+    allowed_origins=["https://api.example.com"],
+    methods=[method],
+) as payment:
+    response = await payment.fetch("https://api.example.com/resource")
+    print(response.json())
 ```
 
-## Next steps
+`allowed_origins` authorizes automatic payment only to exact HTTP origins. An empty list disables automatic payment. Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
 
-import { Cards } from 'vocs'
-import { PythonCoreTypesCard, PythonClientCard, PythonServerCard } from '../../../components/cards'
+:::info[Go live]
+Before going live, set `chain_id=4217` (Tempo mainnet) on the server, set `allowed_chain_ids=[4217]` on the client, and fund a mainnet account.
+:::
 
-<Cards>
-  <PythonCoreTypesCard />
-  <PythonClientCard />
-  <PythonServerCard />
-</Cards>
+## Core types
+
+The SDK provides three core types that map directly to HTTP headers: `Challenge`, `Credential`, and `Receipt`.
+
+```python
+from mpp import Challenge, Credential, Receipt
+```
+
+### Parse a Challenge
+
+```python
+challenge = Challenge.from_www_authenticate(
+    'Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."'
+)
+```
+
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `Challenge.from_www_authenticate(...)` decodes them for application code.
+
+### Create and serialize a Credential
+
+```python
+credential = Credential(
+    challenge=challenge.to_echo(),
+    payload={"type": "transaction", "signature": "0x..."},
+    source="did:pkh:eip155:42431:0xa726a1...",
+)
+
+header = credential.to_authorization()
+```
+
+When a Credential echoes a Challenge, `challenge.request` and `challenge.opaque` stay in their base64url string form inside the serialized `Authorization` payload.
+
+### Parse and serialize a Receipt
+
+```python
+receipt = Receipt.from_payment_receipt(header_value)
+header = receipt.to_payment_receipt()
+```
+
+## Client
+
+The client wraps `httpx`, selects a supported Challenge, creates a Credential, and retries the request. Start from the [client example](#client-example), and also configure method-level amount, chain, currency, and recipient limits when you know them.
+
+### Use an existing `httpx` client
+
+```python [client.py]
+import httpx
+from mpp.client import Mpp
+
+payment = Mpp(methods=[method])
+
+async with httpx.AsyncClient(transport=payment.payment_transport) as client:
+    response = await client.get("https://api.example.com/resource")
+```
+
+Call `payment.client()` when you want the SDK to construct the `httpx.AsyncClient`.
+
+### Client event handling
+
+```python [client.py]
+from mpp.client import Mpp
+from mpp.events import PAYMENT_RESPONSE
+
+payment = Mpp(methods=[method])
+
+unsubscribe = payment.on(
+    PAYMENT_RESPONSE,
+    lambda payload: print(payload["response"].status_code),
+)
+```
+
+`on_challenge_received`, `on_credential_created`, `on_payment_failed`, and `on_payment_response` register named handlers. Each registration returns an unsubscribe function.
+
+### Custom transport
+
+```python [transport.py]
+import httpx
+from mpp.client import PaymentTransport
+
+transport = PaymentTransport(
+    allowed_origins=["https://api.example.com"],
+    inner=httpx.AsyncHTTPTransport(retries=3),
+    methods=[method],
+)
+
+async with httpx.AsyncClient(transport=transport) as client:
+    response = await client.get("https://api.example.com/resource")
+```
+
+For manual Challenge and Credential handling, see [Core types](#core-types).
+
+## Server
+
+Configure server methods once, then create a handler for each route price. The [server example](#server-example) shows the FastAPI integration.
+
+### Framework-neutral flow
+
+```python [server.py]
+from mpp.server import Request, Response
+
+async def handle(request: Request) -> Response:
+    result = await payment.charge(amount="0.50")(request)
+    if result.status != 200:
+        return result.challenge
+    if result.response is not None:
+        return result.response
+    return result.with_receipt(Response.json({"data": "paid content"}))
+```
+
+Return `result.response` for method-managed requests such as session top-ups and closes.
+
+### Configure Tempo
+
+```python [server.py]
+from mpp.methods.tempo import PATH_USD
+from mpp.methods.tempo import server as tempo
+
+methods = tempo.charge(
+    chain_id=42431,
+    currencies=[PATH_USD],
+    recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    rpc_url="https://rpc.moderato.tempo.xyz",
+)
+payment = Mpp(methods=methods)
+```
+
+Use a shared persistent replay store across replicas. The default in-memory store is process-local and loses replay state on restart.
+
+### Existing `Authorization` headers
+
+If the route already uses `Authorization`, configure a separate Payment credential header:
+
+```python [server.py]
+payment = Mpp(methods=methods, requires_auth=True)
+```
+
+The Challenge then advertises `Payment-Authorization`.
+
+### Server event handling
+
+```python [server.py]
+from mpp.events import PAYMENT_SUCCESS
+
+unsubscribe = payment.on(
+    PAYMENT_SUCCESS,
+    lambda payload: print(payload["receipt"].reference),
+)
+```
+
+Server event handlers run inline with verification. Keep them short and retain the unsubscribe function while the handler is active.
+
+### Sessions
+
+Use `tempo.session(...)` with a durable store for metered payment channels, then create route handlers with `payment.session(...)`. Forward method-managed responses so channel open, top-up, and close requests complete correctly.

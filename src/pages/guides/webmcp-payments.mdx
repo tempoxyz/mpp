@@ -15,7 +15,7 @@ import { PromptBlock } from '../../components/PromptBlock'
 This guide builds a paid `analyze_topic` tool. The tool costs `0.01` OUSD on Tempo testnet and returns a payment Receipt with its result.
 
 :::info
-WebMCP and MCP use different transports. A WebMCP tool runs in the page and calls a paid HTTP endpoint, so the Challenge, Credential, and Receipt use HTTP headers. A remote MCP server uses the [MPP MCP transport](/protocol/transports/mcp) instead.
+WebMCP and MCP use different transports. A WebMCP tool runs in the page and calls a paid HTTP endpoint, so the Challenge, Credential, and Receipt use HTTP headers. A remote MCP server uses the [MPP MCP transport](/protocol/transports#mcp-and-json-rpc) instead.
 :::
 
 ## How it works
@@ -241,7 +241,7 @@ Test the HTTP payment independently when debugging the server:
 ```bash [test.sh]
 $ npx mppx account create --network testnet
 $ npx mppx account fund --network testnet
-$ npx mppx 'http://localhost:3000/api/analyze?topic=machine%20payments'
+$ npx mppx 'http://localhost:3000/api/analyze?topic=machine%20payments' --network testnet
 ```
 
 ::::

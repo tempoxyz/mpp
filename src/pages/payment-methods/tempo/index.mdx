@@ -16,20 +16,22 @@ import { Badge } from 'vocs'
 
 The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. Tempo supports **charge** for one-time payments, **session** for pay-as-you-go payment channels, and **subscription** for recurring access.
 
+Payers with a balance in a [Zone](https://docs.tempo.xyz/docs/zones) can pay charges privately. See [private payments on Tempo](/guides/private-payments).
+
 ## Payments on Tempo
 
 Tempo is purpose-built for the payment patterns MPP enables:
 
 - **Instant finality**—Transactions settle in ~500ms with deterministic confirmation, no probabilistic waiting
 - **Sub-cent fees**—Transaction costs low enough for micropayments and per-request billing
-- **Fee sponsorship**—Servers can pay gas fees on behalf of clients, removing wallet UX friction entirely
+- **Fee sponsorship**—Sellers can pay gas fees on behalf of buyers, removing wallet UX friction entirely
 - **2D nonces**—Parallel nonce lanes let clients submit payment transactions without blocking other account activity
 - **Payment lane**—Dedicated transaction ordering for payment channel operations, providing reliable channel management UX
 - **High throughput**—Tempo's throughput handles the on-chain settlement and channel management volume that payment sessions generate at scale
 
 ## Choosing a payment method 
 
-| | **Charge** | **Session** <Badge variant="info">Recommended</Badge> | **Subscription** <Badge variant="info">New</Badge> |
+| | **Charge** | **Session** <Badge variant="info">Recommended</Badge> | **Subscription** |
 |---|---|---|---|
 | **Pattern** | One-time payment per request | Continuous pay-as-you-go | Recurring access |
 | **Latency overhead** | ~500ms (on-chain confirmation) | Near-zero | Near-zero after activation |
@@ -57,7 +59,6 @@ Tempo is purpose-built for the payment patterns MPP enables:
     <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">Pay-as-you-go payment sessions over payment channels</div>
   </a>
   <a href="/payment-methods/tempo/subscription" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
-    <div className="vocs:absolute vocs:top-4 vocs:right-4"><Badge variant="info">New</Badge></div>
     <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
     </div>
@@ -68,7 +69,7 @@ Tempo is purpose-built for the payment patterns MPP enables:
 
 ## Fee sponsorship
 
-Tempo supports server-paid transaction fees for charge, session, and subscription intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
+Tempo supports server-paid transaction fees for charge, session, and subscription intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The buyer doesn't need to hold gas tokens or understand fee mechanics.
 
 Pass a `feePayer` account to a Tempo server method to enable this. For one-time charges, configure `tempo.charge`:
 
@@ -79,6 +80,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const mppx = Mppx.create({
   methods: [tempo.charge({
     feePayer: privateKeyToAccount('0x…'), // [!code hl]
+    testnet: true,
   })],
 })
 ```
@@ -98,10 +100,11 @@ const mppx = Mppx.create({
       url: 'https://sponsor.example.com',
     },
     // [!code hl:end]
+    testnet: true,
   })],
 })
 ```
 
-Local sponsors allow transactions to install access keys by default. Set `feePayerPolicy.allowKeyAuthorization` to `false` when a sponsor doesn't serve subscriptions or other access-key flows and must reject those transactions.
+Sponsored transactions may carry a `keyAuthorization`, so an access key can pay a sponsored charge or open a sponsored Session in the transaction that installs it. `feePayerPolicy.maxGas` and `feePayerPolicy.maxTotalFee` bound the sponsor's cost.
 
 For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions. For pull-mode charges, `mppx` sends fill requests through the configured fee-payer transport, then broadcasts the completed transaction through the chain RPC transport.

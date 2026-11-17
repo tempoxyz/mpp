@@ -1,0 +1,55 @@
+---
+description: "Use shared email verification headers and endpoint paths in custom integrations."
+imageDescription: "Connect custom clients to email verification"
+---
+
+# `EmailOtp.Constants` [Email OTP integration values]
+
+Exports the paths, type, and code-entry limit used by the email one-time-code extension. An issuer service emails a code and exchanges it for a signed attestation token confirming inbox access for one API origin. Values every attestation shares are in [`Attestation.Constants`](/sdk/typescript/core/Attestation.Constants).
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+
+console.log(EmailOtp.Constants.otpPath) // [!code hl]
+// @log: /email/otp
+```
+
+## Properties
+
+### codeAttempts
+
+- **Type:** `3`
+
+Maximum code prompts per acquisition in [`Client.prover`](/sdk/typescript/client/EmailOtp.prover). Only issuer `400` responses trigger another prompt.
+
+### header
+
+- **Type:** `'Identity-Attestation'`
+
+Deprecated alias of [`Attestation.Constants.header`](/sdk/typescript/core/Attestation.Constants#header).
+
+### otpPath
+
+- **Type:** `'/email/otp'`
+
+Issuer endpoint used by [`Client.sendCode`](/sdk/typescript/client/EmailOtp.sendCode).
+
+### requiredHeader
+
+- **Type:** `'Identity-Attestation-Required'`
+
+Deprecated alias of [`Attestation.Constants.requiredHeader`](/sdk/typescript/core/Attestation.Constants#requiredheader).
+
+### type
+
+- **Type:** `'email'`
+
+Attestation type this extension accepts. For other types, use [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier).
+
+### verifyPath
+
+- **Type:** `'/email/verify'`
+
+Issuer endpoint used by [`Client.verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode).

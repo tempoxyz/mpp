@@ -4,7 +4,7 @@ import { StructuredData } from "./StructuredData";
 export const FAQ_ENTRIES = [
   {
     answer:
-      "No. MPP is payment-method agnostic. Production implementations support Tempo stablecoin payments, card payments through Card or Stripe, and Lightning payments. Anyone can add a custom payment method.",
+      "No. MPP is payment-method agnostic. See the status and capabilities table on the payment methods page for each method's maturity and SDKs. Anyone can add a custom payment method.",
     question: "Is MPP only for stablecoins?",
   },
   {
@@ -29,12 +29,12 @@ export const FAQ_ENTRIES = [
   },
   {
     answer:
-      "Sessions enable streaming, pay-as-you-go payments. A client funds a channel reserve, sends signed off-chain vouchers for requests, and the server periodically settles the accumulated value on-chain.",
+      "Sessions enable streaming, pay-as-you-go payments. A buyer funds a channel reserve and sends signed off-chain vouchers for requests, and the seller periodically settles the accumulated value on-chain. Per-request latency and fees are near-zero.",
     question: "What are sessions?",
   },
   {
     answer:
-      "Each service sets its own price. The MPP protocol is free and open, with no licensing fees. Session payments can support lower per-request prices because individual interactions use signed vouchers and only net settlement reaches the payment network.",
+      "Each seller sets its own price. The MPP protocol is free and open, with no licensing fees. Session payments can support lower per-request prices because individual interactions use signed vouchers and only net settlement reaches the payment network.",
     question: "How much does it cost?",
   },
   {
@@ -49,7 +49,7 @@ export const FAQ_ENTRIES = [
   },
   {
     answer:
-      "The service returns an RFC 9457 Problem Details response. The client can retry with another payment method or surface the error. Failed requests do not deduct money.",
+      "The seller returns an RFC 9457 Problem Details response. The buyer can retry with another payment method or surface the error. Failed requests do not deduct money.",
     question: "What happens if a payment fails?",
   },
   {

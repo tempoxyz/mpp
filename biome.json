@@ -11,6 +11,7 @@
       "**",
       "!public/vendor",
       "!schemas/discovery.json",
+      "!schemas/mpp-proxy.json",
       "!schemas/discovery.example.json"
     ]
   },

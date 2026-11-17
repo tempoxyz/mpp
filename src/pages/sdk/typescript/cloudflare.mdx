@@ -1,0 +1,295 @@
+---
+description: "Run pay-as-you-go APIs on Cloudflare with persistent channels and background settlement."
+imageDescription: "Collect session payments on Cloudflare"
+---
+
+# Cloudflare [Durable session storage and settlement]
+
+Persist and recover [Tempo session channels](/payment-methods/tempo/session), and settle payments through a Cloudflare queue.
+
+## Usage
+
+Export a `ChannelStore` subclass, spread `channels(namespace)` into `tempo.session()`, and consume `{ channelId }` jobs with `settle`. This example runs on Tempo testnet and uses a Worker secret for the settlement account:
+
+```ts twoslash [worker.ts]
+import { ChannelStore, channels, settle } from 'mppx/cloudflare'
+import { Mppx, type Store, tempo } from 'mppx/server'
+import { createClient, http, type Hex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+export class MppxChannels extends ChannelStore {}
+
+type Env = {
+  MPP_REALM: string
+  MPP_SECRET_KEY: string
+  MPPX_CHANNELS: Store.durableObject.Namespace
+  SETTLEMENT_PRIVATE_KEY: Hex
+}
+
+function payments(env: Env) {
+  const account = privateKeyToAccount(env.SETTLEMENT_PRIVATE_KEY)
+  function getClient({ chainId }: { chainId?: number }) {
+    if (chainId !== undefined && chainId !== tempoModerato.id) throw new Error('Unsupported chain')
+    return createClient({ account, chain: tempoModerato, transport: http() })
+  }
+  const storage = channels(env.MPPX_CHANNELS)
+  const mppx = Mppx.create({
+    methods: [
+      // [!code hl:start]
+      tempo.session({
+        ...storage,
+        account,
+        bootstrap: true,
+        chainId: 42431,
+        currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+        getClient,
+      }),
+      // [!code hl:end]
+    ],
+    realm: env.MPP_REALM,
+    secretKey: env.MPP_SECRET_KEY,
+  })
+  return { account, getClient, mppx, store: storage.store }
+}
+
+export default {
+  async fetch(request: Request, env: Env) {
+    const { mppx } = payments(env)
+    const result = await mppx.session({ amount: '0.01', unitType: 'request' })(request)
+    if (result.status === 402) return result.challenge
+    return result.withReceipt(Response.json({ message: 'Paid response' }))
+  },
+  async queue(batch: settle.Batch, env: Env) {
+    const { account, getClient, store } = payments(env)
+    await settle(batch, { account, getClient, store }) // [!code hl]
+  },
+}
+```
+
+Fund the settlement account with a fee token; OUSD can't pay fees. Set `settle`'s `feeToken` if the account default is unsuitable.
+
+:::info[Go live]
+Before going live, set `chainId: 4217`, use `tempo` from `viem/chains`, and fund a mainnet settlement account with a fee token such as USDC.e.
+:::
+
+Configure your Worker:
+
+- Create the `mppx-settlement` queue.
+- Store `MPP_SECRET_KEY` and `SETTLEMENT_PRIVATE_KEY` as Worker secrets.
+- Set `MPP_REALM` to the public hostname (no scheme/path) for Session payments and bootstrap's authenticated payer proof.
+- Merge these bindings into `wrangler.jsonc`:
+
+```jsonc
+{
+  // [!code hl:start]
+  "durable_objects": {
+    "bindings": [{ "class_name": "MppxChannels", "name": "MPPX_CHANNELS" }]
+  },
+  "migrations": [{ "new_sqlite_classes": ["MppxChannels"], "tag": "v1" }],
+  "queues": {
+    "consumers": [{ "queue": "mppx-settlement" }],
+    "producers": [{ "binding": "MPPX_SETTLEMENT_QUEUE", "queue": "mppx-settlement" }]
+  },
+  "vars": { "MPP_REALM": "api.example.com" }
+  // [!code hl:end]
+}
+```
+
+Enable `bootstrap: true` on the server and in the client's [session manager](/sdk/typescript/client/Method.tempo.session-manager). Before opening a channel, the client authenticates its payer through a zero-amount Challenge on `HEAD`; `resolveChannelId` needs this proof to recover an existing channel.
+
+## `channels`
+
+Creates `{ resolveChannelId, store }` for `tempo.session()`.
+
+### namespace
+
+- **Type:** `channels.Namespace` (alias of `Store.durableObject.Namespace`)
+
+Durable Object namespace binding of your `ChannelStore` subclass.
+
+### options (optional)
+
+- **Type:** `channels.Options`
+
+All [Store.durableObject options](/sdk/typescript/core/Store.durableObject#options-optional), plus `escrowContract`:
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `encoding` (optional) | `'json' \| 'native'` | `'json'` | Native values require RPC. |
+| `escrowContract` (optional) | `Address` | TIP-1034 precompile | Contract assumed when a Challenge omits `escrowContract`. |
+| `keyPrefix` (optional) | `string` | None | Prefix for channel, lookup, and replay keys. |
+| `maxAttempts` (optional) | `number` | `32` | Compare-and-swap attempts per update. |
+| `replayShards` (optional) | `number` | Disabled | Positive safe integer replay shard count. |
+| `replayShardVersion` (optional) | `number` | `1` | Positive safe integer shard version. |
+| `transport` (optional) | `'fetch' \| 'rpc'` | `'fetch'` | RPC requires the class from `ChannelStore.rpc(DurableObject)`. |
+
+Match namespace, prefix, encoding, and replay settings across request/queue handlers. Follow the [migration constraints](/sdk/typescript/core/Store.durableObject#advanced-options) before changing them.
+
+### Return type
+
+- **Type:** `channels.ReturnType`
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `resolveChannelId` | `Session.Server.ResolveSessionChannelId` | Finds a resumable channel for a verified source and payment request. |
+| `store` | `Store.AtomicStore` | Channel store with atomic updates, settlement scheduling, and lookup maintenance. |
+
+- Match payer, payee, currency, `escrowContract`, operator, and chain; index both payer and authorized signer.
+- Keep up to eight recent channels per tuple; validate the first non-finalized, non-closing channel before reuse.
+- Return `undefined` for missing payer/recipient, chain mismatch, or no open match.
+- Maintain indexes best effort: failures don't fail committed payments; later writes repair entries. Closing one channel doesn't hide others; stale entries are checked against current state.
+
+## `backfillSettlement`
+
+Queue dormant unpaid channels after upgrading from an older settlement scheduler. Durable Objects can't enumerate channels or wake themselves; supply IDs from your channel registry or reserve opening events.
+
+### Usage
+
+```ts twoslash
+import { backfillSettlement, channels, type ChannelStore } from 'mppx/cloudflare'
+import type { Store } from 'mppx/server'
+import type { Hex } from 'viem'
+
+export async function recover(
+  channelIds: Iterable<Hex> | AsyncIterable<Hex>,
+  env: {
+    MPPX_CHANNELS: Store.durableObject.Namespace
+    MPPX_SETTLEMENT_QUEUE: ChannelStore.Queue
+  },
+) {
+  // [!code hl:start]
+  return backfillSettlement(channelIds, {
+    queue: env.MPPX_SETTLEMENT_QUEUE,
+    store: channels(env.MPPX_CHANNELS).store,
+  })
+  // [!code hl:end]
+}
+```
+
+### Return type
+
+- **Type:** `Promise<number>`
+
+Number of successful queue sends, not confirmed settlements. IDs are normalized before lookup and enqueueing. Missing, finalized, and fully collected channels are skipped; oversized vouchers still qualify for bounded close recovery.
+
+### Parameters
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `channelIds` | `Iterable<Hex> \| AsyncIterable<Hex>` | Channel IDs to inspect, in iteration order. |
+| `parameters.queue` | `ChannelStore.Queue` | Settlement queue with `send({ channelId })`. |
+| `parameters.store` | `Store.AtomicStore` | The same channel store used for requests and queue settlement. |
+
+Store and queue failures reject the call, leaving earlier sends intact. Rerun after a failure; duplicate jobs are safe because the consumer checks current state and takes a temporary, exclusive settlement lease. The helper doesn't deduplicate repeated IDs.
+
+## `ChannelStore`
+
+Extends [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore), with one object per precompile-backed channel. Inherits fetch/RPC, native encoding, replay shards, and storage hooks.
+
+### Settlement behavior
+
+- **Collectible amount:** `max(min(spent, highestVoucher.cumulativeAmount, deposit), settledOnChain)`. `spent` is committed charges; `settledOnChain` is collected funds. A voucher above spend can recover only that spend through a bounded close.
+- **Immediate queue:** collectible amount minus `settledOnChain` reaches `max(deposit / 10, minUnsettledAmount, 1)` raw token units; `deposit` is reserved funds.
+- **Idle queue:** below-threshold funds wait for `staleAfterMs` without writes. Finalized channels and channels with nothing collectible never queue.
+- **Delivery:** alarms send `{ channelId }` outside storage transactions. Failed sends retry after `retryMs` without consuming an attempt; missing bindings throw for Cloudflare to report/retry.
+- **Watchdog:** double resend delays; stop after settlement `maxAttempts` successful sends without on-chain progress (default `6`, distinct from storage's `32` compare-and-swap attempts). Configure queue retries and monitoring too.
+- **Reset:** more collected funds reset the count. A new payer close request or threshold-sized voucher increase resets it and queues immediately. Expiring a server close marker alone does not reset attempts.
+- **Closing:** cap resend delays at two minutes, fitting six sends within the 15-minute close grace period before the payer can withdraw unsettled funds.
+
+### Settlement options
+
+Override protected `settlement(): ChannelStore.Settlement`. This example also requires renaming the producer binding to `PAYMENTS_QUEUE`:
+
+```ts twoslash
+import { ChannelStore } from 'mppx/cloudflare'
+
+export class MppxChannels extends ChannelStore {
+  // [!code hl:start]
+  protected override settlement(): ChannelStore.Settlement {
+    const env = this.env as { PAYMENTS_QUEUE: ChannelStore.Queue }
+    return {
+      minUnsettledAmount: 250_000n,
+      queue: env.PAYMENTS_QUEUE,
+      staleAfterMs: 120_000,
+    }
+  }
+  // [!code hl:end]
+}
+```
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `maxAttempts` (optional) | `number` | `6` | Maximum successful queue sends without on-chain progress; positive safe integer. |
+| `minUnsettledAmount` (optional) | `bigint` | `100_000n` | Raw token-unit floor for the immediate-settlement threshold. |
+| `queue` | `ChannelStore.Queue \| undefined` | `env.MPPX_SETTLEMENT_QUEUE` | Binding with `send(body: ChannelStore.Message): Promise<unknown>`; required when sending. |
+| `retryMs` (optional) | `number` | `60_000` | Delay after a failed queue send. |
+| `staleAfterMs` (optional) | `number` | `300_000` | Idle time before settling a below-threshold channel. |
+| `watchdogMs` (optional) | `number` | `300_000` | Initial resend delay, doubled after each successful send. |
+
+Invalid delays (non-finite/negative) or attempt counts throw when configuration resolves. `ChannelStore.Message` is `{ channelId: Hex }`. Keep watchdogs within the close grace period; they can't extend its on-chain deadline.
+
+### Workers RPC
+
+Extend `ChannelStore.rpc(DurableObject)` using the `cloudflare:workers` base; pass `{ encoding: 'native', transport: 'rpc' }` to `channels` in both handlers. For initialization and safe hook overrides, follow [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore#subclass-hooks):
+
+- Initialize fields in a subclass of the returned class; `rpc()` copies methods/statics, not constructors/initializers.
+- Preserve `super.onWrite` and `super.alarm` for settlement and replay cleanup.
+- Skip custom shard work with `isReplayShard()`; never clear shard storage.
+
+## `settle`
+
+Processes a queue batch in order; returns `Promise<void>`. When an accepted voucher fits recorded spend, it settles normally and keeps the channel open. If no voucher fits, it uses a bounded payee close: capture is limited by recorded spend, the signed voucher, and the deposit; the rest returns to the buyer.
+
+### batch
+
+- **Type:** `settle.Batch`
+
+`messages: readonly settle.Message[]`, each with `attempts: number`, `body: unknown`, `ack(): void`, and `retry(options?: { delaySeconds?: number }): void`.
+
+### parameters
+
+- **Type:** `settle.Parameters`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `account` (optional) | `Account` | Client account | Account submitting the settlement. |
+| `candidateFeeTokens` (optional) | `readonly Address[]` | Channel token | Candidate fee tokens for sponsored settlement; include a fee-paying token when the channel currency can't pay fees. |
+| `closeSearchFromBlock` (optional) | `bigint` | `0n` | Earliest close-event search block for channels without a supervision checkpoint; choose a block at or before every channel opening. |
+| `escrowContract` (optional) | `Address` | TIP-1034 precompile | Settlement contract override. |
+| `feePayer` (optional) | `Account \| true` | None | Sponsor account, or `true` with a hosted fee-payer transport. |
+| `feePayerPolicy` (optional) | `Partial<FeePayer.Policy>` | Chain policy | Sponsored-transaction limits: `maxFeePerGas`, `maxGas`, `maxPriorityFeePerGas`, `maxTotalFee` (bigints), and `maxValidityWindowSeconds` (number). |
+| `feeToken` (optional) | `Address` | Resolved from client/chain | Fee-paying token override. |
+| `getClient` | `({ chainId: number }) => TransactionClient \| Promise<TransactionClient>` | Required | Returns a viem transaction client for the channel's chain; attach an account or supply `account`. |
+| `onSessionSettlement` (optional) | `Session.Server.OnSessionSettlement` | None | Callback after confirmation, with `amount`, `channelId`, `delta`, `trigger`, and `txHash`. |
+| `settle` (optional) | `typeof Session.Server.settle` | `Session.Server.settle` | Override for settling one channel. |
+| `store` | `Store.AtomicStore` | Required | The same channel store used for requests. |
+
+The `closeSearchFromBlock` option is a fixed historical search floor. The same-named stored channel field is a resumable cursor, not a replacement for this option.
+
+`amount` is cumulative raw token units; `delta` is the increment captured by the transaction. Ordinary settlement uses trigger `'settle'`; bounded closes use `'close'`.
+
+| Outcome | Queue action |
+| --- | --- |
+| Missing string `channelId`; missing, finalized, or fully settled channel | Acknowledge. |
+| `ChannelNotFoundError`, `VerificationFailedError`, `SettlementCheckpointError` | Acknowledge. |
+| Live cooperative-close marker, existing settlement lease, or bounded recovery still open/closing/failed | Retry after 60 seconds. |
+| Other errors, including fee-payer policy refusals | Retry after 30 seconds, doubling per attempt to 600 seconds. |
+
+`SettlementCheckpointError` means confirmation succeeded but recording failed. Ordinary settlement acknowledges this error; reconcile its confirmed transaction before another settlement. A bounded-close failure stays retryable: later supervision finds its `ChannelClosed` event and finalizes state without another close broadcast. The success callback still runs for the confirmed close.
+
+### Leases and close markers
+
+Queue settlement atomically takes `scheduledSettlementLease` for five minutes, renews every two-and-a-half minutes, and releases only its own lease in `finally`. Duplicate queue jobs and server-scheduled settlements can't broadcast the same voucher concurrently.
+
+`pendingCloseAt` identifies the server's cooperative close. `onChainCloseRequestedAt` separately preserves an observed payer close request, even when a server marker occupies `closeRequestedAt`. The queue waits when:
+
+- `pendingCloseAt` and `closeRequestedAt` match and are nonzero.
+- The channel isn't finalized.
+- Current Unix seconds ≤ timestamp + 55 (25-second transaction validity + 30-second clock skew).
+
+This avoids settling vouchers already collected by that close. Before-send failures and confirmed reverts clear the server marker, preserving an observed payer request. An ambiguous send stays frozen until the transaction validity window plus clock skew expires and an on-chain read proves the channel remains open. Expiry alone never creates a payer close request.
+
+The queue passes its lease owner to close supervision and enables `closeUnsettled`. Outstanding `prepaidRefunds` (records of items charged before delivery) block this automatic closure until delivery or refund reconciliation completes.
+
+Custom serializers must preserve `scheduledSettlementLease`, `pendingCloseAt`, `onChainCloseRequestedAt`, `closeSupervisedFromBlock`, and `closeSearchFromBlock`. The last four are bigints; `closeSupervisedFromBlock` is the first block where supervision verified the channel open. Close-event searches persist their next range after each successful empty query, resume after interruption, and reset the cursor after an entirely empty scan so a lagging RPC index can catch up. Don't replace the verified-open anchor with that cursor.

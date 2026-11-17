@@ -14,6 +14,7 @@ export type ServiceSummary = {
   categories: Category[];
   integration?: Integration;
   status: Status;
+  supportsMACH?: true;
   description?: string;
 };
 
@@ -100,11 +101,10 @@ export function searchOffers(
 
   return services
     .flatMap((service) =>
-      offersForService(service).map((offer) =>
-        offerSearchResult(service, offer, filters),
-      ),
+      offersForService(service)
+        .map((offer) => offerSearchResult(service, offer, filters))
+        .filter((offer) => offerMatches(service, offer, filters, maxAmount)),
     )
-    .filter((offer) => offerMatches(offer, filters, maxAmount))
     .sort((a, b) => offerScore(b, filters) - offerScore(a, filters));
 }
 
@@ -287,7 +287,24 @@ function serviceMatches(
   return true;
 }
 
+/** Matches the offer's primary currency or any asset its method accepts. */
+function offerAcceptsCurrency(
+  service: Service,
+  offer: OfferSearchResult,
+  currency: string,
+): boolean {
+  if (equalsNormalized(offer.payment.currency ?? "", currency)) return true;
+  const assets: unknown = service.methods?.[offer.payment.method]?.assets;
+  return (
+    Array.isArray(assets) &&
+    assets.some(
+      (asset) => typeof asset === "string" && equalsNormalized(asset, currency),
+    )
+  );
+}
+
 function offerMatches(
+  service: Service,
   offer: OfferSearchResult,
   filters: SearchOffersArgs,
   maxAmount?: bigint,
@@ -319,7 +336,7 @@ function offerMatches(
   }
   if (
     filters.currency &&
-    !equalsNormalized(offer.payment.currency ?? "", filters.currency)
+    !offerAcceptsCurrency(service, offer, filters.currency)
   ) {
     return false;
   }
@@ -529,6 +546,7 @@ function serviceSummary(service: Service): ServiceSummary {
     categories: service.categories ?? [],
     ...(service.integration ? { integration: service.integration } : {}),
     status: service.status ?? "active",
+    ...(service.supportsMACH ? { supportsMACH: service.supportsMACH } : {}),
     ...(service.description ? { description: service.description } : {}),
   };
 }

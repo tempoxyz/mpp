@@ -1,14 +1,23 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   MPP_REALM,
+  mppProxyServices,
   type ServiceDef,
+  services,
   TEMPO_PAYMENT,
   USDC,
 } from "../schemas/services.ts";
 import {
+  buildCatalog,
   buildEndpointDocs,
   buildPayment,
+  buildService,
   parseRoute,
+  readAgentSkills,
+  readMppProxySnapshot,
   validateServices,
 } from "./generate-discovery.ts";
 
@@ -80,6 +89,45 @@ function paymentSvc(overrides: Partial<ServiceDef> = {}): ServiceDef {
     ...overrides,
   };
 }
+
+describe("buildService", () => {
+  it("advertises MACH for Tempo proxies without changing their payment offers", () => {
+    const service = buildService(
+      paymentSvc({
+        endpoints: [{ route: "GET /foo", desc: "test", amount: "100" }],
+      }),
+    );
+    expect(service).toMatchObject({
+      supportsMACH: true,
+      methods: { tempo: { intents: ["charge"], assets: [USDC] } },
+      endpoints: [{ payment: { amount: "100", currency: USDC } }],
+    });
+    expect(service).not.toHaveProperty("supportsCredits");
+  });
+
+  it("lists every asset of a method in preference order", () => {
+    const ousd = "0x20c0000000000000000000006a37DA5C996874BE";
+    const service = buildService(
+      paymentSvc({
+        intent: "session",
+        payments: [
+          { ...TEMPO_PAYMENT, currency: ousd },
+          TEMPO_PAYMENT,
+          TEMPO_PAYMENT,
+        ],
+      }),
+    );
+    expect(service.methods).toEqual({
+      tempo: { intents: ["session"], assets: [ousd, USDC] },
+    });
+  });
+
+  it("does not infer MACH support from an external service accepting Tempo", () => {
+    expect(
+      buildService(paymentSvc({ realm: "external.example" })),
+    ).not.toHaveProperty("supportsMACH");
+  });
+});
 
 describe("buildPayment", () => {
   it("returns null for free endpoints", () => {
@@ -364,5 +412,110 @@ describe("service registry integrity", () => {
         desc: "Poll a research task for results",
       },
     ]);
+  });
+});
+
+// --- MPP proxy services ---
+
+describe("buildCatalog", () => {
+  const snapshot = readMppProxySnapshot() as {
+    services: Array<{
+      id: string;
+      manifest: { endpoints: Array<{ method: string; path: string }> };
+    }>;
+  };
+  const catalog = buildCatalog(services, mppProxyServices, snapshot);
+  const byId = new Map(catalog.map((service) => [service.id, service]));
+
+  it("publishes every service in the MPP proxy snapshot with its endpoints", () => {
+    for (const entry of snapshot.services) {
+      const service = byId.get(entry.id);
+      expect(service?.serviceUrl).toBe(`https://${entry.id}.${MPP_REALM}`);
+      expect(
+        (service?.endpoints as Array<{ method: string; path: string }>).map(
+          ({ method, path }) => `${method} ${path}`,
+        ),
+      ).toEqual(
+        entry.manifest.endpoints.map(({ method, path }) => `${method} ${path}`),
+      );
+    }
+    expect(catalog).toHaveLength(services.length + snapshot.services.length);
+  });
+
+  it("keeps catalog metadata the manifest lacks", () => {
+    expect(byId.get("anthropic")).toMatchObject({
+      url: "https://api.anthropic.com",
+      integration: "third-party",
+      docs: {
+        apiReference: "https://docs.anthropic.com/en/api",
+        llmsTxt: "https://docs.anthropic.com/llms.txt",
+      },
+      provider: { name: "Anthropic", url: "https://anthropic.com" },
+    });
+    expect(byId.get("rpc")).toMatchObject({ integration: "first-party" });
+  });
+
+  it("rejects proxy services listed with endpoints in services.ts", () => {
+    const proxied = {
+      ...services[0]!,
+      id: "proxied",
+      serviceUrl: `https://proxied.${MPP_REALM}`,
+    };
+    expect(() => buildCatalog([proxied], [], snapshot)).toThrow(
+      "served by the MPP proxy",
+    );
+  });
+
+  it("rejects metadata for a service the proxy no longer serves", () => {
+    expect(() =>
+      buildCatalog([], [{ ...mppProxyServices[0]!, id: "retired" }], snapshot),
+    ).toThrow('lists "retired"');
+  });
+
+  it("rejects a services.ts ID that the proxy also uses", () => {
+    expect(() =>
+      buildCatalog([{ ...services[0]!, id: "openai" }], [], snapshot),
+    ).toThrow('"openai" is used by both');
+  });
+});
+
+// --- agent skills ---
+
+describe("agent skills", () => {
+  const publicDir = resolve(import.meta.dirname, "../public");
+  const skills = readAgentSkills();
+  const index = JSON.parse(
+    readFileSync(
+      resolve(publicDir, ".well-known/agent-skills/index.json"),
+      "utf-8",
+    ),
+  ) as { skills: Array<{ name: string; url: string; digest: string }> };
+
+  it("publishes every skill in skills/", () => {
+    expect(skills.map((skill) => skill.name)).toContain("mppx");
+    expect(index.skills.map((skill) => skill.name)).toEqual(
+      skills.map((skill) => skill.name),
+    );
+  });
+
+  it.each(skills)("serves skills/$name/SKILL.md unchanged", ({ name }) => {
+    const canonical = readFileSync(
+      resolve(import.meta.dirname, `../skills/${name}/SKILL.md`),
+    );
+    const served = readFileSync(
+      resolve(publicDir, `.well-known/agent-skills/${name}/SKILL.md`),
+    );
+    expect(served.equals(canonical)).toBe(true);
+  });
+
+  it.each(skills)("indexes $name with the sha256 of the served bytes", ({
+    name,
+  }) => {
+    const url = `/.well-known/agent-skills/${name}/SKILL.md`;
+    const served = readFileSync(resolve(publicDir, `.${url}`));
+    expect(index.skills.find((skill) => skill.name === name)).toMatchObject({
+      url,
+      digest: `sha256:${createHash("sha256").update(served).digest("hex")}`,
+    });
   });
 });

@@ -13,13 +13,13 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test, tempo-integration, mcp-services, build]
+    needs: [lint, typecheck, test, tempo-integration, mcp-services, playground, build]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - run: |
           if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
             echo "One or more required jobs failed or were cancelled"
@@ -34,16 +34,11 @@ jobs:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm check:ci
 
   typecheck:
@@ -54,16 +49,11 @@ jobs:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: node scripts/generate-discovery.ts
       - run: pnpm check:types
 
@@ -75,16 +65,11 @@ jobs:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: node scripts/generate-discovery.ts
       - run: pnpm test
       - name: Verify generated Markdown
@@ -98,17 +83,12 @@ jobs:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: docker compose up -d --wait tempo
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm test:integration
         env:
           TEMPO_RPC_URL: http://127.0.0.1:18545
@@ -121,37 +101,53 @@ jobs:
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm mcp-services:check
 
-  build:
-    name: Build
+  playground:
+    name: Playground Worker
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: tempoxyz/gh-actions/vendor/pnpm/action-setup@55fe3b63d9612623cc51e6c62d9d62fbcb175fb0 # 2026-09-29T01-25-15Z-55fe3b63
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
+      - run: pnpm playground:check
+
+  build:
+    name: Build
+    # The Vite build (five environment passes plus static generation) is
+    # CPU-bound; on 4-core hosted runners it alone took about two minutes.
+    runs-on: depot-ubuntu-latest-8
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Secure runner
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: "24"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm check:generated
+      # Twoslash type-checks every annotated snippet, and vocs caches each result
+      # keyed only by the snippet's text. Scope the cache to the lockfile and
+      # tsconfig so a dependency change re-checks every snippet against the new types.
+      - name: Cache twoslash results
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.cache/vocs
+          key: vocs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'tsconfig.json') }}-${{ github.sha }}
+          restore-keys: vocs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'tsconfig.json') }}-
       - run: pnpm build
         env:
           MPP_SECRET_KEY: ci-placeholder-key-for-static-ci-builds

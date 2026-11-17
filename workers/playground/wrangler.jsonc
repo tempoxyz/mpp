@@ -1,0 +1,34 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mpp-playground",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // The pages are static assets; each playground's API (and the email issuer) reaches the Worker.
+  "assets": {
+    "not_found_handling": "404-page",
+    "run_worker_first": [
+      "/playground/identity/api/*",
+      "/playground/identity/issuer/*",
+      "/playground/session/api/*"
+    ]
+  },
+  // Workers AI writes the haiku and the story. Without it (local dev without a Cloudflare
+  // login), each playground falls back to a built-in one.
+  "ai": { "binding": "AI" },
+  // Each playground has its own store: the identity playground's holds spent credentials and
+  // pending email codes, the session playground's holds session channels.
+  "durable_objects": {
+    "bindings": [
+      { "name": "MPPX_STORE", "class_name": "MppxStore" },
+      { "name": "SESSION_STORE", "class_name": "SessionStore" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["MppxStore", "SessionStore"] }
+  ],
+  "observability": { "enabled": true },
+  // mpp.dev/playground proxies here: attestations are bound to mpp.dev, and the caller's IP
+  // comes from Vercel's X-Real-IP (Cloudflare only sees Vercel's).
+  "vars": { "PUBLIC_ORIGIN": "https://mpp.dev", "TRUST_PROXY_IP": "true" }
+}

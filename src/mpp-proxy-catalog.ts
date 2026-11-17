@@ -37,6 +37,56 @@ const CATEGORIES = new Set<Category>([
 ]);
 const SERVICE_ID = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
+/** Curated catalog fields for a proxy service, which its discovery manifest lacks. */
+export type MppProxyMetadata = Pick<
+  Service,
+  | "id"
+  | "url"
+  | "icon"
+  | "integration"
+  | "tags"
+  | "status"
+  | "docs"
+  | "provider"
+>;
+
+/**
+ * Replaces a catalog's proxy services with entries holding only their curated metadata, so a
+ * merge with a manifest derives every other field from that manifest rather than from an
+ * earlier merge. Placeholders fix the published key order; the merge fills them.
+ */
+export function withMppProxyMetadata(
+  catalog: ServicesCatalog,
+  metadata: readonly MppProxyMetadata[],
+): ServicesCatalog {
+  return {
+    ...catalog,
+    services: [
+      ...catalog.services.filter((service) => !isTempoProxyService(service)),
+      ...metadata.map(
+        (meta) =>
+          ({
+            id: meta.id,
+            name: meta.id,
+            url: meta.url,
+            serviceUrl: "https://" + meta.id + ".mpp.tempo.xyz",
+            description: "",
+            ...(meta.icon ? { icon: meta.icon } : {}),
+            categories: [],
+            integration: meta.integration,
+            tags: meta.tags,
+            status: meta.status ?? "active",
+            ...(meta.docs ? { docs: meta.docs } : {}),
+            methods: {},
+            realm: "mpp.tempo.xyz",
+            endpoints: [],
+            ...(meta.provider ? { provider: meta.provider } : {}),
+          }) as CatalogService,
+      ),
+    ],
+  };
+}
+
 /** Replaces manually copied proxy entries with the proxy's canonical discovery manifest. */
 export function mergeMppProxyCatalog(
   catalog: ServicesCatalog,
@@ -52,7 +102,11 @@ export function mergeMppProxyCatalog(
   const proxyServices = manifest.services.map((entry) => {
     const existing = metadata.get(entry.id);
     const serviceUrl = `https://${entry.domain}`;
-    const docs = entry.manifest.docs ?? existing?.docs;
+    // The manifest's links win; the catalog's fill the gaps (such as llmsTxt).
+    const docs =
+      existing?.docs || entry.manifest.docs
+        ? { ...existing?.docs, ...entry.manifest.docs }
+        : undefined;
     const endpoints = entry.manifest.endpoints.map((endpoint) => ({
       ...endpoint,
       payment: endpoint.payment
@@ -73,9 +127,14 @@ export function mergeMppProxyCatalog(
       url: existing?.url ?? docs?.homepage ?? serviceUrl,
       serviceUrl,
       description: entry.manifest.description,
-      categories: entry.manifest.categories as Category[],
+      categories: entry.manifest.categories.filter(
+        (category): category is Category =>
+          CATEGORIES.has(category as Category),
+      ),
       integration: existing?.integration ?? "third-party",
-      tags: existing?.tags ?? entry.manifest.categories,
+      tags: [
+        ...new Set([...(existing?.tags ?? []), ...entry.manifest.categories]),
+      ],
       status: existing?.status ?? "active",
       docs,
       methods: entry.manifest.methods,
@@ -87,7 +146,8 @@ export function mergeMppProxyCatalog(
           name: entry.manifest.name,
           url: docs?.homepage ?? serviceUrl,
         } as const),
-      supportsCredits: true,
+      // All proxy services use the shared MACH-enabled charge methods.
+      supportsMACH: true,
     } satisfies CatalogService;
   });
 
@@ -135,10 +195,7 @@ function parseProxyManifest(value: unknown): ProxyManifest {
       !SERVICE_ID.test(candidate.id) ||
       candidate.domain !== `${candidate.id}.mpp.tempo.xyz` ||
       ids.has(candidate.id) ||
-      !manifest.categories.every(
-        (category) =>
-          typeof category === "string" && CATEGORIES.has(category as Category),
-      ) ||
+      !manifest.categories.every((category) => typeof category === "string") ||
       !manifest.endpoints.every(
         (endpoint) =>
           endpoint !== null &&

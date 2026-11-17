@@ -1,21 +1,39 @@
 /**
- * Generates the service catalog, schemas, and llms.txt from schemas/services.ts.
+ * Generates the service catalog, schemas, and llms.txt from schemas/services.ts
+ * and the MPP proxy manifest snapshot (schemas/mpp-proxy.json), and publishes
+ * the agent skills in skills/ under /.well-known/agent-skills/.
  *
  * Usage: node scripts/generate-discovery.ts
  */
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   type EndpointDef,
   HTTP_METHODS,
   type HttpMethod,
   MPP_REALM,
+  type MppProxyServiceDef,
+  mppProxyServices,
   type ServiceDef,
   services,
 } from "../schemas/services.ts";
+import {
+  mergeMppProxyCatalog,
+  type ServicesCatalog,
+  withMppProxyMetadata,
+} from "../src/mpp-proxy-catalog.ts";
 
 const SCHEMAS_DIR = resolve(import.meta.dirname, "../schemas");
+const MPP_PROXY_SNAPSHOT = resolve(SCHEMAS_DIR, "mpp-proxy.json");
 const OUTPUT_FULL = resolve(SCHEMAS_DIR, "discovery.json");
 const OUTPUT_EXAMPLE = resolve(SCHEMAS_DIR, "discovery.example.json");
 const OUTPUT_LLMS_TXT = resolve(
@@ -26,6 +44,13 @@ const OUTPUT_PUBLIC_CATALOG = resolve(
   import.meta.dirname,
   "../public/services/catalog.json",
 );
+const SKILLS_DIR = resolve(import.meta.dirname, "../skills");
+const OUTPUT_AGENT_SKILLS = resolve(
+  import.meta.dirname,
+  "../public/.well-known/agent-skills",
+);
+const AGENT_SKILLS_SCHEMA =
+  "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
 /** Services included in the slim example (covers fixed, dynamic, free, and mixed intents) */
 const EXAMPLE_IDS = new Set(["exa", "openrouter", "storage"]);
@@ -192,9 +217,18 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   entry.tags = svc.tags;
   entry.status = svc.status ?? "active";
   if (svc.docs) entry.docs = svc.docs;
-  if (svc.realm === MPP_REALM) entry.supportsCredits = true;
+  // The Tempo proxy enables MACH on its shared charge methods.
+  if (svc.realm === MPP_REALM) entry.supportsMACH = true;
   const methods: Record<string, { intents: string[]; assets: string[] }> = {};
+  // A method may accept several assets, listed in the service's preference order.
   for (const pm of svc.payments) {
+    const existing = methods[pm.method];
+    if (existing) {
+      if (!existing.assets.includes(pm.currency)) {
+        existing.assets.push(pm.currency);
+      }
+      continue;
+    }
     methods[pm.method] = {
       intents: [...intents].sort(),
       assets: [pm.currency],
@@ -221,6 +255,123 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   });
 
   return entry;
+}
+
+/** Reads the checked-in MPP proxy manifest (refresh with `pnpm sync:mpp-proxy`). */
+export function readMppProxySnapshot(): unknown {
+  return JSON.parse(readFileSync(MPP_PROXY_SNAPSHOT, "utf8"));
+}
+
+function isMppProxyUrl(url: string): boolean {
+  const hostname = new URL(url).hostname;
+  return hostname === MPP_REALM || hostname.endsWith(`.${MPP_REALM}`);
+}
+
+/**
+ * Builds the published catalog: services.ts entries, then every service in the
+ * MPP proxy manifest, with endpoints and pricing from the manifest and the
+ * remaining metadata from mppProxyServices.
+ */
+export function buildCatalog(
+  svcs: ServiceDef[],
+  proxyMetadata: MppProxyServiceDef[],
+  proxyManifest: unknown,
+): Record<string, unknown>[] {
+  for (const svc of svcs) {
+    if (isMppProxyUrl(svc.serviceUrl)) {
+      throw new Error(
+        `Service "${svc.id}" is served by the MPP proxy: list its metadata in mppProxyServices; endpoints come from schemas/mpp-proxy.json`,
+      );
+    }
+  }
+
+  const manifestIds = new Set(
+    mergeMppProxyCatalog(
+      { version: 1, services: [] },
+      proxyManifest,
+    ).services.map((service) => service.id),
+  );
+  const ids = new Set(svcs.map((svc) => svc.id));
+  const seenProxyIds = new Set<string>();
+  for (const meta of proxyMetadata) {
+    if (!manifestIds.has(meta.id)) {
+      throw new Error(
+        `mppProxyServices lists "${meta.id}", which schemas/mpp-proxy.json does not serve`,
+      );
+    }
+    if (seenProxyIds.has(meta.id)) {
+      throw new Error(`Duplicate mppProxyServices ID: "${meta.id}"`);
+    }
+    seenProxyIds.add(meta.id);
+  }
+  for (const id of manifestIds) {
+    if (ids.has(id)) {
+      throw new Error(
+        `Service ID "${id}" is used by both services.ts and the MPP proxy`,
+      );
+    }
+  }
+
+  const catalog = withMppProxyMetadata(
+    {
+      version: 1,
+      services: svcs.map(buildService) as ServicesCatalog["services"],
+    },
+    proxyMetadata,
+  );
+  return mergeMppProxyCatalog(catalog, proxyManifest).services;
+}
+
+export type AgentSkill = { name: string; content: Buffer };
+
+/** Reads every skills/{name}/SKILL.md, sorted by name. */
+export function readAgentSkills(): AgentSkill[] {
+  return readdirSync(SKILLS_DIR)
+    .filter((name) => existsSync(resolve(SKILLS_DIR, name, "SKILL.md")))
+    .sort()
+    .map((name) => ({
+      name,
+      content: readFileSync(resolve(SKILLS_DIR, name, "SKILL.md")),
+    }));
+}
+
+/**
+ * Builds the Agent Skills discovery index. Each digest is the sha256 of the
+ * exact bytes published at the skill's url.
+ */
+export function buildAgentSkillsIndex(
+  skills: AgentSkill[],
+): Record<string, unknown> {
+  return {
+    $schema: AGENT_SKILLS_SCHEMA,
+    skills: skills.map(({ name, content }) => ({
+      name,
+      type: "skill-md",
+      description: frontmatterField(content.toString("utf8"), "description"),
+      url: `/.well-known/agent-skills/${name}/SKILL.md`,
+      digest: `sha256:${createHash("sha256").update(content).digest("hex")}`,
+    })),
+  };
+}
+
+function frontmatterField(skill: string, field: string): string {
+  const frontmatter = skill.match(/^---\n([\s\S]*?)\n---\n/)?.[1];
+  const value = frontmatter?.match(new RegExp(`^${field}: (.+)$`, "m"))?.[1];
+  if (!value) throw new Error(`Skill frontmatter is missing "${field}"`);
+  return value.trim();
+}
+
+function writeAgentSkills(skills: AgentSkill[]): void {
+  rmSync(OUTPUT_AGENT_SKILLS, { recursive: true, force: true });
+  for (const { name, content } of skills) {
+    const path = resolve(OUTPUT_AGENT_SKILLS, name, "SKILL.md");
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+  }
+  writeJson(
+    resolve(OUTPUT_AGENT_SKILLS, "index.json"),
+    buildAgentSkillsIndex(skills),
+  );
 }
 
 function writeJson(path: string, data: unknown): void {
@@ -285,7 +436,11 @@ function buildLlmsTxt(allBuilt: Record<string, unknown>[]): string {
 function generate(): void {
   validateServices(services);
 
-  const allBuilt = services.map(buildService);
+  const allBuilt = buildCatalog(
+    services,
+    mppProxyServices,
+    readMppProxySnapshot(),
+  );
 
   // Full registry (checked in, used by API)
   writeJson(OUTPUT_FULL, { version: 1, services: allBuilt });
@@ -302,26 +457,33 @@ function generate(): void {
   // llms.txt (served statically, overrides Vocs auto-generated version)
   mkdirSync(dirname(OUTPUT_LLMS_TXT), { recursive: true });
   writeFileSync(OUTPUT_LLMS_TXT, buildLlmsTxt(allBuilt));
-  console.log(`Generated ${OUTPUT_LLMS_TXT} (${services.length} services)`);
+  console.log(`Generated ${OUTPUT_LLMS_TXT} (${allBuilt.length} services)`);
+
+  // Agent skills (served statically from the canonical skills/ directory)
+  const skills = readAgentSkills();
+  writeAgentSkills(skills);
+  console.log(`Generated ${OUTPUT_AGENT_SKILLS} (${skills.length} skills)`);
 
   // Summary
   let totalEps = 0;
   let paidEps = 0;
   let dynamicEps = 0;
   let freeEps = 0;
-  for (const svc of services) {
-    for (const ep of svc.endpoints) {
+  for (const svc of allBuilt) {
+    for (const ep of svc.endpoints as Array<{
+      payment?: { amount?: string } | null;
+    }>) {
       totalEps++;
-      if (!ep.amount && !ep.dynamic) freeEps++;
-      else if (ep.dynamic) dynamicEps++;
+      if (!ep.payment) freeEps++;
+      else if (ep.payment.amount === undefined) dynamicEps++;
       else paidEps++;
     }
   }
   console.log(
-    `Generated ${OUTPUT_FULL} (${services.length} services, ${totalEps} endpoints)`,
+    `Generated ${OUTPUT_FULL} (${allBuilt.length} services, ${totalEps} endpoints)`,
   );
   console.log(
-    `Generated ${OUTPUT_PUBLIC_CATALOG} (${services.length} services)`,
+    `Generated ${OUTPUT_PUBLIC_CATALOG} (${allBuilt.length} services)`,
   );
   console.log(
     `Generated ${OUTPUT_EXAMPLE} (${exampleServices.length} services)`,

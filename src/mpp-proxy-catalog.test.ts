@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   mergeMppProxyCatalog,
   type ServicesCatalog,
+  withMppProxyMetadata,
 } from "./mpp-proxy-catalog";
 
 const staticCatalog: ServicesCatalog = {
@@ -48,7 +49,7 @@ describe("MPP proxy catalog", () => {
     expect(result.services.find(({ id }) => id === "openai")).toMatchObject({
       name: "OpenAI",
       url: "https://api.openai.com",
-      tags: ["llm"],
+      tags: ["llm", "ai"],
       endpoints: [{ payment: { amount: "100", decimals: 6 } }],
     });
     expect(
@@ -56,8 +57,67 @@ describe("MPP proxy catalog", () => {
     ).toMatchObject({
       name: "New provider",
       serviceUrl: "https://new-provider.mpp.tempo.xyz",
-      supportsCredits: true,
+      supportsMACH: true,
     });
+    expect(
+      result.services.find(({ id }) => id === "external"),
+    ).not.toHaveProperty("supportsMACH");
+    expect(JSON.stringify(result)).not.toContain("supportsCredits");
+  });
+
+  it("fills gaps in the manifest's docs from the catalog entry", () => {
+    const catalog: ServicesCatalog = {
+      ...staticCatalog,
+      services: staticCatalog.services.map((entry) =>
+        entry.id === "openai"
+          ? {
+              ...entry,
+              docs: {
+                homepage: "https://stale.example/docs",
+                llmsTxt: "https://platform.openai.com/llms.txt",
+              },
+            }
+          : entry,
+      ),
+    };
+    const openai = service("openai", "OpenAI", "100");
+    const result = mergeMppProxyCatalog(catalog, {
+      services: [
+        {
+          ...openai,
+          manifest: {
+            ...openai.manifest,
+            docs: { homepage: "https://platform.openai.com/docs" },
+          },
+        },
+      ],
+    });
+    expect(result.services.find(({ id }) => id === "openai")?.docs).toEqual({
+      homepage: "https://platform.openai.com/docs",
+      llmsTxt: "https://platform.openai.com/llms.txt",
+    });
+  });
+
+  it("keeps provider-specific categories as tags instead of rejecting the manifest", () => {
+    const rox = service("rox", "Rox", "20000");
+    rox.manifest.categories = ["sales", "prospecting", "enrichment", "data"];
+    const result = mergeMppProxyCatalog(staticCatalog, { services: [rox] });
+    expect(result.services.find(({ id }) => id === "rox")).toMatchObject({
+      categories: ["data"],
+      tags: ["sales", "prospecting", "enrichment", "data"],
+      supportsMACH: true,
+    });
+  });
+
+  it("rejects malformed categories", () => {
+    const invalid = service("openai", "OpenAI", "100");
+    expect(() =>
+      mergeMppProxyCatalog(staticCatalog, {
+        services: [
+          { ...invalid, manifest: { ...invalid.manifest, categories: [null] } },
+        ],
+      }),
+    ).toThrow("Invalid MPP proxy service");
   });
 
   it("rejects an empty manifest instead of deleting the last-good catalog", () => {
@@ -99,3 +159,52 @@ function service(id: string, name: string, amount: string) {
     },
   };
 }
+
+describe("withMppProxyMetadata", () => {
+  it("lets the live manifest replace fields an earlier merge derived from a snapshot", () => {
+    const snapshot = service("kling", "Kling", "100");
+    snapshot.manifest = {
+      ...snapshot.manifest,
+      docs: { homepage: "https://old.example" },
+    } as typeof snapshot.manifest;
+    const built = mergeMppProxyCatalog(staticCatalog, { services: [snapshot] });
+    expect(built.services.find((s) => s.id === "kling")?.url).toBe(
+      "https://old.example",
+    );
+
+    const live = service("kling", "Kling", "100");
+    live.manifest = {
+      ...live.manifest,
+      docs: { homepage: "https://new.example" },
+    } as typeof live.manifest;
+    const merged = mergeMppProxyCatalog(withMppProxyMetadata(built, []), {
+      services: [live],
+    });
+    const kling = merged.services.find((s) => s.id === "kling");
+    expect(kling?.url).toBe("https://new.example");
+    expect(kling?.provider?.url).toBe("https://new.example");
+    expect(merged.services.some((s) => s.id === "external")).toBe(true);
+  });
+
+  it("keeps curated metadata across merges", () => {
+    const merged = mergeMppProxyCatalog(
+      withMppProxyMetadata(staticCatalog, [
+        {
+          id: "openai",
+          url: "https://api.openai.com",
+          integration: "third-party",
+          tags: ["llm"],
+          provider: { name: "OpenAI", url: "https://openai.com" },
+        },
+      ]),
+      { services: [service("openai", "OpenAI", "100")] },
+    );
+    const openai = merged.services.find((s) => s.id === "openai");
+    expect(openai?.url).toBe("https://api.openai.com");
+    expect(openai?.provider).toEqual({
+      name: "OpenAI",
+      url: "https://openai.com",
+    });
+    expect(openai?.description).toBe("OpenAI description");
+  });
+});

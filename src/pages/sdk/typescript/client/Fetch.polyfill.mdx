@@ -17,6 +17,8 @@ Replaces `globalThis.fetch` with a payment-aware wrapper that handles `402` Paym
 
 Payment retries use `redirect: 'manual'` to keep Credentials from following redirects. A `3xx` response returns to you and leaves payment acceptance pending. The initial request retains its configured redirect behavior.
 
+Use [`Fetch.withoutPayment`](/sdk/typescript/client/Fetch.withoutPayment) to disable automatic payments for one request, including through identity wrappers.
+
 ## Usage
 
 <Tabs stateKey="account-source">
@@ -165,3 +167,9 @@ Filters or reorders supported Challenges before Credential creation.
 - **Default:** `Transport.http()`
 
 Transport used to extract Challenges and attach Credentials.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+Pins server origins to realms for zero-amount Tempo proofs and Session payments. Without a pin, the realm must match the responding server's hostname. See [`Fetch.from`](/sdk/typescript/client/Fetch.from#trustedtempoproofrealms-optional).

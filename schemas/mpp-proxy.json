@@ -1,0 +1,2468 @@
+{
+  "services": [
+    {
+      "id": "anthropic",
+      "domain": "anthropic.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Anthropic",
+        "description": "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "session",
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/messages",
+            "description": "Claude messages (dynamic pricing by model)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "description": "OpenAI-compatible chat completions",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/models",
+            "description": "List available models"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/models/:model",
+            "description": "Get a model"
+          }
+        ],
+        "docs": {
+          "homepage": "https://docs.anthropic.com",
+          "apiReference": "https://docs.anthropic.com/en/api"
+        }
+      }
+    },
+    {
+      "id": "assemblyai",
+      "domain": "assemblyai.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "AssemblyAI",
+        "description": "AssemblyAI via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe base64 PCM WAV (mono, 16-bit, 16 kHz, up to 10 minutes; models and prices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "elevenlabs",
+      "domain": "elevenlabs.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "ElevenLabs",
+        "description": "ElevenLabs via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Generate speech/audio bytes (one-shot charge; character or bounded audio pricing; models, prices and voices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe base64 PCM WAV (mono, 16-bit, 16 kHz, up to 10 minutes; models and prices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "fal-queue",
+      "domain": "fal-queue.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "fal.ai (queue)",
+        "description": "Async access to supported Fal image, video, speech, and vector models. Use when generation can exceed the ~100s sync timeout fal.run enforces. Submission returns a request_id immediately; status/result polling is free.",
+        "categories": [
+          "ai",
+          "media"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-2",
+            "description": "Nano Banana 2 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-2/edit",
+            "description": "Nano Banana 2 image editing (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-pro",
+            "description": "Nano Banana pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-pro/edit",
+            "description": "Nano Banana pro image editing (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2-pro",
+            "description": "FLUX.2 Pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2/klein/4b",
+            "description": "FLUX.2 Klein 4b (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2/klein/9b",
+            "description": "FLUX.2 Klein 9b (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/pro/text-to-image",
+            "description": "Seedream 5 pro text-to-image (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/pro/edit",
+            "description": "Seedream 5 pro edit (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/lite/text-to-image",
+            "description": "Seedream 5 lite text-to-image (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/lite/edit",
+            "description": "Seedream 5 lite edit (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/kling-video/v3/pro/text-to-video",
+            "description": "Kling 3 pro text-to-video (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/kling-video/v3/pro/image-to-video",
+            "description": "Kling 3 pro image-to-video (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/kling-video/v3/standard/text-to-video",
+            "description": "Kling 3 standard text-to-video (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/kling-video/v3/standard/image-to-video",
+            "description": "Kling 3 standard image-to-video (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/kling-video/o3/pro/image-to-video",
+            "description": "Kling O3 Pro image-to-video (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.5/text-to-video",
+            "description": "Seedance 2.5 text-to-video (480p/720p; explicit duration/aspect; no video references) (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.5/image-to-video",
+            "description": "Seedance 2.5 image-to-video (480p/720p; explicit duration/aspect; no video references) (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.5/reference-to-video",
+            "description": "Seedance 2.5 reference-to-video (480p/720p; explicit duration/aspect; no video references) (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4/text-to-image",
+            "description": "Recraft V4 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4/pro/text-to-image",
+            "description": "Recraft V4 Pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/style/text-to-image",
+            "description": "Recraft V4 styled images (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/style/text-to-vector",
+            "description": "Recraft V4 styled vectors (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/create-style",
+            "description": "Recraft V4 create style (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4.1/flash/text-to-image",
+            "description": "Recraft V4.1 Flash (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4.1/text-to-vector",
+            "description": "Recraft V4.1 vectors (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/tts/eleven-v3",
+            "description": "ElevenLabs v3 text-to-speech (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+            "description": "ElevenLabs v3 dialogue (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/music",
+            "description": "ElevenLabs Music (explicit length or composition plan) (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/sound-effects/v2",
+            "description": "ElevenLabs Sound Effects v2 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/stable-video",
+            "description": "Stable Video Diffusion (async)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/minimax/video-01",
+            "description": "MiniMax Video-01 (async)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "550000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/minimax/video-01-live",
+            "description": "MiniMax Video-01 Live (async)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "550000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/xai/grok-imagine-video/text-to-video",
+            "description": "Grok Imagine text-to-video (async)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/xai/grok-imagine-video/image-to-video",
+            "description": "Grok Imagine image-to-video (async)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/veo3.1/fast",
+            "description": "Veo 3.1 Fast - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/veo3.1",
+            "description": "Veo 3.1 - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/veo3.1-lite",
+            "description": "Veo 3.1 Lite - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/minimax/h3/text-to-video",
+            "description": "MiniMax H3 - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/minimax/h3/image-to-video",
+            "description": "MiniMax H3 - image-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/minimax/h3/reference-to-video",
+            "description": "MiniMax H3 - reference-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/minimax/h3-max/text-to-video",
+            "description": "MiniMax H3 Max - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/minimax/h3-max/image-to-video",
+            "description": "MiniMax H3 Max - image-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/text-to-video",
+            "description": "Seedance 2.0 - text-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/image-to-video",
+            "description": "Seedance 2.0 - image-to-video (async, dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/fast/text-to-video",
+            "description": "Seedance 2.0 Fast - text-to-video (async, ~20% cheaper)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/fast/image-to-video",
+            "description": "Seedance 2.0 Fast - image-to-video (async, ~20% cheaper)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/reference-to-video",
+            "description": "Seedance 2.0 - reference-to-video (async; 0.6x rate when video reference)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedance-2.0/fast/reference-to-video",
+            "description": "Seedance 2.0 Fast - reference-to-video (async, ~20% cheaper; 0.6x rate when video reference)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/:model+/requests/:id/status",
+            "description": "Queued request status"
+          },
+          {
+            "method": "GET",
+            "path": "/:model+/requests/:id",
+            "description": "Queued request result"
+          },
+          {
+            "method": "PUT",
+            "path": "/:model+/requests/:id/cancel",
+            "description": "Cancel a queued request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://fal.ai",
+          "apiReference": "https://docs.fal.ai"
+        }
+      }
+    },
+    {
+      "id": "fal",
+      "domain": "fal.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "fal.ai",
+        "description": "Image, speech, and vector generation through explicitly supported Fal model endpoints. Video runs on fal-queue.",
+        "categories": [
+          "ai",
+          "media"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-2",
+            "description": "Nano Banana 2 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-2/edit",
+            "description": "Nano Banana 2 image editing (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-pro",
+            "description": "Nano Banana pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/nano-banana-pro/edit",
+            "description": "Nano Banana pro image editing (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2-pro",
+            "description": "FLUX.2 Pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2/klein/4b",
+            "description": "FLUX.2 Klein 4b (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-2/klein/9b",
+            "description": "FLUX.2 Klein 9b (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/pro/text-to-image",
+            "description": "Seedream 5 pro text-to-image (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/pro/edit",
+            "description": "Seedream 5 pro edit (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/lite/text-to-image",
+            "description": "Seedream 5 lite text-to-image (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/bytedance/seedream/v5/lite/edit",
+            "description": "Seedream 5 lite edit (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4/text-to-image",
+            "description": "Recraft V4 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4/pro/text-to-image",
+            "description": "Recraft V4 Pro (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/style/text-to-image",
+            "description": "Recraft V4 styled images (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/style/text-to-vector",
+            "description": "Recraft V4 styled vectors (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4/create-style",
+            "description": "Recraft V4 create style (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/recraft/v4.1/flash/text-to-image",
+            "description": "Recraft V4.1 Flash (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft/v4.1/text-to-vector",
+            "description": "Recraft V4.1 vectors (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/tts/eleven-v3",
+            "description": "ElevenLabs v3 text-to-speech (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+            "description": "ElevenLabs v3 dialogue (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/music",
+            "description": "ElevenLabs Music (explicit length or composition plan) (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/elevenlabs/sound-effects/v2",
+            "description": "ElevenLabs Sound Effects v2 (dynamic pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/stable-diffusion-v35-large",
+            "description": "Stable Diffusion 3.5 Large",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "35000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/fast-sdxl",
+            "description": "Fast SDXL",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/recraft-v3",
+            "description": "Recraft V3",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "40000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/xai/grok-imagine-image",
+            "description": "Grok Imagine image generation",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "40000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/xai/grok-imagine-image/edit",
+            "description": "Grok Imagine image editing",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "40000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux/dev",
+            "description": "FLUX.1 [dev] text-to-image",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "25000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux/schnell",
+            "description": "FLUX.1 [schnell] fast text-to-image",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-pro/v1.1",
+            "description": "FLUX1.1 [pro] image generation",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "35000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/fal-ai/flux-pro/v1.1-ultra",
+            "description": "FLUX1.1 [pro] ultra high-res",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "60000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://fal.ai",
+          "apiReference": "https://docs.fal.ai"
+        }
+      }
+    },
+    {
+      "id": "firecrawl",
+      "domain": "firecrawl.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Firecrawl",
+        "description": "Web scraping, crawling, and structured data extraction for LLMs.",
+        "categories": [
+          "web",
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/scrape",
+            "description": "Scrape a URL",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "2000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/crawl",
+            "description": "Crawl a website ($0.002 per page up to `limit`, max 1000; `limit` required)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "2000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/map",
+            "description": "Map website URLs",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "2000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/search",
+            "description": "Search the web (+$0.002 per result when scrapeOptions are set)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "4000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/extract",
+            "description": "Extract structured data",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://firecrawl.dev",
+          "apiReference": "https://docs.firecrawl.dev/api-reference"
+        }
+      }
+    },
+    {
+      "id": "fish-audio",
+      "domain": "fish-audio.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Fish Audio",
+        "description": "Fish Audio via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Generate speech/audio bytes (one-shot charge; character or bounded audio pricing; models, prices and voices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe base64 PCM WAV (mono, 16-bit, 16 kHz, up to 10 minutes; models and prices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "goflightlabs",
+      "domain": "goflightlabs.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "GoFlightLabs",
+        "description": "Real-time flight tracking, prices, schedules, and airline data.",
+        "categories": [
+          "travel",
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/flights",
+            "description": "Real-time flights",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flights-callsign",
+            "description": "Flights by callsign",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flights-history",
+            "description": "Historical flights",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flights-schedules",
+            "description": "Flight schedules",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/future-flights",
+            "description": "Future flight predictions",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flight-delay",
+            "description": "Flight delay info",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flights-airline",
+            "description": "Flights by airline",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flight-data-by-date",
+            "description": "Flight data by date",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flight-info-by-flight-number",
+            "description": "Flight info by number",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/flight-prices",
+            "description": "Flight price search",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "10000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/retrieve-airports",
+            "description": "Retrieve airports",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/airports-by-filters",
+            "description": "Airports by filter",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/retrieve-countries",
+            "description": "Retrieve countries",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/retrieve-airlines",
+            "description": "Retrieve airlines",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/retrieve-routes",
+            "description": "Airline routes",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://www.goflightlabs.com"
+        }
+      }
+    },
+    {
+      "id": "heygen",
+      "domain": "heygen.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "HeyGen",
+        "description": "HeyGen via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/videos",
+            "description": "Submit video generation (one-shot charge; returns a job access token)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/models",
+            "description": "Video models and pricing; submissions require a supported billing adapter"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id",
+            "description": "Poll video job (free with the job bearer token)"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id/content",
+            "description": "Download video (free with the job bearer token)"
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Generate speech/audio bytes (one-shot charge; character or bounded audio pricing; models, prices and voices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "kicksdb",
+      "domain": "kicksdb.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "KicksDB",
+        "description": "Sneaker & streetwear market data — prices, sales history, and availability from StockX, GOAT, and more.",
+        "categories": [
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/v3/stockx/products",
+            "description": "Search StockX products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/stockx/products/:id",
+            "description": "Get a StockX product",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/stockx/products/:id/sales",
+            "description": "StockX sales history",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/stockx/products/:id/sales/daily",
+            "description": "StockX daily sales data",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v3/stockx/prices",
+            "description": "StockX batch prices",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/goat/products",
+            "description": "Search GOAT products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/goat/products/:id",
+            "description": "Get a GOAT product",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/goat/products/:id/sales",
+            "description": "GOAT sales history",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/goat/products/:id/sales/daily",
+            "description": "GOAT daily sales data",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/shopify/products",
+            "description": "Search Shopify products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/shopify/products/:id",
+            "description": "Get a Shopify product",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/shopify/shops",
+            "description": "List Shopify shops",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/snkrs/products",
+            "description": "Search SNKRS products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/kream/products",
+            "description": "Search Kream products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/kream/products/:id",
+            "description": "Get a Kream product",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/novelship/products",
+            "description": "Search Novelship products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/unified/products/:id",
+            "description": "Get a unified product",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/unified/gtin",
+            "description": "Look up unified product by GTIN/barcode",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/exports/daily",
+            "description": "Daily CSV snapshot",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "500",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/stockx/products",
+            "description": "Search StockX in real-time",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/stockx/products/:id",
+            "description": "Get StockX product in real-time",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/stockx/products/:id/asks",
+            "description": "StockX real-time asks/bids",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/stockx/products/:id/sales",
+            "description": "StockX real-time sales",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/stockx/products/:id/related",
+            "description": "StockX real-time related products",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/goat/products",
+            "description": "Search GOAT in real-time",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/goat/products/:id",
+            "description": "Get GOAT product in real-time",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/goat/products/:id/offers",
+            "description": "GOAT real-time offers",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/goat/products/:id/sales",
+            "description": "GOAT real-time sales",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v3/realtime/alias/products/:id/recent-orders",
+            "description": "Real-time recent orders by alias",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://kicks.dev",
+          "apiReference": "https://docs.kicks.dev"
+        }
+      }
+    },
+    {
+      "id": "kling",
+      "domain": "kling.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Kling",
+        "description": "Kling via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/videos",
+            "description": "Submit video generation (one-shot charge; returns a job access token)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/models",
+            "description": "Video models and pricing; submissions require a supported billing adapter"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id",
+            "description": "Poll video job (free with the job bearer token)"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id/content",
+            "description": "Download video (free with the job bearer token)"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "microsoft-ai",
+      "domain": "microsoft-ai.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Microsoft AI",
+        "description": "Microsoft AI via OpenRouter with live pricing and one-shot payments.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Generate speech/audio bytes (one-shot charge; character or bounded audio pricing; models, prices and voices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe base64 PCM WAV (mono, 16-bit, 16 kHz, up to 10 minutes; models and prices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "modal",
+      "domain": "modal.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Modal",
+        "description": "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
+        "categories": [
+          "compute",
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/sandbox/create",
+            "description": "Create a sandbox (dynamic pricing by GPU and timeout)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/sandbox/exec",
+            "description": "Execute in sandbox",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/sandbox/status",
+            "description": "Check sandbox status",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/sandbox/terminate",
+            "description": "Terminate sandbox",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://modal.com",
+          "apiReference": "https://modal.com/docs/reference"
+        }
+      }
+    },
+    {
+      "id": "openai",
+      "domain": "openai.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "OpenAI",
+        "description": "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
+        "categories": [
+          "ai",
+          "media"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "session",
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/v1/responses",
+            "description": "Persistent Responses WebSocket (dynamic pricing per response.create)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/responses",
+            "description": "Create responses (dynamic pricing by model)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "description": "Chat completions (dynamic pricing by model)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/embeddings",
+            "description": "Create embeddings",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/images/generations",
+            "description": "Generate images with GPT Image 2",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "50000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/images/edits",
+            "description": "Edit images with OpenAI",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "50000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/alpha/search",
+            "description": "Standalone web search",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "10000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe audio with Whisper",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "10000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Text-to-speech",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "20000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/models",
+            "description": "List available models"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/models/:model",
+            "description": "Get a model"
+          }
+        ],
+        "docs": {
+          "homepage": "https://platform.openai.com/docs",
+          "llmsTxt": "https://developers.openai.com/api/docs/llms.txt",
+          "apiReference": "https://platform.openai.com/docs/api-reference"
+        }
+      }
+    },
+    {
+      "id": "openrouter",
+      "domain": "openrouter.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "OpenRouter",
+        "description": "Chat, decisions, video, speech, and transcription with live model pricing.",
+        "categories": [
+          "ai"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "session",
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/v1/chat/completions",
+            "description": "Chat completions (model-dependent pricing; Lyria music at a flat price per song)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/alpha/decisions",
+            "description": "Typed decisions with TypeSafe Jev (model-dependent pricing)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/videos",
+            "description": "Submit video generation (one-shot charge; returns a job access token)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/models",
+            "description": "Video models and pricing; submissions require a supported billing adapter"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id",
+            "description": "Poll video job (free with the job bearer token)"
+          },
+          {
+            "method": "GET",
+            "path": "/v1/videos/:id/content",
+            "description": "Download video (free with the job bearer token)"
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/speech",
+            "description": "Generate speech/audio bytes (one-shot charge; character or bounded audio pricing; models, prices and voices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/v1/audio/transcriptions",
+            "description": "Transcribe base64 PCM WAV (mono, 16-bit, 16 kHz, up to 10 minutes; models and prices at GET /v1/audio/models)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/v1/audio/models",
+            "description": "Speech and transcription models this service prices, with prices per unit, voices and an example request"
+          }
+        ],
+        "docs": {
+          "homepage": "https://openrouter.ai",
+          "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "rox",
+      "domain": "rox.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "ROX",
+        "description": "Company and person enrichment, prospect discovery, and prospect validation.",
+        "categories": [
+          "sales",
+          "prospecting",
+          "enrichment",
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/enrich/company",
+            "description": "Enrich a company",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "20000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/enrich/person",
+            "description": "Enrich a person (dynamic pricing by requested targets)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/prospects/search",
+            "description": "Search for prospect candidates (worst-case pool pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/prospects/validate",
+            "description": "Validate prospect candidates (matched-prospect worst-case pricing)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://www.rox.com",
+          "apiReference": "https://public-api.rox.com/redoc"
+        }
+      }
+    },
+    {
+      "id": "rpc",
+      "domain": "rpc.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Tempo RPC",
+        "description": "Tempo blockchain JSON-RPC access (mainnet and testnet).",
+        "categories": [
+          "blockchain"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "session",
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/",
+            "description": "JSON-RPC calls ($0.001 per call; batches up to 100 calls)",
+            "payment": {
+              "intent": "session",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://tempo.xyz"
+        }
+      }
+    },
+    {
+      "id": "storage",
+      "domain": "storage.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Object Storage",
+        "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
+        "categories": [
+          "storage"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/:key+",
+            "description": "Download object (dynamic pricing by size)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "HEAD",
+            "path": "/:key+",
+            "description": "Check object",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/",
+            "description": "List objects",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "PUT",
+            "path": "/:key+",
+            "description": "Upload object (dynamic pricing by size)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "DELETE",
+            "path": "/:key+",
+            "description": "Delete object",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/:key+",
+            "description": "Initiate/complete multipart upload",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "100",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "twocaptcha",
+      "domain": "twocaptcha.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "2Captcha",
+        "description": "CAPTCHA solving API — reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
+        "categories": [
+          "automation",
+          "web"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/createTask",
+            "description": "Submit a captcha task for solving",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/getTaskResult",
+            "description": "Poll for task result (free; taskId is the token returned by createTask)"
+          }
+        ],
+        "docs": {
+          "homepage": "https://2captcha.com",
+          "apiReference": "https://2captcha.com/api-docs"
+        }
+      }
+    }
+  ]
+}

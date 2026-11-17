@@ -1,0 +1,70 @@
+---
+description: "Require your existing API keys, sessions, or customer identities before accepting payment."
+imageDescription: "Use your existing identity system with paid routes"
+---
+
+# `Identity.from` [Verify your own identities]
+
+Creates a verifier from your identity lookup. It runs before the server issues a payment Challenge or settles a Credential, so identity failures stop payment processing.
+
+## Usage
+
+```ts twoslash
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+// [!code hl:start]
+const customer = Identity.from({
+  challenge: { 'WWW-Authenticate': 'ApiKey' },
+  verify(request) {
+    const key = request.headers.get('X-Api-Key')
+    if (!key) return undefined
+    const identity = customers.get(key)
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { status: 'forbidden' })
+    return identity
+  },
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: [customer] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json(result.identity?.get(customer)))
+}
+```
+
+`Identity.from` doesn't authenticate a returned value for you—validate the API key, session, or provider response inside `verify`. See [Your own identity provider](/extensions/identity#your-own-identity-provider).
+
+## Return type
+
+`Identity.Verifier<value>`. Read the returned identity with `result.identity?.get(verifier)` after a successful payment result.
+
+| Lookup outcome | Status | HTTP response |
+|---|---|---|
+| Identity value | `valid` | Continue to payment |
+| `undefined` or `null` | `missing` | `401`, with `challenge` headers |
+| Throws [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) | The rejection's `status` | `401`, `403`, or `503` with the message as the body and `challenge` headers |
+| Throws any other error | Propagates | Handle as an application error |
+
+Other values, including `false` and `0`, count as identities. See [`Identity.Status`](/sdk/typescript/core/Identity.Status) for status codes.
+
+## Parameters
+
+### challenge (optional)
+
+- **Type:** `HeadersInit`
+
+Headers sent with missing and rejected identities, telling the client what identity to present. They aren't added to the `402`. No headers by default.
+
+### verify
+
+- **Type:** `(request: Request) => value | null | undefined | Promise<value | null | undefined>`
+
+Look up and authenticate the caller. Return `undefined` or `null` when the request carries no identity. Throw `Identity.Rejection` to reject the one it carries; let other errors propagate.
+
+## Accept alternative identities
+
+Use `identity: [Identity.anyOf(email, customer)]` to accept either an email verifier or your lookup. A plain list such as `identity: [email, customer]` requires both. See [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf).

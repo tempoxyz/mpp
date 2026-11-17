@@ -1,0 +1,128 @@
+---
+description: "Require a verified email address before callers can pay for your API."
+imageDescription: "Limit paid API access to verified email addresses"
+---
+
+# `EmailOtp.Server.verifier` [Require a verified email]
+
+Creates a verifier that checks email identity before issuing a payment Challenge or accepting a payment Credential. An issuer service emails a one-time code and exchanges it for an attestation: a signed bearer token confirming inbox access for one API origin.
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = EmailOtp.Server.verifier({
+  allow: (address) => address.endsWith('@example.com'),
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: [email] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ email: result.identity?.get(email)?.email }))
+}
+```
+
+Pair it with [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover). The issuer verifies access to an email inbox; `allow` decides whether that address may use your route. This doesn't prove a legal identity or bind the address to a payment key. See [Verify an email address](/extensions/identity#email-otp).
+
+It's an [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) of type `email` whose `validate` runs `allow`, so candidate selection and key handling are the same.
+
+### Accept several issuers
+
+Combine verifiers with `Identity.anyOf`. The rejection lists the issuers as alternatives, so the client gets one code, from the first issuer it trusts:
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import * as Identity from 'mppx/identity'
+
+// [!code hl:start]
+const email = Identity.anyOf(
+  EmailOtp.Server.verifier({ audience: 'https://api.example.com', issuer: 'https://identity.mpp.tempo.xyz' }),
+  EmailOtp.Server.verifier({ audience: 'https://api.example.com', issuer: 'https://identity.example.com' }),
+)
+// [!code hl:end]
+```
+
+A plain list, `identity: [first, second]`, requires both and costs a code per issuer. See [Combine verifiers](/extensions/identity#combine-verifiers).
+
+## Return type
+
+`Identity.Verifier<EmailOtp.VerifiedEmail>`. A successful result contains:
+
+```ts
+type VerifiedEmail = {
+  email: string // lowercased
+  expiresAt: Date // from exp
+  id?: string // from jti
+  issuer: string
+}
+```
+
+| Outcome | Status | HTTP | `Identity-Attestation-Required` |
+|---|---|---|---|
+| No email attestation from this issuer | `missing` | `401` | Yes |
+| No candidate verifies | `invalid` | `401` | Yes |
+| `allow` rejects every verified address | `forbidden` | `403` | No |
+| Issuer keys can't be fetched | `unavailable` | `503` | No |
+
+`Identity-Attestation-Required: email;issuer="…"` lets the client acquire a replacement. On `503`, the client keeps its attestation.
+
+## Parameters
+
+### allow (optional)
+
+- **Type:** `(email: string, request: Request) => boolean | Promise<boolean>`
+- **Default:** Accept any verified address.
+
+Route policy for the lowercased address. Return `false` to reject it as `forbidden`. Thrown errors propagate.
+
+### audience
+
+- **Type:** `string | ((request: Request) => string)`
+
+Your API's public origin. URLs normalize to their origin, so a trailing slash matches. The function form is deprecated: it's only safe where your platform guarantees the request's host, since a caller-controlled `Host` header can otherwise bypass audience isolation.
+
+### clockTolerance (optional)
+
+- **Type:** `number`
+- **Default:** `60`
+
+Tolerance for `iat`, `exp`, and `maxAge`, in seconds.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the default key resolver. Ignored with `keyResolver`.
+
+### issuer
+
+- **Type:** `string`
+
+Trusted issuer URL. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1`. Trailing slashes are removed. The verifier never trusts an issuer named only by the client.
+
+### keyResolver (optional)
+
+- **Type:** `(parameters: { issuer: string; keyId: string }) => CryptoKey | undefined | Promise<CryptoKey | undefined>`
+- **Default:** [`Attestation.Jwks.resolver({ fetch })`](/sdk/typescript/core/Attestation.Jwks.resolver)
+
+Resolves the issuer's Ed25519 public key. Return `undefined` for an unknown key; throw only when keys can't be fetched (`503`).
+
+### maxAge (optional)
+
+- **Type:** `number`
+
+Oldest accepted `iat`, in seconds before now. Defaults to the attestation's own `exp` alone.
+
+## Protect bearer attestations
+
+- Keep attestations like session tokens. They remain reusable at the audience origin until expiry.
+- Use HTTPS and don't forward `Identity-Attestation` to other services. Authenticate each hop independently.
+- Don't treat an email attestation as payment authorization. Continue verifying the MPP Credential separately.

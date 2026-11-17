@@ -1,0 +1,71 @@
+---
+description: "Identify MPP stablecoin transfers and match attribution memos to your server and Challenge."
+imageDescription: "Recognize payments to your server on Tempo"
+---
+
+# `tempo.Attribution` [Identify MPP transfers on Tempo]
+
+Encode and inspect the 32-byte attribution memos used by Tempo charge payments.
+
+## Usage
+
+```ts twoslash
+import { Attribution } from 'mppx/tempo'
+
+// [!code hl:start]
+const memo = Attribution.encode({
+  challengeId: 'challenge-123',
+  clientId: 'my-app',
+  serverId: 'api.example.com',
+})
+// [!code hl:end]
+
+console.log(Attribution.isMppMemo(memo))
+// @log: true
+console.log(Attribution.verifyServer(memo, 'api.example.com'))
+// @log: true
+console.log(Attribution.verifyChallengeBinding(memo, 'challenge-123'))
+// @log: true
+```
+
+The charge client uses the Challenge `realm` as `serverId`. Pass that realm to `verifyServer` when matching an on-chain transfer to your server. `decode` returns the version, server and client fingerprints, and Challenge-bound nonce; it returns `null` for a memo without the MPP tag and version. Fingerprints are hashes, not the original identities.
+
+## Return type
+
+```ts
+type Memo = `0x${string}` // Attribution.encode
+type Decoded = {
+  clientFingerprint: `0x${string}` | null
+  nonce: `0x${string}`
+  serverFingerprint: `0x${string}`
+  version: number
+} | null // Attribution.decode
+```
+
+`isMppMemo`, `verifyChallengeBinding`, and `verifyServer` return `boolean`. `Attribution.tag` is the four-byte MPP tag; `Attribution.anonymous` is the all-zero client fingerprint.
+
+## Parameters
+
+### challengeId
+
+- **Type:** `string`
+
+Challenge ID used to derive the memo nonce for `encode` or checked by `verifyChallengeBinding`.
+
+### clientId (optional)
+
+- **Type:** `string`
+
+Client identity used to derive a fingerprint in `encode`. Omit it for an anonymous client fingerprint.
+
+### memo
+
+- **Type:** `` `0x${string}` ``
+
+32-byte memo inspected by `decode`, `isMppMemo`, `verifyChallengeBinding`, or `verifyServer`.
+
+### serverId
+
+- **Type:** `string`
+
+Server identity used to derive a fingerprint in `encode` or checked by `verifyServer`.

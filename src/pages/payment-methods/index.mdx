@@ -3,12 +3,33 @@ description: "Compare MPP payment methods and choose the right rails for your AP
 imageDescription: "Choose a payment method for your service"
 ---
 
-import { Cards, Tab, Tabs } from 'vocs'
+import { Badge, Cards, Tab, Tabs } from 'vocs'
 import { TempoMethodCard, CardMethodCard, EvmMethodCard, LightningMethodCard, MonadMethodCard, NearIntentsMethodCard, RedotPayMethodCard, StellarMethodCard, XrplMethodCard, SolanaMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
 
 # Payment methods [Available methods and how to choose one]
 
-Payment methods define how clients pay for resources protected by the Machine Payments Protocol. Each method specifies its payment rails, Credential format, and verification logic.
+Payment methods define how a buyer pays a seller for a resource protected by the Machine Payments Protocol. Each method specifies its payment rails, Credential format, and verification logic.
+
+## Status and capabilities
+
+| Method | Intents | SDKs | Status | Maintainer |
+|---|---|---|---|---|
+| [Tempo](/payment-methods/tempo) | Charge, session, subscription | TypeScript (`mppx`), Rust, Python, Go, Ruby | <Badge variant="success">Production</Badge> | Tempo |
+| [Stripe](/payment-methods/stripe) | Charge, session (Tempo) | TypeScript (`mppx`), Rust, Python, Ruby | <Badge variant="success">Production</Badge> | Stripe |
+| [Card](/payment-methods/card) | Charge | TypeScript (`mpp-card`) | <Badge variant="success">Production</Badge> | Visa |
+| [Lightning](/payment-methods/lightning) | Charge, session | TypeScript (`@buildonspark/lightning-mpp-sdk`) | <Badge variant="success">Production</Badge> | Spark |
+| [EVM](/payment-methods/evm) | Charge | TypeScript (`mppx`) | <Badge variant="gray">Available</Badge> | Tempo |
+| [Solana](/payment-methods/solana) | Charge, session | TypeScript (`@solana/mpp`) | <Badge variant="gray">Available</Badge> | Solana Foundation |
+| [XRPL](/payment-methods/xrpl) | Charge, session | TypeScript (`xrpl-mpp-sdk`) | <Badge variant="gray">Available</Badge> | Ripple |
+| [Stellar](/payment-methods/stellar) | Charge, session | TypeScript (`@stellar/mpp`) | <Badge variant="gray">Available</Badge>¹ | Stellar |
+| [Monad](/payment-methods/monad) | Charge | TypeScript (`@monad-crypto/mpp`) | <Badge variant="gray">Available</Badge> | Monad |
+| [NEAR Intents](/payment-methods/nearintents) | Charge | TypeScript (`@defuse-protocol/nearintents-mpp-sdk`) | <Badge variant="gray">Available</Badge> | Defuse Protocol |
+| [RedotPay](/payment-methods/redotpay) | Charge | TypeScript (`@redotpay/mpp`) | <Badge variant="gray">Available</Badge> | RedotPay |
+| [Custom](/payment-methods/custom) | Any | TypeScript (`mppx`) | <Badge variant="note">Custom</Badge> | You |
+
+- **Production**: used for live payments today.
+- **Available**: SDK published by its maintainer; ask the maintainer about production readiness.
+- **¹ Session experimental**: Stellar's session intent (`channel` in its SDK) uses an unaudited contract and a draft spec.
 
 ## Overview
 

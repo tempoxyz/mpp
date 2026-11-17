@@ -1,0 +1,87 @@
+---
+description: "Verify Link agent tokens in Node and Cloudflare Workers."
+imageDescription: "Recognize Link agents across server runtimes"
+---
+
+# `Link.Server.tokenVerifier` [Verify tokens with Web Crypto]
+
+Verifies tokens proving Link, Stripe's agent identity issuer, recognizes an agent without personal details. Uses Web Crypto; [`Link.Server.attestation`](/sdk/typescript/server/Link.attestation) wraps it as an identity check before payment.
+
+## Usage
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const verifier = Link.Server.tokenVerifier({
+  maxKeyAge: 300,
+  timeout: 3_000,
+})
+const agent = Link.Server.attestation({ verifier })
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true,
+})
+// [!code hl:end]
+```
+
+Needs `fetch` and Web Crypto, not `@stripe/agent-identity`. Reuse one verifier across requests to share its token-key cache. The example creates the payment server with `requiresAuth: true`. Without it, `mppx` would put its payment proof in `Authorization`, colliding with the Link token. This option advertises `Payment-Authorization` for payment proofs while the Link token keeps `Authorization`.
+
+## Return type
+
+`Link.AttestationVerifier`, with two asynchronous methods:
+
+- `attestationChallenge()` returns `{ wwwAuthenticate: string[] }`, one HTTP `WWW-Authenticate` value per active issuer signing key. Each uses the `PrivateToken` authentication scheme with the encoded challenge, public token key, and `max-age=300`.
+- `verifyAttestation(authorization: string | null | undefined)` returns `{ bindingMode: 'bearer'; issuer: string; tokenKeyId: string; valid: true }` or `{ failures: readonly Link.Failure[]; valid: false }`.
+
+`PrivateToken` is the HTTP authentication scheme for Link agent tokens. In each challenge, `challenge` is the base64url-encoded protocol request and `token-key` is the public RSA key used to verify tokens; a key is active after its published activation time. The challenge's `max-age=300` is separate from the configurable key-cache lifetime.
+
+Verification checks the blind-RSA token type, issuer's stable challenge, active published token key, and RSA-PSS/SHA-384 signature. The stable challenge contains no API origin or redemption context; these tokens are reusable bearer tokens, not proof of a person's identity.
+
+## Parameters
+
+The options object is optional and defaults to `{}`.
+
+### fetch (optional)
+
+- **Type:** `(input: string, init: RequestInit) => Response | Promise<Response>`
+- **Default:** `globalThis.fetch`
+
+Fetch for issuer metadata and token keys. An `mppx` fetch wrapper is unwrapped so issuer lookups never trigger a payment.
+
+### issuer (optional)
+
+- **Type:** `string`
+- **Default:** `'https://api.link.com'`
+
+Issuer URL, with trailing slashes removed. Override only for staging or tests. Metadata and token-key documents must stay on its origin; redirects are refused.
+
+### maxKeyAge (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Token-key cache lifetime in seconds. Concurrent loads are shared. An unknown token-key ID does not trigger an extra refresh; key rotation is picked up after the cache expires.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `3000`
+
+Timeout for each issuer request, in milliseconds.
+
+## Errors
+
+`verifyAttestation` returns failure codes rather than throwing for these checks:
+
+| Code | Cause |
+|---|---|
+| `challenge_mismatch` | Token answers another challenge |
+| `incomplete_protocol_request` | Missing authorization |
+| `invalid_private_token` | Signature does not verify |
+| `issuer_unavailable` | Issuer documents cannot be loaded |
+| `malformed_protocol_input` | Malformed authorization, size, or token type |
+| `unknown_issuer` | Token key is unknown or not active |
+
+`attestationChallenge()` can reject when issuer documents are unavailable; `Link.Server.attestation` converts that to `unavailable` (`503`). Invalid issuer URLs throw at construction. The `Authorization` value is malformed above `8192` characters or without exactly one `token` parameter.

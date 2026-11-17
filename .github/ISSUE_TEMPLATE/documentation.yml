@@ -1,0 +1,28 @@
+name: Documentation
+description: Report errors or gaps in mpp.dev documentation or examples.
+labels: ['documentation']
+body:
+  - type: dropdown
+    attributes:
+      label: Type of issue
+      multiple: true
+      options:
+        - Documentation is missing
+        - Documentation is incorrect
+        - Documentation is confusing
+        - Example code does not work
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: What is wrong or missing?
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Page
+      description: The mpp.dev URL where you found it.
+      placeholder: https://mpp.dev/...
+    validations:
+      required: true

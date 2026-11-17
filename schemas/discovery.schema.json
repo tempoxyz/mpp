@@ -92,10 +92,10 @@
           "$ref": "#/$defs/Docs",
           "description": "Documentation and reference links."
         },
-        "supportsCredits": {
+        "supportsMACH": {
           "type": "boolean",
           "const": true,
-          "description": "Whether the service can be paid with MPP Credits."
+          "description": "The service offers a MACH payment option. This advisory hint does not guarantee support for every endpoint, intent, or client; use the runtime 402 Challenge for payment terms. Omission means support is unknown."
         },
         "methods": {
           "type": "object",

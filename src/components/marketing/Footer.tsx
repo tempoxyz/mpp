@@ -9,6 +9,14 @@ const socials = [
   { href: "https://x.com/mpp", label: "X" },
   { href: "https://github.com/tempoxyz/mpp", label: "GitHub" },
 ];
+const resources = [
+  { href: "/faq", label: "FAQ" },
+  { href: "/use-cases/agentic-payments", label: "Agentic payments" },
+  { href: "/use-cases/api-monetization", label: "API monetization" },
+  { href: "/use-cases/micropayments", label: "Micropayments" },
+  { href: "/governance", label: "Governance" },
+  { href: "/brand", label: "Brand" },
+];
 const linkBase =
   "font-mono text-sm uppercase tracking-[-0.14px] leading-4 transition-colors";
 
@@ -25,7 +33,7 @@ export function Footer() {
             href="/quickstart/agent"
             variant="primary"
           >
-            Use with your agent
+            Use with agents
           </Button>
           <Button
             className="w-full sm:w-auto"
@@ -35,6 +43,20 @@ export function Footer() {
             Add payments to your API
           </Button>
         </div>
+        <nav aria-label="Resources" className="flex flex-wrap gap-x-6 gap-y-3">
+          {resources.map((resource) => (
+            <Link
+              className={cx(
+                linkBase,
+                "w-fit text-secondary hover:text-offwhite",
+              )}
+              key={resource.href}
+              to={resource.href}
+            >
+              {resource.label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
       <div className="mt-[136px] flex flex-col gap-2 md:mt-[200px] md:gap-4 lg:mt-[160px]">
@@ -83,7 +105,7 @@ export function Footer() {
           ))}
         </div>
         <p className={cx(linkBase, "mt-2 text-white/50 md:mt-0")}>
-          © 2026 All rights reserved, MPP.
+          © 2026 Tempo Labs, Inc. All rights reserved.
           <br />
           San Francisco, California, USA
         </p>

@@ -1,0 +1,54 @@
+---
+description: "Persist payment state locally with atomic SQLite updates."
+imageDescription: "Keep payment state in SQLite"
+---
+
+# `Store.sqlite` [SQLite storage]
+
+Creates an atomic store from a SQLite database's prepared statements.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+import { DatabaseSync } from 'node:sqlite'
+
+const db = new DatabaseSync('mppx.db')
+const store = Store.sqlite(db) // [!code hl]
+
+await store.put('usage:customer-42', { requests: 1 })
+console.log(await store.get('usage:customer-42'))
+// @log: { requests: 1 }
+```
+
+Supports `node:sqlite`, `better-sqlite3`, and `bun:sqlite` with SQLite 3.35+ (`RETURNING`). For asynchronous libSQL or Turso, use [Store.sql](/sdk/typescript/core/Store.sql#use-libsql-or-turso).
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
+
+## Parameters
+
+### database
+
+- **Type:** `Store.sqlite.Database`
+
+Database exposing `prepare(sql).all(...params)`. Statements may expose `reader` and `run(...params)`; the adapter calls `run` when `reader === false`, as `better-sqlite3` requires.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every backing key. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+See [Store.sql](/sdk/typescript/core/Store.sql) for schema, migrations, serialization, and conflict errors.

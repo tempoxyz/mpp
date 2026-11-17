@@ -44,7 +44,7 @@ import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] }) // [!code hl]
 
 app.get(
   '/premium', 
@@ -70,7 +70,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account,
-      chainId: 4217,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
@@ -94,7 +94,7 @@ import { Credential } from 'mppx'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 
 app.get(
   '/premium',
@@ -109,7 +109,7 @@ app.get(
 
 ## x402-compatible clients
 
-Hono apps, including apps deployed on Cloudflare Workers, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm/charge) with `x402.facilitator`.
+Hono apps, including apps deployed on Cloudflare Workers, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm#charge) with `x402.facilitator`.
 
 ```ts [worker.ts]
 import { Hono } from 'hono'

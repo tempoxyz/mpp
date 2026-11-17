@@ -165,12 +165,12 @@ const response = await fetch('https://api.example.com/resource')
 ```
 
 :::warning[Security: server-side authorization]
-The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. The server **must** derive SPT parameters (amount, currency, expiry) itself—never accept them from the client. See the [SPT creation proxy endpoint](/payment-methods/stripe/charge#spt-creation-proxy-endpoint) for a secure implementation.
+The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. The server **must** derive SPT parameters (amount, currency, expiry) itself—never accept them from the client. See the [SPT creation proxy endpoint](/payment-methods/stripe#spt-creation-proxy-endpoint) for a secure implementation.
 :::
 
 ## Accept cards and stablecoins together
 
-Stripe works alongside other payment methods. Add `tempo` to accept both cards and stablecoins on the same endpoint—clients pay with whichever rail they support.
+Stripe works alongside other payment methods. Add `tempo` to accept both cards and stablecoins on the same endpoint—buyers pay with whichever rail they support.
 
 ```ts twoslash
 import Stripe from 'stripe'
@@ -198,7 +198,7 @@ The server returns both methods in the `402` Challenge. See [Accept multiple pay
 
 ## Add a browser payment page
 
-Set `html` on the Stripe method to render a Stripe Elements card form when a browser visits the endpoint. Programmatic clients with `Authorization` headers are unaffected.
+Set `html` on the Stripe method to render a Stripe Elements card form when a browser visits the endpoint. Programmatic clients with `Authorization` headers are unaffected. The Elements page bundle loads only when the server renders a payment page; importing mppx server types doesn't require `@stripe/stripe-js`.
 
 ```ts twoslash
 import Stripe from 'stripe'

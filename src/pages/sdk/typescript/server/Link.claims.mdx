@@ -1,0 +1,119 @@
+---
+description: "Require verified Link identity facts before charging callers."
+imageDescription: "Verify selected identity facts before payment"
+---
+
+# `Link.Server.claims` [Verify Link identity claims]
+
+Creates an identity check that runs before payment and requires selected facts signed by Link, Stripe's agent identity issuer, such as a verified email. The caller discloses those facts in an identity presentation signed for your API.
+
+## Usage
+
+Install `@stripe/agent-identity` version `0.3.0` or later for the default presentation verifier. Token-only attestation does not need this peer.
+
+:::code-group
+
+```bash [npm]
+$ npm install mppx @stripe/agent-identity@^0.3.0
+```
+
+```bash [pnpm]
+$ pnpm add mppx @stripe/agent-identity@^0.3.0
+```
+
+```bash [bun]
+$ bun add mppx @stripe/agent-identity@^0.3.0
+```
+
+:::
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = Link.Server.claims({
+  audience: 'https://api.example.com',
+  claims: ['email', 'email_verified'],
+  purpose: 'Identify your account',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
+
+export async function handler(request: Request) {
+  const result = await mppx.tempo.charge({ amount: '0.05', identity: [email] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ email: result.identity?.get(email)?.email }))
+}
+```
+
+Pair with [`Link.Client.claims`](/sdk/typescript/client/Link.claims). A `401` claims challenge lists the facts to disclose and supplies the API origin and nonce the caller must sign. Put this verifier first in the route's identity list so its challenge body, rather than another verifier's rejection body, reaches the client.
+
+## Return type
+
+`Identity.Verifier<Link.VerifiedClaims>`. Its frozen value contains `claims`, `holderKeyThumbprint`, `issuer`, `vct`, and optional `email`. `email` is lowercased only when a string `email` and `email_verified: true` are disclosed. See [Link types](/sdk/typescript/core/Link.Types#verifiedclaims).
+
+- Reads `Identity-Presentation`, not `Authorization`; claims alone do not require `requiresAuth: true`.
+- Missing or invalid presentations return `401`, `WWW-Authenticate: Identity-Presentation`, and an `application/problem+json` [claims challenge](/sdk/typescript/core/Link.Types#claimschallenge).
+- Challenge nonces are signed with `secretKey` and bound to the audience and requested claims. Verification keeps no nonce store; a presentation is reusable until its nonce expires, including on the paid retry.
+- An issuer failure with code `issuer_unavailable` returns `unavailable` (`503`) without a fresh challenge.
+- Requesting `email_verified` but disclosing a value other than `true`, or failing `allow`, returns `forbidden` (`403`).
+
+## Parameters
+
+### allow (optional)
+
+- **Type:** `(claims: Link.VerifiedClaims, request: Request) => boolean | Promise<boolean>`
+- **Default:** accepts any verified claims
+
+Route policy after verification. Return `false` to reject with `403`.
+
+### audience
+
+- **Type:** `string`
+
+Your API's public origin. Trailing slashes are removed for both the challenge and the default verifier. Use a configured origin, not an untrusted `Host` header.
+
+### claims
+
+- **Type:** `readonly string[]`
+
+Nonempty list of required claim names, such as `['email', 'email_verified']`.
+
+### issuer (optional)
+
+- **Type:** `string`
+- **Default:** `'https://api.link.com'`
+
+Issuer named in the challenge and passed to the default verifier. Override only for staging or tests. With a custom verifier, keep this issuer consistent with its trust settings.
+
+### nonceTtl (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Nonce lifetime in seconds. Also sets the default presentation verifier's `maxAge`.
+
+### purpose (optional)
+
+- **Type:** `string`
+
+Why you request these claims, shown to the person whose claims they are. Omitted from the challenge when empty or unset.
+
+### secretKey
+
+- **Type:** `string`
+
+Secret used to sign challenge nonces, such as `MPP_SECRET_KEY`. Keep it stable across instances that verify the same API's requests.
+
+### verifier (optional)
+
+- **Type:** `Link.ClaimsVerifier`
+- **Default:** `Link.Server.presentationVerifier({ audience, issuer, maxAge: nonceTtl })`
+
+Shared presentation verifier, or a Node `LinkVerifier` from `@stripe/agent-identity`. Configure [`presentationVerifier`](/sdk/typescript/server/Link.presentationVerifier) for custom fetch or timeout settings.
+
+## Errors
+
+An empty `claims` list throws `TypeError` at construction. Nonce signing and custom `verifier` or `allow` errors propagate to the identity runner. Invalid, unknown, or expired nonces return `invalid` with a fresh challenge.

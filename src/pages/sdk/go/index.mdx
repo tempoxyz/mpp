@@ -1,15 +1,13 @@
 ---
 description: "Use the Go SDK to build MPP clients and servers with typed Challenge, Credential, and Receipt primitives."
-imageDescription: "MPP client and server library for Go"
+imageDescription: "Build paid Go clients and servers"
 ---
 
 import * as SdkBadge from '../../../components/SdkBadge'
 
 # Go SDK [The mpp-go library]
 
-## Overview
-
-The `mpp-go` library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mpp-go` module provides payment-aware HTTP clients, server middleware, and protocol primitives.
 
 <div className="flex gap-2">
   <SdkBadge.GitHub repo="tempoxyz/mpp-go" />
@@ -22,60 +20,47 @@ The `mpp-go` library provides a typed interface over the Machine Payments Protoc
 $ go get github.com/tempoxyz/mpp-go
 ```
 
-## Requirements
-
-- Go 1.26+
-- `go-ethereum` for Tempo signing
-
 ## Quick start
 
-### Server
+### Server example
 
 ```go [server.go]
-package main
-
-import (
-	"encoding/json"
-	"log"
-	"net/http"
-	"os"
-
-	"github.com/tempoxyz/mpp-go/pkg/server"
-	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
-)
-
-func main() {
-	intent, _ := charge.NewIntent(charge.IntentConfig{
-		RPCURL: "https://rpc.tempo.xyz",
-	})
-	method := charge.NewMethod(charge.MethodConfig{
-	Currency: "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
-		Intent:    intent,
-		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-	})
-	payment := server.New(method, "api.example.com", os.Getenv("MPP_SECRET_KEY"))
-
-	mux := http.NewServeMux()
-	mux.Handle("/resource", server.ChargeMiddleware(payment, server.ChargeParams{
-		Amount:      "0.50",
-		Description: "Paid resource",
-	})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		credential := server.CredentialFromContext(r.Context())
-		json.NewEncoder(w).Encode(map[string]any{
-			"data":  "paid content",
-			"payer": credential.Source,
-		})
-	})))
-
-	log.Fatal(http.ListenAndServe(":3000", mux))
+method, err := charge.New(charge.Config{
+	Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+	RPCURL:    "https://rpc.moderato.tempo.xyz",
+	Store:     tempo.NewMemoryStore(), // Development only.
+})
+if err != nil {
+	log.Fatal(err)
 }
+
+payment, err := server.New(
+	method,
+	"api.example.com",
+	"replace-with-at-least-32-bytes-of-secret",
+)
+if err != nil {
+	log.Fatal(err)
+}
+
+handler := server.ChargeMiddleware(payment, server.ChargeParams{
+	Amount:      "0.50",
+	Description: "Paid content",
+})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	credential := server.CredentialFromContext(r.Context())
+	receipt := server.ReceiptFromContext(r.Context())
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"payer":     credential.Source,
+		"reference": receipt.Reference,
+	})
+}))
 ```
 
-### Client
+The secret must contain at least 32 bytes. Keep it in a secret manager. Use a shared persistent replay store across production replicas. `tempo.NewMemoryStore()` is only suitable for single-process development.
+
+### Client example
 
 ```go [client.go]
-package main
-
 import (
 	"context"
 	"fmt"
@@ -86,45 +71,292 @@ import (
 	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
 )
 
-func main() {
-	method, err := charge.New(charge.Config{
-		PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
-		RPCURL:     "https://rpc.tempo.xyz",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	c := client.New([]client.Method{method})
-
-	resp, err := c.Get(context.Background(), "https://api.example.com/resource")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	fmt.Println("Status:", resp.StatusCode)
+method, err := charge.New(charge.Config{
+	PaymentPolicy: charge.MaxAmount("", "0.50", 6),
+	PrivateKey:    os.Getenv("MPP_PRIVATE_KEY"),
+	RPCURL:        "https://rpc.moderato.tempo.xyz",
+})
+if err != nil {
+	log.Fatal(err)
 }
+c := client.New([]client.Method{method})
+
+resp, err := c.Get(context.Background(), "https://api.example.com/resource")
+if err != nil {
+	log.Fatal(err)
+}
+defer resp.Body.Close()
+fmt.Println("Status:", resp.StatusCode)
 ```
+
+`PaymentPolicy` must authorize every nonzero payment. A missing policy rejects paid Challenges. Combine `MaxAmount`, `AllowChainIDs`, and a custom policy when you can pin the currency, chain, recipient, and budget.
+
+:::info[Go live]
+Before going live, set `RPCURL` to `https://rpc.tempo.xyz` (Tempo mainnet) and fund a mainnet account.
+:::
 
 ## Package layout
 
 | Package | Description |
-|---------|-------------|
+|---|---|
 | `pkg/client` | HTTP client with automatic `402` handling |
-| `pkg/mpp` | Core protocol primitives (Challenge, Credential, Receipt) |
-| `pkg/server` | Server-side payment handler and middleware |
-| `pkg/server/echo` | Echo framework middleware |
-| `pkg/server/fiber` | Fiber framework middleware |
-| `pkg/server/gin` | Gin framework middleware |
-| `pkg/tempo/client` | Tempo charge client method |
-| `pkg/tempo/server` | Tempo charge server method |
+| `pkg/mpp` | Core Challenge, Credential, and Receipt types |
+| `pkg/server` | Server payment handler and middleware |
+| `pkg/server/echo` | Echo integration |
+| `pkg/server/fiber` | Fiber integration |
+| `pkg/server/gin` | Gin integration |
+| `pkg/tempo/client` | Tempo client method |
+| `pkg/tempo/server` | Tempo server method |
 
-## Next steps
+## Core types
 
-import { Cards } from 'vocs'
-import { GoCoreTypesCard, GoClientCard, GoServerCard } from '../../../components/cards'
+These types map directly to HTTP headers—`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`—and can be used independently of the higher-level client and server APIs.
 
-<Cards>
-  <GoCoreTypesCard />
-  <GoClientCard />
-  <GoServerCard />
-</Cards>
+```go
+import "github.com/tempoxyz/mpp-go/pkg/mpp"
+```
+
+### Parse a Challenge
+
+Parse a `WWW-Authenticate` header into a typed `Challenge`:
+
+```go
+challenge, err := mpp.ParseChallenge(
+	`Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."`,
+)
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println("Method:", challenge.Method)
+fmt.Println("Intent:", challenge.Intent)
+```
+
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `ParseChallenge` decodes them into structured fields for application code.
+
+### Create and serialize a Credential
+
+Build a `Credential` from a Challenge echo and payment proof:
+
+```go
+credential := &mpp.Credential{
+	Challenge: challenge.ToEcho(),
+	Payload: map[string]any{
+		"type":      "transaction",
+		"signature": "0x...",
+	},
+	Source: "did:pkh:eip155:42431:0xa726a1...",
+}
+
+header := credential.ToAuthorization()
+// header = "Payment eyJ..."
+```
+
+`challenge.ToEcho()` preserves the original wire values. In the serialized Credential, `challenge.request` and `challenge.opaque` remain base64url strings inside the `Authorization` payload.
+
+### Parse and serialize a Receipt
+
+Parse the `Payment-Receipt` response header:
+
+```go
+receipt, err := mpp.ParseReceipt(headerValue)
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println("Status:", receipt.Status)
+fmt.Println("Reference:", receipt.Reference)
+```
+
+Serialize a Receipt back to a header value:
+
+```go
+header := receipt.ToPaymentReceipt()
+```
+
+### Type reference
+
+| Type | Description |
+|------|-------------|
+| `Challenge` | Server Challenge parsed from `WWW-Authenticate` |
+| `ChallengeEcho` | Echoed Challenge fields in a Credential |
+| `Credential` | Client Credential for the `Authorization` header |
+| `Receipt` | Server Receipt parsed from `Payment-Receipt` |
+
+## Client
+
+The `client.Client` wraps `http.Client` and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential. The [client example](#client-example) shows the setup.
+
+When the server returns `402`, the client:
+
+1. Parses the Challenge from the `WWW-Authenticate` header
+2. Calls `CreateCredential` on the matching method to sign a stablecoin transfer
+3. Retries the request with the Credential in the `Authorization` header
+
+### Client `charge.Config` parameters
+
+#### ChainID (optional)
+
+- **Type:** `int64`
+
+Explicitly set the expected chain ID. If omitted, `mpp-go` infers it from `RPCURL` when it matches a known Tempo RPC endpoint, or uses the Challenge and live RPC response at runtime.
+
+#### ClientID (optional)
+
+- **Type:** `string`
+
+Attach an identifier to transactions for attribution.
+
+#### CredentialType (optional)
+
+- **Type:** `tempo.CredentialType`
+
+Credential type to use: `transaction`, `hash`, or `proof`. Defaults to `transaction`.
+
+#### PaymentPolicy
+
+- **Type:** `func(context.Context, tempo.ChargeRequest) error`
+
+Required authorization callback for nonzero payments.
+
+#### PrivateKey
+
+- **Type:** `string`
+
+Hex-encoded private key for signing transactions.
+
+#### RPC (optional)
+
+- **Type:** `tempo.RPCClient`
+
+Custom RPC client instance. Takes precedence over `RPCURL`.
+
+#### RPCURL (optional)
+
+- **Type:** `string`
+- **Default:** Challenge chain when present, otherwise `https://rpc.tempo.xyz`
+
+Tempo RPC endpoint URL.
+
+#### Signer (optional)
+
+- **Type:** `*temposigner.Signer`
+
+Custom signer instance. Takes precedence over `PrivateKey`.
+
+### Custom HTTP client
+
+Pass an existing `http.Client` with `client.WithHTTPClient`:
+
+```go
+c := client.New(
+	[]client.Method{method},
+	client.WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
+)
+```
+
+### Transport
+
+For composing with an existing `http.Client`, use `client.NewTransport` to wrap a base `http.RoundTripper`:
+
+```go
+transport := client.NewTransport([]client.Method{method}, http.DefaultTransport)
+httpClient := &http.Client{Transport: transport}
+
+req, _ := http.NewRequest("GET", "https://api.example.com/resource", nil)
+resp, err := httpClient.Do(req)
+```
+
+### Convenience methods
+
+| Method | Description |
+|--------|-------------|
+| `Get(ctx, url)` | GET request with automatic `402` handling |
+| `Post(ctx, url, contentType, body)` | POST request with automatic `402` handling |
+| `Do(req)` | Execute any `*http.Request` with automatic `402` handling |
+
+### Payment Receipts
+
+Parse the `Payment-Receipt` header from the response:
+
+```go
+import "github.com/tempoxyz/mpp-go/pkg/mpp"
+
+receipt, err := mpp.ParseReceipt(resp.Header.Get("Payment-Receipt"))
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println("Status:", receipt.Status)
+fmt.Println("Reference:", receipt.Reference)
+```
+
+For manual Challenge and Credential handling, see [Core types](#core-types).
+
+## Server
+
+Create a Tempo method with `charge.New`, pass it to `server.New`, then use middleware or call `Charge` directly. The [server example](#server-example) shows the middleware setup.
+
+### Replay protection
+
+Local verification requires a `tempo.Store`. Production replicas must share a persistent implementation with atomic `PutIfAbsent`, no replay-key eviction, and fail-closed errors. `tempo.NewMemoryStore()` loses protection on restart and is only for single-process development. Relay verification delegates replay protection to the relay.
+
+### Existing `Authorization` headers
+
+```go
+payment, err := server.New(
+	method,
+	"api.example.com",
+	secret,
+	server.WithRequiresAuth(true),
+)
+```
+
+Challenges then advertise `Payment-Authorization`.
+
+### Direct flow
+
+```go
+result, err := payment.Charge(r.Context(), server.ChargeParams{
+	Amount:        "0.50",
+	Authorization: r.Header.Get("Authorization"),
+})
+if err != nil {
+	return err
+}
+if result.IsChallenge() {
+	server.WritePaymentResponse(w, nil, result.Challenges...)
+	return nil
+}
+```
+
+### Framework integrations
+
+`ChargeMiddleware` works with `net/http` and Chi. Dedicated adapters are available for Echo, Fiber, and Gin. Read the verified Credential and Receipt with `CredentialFromContext` and `ReceiptFromContext`.
+
+### Server `charge.Config`
+
+| Field | Type | Description |
+|---|---|---|
+| `AllowedFeeTokens` | `[]string` | Fee tokens a local sponsor accepts |
+| `ChainID` | `int64` | Tempo chain bound into Challenges |
+| `Currencies` | `[]string` | Ordered accepted TIP-20 addresses |
+| `Decimals` | `int` | Token decimals used for route amounts |
+| `FeePayerPrivateKey` | `string` | Local sponsorship key |
+| `FeePayerSigner` | `*temposigner.Signer` | Custom local sponsor signer |
+| `FeePayerURL` | `string` | Remote co-signer URL |
+| `Recipient` | `string` | Default payment recipient |
+| `Relay` | `*charge.RelayConfig` | Delegated validation and settlement |
+| `RPC` | `tempo.RPCClient` | Custom RPC client |
+| `RPCURL` | `string` | Tempo RPC endpoint |
+| `Store` | `tempo.Store` | Required replay store for local verification |
+| `SupportedModes` | `[]tempo.ChargeMode` | Accepted pull or push modes |
+
+### Route parameters
+
+`server.ChargeParams` accepts `Amount` and optional `Authorization`, `ChainID`, `Currency`, `Description`, `Expires`, `ExternalID`, `FeePayer`, `FeePayerURL`, `Memo`, `Meta`, `Recipient`, `Splits`, and `SupportedModes` values.
+
+For paid POST routes, pass the caller's stable idempotency key as `ExternalID` and keep an application-level idempotency record. `ExternalID` is Receipt metadata; it does not prevent duplicate side effects by itself.
+
+### Fee sponsorship
+
+Configure `FeePayerPrivateKey` or `FeePayerSigner` and enforce fee-token and spending policies. An external fee-payer service must validate the full transaction, authenticate callers, simulate execution, and enforce per-caller and aggregate budgets before signing.

@@ -1,6 +1,6 @@
 ---
 title: "Charge intent for one-time payments"
-description: "Charge intent defines one-time payments in MPP. Use it when a client pays once for a request before receiving the resource."
+description: "Charge intent defines one-time payments in MPP. Use it when a buyer pays once for a request before receiving the resource."
 imageDescription: "Collect a one-time payment per API request"
 ---
 
@@ -11,7 +11,7 @@ import { SpecCard } from '../../components/SpecCard'
 
 # Charge [Immediate one-time payments]
 
-The `charge` intent requests an immediate one-time payment. The client pays a fixed amount and the server settles the transaction before returning the response. This is the simplest MPP payment pattern—one request, one payment, one Receipt.
+The `charge` intent requests an immediate one-time payment. The buyer pays a fixed amount and the seller's server settles the transaction before returning the response. This is the simplest MPP payment pattern—one request, one payment, one Receipt.
 
 ## How it works
 
@@ -46,6 +46,8 @@ Charge is the best intent when each request maps to a single payment with a know
 - **Simple integrations**—No channel setup, no state management, no storage backend
 
 For metered billing, high volume flows such as scraping, or usage-based billing where the total cost isn't known upfront, use the session intent instead.
+
+To build it, see the [Charge](/guides/one-time-payments) guide.
 
 ## Request schema
 

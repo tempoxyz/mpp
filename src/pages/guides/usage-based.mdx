@@ -1,0 +1,299 @@
+---
+description: "Bill buyers per request or per streamed token with mppx sessions. Funds are reserved once, then each call settles with near-zero latency and fees."
+imageDescription: "Bill per request or per token as you go"
+---
+
+import { Cards } from 'vocs'
+import { OneTimePaymentsCard, PayForSessionsCard, ServerQuickstartCard } from '../../components/cards'
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
+import { UsageDemo } from '../../components/UsageDemo'
+
+# Bill usage with sessions [Pay per request or per token with off-chain vouchers]
+
+Use sessions when a buyer makes many requests or streams tokens: the buyer reserves funds once, then pays for each request or token with an off-chain voucher, with near-zero latency and per-request fees.
+
+For a single paid request, use [Charge per request](/guides/one-time-payments). To bill on a schedule, use [Sell subscriptions](/guides/subscription-payments).
+
+## Try it
+
+Pick a demo, then click **Run demo** to create a wallet, fund it, and pay per photo or per streamed word.
+
+<div style={{ height: 520 }}>
+  <UsageDemo />
+</div>
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
+## Per request
+
+Build a photo API that charges $0.01 per photo. Examples use `mppx/server` with a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) handler served by `Bun.serve`. On Deno or Cloudflare Workers, export the same handler as `export default { fetch }` instead. On Next.js, Hono, Express or Elysia, wrap the same handler with the [framework middleware](/sdk/typescript/middlewares/hono).
+
+::::steps
+
+#### Install `mppx`
+
+:::code-group
+```bash [npm]
+$ npm install mppx viem
+```
+```bash [pnpm]
+$ pnpm add mppx viem
+```
+```bash [bun]
+$ bun add mppx viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Set up an `Mppx` instance with the current `tempo.session` method.
+
+- `account` signs server-side session settlement and close transactions.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
+
+```ts [server.ts]
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+#### Create the `/api/sessions/photo` route
+
+Create the gallery route. This route is **currently unpaid**.
+
+```ts [server.ts]
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+
+// [!code focus:start]
+Bun.serve({
+  async fetch(request) {
+    const res = await fetch('https://picsum.photos/200/200')
+    return Response.json({ url: res.url })
+  },
+})
+// [!code focus:end]
+```
+
+#### Add `.session` to the route handler
+
+Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. If the request is a session update, such as a top-up or close, return its response before doing paid work. Otherwise, fetch the photo and attach a Receipt to the response.
+
+```ts [server.ts]
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+
+// [!code focus:start]
+Bun.serve({
+  async fetch(request) {
+    const result = await mppx.session({ // [!code ++]
+      amount: '0.01', // [!code ++]
+      unitType: 'photo', // [!code ++]
+    })(request) // [!code ++]
+
+    if (result.status === 402) return result.challenge // [!code ++]
+    // Session updates (open, top-up, voucher, close) carry their own response: // [!code ++]
+    // return it before paid work. Content requests throw and fall through. // [!code ++]
+    try { // [!code ++]
+      return await result.withReceipt() // [!code ++]
+    } catch (error) { // [!code ++]
+      if (!Mppx.isMissingReceiptResponseError(error)) throw error // [!code ++]
+    } // [!code ++]
+
+    const res = await fetch('https://picsum.photos/200/200')
+    return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
+  },
+})
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash [test.sh]
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
+
+# Make a paid request
+$ npx mppx http://localhost:3000 --network testnet
+```
+
+::::
+
+## Streaming
+
+Build a poetry API that streams word by word over Server-Sent Events (SSE) and charges $0.001 per word. If the channel balance runs low mid-stream, the client signs a new voucher and the stream continues.
+
+:::info[Cloudflare Workers]
+Set `sse: { poll: true }` instead of `sse: true`. Workers can't resolve a promise across request contexts, so without polling the stream stalls when it needs a new voucher. See [`sse` options](/sdk/typescript/server/Method.tempo.session#sse-optional).
+:::
+
+::::steps
+
+#### Install `mppx`
+
+:::code-group
+
+```bash [npm]
+$ npm install mppx viem
+```
+
+```bash [pnpm]
+$ pnpm add mppx viem
+```
+
+```bash [bun]
+$ bun add mppx viem
+```
+
+:::
+
+#### Set up `Mppx` instance with streaming
+
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
+
+```ts [server.ts]
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
+      sse: true,
+      store: Store.memory(),
+    }),
+  ],
+});
+```
+
+#### Create the streaming poem route
+
+Pass an async generator to `withReceipt`. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free. If the balance runs out, the server emits `event: payment-need-voucher` and waits for a new voucher.
+
+```ts [server.ts]
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
+      sse: true,
+      store: Store.memory(),
+    }),
+  ],
+});
+
+// [!code focus:start]
+const poem = {
+  title: "The Road Not Taken",
+  author: "Robert Frost",
+  lines: [
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
+  ],
+};
+
+Bun.serve({
+  async fetch(request) {
+    const result = await mppx.session({
+      amount: "0.001",
+      unitType: "word",
+    })(request);
+
+    if (result.status === 402) return result.challenge;
+
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
+    return result.withReceipt(async function* (stream) {
+      yield JSON.stringify({ title: poem.title, author: poem.author });
+      for (const word of words) {
+        await stream.charge();
+        yield word;
+      }
+    });
+  },
+});
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash [test.sh]
+# Create a testnet account and fund it with test OUSD
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
+
+# Stream a paid poem
+$ npx mppx http://localhost:3000 --network testnet
+```
+
+::::
+
+## Pay as a buyer
+
+Buyers pay with `mppx/client`: it opens the channel on the first request and signs vouchers after that. Call `close()` on a session manager to close the channel and return unspent funds. See [Pay for sessions](/guides/pay-for-sessions).
+
+## Go to production
+
+Before launch, use a persistent store, close idle channels and monitor settlement. See the [production checklist](/payment-methods/tempo/session#production-checklist).
+
+## Next steps
+
+<Cards>
+  <PayForSessionsCard />
+  <OneTimePaymentsCard />
+  <ServerQuickstartCard />
+</Cards>

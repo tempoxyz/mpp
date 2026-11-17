@@ -7,6 +7,7 @@ import {
   fetchServices,
   type Service,
   serviceIconUrl,
+  withLogos,
 } from "../data/registry";
 import { AgentSetupPrompt } from "./AgentSetupPrompt";
 import { Button } from "./marketing/Button";
@@ -30,6 +31,51 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   web: "Web",
 };
 export const PAGE_SIZE = 60;
+/** OUSD on Tempo: the same address on mainnet (4217) and Moderato (42431). */
+export const OUSD_ADDRESS = "0x20c0000000000000000000006a37DA5C996874BE";
+
+export type ServiceBadge = "ousd" | "sessions";
+export const SERVICE_BADGES: readonly ServiceBadge[] = ["ousd", "sessions"];
+export const BADGE_LABELS: Record<ServiceBadge, string> = {
+  ousd: "OUSD",
+  sessions: "Sessions",
+};
+
+/** Badges derived from the service's advertised Tempo payment method. */
+export function serviceBadges(
+  service: Pick<Service, "methods">,
+): ServiceBadge[] {
+  // The live proxy manifest is only loosely validated, so check shapes here.
+  const tempo: unknown = service.methods?.tempo;
+  if (!tempo || typeof tempo !== "object") return [];
+  const { assets, intents } = tempo as { assets?: unknown; intents?: unknown };
+  const badges: ServiceBadge[] = [];
+  const ousd = OUSD_ADDRESS.toLowerCase();
+  if (
+    Array.isArray(assets) &&
+    assets.some(
+      (asset) => typeof asset === "string" && asset.toLowerCase() === ousd,
+    )
+  ) {
+    badges.push("ousd");
+  }
+  if (Array.isArray(intents) && intents.includes("session")) {
+    badges.push("sessions");
+  }
+  return badges;
+}
+
+/** Keeps services that carry every one of the given badges. */
+export function filterByBadges<T extends Pick<Service, "methods">>(
+  services: readonly T[],
+  badges: readonly ServiceBadge[],
+): T[] {
+  if (!badges.length) return [...services];
+  return services.filter((service) => {
+    const has = serviceBadges(service);
+    return badges.every((badge) => has.includes(badge));
+  });
+}
 export const PINNED_IDS: string[] = [
   "openai",
   "alchemy",
@@ -80,6 +126,47 @@ export function formatPrice(endpoint: Endpoint): string {
 
 const categoryLabel = (service: Service) =>
   service.categories?.[0] ? CATEGORY_LABELS[service.categories[0]] : "Service";
+export function ServiceBadges({
+  className,
+  service,
+}: {
+  className?: string;
+  service: Pick<Service, "methods">;
+}) {
+  const badges = serviceBadges(service);
+  if (!badges.length) return null;
+  return (
+    <span className={cx("flex flex-wrap gap-1.5", className)}>
+      {badges.map((badge) => (
+        <span
+          className="inline-flex items-center border border-border bg-[#101010] px-2 py-0.5 font-mono text-xs uppercase leading-4 tracking-[-0.12px] text-secondary"
+          key={badge}
+        >
+          {BADGE_LABELS[badge]}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** Whether the provider runs MPP itself rather than through a proxy. */
+export const isFirstParty = (service: Pick<Service, "integration">) =>
+  service.integration === "first-party";
+
+/** Purple "First-party" tag, shown only for services the provider runs itself. */
+export function FirstPartyTag({
+  service,
+}: {
+  service: Pick<Service, "integration">;
+}) {
+  if (!isFirstParty(service)) return null;
+  return (
+    <span className="inline-flex shrink-0 items-center bg-[rgba(158,148,255,0.1)] px-1.5 py-0.5 font-mono text-xs uppercase leading-4 tracking-[-0.12px] text-term-purple">
+      First-party
+    </span>
+  );
+}
+
 const serviceUrl = (service: Service) => service.serviceUrl ?? service.url;
 export const providerUrl = (service: Pick<Service, "provider" | "url">) =>
   service.provider?.url ?? service.url;
@@ -121,6 +208,9 @@ const searchable = (service: Service) =>
 
 function ServiceTableRow({ service }: { service: Service }) {
   const [open, setOpen] = useState(false);
+  // Endpoint rows are built on first open and kept for the close animation:
+  // rendering every row's endpoints up front built ~16k hidden DOM nodes.
+  const [expanded, setExpanded] = useState(false);
   const action =
     "flex size-8 shrink-0 items-center justify-center border border-border bg-[#101010] text-secondary transition-colors hover:text-offwhite";
 
@@ -133,19 +223,26 @@ function ServiceTableRow({ service }: { service: Service }) {
     >
       <div className="px-4 py-5">
         <div className="flex items-start gap-4">
-          <div className="flex min-w-0 items-center gap-3 xl:w-[200px] xl:flex-none">
+          <div className="flex min-w-0 items-center gap-3 xl:w-[240px] xl:flex-none">
             <img
               alt=""
               className="size-9 shrink-0 object-contain"
+              decoding="async"
+              height={36}
+              loading="lazy"
               src={serviceIconUrl(service)}
+              width={36}
             />
             <div className="flex min-w-0 flex-col gap-1">
               <h2 className="truncate font-sans text-lg font-normal leading-[1.1] text-offwhite">
                 {service.name}
               </h2>
-              <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
-                {categoryLabel(service)}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
+                  {categoryLabel(service)}
+                </p>
+                <FirstPartyTag service={service} />
+              </div>
             </div>
           </div>
 
@@ -184,7 +281,10 @@ function ServiceTableRow({ service }: { service: Service }) {
               aria-expanded={open}
               aria-label={`Show ${service.name} endpoints`}
               className={action}
-              onClick={() => setOpen((value) => !value)}
+              onClick={() => {
+                setExpanded(true);
+                setOpen((value) => !value);
+              }}
               type="button"
             >
               <Icon
@@ -209,65 +309,71 @@ function ServiceTableRow({ service }: { service: Service }) {
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <div className="min-h-0 overflow-hidden">
-          <div className="px-4 pb-2">
-            <div className="flex items-center gap-4 border-t border-border py-3 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
-              <span className="flex-1">Endpoint</span>
-              <span className="hidden flex-1 xl:block">Description</span>
-              <span className="w-[94px] shrink-0 text-right">Price</span>
-            </div>
-            {service.endpoints.map((endpoint) => (
-              <div
-                className="border-t border-border py-4"
-                key={`${endpoint.method}-${endpoint.path}`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <span
-                      className={cx(
-                        "inline-flex shrink-0 items-center justify-center px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px]",
-                        endpoint.method === "GET"
-                          ? "bg-[rgba(152,243,170,0.1)] text-term-green"
-                          : "bg-[rgba(158,148,255,0.1)] text-term-purple",
-                      )}
-                    >
-                      {endpoint.method}
-                    </span>
-                    <CopyBadge
-                      className="max-md:hidden"
-                      text={endpointUrl(service, endpoint)}
-                    />
-                    <span className="min-w-0 truncate font-mono text-sm uppercase leading-4 text-empty">
-                      {endpoint.path}
-                    </span>
-                  </div>
-                  <p className="hidden min-w-0 flex-1 font-sans text-sm leading-[1.3] text-secondary xl:block">
-                    {endpoint.description}
-                  </p>
-                  <span className="w-[94px] shrink-0 text-right font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
-                    {formatPrice(endpoint)}
-                  </span>
-                </div>
-                <div className="mt-3 flex flex-col items-start gap-3 xl:hidden">
-                  <p className="font-sans text-sm leading-[1.3] text-secondary">
-                    {endpoint.description}
-                  </p>
-                  <CopyBadge
-                    className="md:hidden"
-                    text={endpointUrl(service, endpoint)}
-                  />
-                </div>
-              </div>
-            ))}
-            {service.endpoints.length === 0 && (
-              <p className="border-t border-border py-4 font-sans text-sm text-secondary">
-                Endpoint details are available from the provider.
-              </p>
-            )}
-          </div>
+        <div className="min-h-0 overflow-hidden" inert={!open}>
+          {expanded && <ServiceEndpoints service={service} />}
         </div>
       </div>
     </article>
+  );
+}
+
+function ServiceEndpoints({ service }: { service: Service }) {
+  return (
+    <div className="px-4 pb-2">
+      <div className="flex items-center gap-4 border-t border-border py-3 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+        <span className="flex-1">Endpoint</span>
+        <span className="hidden flex-1 xl:block">Description</span>
+        <span className="w-[94px] shrink-0 text-right">Price</span>
+      </div>
+      {service.endpoints.map((endpoint) => (
+        <div
+          className="border-t border-border py-4"
+          key={`${endpoint.method}-${endpoint.path}`}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <span
+                className={cx(
+                  "inline-flex shrink-0 items-center justify-center px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px]",
+                  endpoint.method === "GET"
+                    ? "bg-[rgba(152,243,170,0.1)] text-term-green"
+                    : "bg-[rgba(158,148,255,0.1)] text-term-purple",
+                )}
+              >
+                {endpoint.method}
+              </span>
+              <CopyBadge
+                className="max-md:hidden"
+                text={endpointUrl(service, endpoint)}
+              />
+              <span className="min-w-0 truncate font-mono text-sm uppercase leading-4 text-empty">
+                {endpoint.path}
+              </span>
+            </div>
+            <p className="hidden min-w-0 flex-1 font-sans text-sm leading-[1.3] text-secondary xl:block">
+              {endpoint.description}
+            </p>
+            <span className="w-[94px] shrink-0 text-right font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+              {formatPrice(endpoint)}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-col items-start gap-3 xl:hidden">
+            <p className="font-sans text-sm leading-[1.3] text-secondary">
+              {endpoint.description}
+            </p>
+            <CopyBadge
+              className="md:hidden"
+              text={endpointUrl(service, endpoint)}
+            />
+          </div>
+        </div>
+      ))}
+      {service.endpoints.length === 0 && (
+        <p className="border-t border-border py-4 font-sans text-sm text-secondary">
+          Endpoint details are available from the provider.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -358,7 +464,10 @@ function ServiceDetailModal({
             <img
               alt=""
               className="size-12 shrink-0 object-contain"
+              decoding="async"
+              height={48}
               src={serviceIconUrl(service)}
+              width={48}
             />
             <button
               aria-label="Close"
@@ -377,6 +486,8 @@ function ServiceDetailModal({
               <span className="inline-flex items-center border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
                 {categoryLabel(service)}
               </span>
+              <FirstPartyTag service={service} />
+              <ServiceBadges service={service} />
             </div>
             <p className="font-sans text-sm leading-[1.3] text-secondary">
               {service.description}
@@ -578,7 +689,7 @@ const shortcuts = [
     title: "Documentation",
   },
   {
-    href: "/advanced/discovery",
+    href: "/extensions/discovery",
     subtext: "Let agents automatically find your API.",
     title: "Discovery",
   },
@@ -613,16 +724,20 @@ export function ServicesPage({
   );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "">("");
+  const [badges, setBadges] = useState<ServiceBadge[]>([]);
   const [page, setPage] = useState(0);
   const [view, setView] = useState<"cards" | "list">("list");
   const [selected, setSelected] = useState<Service | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const logos = Object.fromEntries(
+      initialServices.map((service) => [service.id, service.logo]),
+    );
     fetchServices()
-      .then((data) => setServices(orderServices(data)))
+      .then((data) => setServices(orderServices(withLogos(data, logos))))
       .catch(() => {});
-  }, []);
+  }, [initialServices]);
   const categories = useMemo(
     () =>
       Array.from(new Set(services.flatMap(allCategories))).sort((a, b) =>
@@ -632,12 +747,12 @@ export function ServicesPage({
   );
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return services.filter(
+    return filterByBadges(services, badges).filter(
       (service) =>
         (!normalized || searchable(service).includes(normalized)) &&
         (!category || service.categories?.includes(category)),
     );
-  }, [category, query, services]);
+  }, [badges, category, query, services]);
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pages - 1);
   const visible = filtered.slice(
@@ -732,6 +847,28 @@ export function ServicesPage({
                 ]}
                 label={category ? CATEGORY_LABELS[category] : "Showing all"}
               />
+              <Dropdown
+                className="order-3 md:order-2"
+                items={[
+                  {
+                    label: "Any payment",
+                    onSelect: () => {
+                      setBadges([]);
+                      setPage(0);
+                    },
+                    selected: !badges.length,
+                  },
+                  ...SERVICE_BADGES.map((badge) => ({
+                    label: BADGE_LABELS[badge],
+                    onSelect: () => {
+                      setBadges([badge]);
+                      setPage(0);
+                    },
+                    selected: badges.length === 1 && badges[0] === badge,
+                  })),
+                ]}
+                label={badges.length ? BADGE_LABELS[badges[0]] : "Any payment"}
+              />
               <div className="order-4 hidden md:block">
                 <Button href="/overview" variant="primary">
                   Learn more
@@ -742,7 +879,7 @@ export function ServicesPage({
             {view === "list" ? (
               <div className="flex flex-col">
                 <div className="hidden items-end gap-4 border-b border-border px-4 pb-4 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary xl:flex">
-                  <div className="w-[200px] shrink-0">Provider</div>
+                  <div className="w-[240px] shrink-0">Provider</div>
                   <div className="flex-1">Description</div>
                   <div className="flex-1 text-right">Service URL</div>
                 </div>
@@ -766,7 +903,11 @@ export function ServicesPage({
                     role="button"
                     tabIndex={0}
                   >
-                    <ServiceCard headingLevel="h2" service={service} />
+                    <ServiceCard
+                      badges={<FirstPartyTag service={service} />}
+                      headingLevel="h2"
+                      service={service}
+                    />
                   </div>
                 ))}
               </div>
@@ -827,7 +968,7 @@ export function ServicesPage({
 
               <div className="hidden space-y-5 group-open:block">
                 <AgentSetupPrompt
-                  manualSetupHref="/quickstart/agent#manual-setup"
+                  manualSetupHref="/quickstart/agent#set-up-with-the-tempo-cli"
                   variant="marketing"
                 />
 

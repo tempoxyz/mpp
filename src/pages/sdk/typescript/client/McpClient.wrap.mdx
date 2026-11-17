@@ -11,6 +11,8 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 Wraps an MCP SDK client with automatic payment handling. When a tool call returns a `-32042` payment-required or `-32043` verification-failed error with Challenges, the wrapper creates a Credential and retries the call. It makes at most three payment attempts for one tool call.
 
+The wrapper retains control of approval and payment retries even when its HTTP transport uses a global mppx fetch polyfill. The polyfill doesn't pay ahead of the wrapper's approval hook.
+
 ## Usage
 
 <Tabs stateKey="account-source">
@@ -68,11 +70,12 @@ const result = await mcp.callTool({ name: 'premium_tool', arguments: {} })
 
 ### With call options
 
-Pass `context` and `timeout` through the second argument to `callTool`.
+Pass `context` and `timeout` through the third argument to `callTool`; the second argument is the optional MCP result schema.
 
 ```ts
 const result = await mcp.callTool(
   { name: 'premium_tool', arguments: { query: 'hello' } },
+  undefined,
   { context: { foo: 'bar' }, timeout: 30_000 },
 )
 ```
@@ -89,6 +92,7 @@ type McpClient<client, methods> = Omit<client, 'callTool'> & {
       name: string
       _meta?: Record<string, unknown>
     },
+    resultSchema?: CallToolResultSchema,
     options?: CallToolOptions<methods>,
   ) => Promise<CallToolResult>
 }
@@ -115,3 +119,27 @@ The MCP SDK client instance to wrap. Must have a `callTool` method—typically a
 - **Type:** `readonly Method.AnyClient[]`
 
 Array of payment methods to use when handling payment Challenges. The wrapper matches Challenges from the server against installed methods by name and intent.
+
+### config.onPaymentRequired (optional)
+
+- **Type:** `(challenge: Challenge) => boolean | Promise<boolean>`
+
+Approval hook called before signing. Return `false` to refuse payment. A per-call `onPaymentRequired` in the third argument overrides it; `null` bypasses the configured hook.
+
+### config.orderChallenges (optional)
+
+- **Type:** `AcceptPayment.OrderChallenges<methods>`
+
+Filters or sorts supported Challenges before approval and Credential creation.
+
+### config.paymentPreferences (optional)
+
+- **Type:** `AcceptPayment.Config<methods>`
+
+Client payment-method preferences used during selection.
+
+### config.trustedTempoProofRealms (optional)
+
+- **Type:** `readonly string[]`
+
+Allowed realms for zero-amount Tempo proofs and Session payments. Native MCP has no origin that owns a realm, so these signatures are refused unless the realm is listed—even when an approval hook accepts the payment.

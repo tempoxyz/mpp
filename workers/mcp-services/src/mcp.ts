@@ -1880,6 +1880,12 @@ function serviceSummarySchema() {
       },
       integration: { type: "string", enum: INTEGRATIONS },
       status: { type: "string", enum: STATUSES },
+      supportsMACH: {
+        type: "boolean",
+        const: true,
+        description:
+          "Advisory MACH support; use the runtime 402 Challenge for payment terms. Omission means support is unknown.",
+      },
       description: { type: "string" },
     },
     required: ["id", "name", "url", "categories", "status"],

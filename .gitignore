@@ -9,20 +9,23 @@ worker-configuration.d.ts
 wrangler.deploy.jsonc
 public/specs/
 src/pages/specs/index.mdx
-src/pages/_vocs.generated.css
 src/snippets/cli-help.txt
 .vercel
 .DS_Store
 .env.local
 .lycheecache
-# Generated at build time from MDX frontmatter
-src/generated/
-
 # Generated from schemas/services.ts — run `pnpm generate:discovery` to rebuild
 schemas/discovery.json
 schemas/discovery.example.json
 public/services/catalog.json
 public/services/llms.txt
+
+# Built by scripts/build-logos.ts
+public/services/logos/
+public/services/logos.json
+
+# Generated from skills/ by `pnpm generate:discovery`
+public/.well-known/agent-skills/
 
 # Licensed font files (served via Vercel Blob in production)
 public/fonts/VTCDuBois*
@@ -31,3 +34,7 @@ bun.lock
 package-lock.json
 yarn.lock
 _
+
+# Built from workers/playground by scripts/copy-playground.ts
+public/playground/assets/
+public/playground/fonts/

@@ -26,8 +26,8 @@ describe("agent setup documentation", () => {
       "utf8",
     );
     const prompt = page.indexOf("<AgentSetupPrompt />");
-    const manualSetup = page.indexOf("## Manual setup");
-    const alternatives = page.indexOf("## Other MPP clients and integrations");
+    const manualSetup = page.indexOf("## Set up with the Tempo CLI");
+    const alternatives = page.indexOf("## Other wallets");
 
     expect(prompt).toBeGreaterThan(-1);
     expect(manualSetup).toBeGreaterThan(prompt);

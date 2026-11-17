@@ -1,4 +1,5 @@
 import { discovery } from "mppx/nextjs";
+import { usdce } from "viem/tokens";
 import { mppx } from "../../../mppx.server";
 
 const AGENT_SKILLS_INDEX_URL =
@@ -12,7 +13,7 @@ const OPENAPI_LINK_HEADER_VALUE = [
   '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
 ].join(", ");
 const OPENAPI_URL = "https://mpp.dev/api/openapi.json";
-const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
+const USDCe = usdce(4217).address;
 
 const discoveryRoute = discovery(mppx, {
   info: { title: "mpp.dev", version: "1.0.0" },

@@ -129,7 +129,9 @@ export function mppProbes(service: ServiceDef): MppProbe[] {
       payment: paid
         ? {
             intent: endpoint.intent ?? service.intent,
-            methods: service.payments.map((payment) => payment.method),
+            methods: [
+              ...new Set(service.payments.map((payment) => payment.method)),
+            ],
           }
         : undefined,
       service: service.id,

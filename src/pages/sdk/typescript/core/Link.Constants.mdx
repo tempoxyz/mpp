@@ -1,0 +1,55 @@
+---
+description: "Use shared Link identity headers, formats, and defaults."
+imageDescription: "Connect custom Link identity integrations"
+---
+
+# `Link.Constants` [Link integration values]
+
+Exports the protocol values used by Link identity adapters. Link is Stripe's agent identity issuer: it issues agent tokens and signs facts, such as a verified email, that a caller can selectively disclose.
+
+## Usage
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+
+console.log(Link.Constants.presentationHeader) // [!code hl]
+// @log: Identity-Presentation
+```
+
+## Properties
+
+### attestationScheme
+
+- **Type:** `'PrivateToken'`
+
+`Authorization` scheme for Agent Attestation Tokens and their `WWW-Authenticate` challenges. See [`Link.Server.attestation`](/sdk/typescript/server/Link.attestation).
+
+### claimsRequiredType
+
+- **Type:** `'urn:stripe:link:claims-required'`
+
+Value of `type` in the JSON body of a `401` claims challenge. That body asks for claim names and supplies the API origin and nonce the caller must sign.
+
+### format
+
+- **Type:** `'dc+sd-jwt'`
+
+Credential presentation format accepted by [`Link.Client.claims`](/sdk/typescript/client/Link.claims).
+
+### issuer
+
+- **Type:** `'https://api.link.com'`
+
+Default trusted Link issuer.
+
+### nonceTtl
+
+- **Type:** `300`
+
+Default claims challenge nonce lifetime, in seconds.
+
+### presentationHeader
+
+- **Type:** `'Identity-Presentation'`
+
+Request header for a claims presentation, and its `WWW-Authenticate` challenge scheme. It is a sensitive identity header stripped by the `mppx` proxy.

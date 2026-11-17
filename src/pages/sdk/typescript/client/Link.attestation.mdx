@@ -1,0 +1,72 @@
+---
+description: "Present Link tokens to paid APIs without sharing personal details."
+imageDescription: "Prove your agent is recognized before paying"
+---
+
+# `Link.Client.attestation` [Present a Link agent token]
+
+Creates a client identity prover that presents a token proving Link, Stripe's agent identity issuer, recognizes the agent without sharing personal details.
+
+## Usage
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import * as Link from 'mppx/extensions/identity/link'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function popToken(): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [Link.Client.attestation({
+    scope: ['https://api.example.com'],
+    token: () => popToken(),
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+Implement `popToken` with your Link CLI or SDK integration. For Link CLI, return the `authorization` field from `link-cli identity attestations pop`.
+
+Pair it with [`Link.Server.attestation`](/sdk/typescript/server/Link.attestation). By default, `mppx` sends payment proofs in `Authorization`, the same header Link uses for its token. The seller sets `requiresAuth: true` in server `Mppx.create` to advertise `Payment-Authorization` for payment proofs, leaving `Authorization` for the Link token. Token-only attestation needs no `@stripe/agent-identity` peer.
+
+## Return type
+
+`Identity.Prover`, for `Mppx.create({ identity: [prover] })` or `Identity.Client.wrapFetch`.
+
+- Caches a token per origin in memory and attaches it to later requests, including paid retries.
+- On an unpaid `401` with `WWW-Authenticate: PrivateToken`, obtains a token and resends once. Concurrent rejections at an origin share a refresh.
+- Preserves an existing `Authorization` header. The prover replaces only rejected tokens it previously supplied, never another caller's authentication.
+- Paid attempts are never resent. A token proves Link recognizes the agent, not a personal identity or permission to pay.
+
+## Parameters
+
+### eager (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Obtains a token before the first request to each origin rather than waiting for a challenge. Use it when pricing depends on identity from the initial request.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+Origins allowed to receive tokens. Prefer an explicit list. Use HTTPS origins outside local development.
+
+### token
+
+- **Type:** `(parameters: { origin: string }) => string | undefined | Promise<string | undefined>`
+
+Obtains a token from your Link integration and returns its bare value or a complete `PrivateToken token="…"` authorization value. `origin` is the request's origin. Return `undefined` to decline; fetch returns the original `401` response.
+
+## Errors
+
+Errors thrown by `token` propagate to the fetch caller. No token is sent outside `scope`.

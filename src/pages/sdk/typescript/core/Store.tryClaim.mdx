@@ -15,7 +15,7 @@ import { Store } from 'mppx'
 const store = Store.memory()
 const expires = Date.now() + 60_000
 
-const claimed = await Store.tryClaim(store, 'request:abc123', expires)
+const claimed = await Store.tryClaim(store, 'request:abc123', expires) // [!code hl]
 console.log(claimed)
 // @log: true
 
@@ -24,26 +24,30 @@ console.log(replayed)
 // @log: false
 ```
 
-`Store.tryClaim` uses the store's optional optimized `tryClaim` operation when present. Otherwise, it falls back to `AtomicStore.update`. Expired replay markers can be claimed again; legacy non-marker values remain claimed.
+- Use the store's native `tryClaim` when available; otherwise use [atomic `update`](/sdk/typescript/core/Store.sql#return-type).
+- Reclaim expired replay markers; existing values without the [marker shape](#support-replay-claims-in-a-custom-store) remain claimed.
+- Return `false` if expiry passes during a native claim operation.
 
 ### Support replay claims in a custom store
 
-`AtomicStore` accepts an optional `tryClaim` fast path. The fallback stores a `ReplayMarker`, so include that type in a custom store's item map when you don't provide the fast path.
+Implement optional `AtomicStore.tryClaim` as one insert-if-absent-with-expiry operation. Reject non-finite expiries and check `expires <= Date.now()` inside it, not just before asynchronous work. Without this fast path, include `ReplayMarker` in the store's item map:
 
 ```ts
 type TryClaim<itemMap extends StoreItemMap = StoreItemMap> = <
   key extends keyof itemMap & string,
 >(key: key, expires: number) => boolean | Promise<boolean>
 
+// [!code hl:start]
 type ReplayMarker = {
   expires: number
   type: 'mppx:replay'
 }
+// [!code hl:end]
 ```
 
 ### Compose a native claim implementation
 
-Spread a Redis or Upstash adapter into `Store.from`, then add a native `tryClaim` operation. The wrapper preserves the fast path and applies `keyPrefix` to claim keys.
+`Store.from` preserves an adapter’s native `tryClaim` and applies `keyPrefix` to its keys:
 
 ```ts [store.ts]
 import { Store } from 'mppx'
@@ -58,19 +62,24 @@ const adapter = Store.upstash({
 const store = Store.from(
   {
     ...adapter,
+    // [!code hl:start]
     async tryClaim(key, expires) {
+      if (!Number.isFinite(expires) || expires <= Date.now()) return false
       const result = await redis.set(key, { expires, type: 'mppx:replay' }, {
         nx: true,
         pxat: expires,
       })
       return result === 'OK'
     },
+    // [!code hl:end]
   },
   { keyPrefix: 'mppx:' },
 )
 ```
 
-Use an absolute Unix-millisecond expiry such as Upstash `pxat` or Redis `PXAT`, not a relative duration.
+Use absolute Unix-millisecond expiry (Upstash `pxat` or Redis `PXAT`), not a duration. Validate expiry backend-side where needed to prevent already-expired inserts.
+
+[SQL](/sdk/typescript/core/Store.sql) and [Durable Object](/sdk/typescript/core/Store.durableObject) stores include native claims. [Replay sharding](/sdk/typescript/core/Store.durableObject#shard-replay-claims) keeps claims in reusable objects, separate from values: `get` excludes them; `delete` releases them.
 
 ## Return type
 
@@ -78,7 +87,7 @@ Use an absolute Unix-millisecond expiry such as Upstash `pxat` or Redis `PXAT`, 
 type ReturnType = boolean | Promise<boolean>
 ```
 
-Returns `true` when this call records the key and `false` when an unexpired claim already exists.
+Returns `true` for a new claim; `false` for an existing live claim or a non-finite or expired expiry.
 
 ## Parameters
 
@@ -86,16 +95,16 @@ Returns `true` when this call records the key and `false` when an unexpired clai
 
 - **Type:** `number`
 
-Unix timestamp in milliseconds when the replay claim expires.
+Future, finite Unix-millisecond expiry.
 
 ### key
 
 - **Type:** `string`
 
-Store key to claim. Typed stores constrain this value to their item-map keys.
+Key to claim; typed stores restrict it to item-map keys.
 
 ### store
 
 - **Type:** `Store.AtomicStore`
 
-Atomic store used to persist the replay marker. Implement `store.tryClaim` as a single insert-if-absent-with-expiry operation when your backend supports it.
+Atomic store that persists the claim.

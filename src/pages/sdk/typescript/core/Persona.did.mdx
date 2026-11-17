@@ -1,0 +1,48 @@
+---
+description: "Use a consistent wallet identifier when you start and check Persona inquiries."
+imageDescription: "Match KYC results to a wallet and chain"
+---
+
+# `Persona.did` [Build a wallet reference ID]
+
+Builds a normalized `did:pkh` wallet identifier for Persona inquiry creation and lookup.
+
+## Usage
+
+```ts twoslash
+import * as Persona from 'mppx/extensions/identity/persona'
+
+const referenceId = Persona.did({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  chainId: 42431,
+})
+console.log(referenceId) // [!code hl]
+// @log: did:pkh:eip155:42431:0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+```
+
+## Return type
+
+`string`, in the form `did:pkh:<namespace>:<chainId>:<address>`. EVM addresses are lowercased; addresses in other namespaces retain their case. This helper formats an identifier; it doesn't validate an address or prove ownership. Use [`Persona.Server.verifyWallet`](/sdk/typescript/server/Persona.verifyWallet) before wallet-linked KYC.
+
+## Parameters
+
+`Persona.did.Parameters`:
+
+### address
+
+- **Type:** `string`
+
+Wallet address.
+
+### chainId
+
+- **Type:** `number | string`
+
+Chain reference. Use `42431` for Tempo Moderato or the chain-specific reference for another namespace.
+
+### namespace (optional)
+
+- **Type:** `string`
+- **Default:** `'eip155'`
+
+CAIP-2 namespace. Non-EVM address case is preserved, such as base58 addresses in `solana`.

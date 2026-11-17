@@ -282,7 +282,7 @@ await fetch('https://api.example.com/subscription/cancel', {
 
 ```ts twoslash [revoke.ts]
 import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { Actions } from 'viem/tempo'
 
@@ -290,7 +290,7 @@ const client = createClient({
   account: privateKeyToAccount(
     '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
   ),
-  chain: tempo,
+  chain: tempoModerato,
   transport: http(),
 })
 

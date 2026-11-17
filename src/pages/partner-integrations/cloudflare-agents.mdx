@@ -94,7 +94,7 @@ export class MyAgent extends Agent {
 }
 ```
 
-`McpClient.wrap` keeps the Cloudflare MCP connection shape intact. The agent can keep using the same client APIs.
+`McpClient.wrap` keeps the Cloudflare MCP connection shape intact. The agent can keep using the same client APIs. The MCP adapter retains control of payment approval and payer selection even when `Mppx.create` installs a global payment-aware fetch. For Tempo Sessions or zero-amount proofs, explicitly list the expected server realm in the adapter's [`trustedTempoProofRealms`](/sdk/typescript/client/McpClient.wrap#configtrustedtempoproofrealms-optional).
 
 ## Pay for HTTP requests
 
@@ -239,3 +239,7 @@ Mppx.create({
 </Tabs>
 
 See [Managing agent spend](/guides/managing-agent-spend) for limits, scopes, recipients, and revocation.
+
+## Serve paid requests
+
+To accept payments in a Worker, use the [Cloudflare Workers reference](/sdk/typescript/cloudflare) for shared session channels and queued settlement. This server setup is separate from the payment clients above.

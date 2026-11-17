@@ -1,0 +1,168 @@
+---
+layout: minimal
+title: "Expanded identity primitives"
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Use any identity protocol alongside MPP"
+imageDescription: "Know who's calling before they pay"
+publishedAt: "2026-11-11"
+---
+
+# Expanded identity primitives [Use any identity protocol alongside MPP]
+
+`mppx` now lets any paid route check who's calling before it shows a price: a verified email, your own API keys, a [World ID](https://world.org/world-id)-verified human, or a protocol you write yourself. Explore the API interactively in the [MPP playground](https://mpp.dev/playground/identity).
+
+## Identity alongside payments
+
+MPP doesn't pick an identity provider for you. Identity runs next to the core payment flow, not inside it:
+
+- **Bring any identity provider.** Use a built-in verifier, or wrap the auth you already run.
+- **Check before the price.** Callers who don't pass get a standard unauthenticated HTTP response and never see payment terms.
+- **Keep the core MPP flow.** Payments work the same with or without identity.
+
+## Add identity to a service
+
+Pass verifiers in a route's `identity` option, then read who passed from the result:
+
+```ts twoslash [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const verifier: Identity.Verifier<{ email: string }>
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export async function handler(request: Request) {
+  // [!code hl:start]
+  const result = await mppx.charge({
+    amount: '0.05',
+    identity: [verifier],
+  })(request)
+  // [!code hl:end]
+  if (result.status === 402) return result.challenge
+
+  const identity = result.identity?.get(verifier) // [!code hl]
+  return result.withReceipt(Response.json(identity))
+}
+```
+
+## Examples
+
+::::code-group
+
+```ts twoslash [Email]
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = EmailOtp.Server.verifier({
+  allow: (address) => address.endsWith('@example.com'),
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.05',
+  identity: [email],
+})
+```
+
+```ts twoslash [API keys]
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+// [!code hl:start]
+const customer = Identity.from({
+  challenge: { 'WWW-Authenticate': 'ApiKey' },
+  verify(request) {
+    const key = request.headers.get('X-Api-Key')
+    if (!key) return undefined
+    const identity = customers.get(key)
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { status: 'forbidden' })
+    return identity
+  },
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.05',
+  identity: [customer],
+})
+```
+
+```ts [World ID]
+import * as World from 'mppx/extensions/identity/world'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const human = World.Server.verifier({
+  acr: [World.Constants.acr.orb],
+  audience: 'https://api.example.com',
+  issuer: 'https://world-id.issuer.example',
+})
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+})
+
+export const handler = mppx.charge({
+  amount: '0.01',
+  identity: [human],
+})
+```
+
+```ts twoslash [Custom]
+import { Mppx, tempo } from 'mppx/client'
+import type * as Identity from 'mppx/identity'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function signPartnerToken(request: Request): Promise<string>
+
+// [!code hl:start]
+const partner: Identity.Prover = {
+  headers: ['x-partner-token'],
+  async prove(request) {
+    const headers = new Headers(request.headers)
+    headers.set('X-Partner-Token', await signPartnerToken(request))
+    return new Request(request, { headers })
+  },
+  scope: ['https://api.example.com'],
+}
+// [!code hl:end]
+
+const client = Mppx.create({
+  identity: [partner],
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+::::
+
+## Explore the MPP playground
+
+Explore the API interactively in the [MPP playground](https://mpp.dev/playground/identity). Buy a haiku as an anonymous caller, with a verified email, or with an API key, and see how the price and the code change.
+
+## Get started
+
+- [Identity in MPP](/extensions/identity)
+- [`Identity.from` reference](/sdk/typescript/core/Identity.from)
+- [Email OTP example](https://github.com/wevm/mppx/tree/main/examples/email-otp)
+- [World ID docs](https://docs.world.org/world-id)

@@ -15,7 +15,7 @@ type AgentSetupPromptProps = {
 /** Displays the canonical Tempo setup prompt with a copy action. */
 export const AgentSetupPrompt = withMarkdown(
   function AgentSetupPrompt({
-    manualSetupHref = "#manual-setup",
+    manualSetupHref = "#set-up-with-the-tempo-cli",
     variant = "docs",
   }: AgentSetupPromptProps) {
     const [copied, setCopied] = useState(false);

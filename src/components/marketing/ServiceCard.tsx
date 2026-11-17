@@ -1,11 +1,14 @@
+import type { ReactNode } from "react";
 import type { FeaturedService, Service } from "../../data/registry";
 import { serviceIconUrl } from "../../data/registry";
 import { CopyBadge } from "./CopyBadge";
 
 export function ServiceCard({
+  badges,
   headingLevel: Heading = "h3",
   service,
 }: {
+  badges?: ReactNode;
   headingLevel?: "h2" | "h3";
   service: FeaturedService | Service;
 }) {
@@ -18,12 +21,19 @@ export function ServiceCard({
           <img
             alt=""
             className="size-[43px] shrink-0 object-contain"
+            decoding="async"
+            height={43}
+            loading="lazy"
             src={serviceIconUrl(service)}
+            width={43}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
-              {service.name}
-            </Heading>
+            <div className="flex min-w-0 items-center gap-2">
+              <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
+                {service.name}
+              </Heading>
+              {badges}
+            </div>
             <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
               {category}
             </p>

@@ -11,7 +11,11 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
+`mppx.prepareRequest` strips [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers) and each prover's `headers`, alongside authorization and cookie headers, when following a cross-origin redirect.
+
 Credential-bearing retries use `redirect: 'manual'`. Redirect responses return without forwarding the Credential and leave payment acceptance pending, as with [`Fetch.from`](/sdk/typescript/client/Fetch.from).
+
+When a paid retry returns `5xx`, `onPaymentFailed` receives `PaymentOutcomeUnknownError` with the Challenge, serialized Credential, and a transaction hash when the method can derive one. The response still returns to the caller. If the paid request throws, the hook receives the same error with the original failure as `cause`, and the original failure is thrown to the caller. Reconcile the payment before sending another Credential.
 
 ## Usage
 
@@ -402,10 +406,12 @@ Payment hooks are for logging, monitoring, tracing, and request-local context. E
 | `onChallengeReceived` | A `402` Challenge is selected |
 | `onCredentialCreated` | A Credential is created for the selected Challenge |
 | `onPaymentResponse` | The retry after payment returns a successful response |
-| `onPaymentFailed` | Challenge parsing, Credential creation, or retry handling fails |
+| `onPaymentFailed` | Challenge parsing, Credential creation, retry handling, or a paid retry with an unknown outcome fails |
 | `on('*', handler)` | Any client payment event fires |
 
 `onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default Credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
+
+When a `payment.failed` observer handles a paid `5xx` response, `mppx` buffers its body up to 64 KiB or 2 seconds before invoking the hook. A cut-off body has `Mppx-Body-Truncated: true`. Native `Response` objects in payment event snapshots expose status and headers without retaining the response body; read the body from the returned response instead.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -514,62 +520,6 @@ Mppx.create({
 </Tab>
 </Tabs>
 
-### attestation (optional)
-
-- **Type:** `Readonly<Record<string, Attestation.Signer>>`
-
-Request-attestation signers applied to the initial HTTP request and every automatic payment retry. Each attempt uses a fresh shared nonce and timestamp. Configure [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-attestation), or include both signers when a request needs both signatures.
-
-:::code-group
-
-```ts twoslash [Web Bot Auth]
-import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
-import { Mppx, tempo } from 'mppx/client'
-import type { Account } from 'viem'
-
-declare const account: Account
-declare const botPrivateKey: CryptoKey
-
-const client = Mppx.create({
-  // [!code hl:start]
-  attestation: {
-    webBotAuth: WebBotAuth.Client.signer({
-      key: botPrivateKey,
-      keyId: process.env.WEB_BOT_AUTH_KEY_ID!,
-      signatureAgent: process.env.WEB_BOT_AUTH_DIRECTORY!,
-    }),
-  },
-  // [!code hl:end]
-  methods: [tempo({ account })],
-  polyfill: false,
-})
-```
-
-```ts twoslash [Trusted Agent Protocol]
-import * as Tap from 'mppx/attestation/tap'
-import { Mppx, tempo } from 'mppx/client'
-import type { Account } from 'viem'
-
-declare const account: Account
-declare const agentPrivateKey: CryptoKey
-
-const client = Mppx.create({
-  // [!code hl:start]
-  attestation: {
-    tap: Tap.Client.signer({
-      intent: 'payment',
-      key: agentPrivateKey,
-      keyId: 'agent-provider-key-1',
-    }),
-  },
-  // [!code hl:end]
-  methods: [tempo({ account })],
-  polyfill: false,
-})
-```
-
-:::
-
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`
@@ -617,6 +567,78 @@ const mppx = Mppx.create({
 
 </Tab>
 </Tabs>
+
+### identity (optional)
+
+- **Type:** `readonly Identity.Prover[]`
+
+Identity provers applied to the initial HTTP request and the paid retry, for origins in each prover's `scope`. Each attempt gets a fresh shared nonce and timestamp, and requests that carry proofs don't follow redirects. Configure [email OTP](/sdk/typescript/client/EmailOtp.prover), [Web Bot Auth or Trusted Agent Protocol](/extensions/identity), or both. List request signers last so they cover headers added by earlier provers.
+
+```ts
+type Prover = {
+  headers?: readonly string[] // sensitive request headers it writes
+  prepare?: (response: Response, context: { challenge: Challenge; requirements: readonly Requirement[] }) => MaybePromise<void>
+  prove: (request: Request, context: { challenge?: Challenge; created: number; nonce: string }) => MaybePromise<Request>
+  retry?: (response: Response, context: { request: Request }) => MaybePromise<HeadersInit | false | undefined>
+  scope: readonly string[] | '*'
+}
+```
+
+- **`headers`:** stripped on a cross-origin redirect, like [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers).
+- **`prepare`:** runs on a `402` before the paid retry, with the selected Challenge and the identities its `Identity-Required` header lists (experimental). `prove` receives the same Challenge on the paid retry.
+- **`retry`:** inspects a rejected non-`402` response to an unpaid attempt, with the request that got it. Return headers to resend the request once with; every prover proves it again, and the paid retry carries them too. Payment credential headers are ignored. Paid attempts are never resent. Returning `true` is deprecated—return `{}`.
+
+:::code-group
+
+```ts twoslash [Web Bot Auth]
+import { Mppx, tempo } from 'mppx/client'
+import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const botPrivateKey: CryptoKey
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [
+    WebBotAuth.Client.prover({
+      key: botPrivateKey,
+      keyId: process.env.WEB_BOT_AUTH_KEY_ID!,
+      scope: ['https://api.example.com'],
+      signatureAgent: process.env.WEB_BOT_AUTH_DIRECTORY!,
+    }),
+  ],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+```ts twoslash [Trusted Agent Protocol]
+import { Mppx, tempo } from 'mppx/client'
+import * as Tap from 'mppx/extensions/identity/tap'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const agentPrivateKey: CryptoKey
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [
+    Tap.Client.prover({
+      intent: 'payment',
+      key: agentPrivateKey,
+      keyId: 'agent-provider-key-1',
+      scope: ['https://merchant.example'],
+    }),
+  ],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+:::
 
 ### methods
 
@@ -913,6 +935,24 @@ const mppx = Mppx.create({
 
 </Tab>
 </Tabs>
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Record<string, string>`
+
+Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof or Session payment when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the signature at its realm. Pin a server's realm to its origin to allow it. With `Transport.mcp()`, only realms present in this map are trusted, regardless of the origin keys.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  trustedTempoProofRealms: { 'https://api.example.com': 'MPP Payment' }, // [!code focus]
+})
+```
 
 ## Manual Credential options
 

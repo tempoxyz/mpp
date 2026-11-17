@@ -1,0 +1,88 @@
+---
+description: "Verify Link identity claims in Node and Cloudflare Workers."
+imageDescription: "Verify selected facts across server runtimes"
+---
+
+# `Link.Server.presentationVerifier` [Verify identity presentations]
+
+Verifies selected identity facts signed by Link, Stripe's agent identity issuer, together with the credential holder's signature for your API. [`Link.Server.claims`](/sdk/typescript/server/Link.claims) wraps it as an identity check before payment.
+
+## Usage
+
+Install `@stripe/agent-identity` version `0.3.0` or later; see the [claims installation commands](/sdk/typescript/server/Link.claims#usage).
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+
+// [!code hl:start]
+const verifier = Link.Server.presentationVerifier({
+  audience: 'https://api.example.com',
+  maxAge: 300,
+  timeout: 3_000,
+})
+// [!code hl:end]
+const email = Link.Server.claims({
+  audience: 'https://api.example.com',
+  claims: ['email', 'email_verified'],
+  secretKey: process.env.MPP_SECRET_KEY!,
+  verifier,
+})
+```
+
+Reuses the Stripe SDK's `verifyClaimsPresentation` without its Node-only token-key import, so it also runs in Cloudflare Workers. Reuse one verifier across requests.
+
+## Return type
+
+`Link.ClaimsVerifier`, exposing:
+
+```ts
+verifyClaims(
+  presentation: string | null | undefined,
+  options: { nonce: string; requiredClaims: string[] },
+): Promise<
+  | { claims: Record<string, unknown>; holderKeyThumbprint: string; issuer: string; valid: true; vct: string }
+  | { failures: readonly Link.Failure[]; valid: false }
+>
+```
+
+The presentation contains two proofs: Link's signature on the disclosed claims, and a Key Binding JWT (a signed token from the credential holder) covering the audience and nonce. Verification checks both signatures, the disclosed claim names against `requiredClaims`, and the holder's signed values against `audience` and `nonce`. [`Link.Server.claims`](/sdk/typescript/server/Link.claims) separately checks that the nonce was issued by your server and is unexpired.
+
+## Parameters
+
+### audience
+
+- **Type:** `string`
+
+Your API's public origin. Trailing slashes are removed; use the same audience as `Link.Server.claims`.
+
+### fetch (optional)
+
+- **Type:** `(input: string, init: RequestInit) => Response | Promise<Response>`
+- **Default:** `globalThis.fetch`
+
+Fetch for issuer documents. An `mppx` wrapper is unwrapped to prevent payments for key lookups. Redirects are refused, using `redirect: 'manual'` for Workers compatibility.
+
+### issuer (optional)
+
+- **Type:** `string`
+- **Default:** `'https://api.link.com'`
+
+Issuer URL, with trailing slashes removed. Override only for staging or tests. Metadata must match the issuer and is cached for one hour; failed fetches are retried on the next call. Credential keys are cached for `300` seconds, bounding rotation delays without refreshes triggered by unknown key IDs.
+
+### maxAge (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Presentation age tolerance in seconds, passed as the SDK's `clockSkewSeconds`. Match the claims verifier's `nonceTtl` so presentations remain usable on the paid retry.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `3000`
+
+Timeout for each issuer request, in milliseconds.
+
+## Errors
+
+Missing presentations return failure code `incomplete_protocol_request` before loading the peer. Other verification failures use the SDK's `Failure` codes; `Link.Server.claims` maps `issuer_unavailable` to `503` and other failures to a fresh `401` challenge. A missing peer fails when the verifier first imports `@stripe/agent-identity` to check a presentation.

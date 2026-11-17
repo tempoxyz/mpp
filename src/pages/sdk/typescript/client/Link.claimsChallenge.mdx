@@ -1,0 +1,47 @@
+---
+description: "Read the identity facts an API asks you to disclose."
+imageDescription: "Inspect an API identity request before sharing"
+---
+
+# `Link.Client.claimsChallenge` [Parse a Link claims challenge]
+
+Parses the JSON body of a Link claims challenge without consuming the original response. Link, Stripe's agent identity issuer, signs identity facts; an API's claims challenge asks which facts to disclose and supplies an audience and nonce to bind the presentation to that API.
+
+## Usage
+
+```ts twoslash
+import * as Link from 'mppx/extensions/identity/link'
+
+declare const response: Response
+
+const challenge = await Link.Client.claimsChallenge(response) // [!code hl]
+console.log(challenge?.claims)
+// @log: ['email', 'email_verified']
+```
+
+Use [`Link.Client.claims`](/sdk/typescript/client/Link.claims) for automatic origin, issuer, format, and disclosure checks before presenting claims.
+
+## Return type
+
+`Promise<Link.ClaimsChallenge | undefined>`.
+
+Returns `undefined` unless the body contains:
+
+- `type: 'urn:stripe:link:claims-required'`.
+- String `aud` (target API origin) and nonempty string `nonce` (value the holder must sign).
+- A nonempty array of strings in `claims`.
+- Arrays of strings in `formats` (accepted credential formats) and `trusted_issuers` (accepted issuers).
+
+Copies the optional human-readable `purpose` into the result only if it is a string; ignores other fields, including `detail`. See [the complete shape](/sdk/typescript/core/Link.Types#claimschallenge).
+
+## Parameters
+
+### response
+
+- **Type:** `Response`
+
+Response whose cloned JSON body is parsed. This helper checks neither its HTTP status nor its headers, and does not establish trust in the requested audience or issuer.
+
+## Errors
+
+Invalid JSON returns `undefined`. Passing a response whose body was already read can throw when cloned; pass it before reading its body.

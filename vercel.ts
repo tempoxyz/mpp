@@ -24,6 +24,21 @@ if (
   );
 }
 
+const REWRITES = [
+  ...(MPP_SERVICES_MCP_WORKER_ORIGIN
+    ? [
+        rewriteRule(
+          "/mcp/services",
+          `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+        ),
+        rewriteRule(
+          "/mcp/services/:path*",
+          `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+        ),
+      ]
+    : []),
+];
+
 const CONTENT_NEGOTIATION_HEADERS = [header("Vary", "Accept, User-Agent")];
 
 const API_CATALOG_HEADERS = [
@@ -53,6 +68,7 @@ const STATIC_ASSET_CACHE_HEADERS = [
 ];
 
 const STATIC_ASSET_SOURCES = [
+  "/playground/fonts/:path*",
   "/fonts/:path*",
   "/icons/:path*",
   "/lottie/:path*",
@@ -63,6 +79,7 @@ const STATIC_ASSET_SOURCES = [
 const DOC_SECTIONS = [
   "advanced",
   "blog",
+  "extensions",
   "guides",
   "intents",
   "overview",
@@ -76,13 +93,7 @@ const DOC_SECTIONS = [
   "use-cases",
 ];
 
-const DOC_STANDALONE_PAGES = [
-  "/brand",
-  "/extensions",
-  "/faq",
-  "/governance",
-  "/mpp-vs-x402",
-];
+const DOC_STANDALONE_PAGES = ["/brand", "/faq", "/governance", "/mpp-vs-x402"];
 
 const DISCOVERY_PAGE_SOURCES = [
   "/",
@@ -108,6 +119,10 @@ export const config = {
         "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
       ),
     ]),
+    // The playgrounds' content-hashed assets (scripts/copy-playground.ts).
+    headerRule("/playground/assets/:path*", [
+      header("Cache-Control", "public, max-age=31536000, immutable"),
+    ]),
     ...STATIC_ASSET_SOURCES.map((source) =>
       headerRule(source, STATIC_ASSET_CACHE_HEADERS),
     ),
@@ -118,21 +133,14 @@ export const config = {
         ...CONTENT_NEGOTIATION_HEADERS,
       ]),
     ),
+    // Content-hashed service logos (scripts/build-logos.ts). Last, so it wins
+    // over the /services/:path* rule above.
+    headerRule("/services/logos/:path*", [
+      header("Cache-Control", "public, max-age=31536000, immutable"),
+      header("Vary", "Accept-Encoding"),
+    ]),
   ],
-  ...(MPP_SERVICES_MCP_WORKER_ORIGIN
-    ? {
-        rewrites: [
-          rewriteRule(
-            "/mcp/services",
-            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
-          ),
-          rewriteRule(
-            "/mcp/services/:path*",
-            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
-          ),
-        ],
-      }
-    : {}),
+  ...(REWRITES.length > 0 ? { rewrites: REWRITES } : {}),
   redirects: [
     {
       source: "/index",

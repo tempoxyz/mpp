@@ -1,3 +1,8 @@
+---
+description: "Accept metered stablecoin payments and collect session earnings on Tempo."
+imageDescription: "Charge for usage with persistent payment sessions"
+---
+
 import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 # `Method.tempo.session` [Sessions server method]
@@ -7,19 +12,21 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 <SigningAccountTabs />
 
 
-Creates a Tempo Sessions server method for voucher verification, channel accounting, top-ups, and settlement.
+Creates [Sessions](/payment-methods/tempo/session) server methods for voucher verification, channel accounting, top-ups, and settlement.
 
 :::info
 `tempo.session()` is the default Sessions implementation. It uses the [TIP-1034](https://tips.sh/1034) reserve precompile and advertises `sessionProtocol: "v2"` in Challenge method details.
+
+- Managed SSE and WebSocket streams check live reserve state before charging or delivery. Delivery stops if the channel closes or the check fails.
+- Await `stream.charge()` before billable work. A resolved charge stays committed if later work fails or is canceled.
+- For custom `tempo.Sse.serve()` adapters, verify live reserve state in `beforeCharge: () => Promise<void>`.
 :::
 
-:::warning[Legacy Sessions]
-`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current Sessions don't share their channel state.
-:::
+Insufficient balance on a mainnet MACH channel includes a Tempo Wallet `fundingUrl` in `InsufficientBalanceError` and its Problem Details. This applies to channel charges and SSE payment-required responses. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
 
 ## Usage
 
-Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Set `currencies` to accept a different list.
+Creates one payment offer per accepted stablecoin: OUSD first, then USDC.e on mainnet or pathUSD on Moderato (`chainId: 42431`). Set `currencies` to accept a different list.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -32,6 +39,7 @@ const mppx = Mppx.create({
     // [!code focus:start]
     tempo.session({
       account,
+      chainId: 42431,
       store: Store.memory(),
     }),
     // [!code focus:end]
@@ -55,18 +63,15 @@ const mppx = Mppx.create({
       account,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
+      testnet: true,
     }),
   ],
 })
 ```
 
-## Migrate from Legacy Sessions
-
-Legacy Sessions used a contract-backed channel flow. Close or settle those channels with the older SDK before upgrading. Then register `tempo.session()` on the server and `tempo.session()` or `tempo()` on clients. New Sessions advertise `sessionProtocol: "v2"` and use TIP-1034 reserve channels.
-
 ### With same-route bootstrap
 
-Set `bootstrap: true` and provide `resolveChannelId` when clients should recover a previous channel before opening a new one. Bootstrap uses the protected route itself: the client sends `HEAD`, answers a `$0` Tempo charge Challenge, and the server uses the verified `source` plus request metadata to look up an existing channel.
+Set `bootstrap: true` and provide `resolveChannelId` when clients should recover a previous channel before opening a new one. Bootstrap uses the protected route itself: the client sends `HEAD`, signs a zero-amount Tempo charge Challenge to prove its account identity without transferring tokens, and the server uses the verified payer identity (`source`) plus request metadata to look up an existing channel.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -82,6 +87,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       bootstrap: true,
+      chainId: 42431,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store,
       resolveChannelId({ request, source }) {
@@ -144,7 +150,7 @@ Returns whether this configured Sessions offer is available when an HTTP handler
 
 - **Type:** `number`
 
-Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An explicit `chainId` takes precedence; set it when `getClient` uses another network.
+Defaults to mainnet (`4217`). Set `chainId: 42431` for Moderato, and keep `getClient` on the same network.
 
 ### channelStateTtl (optional)
 
@@ -152,6 +158,12 @@ Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An exp
 - **Default:** `5000`
 
 TTL in milliseconds for cached on-chain channel state. After this duration, the server re-queries on-chain state during voucher handling to detect forced close requests.
+
+### chargeOnAcceptance (optional)
+
+- **Type:** `boolean`
+
+Charge request-priced content before the handler runs, when its voucher is accepted. Always enabled with `sse`, including plain POST responses. Credit unserved content with [`tempo.session.credit`](#temposessioncredit), or enable [automatic prepaid credits](#automatic-prepaid-credits) for managed SSE.
 
 ### currencies (optional)
 
@@ -189,11 +201,18 @@ A remote fee payer service sponsors client-driven open and top-up transactions, 
 
 ### feePayerPolicy (optional)
 
-- **Type:** `Partial<{ allowKeyAuthorization: boolean; maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
+- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
 Override the local fee-sponsor policy used for sponsored open and top-up transactions and server-driven close transactions.
 
-`allowKeyAuthorization` defaults to `true`. Set it to `false` when the sponsor must reject transactions that install a new access key.
+Sponsored transactions may carry a `keyAuthorization`, so an access key can open a sponsored Session in the transaction that installs it. `maxGas` and `maxTotalFee` bound the sponsor's cost.
+
+Sponsorship preflight:
+
+- Simulates sender execution at the signed gas limit with zero fees, then the sponsored envelope with `feePayerSignature` and an explicit zero priority fee when needed.
+- Caps a local sponsor's simulation-only gas buffer by `maxGas` and `maxTotalFee`; broadcast gas stays unchanged.
+- Tolerates only final-phase out-of-gas errors in hosted or capped simulations, after the sender check succeeds.
+- Raises [`PaymentSimulationError`](/sdk/typescript/core/Errors#paymentsimulationerror) with phase `'sender'` or `'sponsored'` for other node rejections. Transport failures remain unchanged.
 
 ### feeToken (optional)
 
@@ -252,6 +271,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  chainId: 42431,
   // [!code hl:start]
   onSessionSettlementFailure({ chainId, channelId, error, trigger }) {
     console.error({ chainId, channelId, error, trigger })
@@ -316,30 +336,51 @@ type ResolveSessionChannelIdParameters = {
 
 Use `source` for identity bootstrap. It is only set after the server verifies the client's zero-amount proof. Use `request.headers` for app session cookies or explicit `Payment-Session` hints. The returned channel ID is treated as a hint; the server still verifies that the channel exists and matches the current payment request.
 
+### reusableChallenges (optional)
+
+- **Type:** `boolean`
+
+Keep a Session Challenge valid for later requests to the same route until it expires. The binding includes route, currency, recipient, and channel terms, but excludes the quoted amount. Each request charges its own price from the accepted channel balance. Clients can send a voucher with the request instead of waiting for a `402`.
+
 ### settlementSchedule (optional)
 
 - **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
 
 Server-owned automatic settlement cadence. Clients don't receive or control this schedule.
 
-HTTP, SSE, and WebSocket charges remain served when scheduled settlement encounters a transient transport or RPC failure, rate limit, receipt timeout, or lease-claim failure. The charge remains due for a later settlement. Reverts and configuration errors still fail the request. A confirmed settlement whose checkpoint fails also keeps the charged request successful and reports the error through `onSessionSettlementFailure`.
+- HTTP, SSE, and WebSocket charges remain served after transient transport/RPC failures, rate limits, receipt timeouts, or lease-claim failures. Settlement stays due.
+- Reverts and configuration errors fail the request.
+- Confirmed settlements with checkpoint failures keep the charged request successful and report through `onSessionSettlementFailure`.
+- Settlement records only the submitted voucher's spend and units. Charges accepted while it is pending remain due.
 
-Settlement records only the spend and units captured with the submitted voucher. Charges accepted while that transaction is pending remain due for the next settlement.
+### sponsorshipLimit (optional)
+
+- **Type:** `{ perDay?: number; store: Store.AtomicStore }`
+
+Limit sponsored channel opens and top-ups separately per verified transaction signer and UTC day. The default limit is five of each. Transactions over the limit continue without sponsorship, so the payer needs its own fee balance.
 
 ### sse (optional)
 
-- **Type:** `boolean | { poll?: boolean; pollingInterval?: number }`
+- **Type:** `boolean | { autoCreditPrepaid?: boolean; onRefundRequired?: (refund: tempo.Sse.PrepaidRefund) => void | Promise<void>; poll?: boolean; pollingInterval?: number }`
 
 Enable SSE streaming. Pass `true` to enable with defaults, or pass an options object to configure SSE.
 
-When `poll` is enabled, the stream checks the store at `pollingInterval` instead of waiting on store notifications. Use this for runtimes where promises cannot be resolved across request contexts.
+Object options:
+
+- `autoCreditPrepaid`: opt into SDK-owned credits for failed, undelivered prepaid SSE items. Defaults to `false`; leave disabled if your application already refunds failed requests.
+- `onRefundRequired`: durably accept a reconciliation job when automatic credit fails or cannot safely complete. See [automatic prepaid credits](#automatic-prepaid-credits).
+- `poll`: poll the store instead of waiting on notifications. Defaults to `false`; enable when promises cannot resolve across request contexts.
+- `pollingInterval`: polling interval in milliseconds. Defaults to `10`.
+
+Request-priced automatic iterables charge once per request, not once per emitted value. Explicit `stream.charge(amount)` calls still charge independently; `stream.charge()` can consume a prepaid unit. A prepaid Receipt can back only one managed SSE response—verify a fresh payment before retrying delivery.
 
 ### store (optional)
 
 - **Type:** `Store.AtomicStore`
-- **Default:** `Store.memory()`
 
 Atomic store backend for channel state. Session mutations must be linearizable across instances so voucher, top-up, spend, and close updates cannot race.
+
+Without a `store`, the method throws at construction when `NODE_ENV` is `production`, on multi-instance platforms (Vercel, AWS Lambda, Netlify, Fly.io, Cloud Run, Render, Railway, Heroku, Deno Deploy), and on Cloudflare Workers. Elsewhere, such as local development and tests, it warns once and falls back to an in-memory store. Pass a shared store, or `store: Store.memory()` to keep state instance-local.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
@@ -347,6 +388,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  chainId: 42431,
   store: Store.memory(), // [!code focus]
 })
 ```
@@ -364,6 +406,60 @@ Suggested deposit amount communicated to clients in the Challenge.
 - **Type:** `string`
 
 Unit type label, such as `"token"`, `"byte"`, or `"request"`.
+
+### voucherStateMaxAge (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Maximum age in milliseconds of verified on-chain state used to accept a voucher before a fresh read finishes in the background. Keep it well below Tempo's 900-second close grace period so accepted vouchers remain settleable. The default reads on-chain state before every acceptance.
+
+## Automatic prepaid credits
+
+Enable `sse: { autoCreditPrepaid: true }` to credit prepaid items that fail before delivery.
+
+- With `sse`, each request-priced precharge atomically records its pending delivery with the spend, even when automatic credits are disabled. Outstanding records block automatic bounded closure.
+- Managed responses clear completed delivery records. Custom adapters must clear their own records after delivery or durable refund handoff.
+- Don't combine SDK credits with another automatic refund handler.
+- Delivered items, manual charges, and client cancellation aren't automatically refunded.
+
+If credit cannot complete, `onRefundRequired` receives `tempo.Sse.PrepaidRefund`:
+
+```ts
+type PrepaidRefund = {
+  amount: bigint
+  channelId: Hex
+  // [!code hl:start]
+  credit: { error: unknown; status: 'failed' } | Exclude<CreditResult, { status: 'credited' }>
+  externalRefundAmount: bigint | null
+  idempotencyKey: string
+  // [!code hl:end]
+  units: number
+}
+```
+
+- `amount` is the undelivered amount in raw units, not necessarily captured funds.
+- For `credit.status: 'unknown'`, retry `Session.Server.credit` with the same key, amount, and units within 24 hours. Reconcile later retries manually. A `failed` status means the credit definitely failed.
+- Transfer only a non-null `externalRefundAmount`, the captured amount safe to refund after finalization. `null` requires reconciliation before any transfer.
+- Persist the recovery job before the hook returns. Missing or throwing hooks leave `channel.prepaidRefunds` and raise `tempo.Sse.PrepaidRefundError`; its `refund` contains the retry data. Concurrent stream and refund failures raise `AggregateError`.
+
+`channel.prepaidRefunds` maps keys to `{ amount: string; createdAt: number; status: 'pending' | 'failed'; units: number }`.
+
+- `createdAt` is Unix milliseconds.
+- Reconcile `pending` records manually after a crash. Retry failed credits with their original terms within 24 hours.
+- At `tempo.Sse.maxPrepaidRefunds` (`128`) unresolved records plus live idempotency markers, new prepaid charges are rejected atomically—neither spend nor a delivery record is committed, and live keys are never evicted.
+
+Custom `tempo.Sse.serve()` adapters accept these optional fields:
+
+| Parameter | Type | Default |
+| --- | --- | --- |
+| `autoCreditPrepaid` | `boolean` | `false` |
+| `chargeOnce` | `boolean` | `false` |
+| `onRefundRequired` | `(refund: tempo.Sse.PrepaidRefund) => void \| Promise<void>` | None |
+| `prepaidUnits` | `number` (non-negative safe integer) | `0` |
+| `refundIdempotencyKey` | `string` (stable per-charge key) | Random stream key |
+
+`chargeOnce: true` charges an automatic iterable once per request; manual charges are unaffected. To persist before returning a custom response, call `tempo.Sse.preparePrepaidRefund(options): Promise<void>` with the same serve options and a stable `refundIdempotencyKey`. Otherwise, `serve` persists during stream startup.
 
 ## Related
 
@@ -386,7 +482,8 @@ See [`mppx.session.serveWebSocket`](/sdk/typescript/server/Ws.serve) for the ful
 
 Applies this method's `settlementSchedule` to a committed channel charge. The session-bound WebSocket and SSE transports call it automatically. Pass it to a custom streaming adapter's post-charge hook when you manage the transport yourself.
 
-Direct calls report failures through `onSessionSettlementFailure` and reject on settlement failure. Custom adapters must handle retryable failures themselves to keep a charged response served. Confirmed checkpoint failures return the confirmed transaction hash.
+- Direct calls report failures through `onSessionSettlementFailure` and reject unless settlement confirmed before the checkpoint failed. In that case, they return the confirmed transaction hash.
+- Custom adapters must handle retryable failures to keep charged responses served.
 
 ### Snapshot helpers
 
@@ -422,14 +519,49 @@ Charges against a precompile-backed channel's stored balance outside an HTTP han
 ```ts
 import { tempo } from 'mppx/server'
 
-const state = await tempo.session.charge(store, channelId, 10_000n)
+const state = await tempo.session.charge(store, channelId, 10_000n, {
+  idempotencyKey: operationId,
+})
 ```
 
-This returns the updated channel state and throws if the channel is missing, closed, or does not have enough unspent deposit.
+This returns the updated channel state and throws if the channel is missing, closed, or lacks voucher headroom. Retrying the same key and amount returns the recorded charge. Reusing a key with another amount throws `IdempotencyKeyConflictError`.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `idempotencyKey` (optional) | `string` | None | Replayable charge key; don't combine with `prepaidRefundKey`. |
+| `prepaidRefundKey` (optional) | `string` | None | Unique delivery key for a positive prepaid charge; atomically records `{ amount, createdAt, status: 'pending', units: 1 }` in `prepaidRefunds`. |
+| `retention` (optional) | `number` | `86_400_000` | Replay retention in milliseconds for `idempotencyKey`. |
+
+A prepaid key is not a replayable charge key. Reusing an outstanding key or exceeding 128 outstanding records plus live idempotency markers rejects before charging. After delivery or a durably accepted refund job, custom adapters release the record with `tempo.Sse.clearPrepaidRefund(store, channelId, key): Promise<void>`. This takes the channel-store adapter used by `tempo.Sse.serve`, not a raw key-value store; it does nothing if the record is absent and never issues a credit or transfer. Don't clear an unresolved delivery merely to unblock closure.
+
+### `tempo.session.credit`
+
+Return unused spend to a channel at most once per key. Credit only unserved content; a declined credit leaves spend unchanged and needs another refund path. An `unknown` outcome means the store write may have committed, so retry with the same key.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const result = await tempo.session.credit(store, channelId, unusedAmount, {
+  idempotencyKey: refundId,
+})
+```
+
+`credit` declines when the channel is closing or finalized, or the credit would reduce spend below zero or an on-chain settlement floor. The `units` option also returns charged units. Charge and credit keys remain on the channel record for 24 hours by default and expire during a later keyed operation.
+
+Credit options are `{ idempotencyKey: string; maxMarkers?: number; retention?: number; units?: number }`. `maxMarkers` defaults to `1024` and must be a positive safe integer. At capacity, a new key throws rather than evicting live outcomes; existing keys remain replayable. `retention` is milliseconds (default `86_400_000`); `units` is a non-negative safe integer (default `0`).
+
+```ts
+type CreditResult =
+  | { channel: State; replayed: boolean; status: 'credited' }
+  | { channel: State; reason: CreditDeclineReason; replayed: boolean; status: 'declined' }
+  | { error: unknown; status: 'unknown' }
+```
+
+The same types and operation are available as `Session.Server.credit` from `mppx/tempo`. A missing channel or invalid options throw; a store write with uncertain outcome returns `unknown`.
 
 ### `tempo.session.settle`
 
-Settles a single precompile-backed channel on-chain.
+Settles the largest accepted voucher at or below recorded spend for a single precompile-backed channel. It throws when no voucher is settleable.
 
 ```ts
 import { tempo } from 'mppx/server'
@@ -440,6 +572,10 @@ const txHash = await tempo.session.settle(store, client, channelId)
 The sender must be the channel payee or a nonzero operator. Pass transaction options as the fourth argument. Set `feePayer` to an account for local co-signing, or `true` when the client transport uses a configured hosted fee payer service.
 
 `settle` reads back channel state at the confirmed Receipt's block. If the transaction confirms but the channel store can't record it, the success hook still runs and `settle` throws `tempo.SettlementCheckpointError`. Read `error.txHash` to identify the confirmed payment; `error.cause` contains the store failure.
+
+When an RPC replica temporarily reports a revert while preparing settlement, `settle` retries preparation. Sponsored settlement and close transactions recheck that at least 15 seconds of validity remain before signing and submission.
+
+For low-level retry control, `tempo.Session.Precompile.Chain.readbackWithRetry` accepts an optional `shouldRetry(error) => boolean` callback. It retries every failure by default; return `false` to stop on a definitive error.
 
 ```ts
 type SettlementTransactionOptions = {
@@ -464,3 +600,64 @@ const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 ```
 
 `settleBatch` applies the same validation as `settle` to each channel and returns the settlement transaction hashes in order.
+
+### Pending close state
+
+Custom serializers must preserve these optional fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `closeSearchFromBlock` | `bigint` | Next historical close-event range after an interrupted search. |
+| `closeSupervisedFromBlock` | `bigint` | First block where supervision verified the channel open. |
+| `onChainCloseRequestedAt` | `bigint` | Observed payer close timestamp in Unix seconds, separate from the server marker. |
+| `pendingCloseAt` | `bigint` | Server cooperative-close timestamp in Unix seconds. |
+| `scheduledSettlementLease` | `{ expiresAt: number; owner: string }` | Settlement ownership; expiry is Unix milliseconds. |
+
+A server close freezes charges and settlement claims before broadcast. Failures before send and confirmed reverts clear its marker, restoring any observed payer request. An uncertain send remains frozen until a fresh on-chain read proves the channel remains open after the 25-second validity window plus 30-second clock skew. An expired server marker is not a payer close request.
+
+### `tempo.session.superviseCloses`
+
+Run close supervision on a schedule: every minute is recommended, and every 5 minutes is fine with few open channels. See [Close supervision](/payment-methods/tempo/session#close-supervision) for a complete setup. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const result = await tempo.session.superviseCloses({
+  account: settlementAccount,
+  channelIds,
+  client,
+  previousBlock,
+  settlementSchedule: { amount: 100_000n },
+  store,
+})
+```
+
+Persist `result.block` as `previousBlock` only when `result.complete` is true. Remove channels reported `closed`, `unrecovered`, `finalized`, or `missing` from the tracked IDs. Inspect `result.failed` and `result.unrecovered`; retry failed channels. The optional `settlementSchedule` uses raw token units and settles open channels charged outside the Session handler. Use `Session.Server.resolveSettlementSchedule` to convert a configured schedule to raw units.
+
+`superviseCloses` returns `Promise<Session.Server.CloseSupervision>` with a pinned `block`, its Unix-second `timestamp`, `complete`, outcome counts, and a `channels` array containing each ID, outcome, optional error, and transaction hash.
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `account` (optional) | `Account` | Client account | Payee or authorized operator signing closes and settlements. |
+| `batchSize` (optional) | `number` | `50` | Channels per reserve state read. |
+| `candidateFeeTokens` (optional) | `readonly Address[]` | Channel token | Candidates for sponsored transaction fees. |
+| `channelIds` | `Iterable<Hex> \| AsyncIterable<Hex>` | Required | Tracked channels, in supervision order. |
+| `client` | `TransactionClient` | Required | Client for reads and transactions on these channels' chain. |
+| `closeSearchMarginBlocks` (optional) | `bigint` | `2_000n` | Search margin before `previousBlock` for channels never read open. |
+| `closeUnsettled` (optional) | `boolean` | `false` | Close open channels with unpaid spend and no settleable voucher, bounded by spend, voucher, and deposit. |
+| `feePayer` (optional) | `Account \| true` | None | Sponsor account or hosted fee-payer transport. |
+| `feePayerPolicy` (optional) | `Partial<FeePayerPolicy>` | Chain policy | Sponsored-transaction limits. |
+| `feeToken` (optional) | `Address` | Client/chain default | Fee-paying token override. |
+| `logBlockRange` (optional) | `bigint` | `100_000n` | Maximum blocks per close-event query. |
+| `onSessionSettlement` (optional) | `OnSessionSettlement` | None | Observer after confirmation, even if the checkpoint fails. |
+| `onSessionSettlementFailure` (optional) | `OnSessionSettlementFailure` | None | Failure observer; observer errors are ignored. |
+| `previousBlock` (optional) | `bigint` | None | Block of the last complete supervision. |
+| `settlementLeaseOwner` (optional) | `string` | None | Existing lease owned by this caller; never copy another worker's owner. |
+| `settlementSchedule` (optional) | `ResolvedSettlementSchedule` | None | Automatic settlement thresholds in raw units. |
+| `store` | `Store.Store \| ChannelStore` | Required | Shared server channel state. |
+
+`closeUnsettled` does not replace normal settlement when a retained voucher fits spend. It waits for outstanding prepaid delivery records, another caller's live lease, or a pending settlement. The Cloudflare queue enables it and supplies its own lease owner automatically.
+
+Historical searches persist `closeSearchFromBlock` after each successful empty range and resume there after interruption. An entirely empty scan resets the cursor to retry its original anchor for lagging RPC indexes; it never advances `closeSupervisedFromBlock`.
+
+If a close confirms but its store checkpoint fails, the success observer still receives its payment and the channel reports `failed` with `SettlementCheckpointError`. Retry supervision: it reconciles the close event without broadcasting again or repeating the success callback.

@@ -1,8 +1,13 @@
 "use client";
 
 import blogPosts from "virtual:blog-posts";
-import { useEffect, useState } from "react";
-import { type FeaturedService, fetchFeaturedServices } from "../data/registry";
+import { useEffect, useRef, useState } from "react";
+import {
+  FEATURED_SERVICE_IDS,
+  type FeaturedService,
+  fetchFeaturedServices,
+  withLogos,
+} from "../data/registry";
 import { BlogRow } from "./marketing/BlogRow";
 import { Button } from "./marketing/Button";
 import { Header } from "./marketing/Header";
@@ -10,7 +15,6 @@ import { SectionLabel } from "./marketing/SectionLabel";
 import { ServiceCard } from "./marketing/ServiceCard";
 import { Terminal } from "./Terminal";
 
-const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
 const integrations = [
   { href: "https://www.amazon.com", name: "Amazon", slug: "amazon" },
   { href: "https://www.alchemy.com", name: "Alchemy", slug: "alchemy" },
@@ -71,16 +75,65 @@ function DesignedBy() {
   );
 }
 
-export function LandingPage() {
+/**
+ * A muted looping video that downloads and plays only while it's on screen.
+ * Under a hidden parent (this one is mobile-only) it never intersects, so
+ * desktop never fetches it, which autoPlay alone would.
+ */
+function PlayWhenVisible({
+  className,
+  height,
+  src,
+  width,
+}: {
+  className?: string;
+  /** The clip's pixel size, so its box is reserved before metadata loads. */
+  height: number;
+  src: string;
+  width: number;
+}) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Several entries can queue up; the last one is the current state.
+        const entry = entries[entries.length - 1];
+        if (entry?.isIntersecting) void video.play().catch(() => {});
+        else video.pause();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <video
+      className={className}
+      height={height}
+      loop
+      muted
+      playsInline
+      preload="none"
+      ref={ref}
+      width={width}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
+export function LandingPage({ logos }: { logos?: Record<string, string> }) {
   const [services, setServices] = useState<FeaturedService[]>([]);
 
   useEffect(() => {
     document.body.classList.add("marketing-home");
     fetchFeaturedServices(FEATURED_SERVICE_IDS)
-      .then(setServices)
+      .then((featured) => setServices(withLogos(featured, logos ?? {})))
       .catch(() => {});
     return () => document.body.classList.remove("marketing-home");
-  }, []);
+  }, [logos]);
 
   return (
     <div className="marketing-route not-prose bg-[#060606] text-offwhite [--marketing-page-bg:#060606]">
@@ -101,7 +154,7 @@ export function LandingPage() {
 
           <div className="relative z-10 flex max-w-[560px] flex-col gap-8 md:max-w-[978px] md:gap-[38px]">
             <h1 className="font-sans !text-[28px] !font-normal !leading-[1.1] !tracking-[-0.56px] text-offwhite min-[640px]:!text-[32px] min-[640px]:!tracking-[-0.64px] min-[1000px]:!text-[48px] min-[1000px]:!leading-none min-[1000px]:!tracking-[-1.44px]">
-              MPP lets agents pay for services on the
+              MPP lets any buyer pay any seller on the
               <br className="hidden min-[1000px]:block" /> web, extensible to
               any payment method.
             </h1>
@@ -111,10 +164,10 @@ export function LandingPage() {
                 href="/quickstart/agent"
                 variant="primary"
               >
-                Use with your agent
+                Use with agents
               </Button>
               <Button className="w-full sm:w-auto" href="/quickstart/server">
-                Add payments to your API
+                Charge for your API
               </Button>
             </div>
           </div>
@@ -138,16 +191,12 @@ export function LandingPage() {
             />
           </div>
           <div className="relative -mt-px w-full border border-border bg-[#191919] min-[1000px]:hidden">
-            <video
-              autoPlay
+            <PlayWhenVisible
               className="pointer-events-none block h-auto w-full"
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            >
-              <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
-            </video>
+              height={940}
+              src="/marketing/mobile-terminal.mp4"
+              width={1694}
+            />
           </div>
         </div>
 
@@ -229,7 +278,7 @@ Object.assign(LandingPage, {
       {
         type: "text",
         value:
-          "MPP lets agents pay for services on the web, extensible to any payment method. ",
+          "MPP lets any buyer pay any seller on the web, extensible to any payment method. ",
       },
       {
         children: [{ type: "text", value: "Read the quickstart" }],

@@ -36,7 +36,7 @@ Mppx.create({
 
 By default, [`Mppx.create`](/sdk/typescript/client/Mppx.create) installs a payment-aware global `fetch`. Existing HTTP tools and MCP transports built on `fetch` can then call free and paid endpoints without changing their request code.
 
-The same client can support native MPP and compatible x402 `exact` endpoints. Add [`evm.charge`](/payment-methods/evm/charge) alongside the Tempo method, and `mppx` selects the protocol and payment method supported by each endpoint.
+The same client can support native MPP and compatible x402 `exact` endpoints. Add [`evm.charge`](/payment-methods/evm#charge) alongside the Tempo method, and `mppx` selects the protocol and payment method supported by each endpoint.
 
 ## Connect your runtime
 
