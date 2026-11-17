@@ -91,7 +91,15 @@ export function prerenderCode(): Plugin {
       }
       return out;
     };
-    const tiers = ["anonymous", "email", "apiKey", "link"] as const;
+    const tiers = [
+      "anonymous",
+      "email",
+      "apiKey",
+      "poppy",
+      "erc8004",
+      "webBotAuth",
+      "link",
+    ] as const;
     const panes: Record<string, PaneLine[]> = {};
     const clientBase = tokenize(samples.usage("anonymous"));
     const serverBase = tokenize(samples.serverUsage("anonymous"));

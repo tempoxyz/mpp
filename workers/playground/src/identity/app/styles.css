@@ -194,29 +194,67 @@ button:disabled {
   text-underline-offset: 3px;
 }
 
-/* Tier tabs, like the Per request and Streaming tabs on mpp.dev. */
-.tabs {
+/* The sample dropdown: who buys the haiku. */
+.sample {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  align-items: center;
+  gap: 8px 12px;
 }
-.tab {
-  border: 1px solid transparent;
+.sample-label {
   color: var(--secondary);
   font-size: 15px;
-  padding: 5px 12px;
 }
-.tab:hover {
+.sample-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.sample-select select {
+  appearance: none;
+  background: var(--button);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);
+  cursor: pointer;
+  font: 13px / 1.5 var(--mono);
+  min-width: 260px;
+  padding: 7px 36px 7px 12px;
+}
+.sample-select select:hover:not(:disabled) {
+  background: var(--button-hover);
+  border-color: var(--secondary);
+}
+.sample-select select:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+.sample-select select:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.sample-select optgroup,
+.sample-select option {
+  background: var(--panel);
   color: var(--ink);
 }
-.tab[data-active="true"] {
-  border-color: var(--ink);
-  color: var(--ink);
+.sample-select[data-tier="link"] select {
+  border-color: #00d66f;
+  color: #00d66f;
 }
-.tab .price {
+.sample-caret {
   color: var(--dim);
-  font-family: var(--mono);
-  font-size: 12px;
+  pointer-events: none;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-60%);
+}
+.sample-blurb {
+  color: var(--dim);
+  flex-basis: 100%;
+  font-size: 13px;
+  margin: 0;
 }
 
 /* Match the homepage Terminal.tsx marketing frame and _root.css terminal theme. */
@@ -424,13 +462,6 @@ button:disabled {
   flex-basis: 100%;
   gap: 8px;
   padding-left: 20px;
-}
-
-.tab[data-tier="link"] {
-  color: #00d66f;
-}
-.tab[data-tier="link"][data-active="true"] {
-  border-color: #00d66f;
 }
 
 .explain-toggle {

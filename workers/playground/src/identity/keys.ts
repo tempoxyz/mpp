@@ -32,3 +32,20 @@ export async function issuerJwk(privateKey: string): Promise<JsonWebKey> {
   );
   return crypto.subtle.exportKey("jwk", key) as Promise<JsonWebKey>;
 }
+
+/** A public JWK's RFC 7638 thumbprint: base64url SHA-256 of its required members, in order. */
+export async function thumbprint(jwk: {
+  crv: string;
+  kty: string;
+  x: string;
+}): Promise<string> {
+  const { crv, kty, x } = jwk;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(JSON.stringify({ crv, kty, x })),
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}

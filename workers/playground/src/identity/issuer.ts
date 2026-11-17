@@ -268,7 +268,7 @@ export async function handle(
     trace.step("issuer.verify", `code accepted for ${record.email}`);
 
     // step: issuer.sign
-    const { keyId, privateKey } = await key(env);
+    const { keyId, privateKey, publicKey } = await key(env);
     const iat = Math.floor(Date.now() / 1000);
     const attestation = await Attestation.sign(
       {
@@ -280,7 +280,7 @@ export async function handle(
         sub: record.email,
         type: "email",
       },
-      { key: privateKey, keyId },
+      { key: { privateKey, publicKey }, keyId },
     );
     trace.step(
       "issuer.sign",

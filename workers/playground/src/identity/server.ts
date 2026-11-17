@@ -13,6 +13,7 @@ import { createClient, type Hex, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { Chain } from "viem/tempo";
 
+import * as Agents from "./agents.js";
 import * as Haiku from "./haiku.js";
 import * as Issuer from "./issuer.js";
 import * as Keys from "./keys.js";
@@ -92,7 +93,7 @@ function createApp(env: Env, origin: string) {
       }),
     ],
   });
-  const tiers = Tiers.create({ audience: origin, env, issuer });
+  const tiers = Tiers.create({ audience: origin, env, issuer, store });
   return { issuer, mppx, store: store as unknown as Issuer.Store, tiers };
 }
 
@@ -137,7 +138,17 @@ export default {
         limit: Tiers.anonymousDailyLimit,
         origin,
         prices: Tiers.prices,
+        agents: {
+          botDirectory: Agents.botDirectory,
+          chainId: Agents.chainId,
+          poppyClientId: Agents.poppyClientId,
+          registry: Agents.registry,
+        },
       });
+
+    // The demo Personal Agent delegates a key to the browser, which signs each Session with it.
+    if (url.pathname === "/api/poppy/delegation" && request.method === "POST")
+      return Agents.delegate(env, request);
 
     // The demo inbox: the message the issuer would have emailed, while the code is pending.
     if (url.pathname.startsWith("/api/inbox/")) {
@@ -163,8 +174,15 @@ export default {
       );
     }
 
-    if (url.pathname === "/api/haiku")
-      return trace.attach(await haiku(request, { app, env, trace }));
+    if (url.pathname === "/api/haiku") {
+      // Agents sign the URL they called (mpp.dev's), which the Worker sees under its own host.
+      const incoming = new URL(request.url);
+      const signed = new Request(
+        origin + incoming.pathname + incoming.search,
+        request,
+      );
+      return trace.attach(await haiku(signed, { app, env, trace }));
+    }
 
     return new Response("Not found", { status: 404 });
   },
@@ -214,7 +232,7 @@ async function haiku(
     return Response.json(
       {
         error:
-          "Custom topics are for verified buyers: verify an email or use an API key.",
+          "Custom topics are for verified buyers: verify an email, use an API key or sign as an agent.",
       },
       { status: 403 },
     );
