@@ -194,29 +194,107 @@ button:disabled {
   text-underline-offset: 3px;
 }
 
-/* Tier tabs, like the Per request and Streaming tabs on mpp.dev. */
-.tabs {
+/* The sample dropdown: who buys the haiku. Styled like the panels, not the OS. */
+.sample {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
 }
-.tab {
-  border: 1px solid transparent;
+.sample-label {
   color: var(--secondary);
   font-size: 15px;
-  padding: 5px 12px;
 }
-.tab:hover {
+.sample-picker {
+  position: relative;
+}
+.sample-trigger,
+.sample-option {
+  display: grid;
+  grid-template-columns: 1fr auto 14px;
+  align-items: center;
+  gap: 16px;
+  font: 13px / 1.5 var(--mono);
+}
+.sample-trigger {
+  background: var(--button);
+  border: 1px solid var(--line);
+  border-radius: 0;
   color: var(--ink);
+  cursor: pointer;
+  min-width: 280px;
+  padding: 7px 12px;
+  text-align: left;
 }
-.tab[data-active="true"] {
-  border-color: var(--ink);
-  color: var(--ink);
+.sample-trigger:hover:not(:disabled),
+.sample-trigger[data-open="true"] {
+  background: var(--button-hover);
+  border-color: var(--secondary);
 }
-.tab .price {
+.sample-trigger:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+.sample-trigger:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.sample-price {
   color: var(--dim);
-  font-family: var(--mono);
-  font-size: 12px;
+}
+.sample-caret {
+  color: var(--dim);
+  text-align: right;
+}
+.sample-list {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 50%);
+  left: 0;
+  min-width: 100%;
+  padding: 4px 0;
+  position: absolute;
+  top: calc(100% + 4px);
+  z-index: 20;
+}
+.sample-group + .sample-group {
+  border-top: 1px solid var(--line-soft);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.sample-group-label {
+  color: var(--purple);
+  font: 11px / 1.5 var(--mono);
+  letter-spacing: 0.06em;
+  padding: 6px 12px 2px;
+  text-transform: uppercase;
+}
+.sample-option {
+  grid-template-columns: 14px 1fr auto;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 6px 12px;
+  text-align: left;
+  width: 100%;
+}
+.sample-option:hover:not(:disabled),
+.sample-option:focus-visible {
+  background: var(--button-hover);
+  outline: none;
+}
+.sample-option[aria-current="true"] {
+  color: var(--green);
+}
+.sample-option:disabled,
+.sample-option[data-tier="link"] {
+  color: var(--dim);
+}
+.sample-option:disabled {
+  cursor: default;
+}
+.sample-check {
+  color: var(--green);
 }
 
 /* Match the homepage Terminal.tsx marketing frame and _root.css terminal theme. */
@@ -424,13 +502,6 @@ button:disabled {
   flex-basis: 100%;
   gap: 8px;
   padding-left: 20px;
-}
-
-.tab[data-tier="link"] {
-  color: #00d66f;
-}
-.tab[data-tier="link"][data-active="true"] {
-  border-color: #00d66f;
 }
 
 .explain-toggle {

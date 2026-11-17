@@ -1,5 +1,6 @@
 import {
   Component,
+  type KeyboardEvent,
   lazy,
   type ReactNode,
   Suspense,
@@ -36,14 +37,30 @@ class LoadBoundary extends Component<
   }
 }
 
-type Tier = "anonymous" | "email" | "apiKey" | "link";
+type Tier =
+  | "anonymous"
+  | "email"
+  | "apiKey"
+  | "poppy"
+  | "erc8004"
+  | "webBotAuth"
+  | "link";
 /** The Worker's active tiers; Link is not implemented yet. */
 type Config = {
   issuer: string;
   limit: number;
   origin: string;
-  prices: Record<Exclude<Tier, "link">, string>;
+  prices: Partial<Record<Exclude<Tier, "link">, string>>;
+  /** The agent tiers' settings; absent from a Worker that predates them. */
+  agents?: {
+    botDirectory: string;
+    chainId: number;
+    poppyClientId: string;
+    registry: `0x${string}`;
+  };
 };
+/** The ERC-8004 agent this browser registered, kept across visits. */
+type RegisteredAgent = { agentId: string; key: HexValue; tx: HexValue };
 type Hop = { method: string; path: string; status: number };
 type Result = {
   haiku: string[];
@@ -54,6 +71,7 @@ type Result = {
   seen: string[];
   tier: string;
   topic?: string;
+  profile?: { agent?: string };
 };
 type PendingCode = {
   email: string;
@@ -64,12 +82,56 @@ type PendingCode = {
 const explorer = "https://explore.testnet.tempo.xyz";
 /** Where mpp.dev serves the playground, with a trailing slash. */
 const basePath = `${import.meta.env.BASE_URL}identity/`;
-const tiers: { id: Tier; label: string }[] = [
-  { id: "anonymous", label: "Anonymous" },
-  { id: "email", label: "Email" },
-  { id: "apiKey", label: "API key" },
-  { id: "link", label: "Link" },
+/** The samples, grouped as the dropdown lists them. */
+const groups: {
+  label: string;
+  tiers: { id: Tier; label: string }[];
+}[] = [
+  {
+    label: "People",
+    tiers: [
+      {
+        id: "anonymous",
+        label: "Anonymous",
+      },
+      {
+        id: "email",
+        label: "Email",
+      },
+      {
+        id: "apiKey",
+        label: "API key",
+      },
+    ],
+  },
+  {
+    label: "Agents",
+    tiers: [
+      {
+        id: "poppy",
+        label: "Personal Agent",
+      },
+      {
+        id: "erc8004",
+        label: "ERC-8004 agent",
+      },
+      {
+        id: "webBotAuth",
+        label: "Web Bot Auth",
+      },
+    ],
+  },
+  {
+    label: "Coming soon",
+    tiers: [
+      {
+        id: "link",
+        label: "Link",
+      },
+    ],
+  },
 ];
+const agentTiers: readonly Tier[] = ["poppy", "erc8004", "webBotAuth"];
 
 export function App() {
   const f = useDemo();
@@ -91,28 +153,7 @@ export function App() {
               the more personal it gets.
             </p>
           </div>
-          <div className="tabs">
-            {tiers.map((t) => (
-              <button
-                key={t.id}
-                className="tab"
-                data-active={t.id === f.tier}
-                data-tier={t.id}
-                disabled={f.busy}
-                onClick={() => f.selectTier(t.id)}
-                type="button"
-              >
-                {t.label}
-                {t.id === "link" && " (coming soon)"}
-                {t.id !== "link" && (
-                  <span className="price">
-                    {" "}
-                    {f.config?.prices[t.id] ?? prices[t.id]}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          <SamplePicker f={f} />
           <Panel f={f} />
           <Requests f={f} />
           <a className="link" href="https://mpp.dev/extensions/identity">
@@ -182,6 +223,117 @@ function Nav() {
         </details>
       </nav>
     </header>
+  );
+}
+
+/** The sample dropdown: who is buying, grouped into people, agents and what's coming. */
+function SamplePicker({ f }: { f: Demo }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  // A Worker that predates the agent tiers can't serve them yet.
+  const offline = f.config !== undefined && !f.config.agents;
+  const current = groups.flatMap((g) => g.tiers).find((t) => t.id === f.tier);
+  const price = (id: Tier) =>
+    id === "link" ? "soon" : `${f.config?.prices[id] ?? prices[id]} OUSD`;
+
+  // Close on a click outside the picker; focus the selected option on open.
+  useEffect(() => {
+    if (!open) return;
+    root.current
+      ?.querySelector<HTMLButtonElement>('[aria-current="true"]')
+      ?.focus();
+    function close(event: PointerEvent) {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  function choose(id: Tier) {
+    f.selectTier(id);
+    setOpen(false);
+    trigger.current?.focus();
+  }
+
+  /** Arrow keys move between options; Escape closes. */
+  function onOptionKey(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const buttons = [
+      ...(root.current?.querySelectorAll<HTMLButtonElement>(
+        ".sample-option:not(:disabled)",
+      ) ?? []),
+    ];
+    const i = buttons.indexOf(event.currentTarget);
+    const step = event.key === "ArrowDown" ? 1 : -1;
+    buttons[(i + step + buttons.length) % buttons.length]?.focus();
+  }
+
+  return (
+    <div className="sample">
+      <span className="sample-label" id="sample-label">
+        Buy as
+      </span>
+      <div className="sample-picker" ref={root}>
+        <button
+          aria-expanded={open}
+          aria-labelledby="sample-label"
+          className="sample-trigger"
+          data-open={open}
+          disabled={f.busy}
+          onClick={() => setOpen((value) => !value)}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown" && !open) {
+              event.preventDefault();
+              setOpen(true);
+            }
+            if (event.key === "Escape") setOpen(false);
+          }}
+          ref={trigger}
+          type="button"
+        >
+          <span>{current?.label}</span>
+          <span className="sample-price">{price(f.tier)}</span>
+          <span aria-hidden className="sample-caret">
+            {open ? "▴" : "▾"}
+          </span>
+        </button>
+        {open && (
+          <div className="sample-list">
+            {groups.map((group) => (
+              <div className="sample-group" key={group.label}>
+                <div className="sample-group-label">{group.label}</div>
+                {group.tiers.map((t) => (
+                  <button
+                    aria-current={t.id === f.tier}
+                    className="sample-option"
+                    data-tier={t.id}
+                    disabled={offline && agentTiers.includes(t.id)}
+                    id={`sample-${t.id}`}
+                    key={t.id}
+                    onClick={() => choose(t.id)}
+                    onKeyDown={onOptionKey}
+                    type="button"
+                  >
+                    <span aria-hidden className="sample-check">
+                      {t.id === f.tier ? "❯" : ""}
+                    </span>
+                    <span>{t.label}</span>
+                    <span className="sample-price">{price(t.id)}</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -343,6 +495,21 @@ function Composer({ f }: { f: Demo }) {
       {f.tier === "link" && (
         <span className="input dim">needs a Link OAuth client</span>
       )}
+      {f.tier === "poppy" && (
+        <span className="input dim">agent signs for {f.poppyUser}</span>
+      )}
+      {f.tier === "erc8004" && (
+        <span className="input dim">
+          {f.registering
+            ? "registering an agent on Moderato…"
+            : f.agent
+              ? `signs as agent #${f.agent.agentId}`
+              : "registers an agent on Moderato first"}
+        </span>
+      )}
+      {f.tier === "webBotAuth" && (
+        <span className="input dim">signs as Cloudflare's demo bot</span>
+      )}
       {f.low && f.tier !== "link" && (
         <button
           className="button"
@@ -354,11 +521,13 @@ function Composer({ f }: { f: Demo }) {
         </button>
       )}
       <button className="button" disabled={!f.ready || f.busy} type="submit">
-        {f.busy
-          ? "Paying…"
-          : f.tier === "link"
-            ? "Not set up"
-            : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
+        {f.registering
+          ? "Registering…"
+          : f.busy
+            ? "Paying…"
+            : f.tier === "link"
+              ? "Not set up"
+              : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
       </button>
       <div className="topic">
         <span className="dim">topic</span>
@@ -391,6 +560,24 @@ function Haiku({ f }: { f: Demo }) {
           <div key={i}>{line}</div>
         ))}
       </div>
+      {result.profile?.agent && (
+        <div className="dim">
+          Signed as {result.profile.agent}
+          {f.tier === "erc8004" && f.agent && (
+            <>
+              {" · "}
+              <a
+                className="link"
+                href={`${explorer}/tx/${f.agent.tx}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                registration
+              </a>
+            </>
+          )}
+        </div>
+      )}
       <div className="dim">
         {result.remaining !== undefined && `${result.remaining} left today · `}
         {result.receipt && (
@@ -551,6 +738,20 @@ function useDemo() {
   const [result, setResult] = useState<Result>();
   const [pending, setPending] = useState<PendingCode>();
   const [code, setCode] = useState("");
+  const [registering, setRegistering] = useState(false);
+  // The ERC-8004 agent this browser registered: one per browser, reused across visits.
+  const [agent, setAgent] = useState<RegisteredAgent | undefined>(() => {
+    const stored = localStorage.getItem("playground.erc8004");
+    return stored ? (JSON.parse(stored) as RegisteredAgent) : undefined;
+  });
+  // The pseudonymous user the demo Personal Agent acts for.
+  const [poppyUser] = useState(() => {
+    const stored = localStorage.getItem("playground.poppy.user");
+    if (stored) return stored;
+    const id = `user-${crypto.randomUUID().slice(0, 8)}`;
+    localStorage.setItem("playground.poppy.user", id);
+    return id;
+  });
   const hopsRef = useRef<Hop[]>([]);
 
   useEffect(() => {
@@ -566,7 +767,8 @@ function useDemo() {
   }, [address]);
 
   // Custom topics are for verified tiers: the server refuses one from an anonymous buyer (403).
-  const topicAllowed = tier === "email" || tier === "apiKey";
+  const topicAllowed =
+    tier === "email" || tier === "apiKey" || agentTiers.includes(tier);
   const sentTopic = topicAllowed ? topic.trim() : "";
 
   // The client code for the current inputs; the panel shows it as additions to the anonymous base.
@@ -671,8 +873,10 @@ function useDemo() {
       const key = [tier, email, apiKey, address].join("|");
       if (buyRef.current?.key !== key) {
         const Client = await loadClient();
+        const proof = await agentProof(Client);
         buyRef.current = {
           buy: Client.create({
+            agent: proof,
             apiKey: tier === "apiKey" ? apiKey : undefined,
             email:
               tier === "email" && email
@@ -723,6 +927,41 @@ function useDemo() {
     }
   }
 
+  /** The selected agent tier's proof, registering this browser's ERC-8004 agent the first time. */
+  async function agentProof(
+    Client: typeof import("../client.js"),
+  ): Promise<Client.Agent | undefined> {
+    const agents = config?.agents;
+    if (!agents || !agentTiers.includes(tier)) return undefined;
+    if (tier === "poppy")
+      return Client.poppyAgent({
+        delegationUrl: `${basePath}api/poppy/delegation`,
+        fetch: tracedFetch,
+        userId: poppyUser,
+      });
+    if (tier === "webBotAuth") return Client.demoBot(agents.botDirectory);
+    const { privateKeyToAccount, registerAgent } = await loadChain();
+    let registered = agent;
+    if (!registered) {
+      setRegistering(true);
+      try {
+        const { agentId, key, tx } = await registerAgent(agents.registry);
+        registered = { agentId: agentId.toString(), key, tx };
+        localStorage.setItem("playground.erc8004", JSON.stringify(registered));
+        setAgent(registered);
+      } finally {
+        setRegistering(false);
+      }
+    }
+    return {
+      account: privateKeyToAccount(registered.key),
+      agentId: BigInt(registered.agentId),
+      chainId: agents.chainId,
+      kind: "erc8004",
+      registry: agents.registry,
+    };
+  }
+
   async function askForCode({ email, id }: { email: string; id: string }) {
     const message = await fetch(`${basePath}api/inbox/${id}`)
       .then((r) => (r.ok ? r.json() : undefined))
@@ -744,10 +983,12 @@ function useDemo() {
       price === undefined ||
       Number(balance) >= Number(price)) &&
     (tier !== "email" || /@/.test(email)) &&
-    (tier !== "apiKey" || Boolean(apiKey));
+    (tier !== "apiKey" || Boolean(apiKey)) &&
+    (!agentTiers.includes(tier) || Boolean(config?.agents));
 
   return {
     address,
+    agent,
     apiKey,
     balance,
     busy,
@@ -762,7 +1003,9 @@ function useDemo() {
     link,
     low,
     pending,
+    poppyUser,
     price,
+    registering,
     ready,
     result,
     setApiKey,

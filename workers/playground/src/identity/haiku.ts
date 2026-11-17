@@ -46,6 +46,8 @@ export function prompt(
       const at = profile.domain ? ` at ${profile.domain}` : "";
       return `${profile.name}, a ${profile.role} on the ${profile.team} team${at}. Picture a day in that job and use their name.`;
     }
+    if (profile.kind === "agent")
+      return `${profile.agent}, an AI agent that pays for what it uses. Picture its working day and name it.`;
     if (profile.kind === "email")
       return `${profile.name}, whose email is at ${profile.domain}. Guess what ${profile.domain} does from its name, set the haiku in that world, and use their name.`;
     const theme = themes[Math.floor(Math.random() * themes.length)];
