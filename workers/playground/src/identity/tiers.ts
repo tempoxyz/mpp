@@ -159,13 +159,23 @@ export function create(parameters: {
       if (asPoppy.status !== "missing")
         trace.step("identity.agent", `poppy: ${asPoppy.reason}`);
       // ERC-8004 and Web Bot Auth signatures carry one-time nonces: the charge verifies them,
-      // once, so the tier here comes only from which signature the request carries.
+      // once. So the tier here comes from the signer the headers name, and only a signer this
+      // Worker trusts gets an agent tier; any other signed caller pays as anonymous.
       const { headers } = request;
-      if (headers.has("agent-id") && headers.has("agent-signature")) {
+      const agentId = headers.get("agent-id")?.toLowerCase() ?? "";
+      if (
+        headers.has("agent-signature") &&
+        agentId.startsWith(
+          `eip155:${Agents.chainId}:${Agents.registry.toLowerCase()}:`,
+        )
+      ) {
         trace.step("identity.agent", "erc8004 signature present");
         return "erc8004";
       }
-      if (headers.has("signature-agent") && headers.has("signature-input")) {
+      if (
+        headers.has("signature-input") &&
+        headers.get("signature-agent")?.includes(`"${Agents.botDirectory}"`)
+      ) {
         trace.step("identity.agent", "webBotAuth signature present");
         return "webBotAuth";
       }
@@ -180,7 +190,8 @@ export function create(parameters: {
       if (session)
         return {
           kind: "agent",
-          agent: `a Personal Agent acting for its user ${session.userId}`,
+          // The caller picks the user ID, so only a short plain one reaches the prompt.
+          agent: `a Personal Agent acting for ${topic(session.userId) ? `its user ${topic(session.userId)}` : "a pseudonymous user"}`,
           seen: ["agent", "user ID"],
         };
       const onchain = results?.get(agents.erc8004);
