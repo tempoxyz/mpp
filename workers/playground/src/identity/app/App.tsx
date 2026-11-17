@@ -1,5 +1,6 @@
 import {
   Component,
+  type KeyboardEvent,
   lazy,
   type ReactNode,
   Suspense,
@@ -227,39 +228,110 @@ function Nav() {
 
 /** The sample dropdown: who is buying, grouped into people, agents and what's coming. */
 function SamplePicker({ f }: { f: Demo }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   // A Worker that predates the agent tiers can't serve them yet.
   const offline = f.config !== undefined && !f.config.agents;
+  const current = groups.flatMap((g) => g.tiers).find((t) => t.id === f.tier);
+  const price = (id: Tier) =>
+    id === "link" ? "soon" : `${f.config?.prices[id] ?? prices[id]} OUSD`;
+
+  // Close on a click outside the picker; focus the selected option on open.
+  useEffect(() => {
+    if (!open) return;
+    root.current
+      ?.querySelector<HTMLButtonElement>('[aria-current="true"]')
+      ?.focus();
+    function close(event: PointerEvent) {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  function choose(id: Tier) {
+    f.selectTier(id);
+    setOpen(false);
+    trigger.current?.focus();
+  }
+
+  /** Arrow keys move between options; Escape closes. */
+  function onOptionKey(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      trigger.current?.focus();
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const buttons = [
+      ...(root.current?.querySelectorAll<HTMLButtonElement>(
+        ".sample-option:not(:disabled)",
+      ) ?? []),
+    ];
+    const i = buttons.indexOf(event.currentTarget);
+    const step = event.key === "ArrowDown" ? 1 : -1;
+    buttons[(i + step + buttons.length) % buttons.length]?.focus();
+  }
+
   return (
     <div className="sample">
-      <label className="sample-label" htmlFor="sample">
+      <span className="sample-label" id="sample-label">
         Buy as
-      </label>
-      <div className="sample-select" data-tier={f.tier}>
-        <select
+      </span>
+      <div className="sample-picker" ref={root}>
+        <button
+          aria-expanded={open}
+          aria-labelledby="sample-label"
+          className="sample-trigger"
+          data-open={open}
           disabled={f.busy}
-          id="sample"
-          onChange={(e) => f.selectTier(e.target.value as Tier)}
-          value={f.tier}
+          onClick={() => setOpen((value) => !value)}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown" && !open) {
+              event.preventDefault();
+              setOpen(true);
+            }
+            if (event.key === "Escape") setOpen(false);
+          }}
+          ref={trigger}
+          type="button"
         >
-          {groups.map((group) => (
-            <optgroup key={group.label} label={group.label}>
-              {group.tiers.map((t) => (
-                <option
-                  disabled={offline && agentTiers.includes(t.id)}
-                  key={t.id}
-                  value={t.id}
-                >
-                  {t.id === "link"
-                    ? t.label
-                    : `${t.label} · ${f.config?.prices[t.id] ?? prices[t.id]} OUSD`}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        <span aria-hidden className="sample-caret">
-          ⌄
-        </span>
+          <span>{current?.label}</span>
+          <span className="sample-price">{price(f.tier)}</span>
+          <span aria-hidden className="sample-caret">
+            {open ? "▴" : "▾"}
+          </span>
+        </button>
+        {open && (
+          <div className="sample-list">
+            {groups.map((group) => (
+              <div className="sample-group" key={group.label}>
+                <div className="sample-group-label">{group.label}</div>
+                {group.tiers.map((t) => (
+                  <button
+                    aria-current={t.id === f.tier}
+                    className="sample-option"
+                    data-tier={t.id}
+                    disabled={offline && agentTiers.includes(t.id)}
+                    id={`sample-${t.id}`}
+                    key={t.id}
+                    onClick={() => choose(t.id)}
+                    onKeyDown={onOptionKey}
+                    type="button"
+                  >
+                    <span aria-hidden className="sample-check">
+                      {t.id === f.tier ? "❯" : ""}
+                    </span>
+                    <span>{t.label}</span>
+                    <span className="sample-price">{price(t.id)}</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

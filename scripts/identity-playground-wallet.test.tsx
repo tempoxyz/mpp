@@ -75,6 +75,14 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** Picks a sample from the Buy as dropdown. */
+function choose(tier: string) {
+  fireEvent.click(screen.getByLabelText("Buy as"));
+  const option = document.getElementById(`sample-${tier}`);
+  if (!option) throw new Error(`no option ${tier}`);
+  fireEvent.click(option);
+}
+
 describe("identity playground wallet selection", () => {
   it.each([
     false,
@@ -165,9 +173,7 @@ describe("identity playground example changes", () => {
     });
     fireEvent.click(buy);
     await screen.findByText("Test response");
-    fireEvent.change(screen.getByLabelText("Buy as"), {
-      target: { value: "email" },
-    });
+    choose("email");
     expect(screen.queryByText("Test response")).toBeNull();
     expect((screen.getByLabelText("Topic") as HTMLInputElement).value).toBe("");
   });
@@ -202,9 +208,7 @@ describe("identity playground example changes", () => {
     fireEvent.click(buy);
     await screen.findByText("Old poem");
     expect(screen.getByText("Requests")).not.toBeNull();
-    fireEvent.change(screen.getByLabelText("Buy as"), {
-      target: { value: "apiKey" },
-    });
+    choose("apiKey");
     expect(screen.queryByText("Old poem")).toBeNull();
     expect(screen.queryByText("Requests")).toBeNull();
     expect(screen.queryByRole("link", { name: "receipt" })).toBeNull();
@@ -224,9 +228,7 @@ describe("identity playground example changes", () => {
     render(<App />);
     const topic = (await screen.findByLabelText("Topic")) as HTMLInputElement;
     expect(topic.disabled).toBe(true);
-    fireEvent.change(screen.getByLabelText("Buy as"), {
-      target: { value: "apiKey" },
-    });
+    choose("apiKey");
     expect((screen.getByLabelText("Topic") as HTMLInputElement).disabled).toBe(
       false,
     );
@@ -248,13 +250,13 @@ describe("identity playground example changes", () => {
     fireEvent.click(buy);
     await screen.findByRole("button", { name: "Paying…" });
     expect(
-      (screen.getByLabelText("Buy as") as HTMLSelectElement).disabled,
+      (screen.getByLabelText("Buy as") as HTMLButtonElement).disabled,
     ).toBe(true);
     await waitFor(() => expect(finish).toBeDefined());
     finish(new Response("Test response", { status: 400 }));
     await waitFor(() =>
       expect(
-        (screen.getByLabelText("Buy as") as HTMLSelectElement).disabled,
+        (screen.getByLabelText("Buy as") as HTMLButtonElement).disabled,
       ).toBe(false),
     );
   });
