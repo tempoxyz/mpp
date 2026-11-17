@@ -132,9 +132,12 @@ export function create(
     });
     const client = mppx;
     try {
-      const url = new URL(endpoint);
-      if (topic) url.searchParams.set("topic", topic);
-      return await (await client).fetch(url.toString());
+      // Spaces as %20, never +: agent signatures cover the exact query, and mpp.dev's proxy
+      // passes a + on as %20, which no longer matches what the agent signed.
+      const url = topic
+        ? `${endpoint}?topic=${encodeURIComponent(topic)}`
+        : endpoint;
+      return await (await client).fetch(url);
     } catch (error) {
       // The server priced the proof out (an attestation it no longer accepts): verify again next
       // time. Other failures, such as a dismissed wallet prompt, keep the attestation.
