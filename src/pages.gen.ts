@@ -98,6 +98,7 @@ type Page =
   | { path: '/sdk/typescript/client/EmailOtp.prover'; render: 'static' }
   | { path: '/sdk/typescript/client/EmailOtp.sendCode'; render: 'static' }
   | { path: '/sdk/typescript/client/EmailOtp.verifyCode'; render: 'static' }
+  | { path: '/sdk/typescript/client/Erc8004.prover'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
   | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
@@ -118,11 +119,16 @@ type Page =
   | { path: '/sdk/typescript/client/Mppx.create'; render: 'static' }
   | { path: '/sdk/typescript/client/Mppx.preparePayment'; render: 'static' }
   | { path: '/sdk/typescript/client/Mppx.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/Poppy.prover'; render: 'static' }
+  | { path: '/sdk/typescript/client/TempoId.attestations'; render: 'static' }
+  | { path: '/sdk/typescript/client/TempoId.prover'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
+  | { path: '/sdk/typescript/client/World.prover'; render: 'static' }
   | { path: '/sdk/typescript/cloudflare'; render: 'static' }
   | { path: '/sdk/typescript/core/Attestation.Constants'; render: 'static' }
+  | { path: '/sdk/typescript/core/Attestation.Issuer.create'; render: 'static' }
   | { path: '/sdk/typescript/core/Attestation.Jwks.resolver'; render: 'static' }
   | { path: '/sdk/typescript/core/Attestation.decode'; render: 'static' }
   | { path: '/sdk/typescript/core/Attestation.sign'; render: 'static' }
@@ -143,6 +149,7 @@ type Page =
   | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Currency'; render: 'static' }
   | { path: '/sdk/typescript/core/Discovery.Types'; render: 'static' }
   | { path: '/sdk/typescript/core/Discovery.listOperations'; render: 'static' }
   | { path: '/sdk/typescript/core/EmailOtp.Constants'; render: 'static' }
@@ -150,6 +157,7 @@ type Page =
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Headers'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Rejection'; render: 'static' }
+  | { path: '/sdk/typescript/core/Identity.SigningKey'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Status'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.Verifier'; render: 'static' }
   | { path: '/sdk/typescript/core/Identity.anyOf'; render: 'static' }
@@ -177,6 +185,8 @@ type Page =
   | { path: '/sdk/typescript/core/Store.sql'; render: 'static' }
   | { path: '/sdk/typescript/core/Store.sqlite'; render: 'static' }
   | { path: '/sdk/typescript/core/Store.tryClaim'; render: 'static' }
+  | { path: '/sdk/typescript/core/TempoId.Issuer.create'; render: 'static' }
+  | { path: '/sdk/typescript/core/World.Issuer.create'; render: 'static' }
   | { path: '/sdk/typescript/html/custom'; render: 'static' }
   | { path: '/sdk/typescript'; render: 'static' }
   | { path: '/sdk/typescript/middlewares/elysia'; render: 'static' }
@@ -186,6 +196,7 @@ type Page =
   | { path: '/sdk/typescript/proxy'; render: 'static' }
   | { path: '/sdk/typescript/server/Attestation.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/EmailOtp.verifier'; render: 'static' }
+  | { path: '/sdk/typescript/server/Erc8004.create'; render: 'static' }
   | { path: '/sdk/typescript/server/Link.attestation'; render: 'static' }
   | { path: '/sdk/typescript/server/Link.claims'; render: 'static' }
   | { path: '/sdk/typescript/server/Link.presentationVerifier'; render: 'static' }
@@ -215,17 +226,22 @@ type Page =
   | { path: '/sdk/typescript/server/Persona.startInquiry'; render: 'static' }
   | { path: '/sdk/typescript/server/Persona.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Persona.verifyWallet'; render: 'static' }
+  | { path: '/sdk/typescript/server/Poppy.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }
+  | { path: '/sdk/typescript/server/TempoId.create'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.from'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.http'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
+  | { path: '/sdk/typescript/server/World.verifier'; render: 'static' }
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
   | { path: '/sdk/typescript/tempo.Attribution'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenDeployments'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenFundingBaseUrl'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenFundingUrl'; render: 'static' }
+  | { path: '/sdk/typescript/x402/Siwx'; render: 'static' }
+  | { path: '/sdk/typescript/x402/assets'; render: 'static' }
   | { path: '/sdk/typescript/x402/express'; render: 'static' }
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }

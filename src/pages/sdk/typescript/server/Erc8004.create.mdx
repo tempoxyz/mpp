@@ -1,0 +1,98 @@
+---
+description: "Verify registered agents and payments from their wallets."
+imageDescription: "Bind payment to a registered agent"
+---
+
+# `Erc8004.Server.create` [Bind payment to a registered agent]
+
+Creates request and payment identity checks for one ERC-8004 registry.
+
+## Usage
+
+```ts twoslash
+import * as Erc8004 from 'mppx/extensions/identity/erc8004'
+import type { Store } from 'mppx'
+
+declare const store: Store.AtomicStore
+
+// [!code hl:start]
+const agents = Erc8004.Server.create({
+  chainId: 42431,
+  rpcUrl: 'https://rpc.moderato.tempo.xyz',
+  store,
+})
+// [!code hl:end]
+```
+
+Use a registry deployed on the configured chain. Pass `identity: [agents.verifier]` to require a signed request before a payment Challenge. Pass `identity: { payment: agents.paymentCheck }` to accept an eligible payment itself as proof; pair with [`Erc8004.Client.prover`](/sdk/typescript/client/Erc8004.prover).
+
+## Return type
+
+`Erc8004.Server.Erc8004` contains `verifier: Identity.Verifier<Erc8004.Agent>` and `paymentCheck: Identity.PaymentCheck<Erc8004.Agent>`. `Erc8004.Agent` contains `agentId: bigint`, global `id: string`, and checksummed `wallet: Address` from `getAgentWallet`.
+
+## Parameters
+
+Configuration type: `Erc8004.Server.create.Config`.
+
+### allow (optional)
+
+- **Type:** `(agent: Erc8004.Agent) => boolean | Promise<boolean>`
+
+Policy after verifying the wallet, such as an ID allowlist. Defaults to accept; `false` returns `forbidden`.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Registry and payment chain. Defaults to Tempo mainnet; use `42431` for Moderato.
+
+### client (optional)
+
+- **Type:** `Client`
+
+Viem client for the registry chain. Defaults to an HTTP client using `rpcUrl`.
+
+### registry (optional)
+
+- **Type:** `Address`
+
+Identity Registry address, default `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`.
+
+### rpcUrl (optional)
+
+- **Type:** `string`
+
+Defaults to the Tempo mainnet RPC. Required, or supply `client`, when selecting another chain.
+
+### store (optional)
+
+- **Type:** `Store.AtomicStore`
+
+Share an atomic store to accept each request-signature nonce once. Without it, a signature can be replayed during its `300`-second lifetime plus `60` seconds of tolerance.
+
+## Verification behavior
+
+- Reads the global ID from `Agent-Id`; requires the configured registry and chain. Reads `getAgentWallet` for the agent ID. Missing ID is `missing`, a wrong ID is `invalid`, no registered wallet is `forbidden`, and registry outages are `unavailable`.
+- The request verifier checks an EOA personal-sign signature or ERC-1271 contract signature, creation time, and nonce. It shares lookup and nonce verification for the same `Request` object.
+- The payment check accepts a `tempo` `charge` Credential with `transaction` or `proof` payload when its `did:pkh:eip155:<chainId>:<address>` source matches the registered wallet. The payment verifier still validates payment normally.
+- No Credential, transaction-hash Credentials, sessions, Zone payments, and other methods require the signed-request fallback. The payment check advertises `Identity-Required` type `erc8004` in a `402` Challenge. Unlike `Identity-Attestation-Required` on a request-stage rejection, this names the identity needed for payment, not a bearer attestation to acquire.
+- Missing/invalid proofs return `401`, policy or payer refusal returns `403`, and registry/replay-store outages return `503`.
+
+## Constants
+
+`Erc8004.Constants` exports the following defaults. Override both provider chain configurations for testnet use.
+
+| Property | Value |
+|---|---|
+| `chainId` | `4217` (Tempo mainnet) |
+| `clockTolerance` | `60` seconds |
+| `idHeader` | `Agent-Id` |
+| `identityRegistry` | `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432` |
+| `maxAge` | `300` seconds |
+| `rpcUrl` | `https://rpc.tempo.xyz` |
+| `signatureHeader` | `Agent-Signature` |
+| `type` | `erc8004` |
+
+## Errors
+
+Construction throws `TypeError` when a non-default chain has neither `client` nor `rpcUrl`; malformed registry addresses throw from viem address validation. Policy callback errors propagate.

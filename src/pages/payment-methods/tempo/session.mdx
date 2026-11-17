@@ -254,6 +254,12 @@ type SessionReceipt = {
 }
 ```
 
+### Stream paid items
+
+For billable per-item SSE and WebSocket streams, pass a generator function and await `stream.charge()` before generating each paid item. An already-created async iterable is rejected. To stream one request for a fixed price, use `unitType: 'request'`; automatic iterables are charged once before iteration. See [streaming usage](/guides/usage-based#streaming).
+
+An opening Credential’s declared `source` must match the payer authenticated by its signed transaction. Content vouchers must advance the accepted cumulative amount; management updates remain idempotent. Verify each content request instead of reusing an earlier Receipt.
+
 ### Production checklist
 
 - **Use a persistent store**: replace `Store.memory()` with a durable, atomic store so channel state survives restarts and scales across instances. See [`tempo.session`](/sdk/typescript/server/Method.tempo.session).

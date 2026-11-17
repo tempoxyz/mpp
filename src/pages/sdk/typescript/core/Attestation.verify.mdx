@@ -36,8 +36,10 @@ type VerifyResult =
 ```
 
 - **`valid`:** every check passed.
-- **`invalid`:** the token is malformed (including over `8192` characters), has the wrong algorithm, `typ`, issuer, type, or audience, lacks a key ID or subject, has a non-string `jti`, is expired, issued in the future, or older than `maxAge`, has an unknown key ID, or has a bad signature.
+- **`invalid`:** the token is malformed (including over `8192` characters), has the wrong algorithm, `typ`, issuer, type, or audience, lacks a key ID or subject, has a non-string `jti`, has an empty/non-string `uid` or malformed `cnf`, is expired, issued in the future, or older than `maxAge`, has an unknown key ID, or has a bad signature.
 - **`unavailable`:** `keyResolver` threw, so the issuer's keys couldn't be fetched. This says nothing about the token.
+
+Verification checks optional `cnf.addr` and `cnf.jkt` are strings, not that the caller owns that account or signing key. Enforce bindings in a provider-specific check. Additional claims are preserved.
 
 ## Parameters
 

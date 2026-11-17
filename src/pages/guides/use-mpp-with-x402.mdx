@@ -131,7 +131,7 @@ app.get('/api/data', (req, res) => {
 })
 ```
 
-The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For the first compatible extension-free EIP-3009 `exact` requirement, it also advertises native Tempo and source-chain EVM MPP Challenges. The source-chain MPP option verifies and settles through the same x402 resource server. Requirements with x402 extensions remain x402-only so their semantics aren't lost.
+The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For the first compatible extension-free EIP-3009 `exact` requirement, it also advertises MPP Challenges (payment offers) for Tempo, a payments blockchain, and for EVM payment on the chain in your existing x402 requirement. The source-chain MPP option verifies and settles through the same x402 resource server. Requirements with x402 extensions remain x402-only so their semantics aren't lost.
 
 :::note
 The x402 compatibility wrapper converts atomic payment requirements to display units automatically, so keep your existing x402 route configuration unchanged. When configuring `mppx.evm.charge` directly, convert atomic amounts first—for six-decimal USDC, `10000` becomes `0.01`.
@@ -171,7 +171,7 @@ const mppx = Mppx.create({
       // [!code focus:end]
     }),
   ],
-  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 
 app.get(
@@ -216,7 +216,76 @@ const method = evm.charge({
 })
 ```
 
-The default compares the echoed resource URL and payment requirements, and verifies any body digest against the request. Required binding also cryptographically binds MPP scope, opaque values, and metadata, but excludes standard clients that don't implement the extension.
+Resource binding compares the echoed resource URL and payment requirements. Both modes verify any body digest against the request. The default required binding also binds MPP scope, opaque values, and metadata to the signature, but excludes clients that don't implement the extension.
+
+### Recognize a wallet before charging
+
+Use x402's sign-in-with-x (SIWX) extension when an entitled wallet can access the resource without another payment. Configure `x402.siwx` on a native `evm.charge` method; it is separate from the official x402 adapter wrappers above.
+
+```ts twoslash [server.ts]
+import { Mppx, Store, evm } from 'mppx/server'
+
+declare const entitledWallets: ReadonlySet<string>
+
+const mppx = Mppx.create({
+  methods: [evm.charge({
+    currency: evm.assets.baseSepolia.USDC,
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    // [!code hl:start]
+    x402: {
+      facilitator: 'https://x402.org/facilitator',
+      siwx: {
+        grant: ({ address }) => entitledWallets.has(address.toLowerCase()),
+        origin: 'https://api.example.com',
+        store: Store.memory(),
+      },
+    },
+    // [!code hl:end]
+  })],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.01' })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ data: 'premium content' }))
+}
+```
+
+`grant` receives the verified address, chain ID, and a request copy. Return `true` only for wallets your application already entitles; return `false` to keep the normal payment flow. A granted proof produces a successful Receipt but moves no funds. SIWX is an access decision, not a payment or a substitute for required route identity checks.
+
+Use a fixed public `origin` and a shared atomic `store` in production. `Store.memory()` only covers one process. Proofs are single-use, including when `grant` declines; composed offers sharing a backend must share the same store object. Without a viem `client`, verification accepts EOA signatures only; provide a client on the offer's chain for smart-wallet signatures.
+
+Wrap the underlying fetch so the client tries SIWX before payment:
+
+```ts twoslash [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { Siwx } from 'mppx/x402'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+const fetch = Fetch.from({
+  // [!code hl:start]
+  fetch: Siwx.wrapFetch(globalThis.fetch, { account }),
+  // [!code hl:end]
+  methods: [evm.charge({
+    account,
+    currencies: [evm.assets.baseSepolia.USDC],
+    maxAmount: '1.00',
+  })],
+})
+console.log((await fetch('https://api.example.com/report')).status)
+// @log: 200
+```
+
+The wrapper retries one unpaid `402` with a signed proof. If the wallet isn't entitled and the server still returns `402`, the outer payment client pays as usual. It doesn't retry streamed uploads, redirected responses, existing payments, or single-use DPoP and HTTP message signatures. See [`Siwx`](/sdk/typescript/x402/Siwx) for the complete API and retry rules.
+
+### Configure token metadata
+
+EVM and x402 configuration accepts a raw token address, a chain-indexed token from `viem/tokens`, a token resolved to one chain, or known x402 asset metadata such as `evm.assets.baseSepolia.USDC`. Prefer known assets: they include the EIP-3009 signing domain and chain, not only the address and decimals.
+
+With a resolved token such as `usdc(84532)`, `chainId` and decimals are inferred, but you still supply EIP-3009 `authorization` metadata. A chain-indexed token needs `chainId`; a raw address needs `chainId`, decimals, and authorization metadata. A token resolved to another chain doesn't match an offer. See [`x402.assets`](/sdk/typescript/x402/assets).
 
 ## Client
 

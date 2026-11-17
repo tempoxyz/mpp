@@ -57,13 +57,15 @@ const phone = Attestation.Server.verifier({
 type Verified = {
   claims: {
     aud: string // your origin
+    cnf?: Attestation.Confirmation // optional account or signing-key binding
     exp: number // expiry, Unix seconds
     iat: number // issued at, Unix seconds
     iss: string // issuer URL
     jti?: string // attestation ID
-    sub: string // attested subject, such as a phone number
+    sub: string // attested fact or stable provider account ID
     type: string // attestation type
-  }
+    uid?: string // issuer user ID shared across attestation types
+  } & Readonly<Record<string, unknown>>
 }
 ```
 
@@ -75,6 +77,8 @@ type Verified = {
 | Issuer keys can't be fetched | `unavailable` | `503` | No |
 
 `Identity-Attestation-Required` names the type and issuer, such as `phone;issuer="https://issuer.example.com"`, so a client prover can acquire a replacement. On `503`, the client keeps its attestation.
+
+Optional `uid` correlates facts about the same user within one issuer. `cnf` has optional string `addr` and `jkt` plus extension members; this verifier checks shape only, not ownership. Use a provider-specific check to enforce the binding.
 
 ## Parameters
 

@@ -1,0 +1,61 @@
+---
+description: "Present Tempo ID tokens and request-bound DPoP proofs to your API."
+imageDescription: "Present a Tempo ID session"
+---
+
+# `TempoId.Client.prover` [Present a Tempo ID session]
+
+Creates a prover that sends a live Tempo ID access token with every scoped request.
+
+## Usage
+
+```ts twoslash
+import * as TempoId from 'mppx/extensions/identity/tempo'
+
+declare function accessToken(): Promise<string>
+
+// [!code hl:start]
+const user = TempoId.Client.prover({
+  accessToken,
+  scope: ['https://api.example.com'],
+})
+// [!code hl:end]
+```
+
+Pass `user` in client `Mppx.create({ identity: [user], methods })`. Both access tokens and Payment Credentials otherwise use `Authorization`. The seller must set `requiresAuth: true` in server `Mppx.create` to move the Payment Credential to `Payment-Authorization`, leaving `Authorization` for the identity token. For APIs that don't need the access token itself, prefer origin-bound [`TempoId.Client.attestations`](/sdk/typescript/client/TempoId.attestations).
+
+## Return type
+
+`Identity.Prover`. Sends `Authorization: Bearer <token>`, or `Authorization: DPoP <token>` and a fresh ES256 `DPoP` proof when `dpop` is supplied. An optional ID token travels in `Tempo-Id-Token`.
+
+## Parameters
+
+Configuration type: `TempoId.Client.prover.Config`.
+
+### accessToken
+
+- **Type:** `() => string | Promise<string>`
+
+Returns a live Tempo ID access token, for example from the signed-in session.
+
+### dpop (optional)
+
+- **Type:** `TempoId.DpopKey`
+
+The key bound to the access token: `{ jwk: JsonWebKey; privateKey: CryptoKey }`, using ES256. Without it, the prover uses Bearer authentication.
+
+### idToken (optional)
+
+- **Type:** `() => string | undefined | Promise<string | undefined>`
+
+Returns the matching ID token so the API can verify the user’s email. Omit when email is unnecessary.
+
+### scope
+
+- **Type:** `readonly string[] | '*'`
+
+Origins that receive the tokens. List only APIs for which the access token was issued.
+
+## Errors
+
+Throws `TypeError` rather than replacing a Payment Credential already in `Authorization`. Configure the server with `requiresAuth: true`. Token callback and signing failures propagate.

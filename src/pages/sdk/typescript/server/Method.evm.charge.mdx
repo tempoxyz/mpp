@@ -69,13 +69,13 @@ Returns whether this configured EVM offer is available when an HTTP handler comp
 
 - **Type:** `number`
 
-EVM chain ID. Required for custom currency addresses and inferred for known assets.
+EVM chain ID. Required for raw addresses and chain-indexed tokens; inferred from resolved tokens and known assets. A resolved token on another chain is rejected.
 
 ### currency
 
-- **Type:** `Address | KnownAsset`
+- **Type:** `Currency.Currency | KnownAsset`
 
-Token contract address or known EVM asset metadata.
+Token address, chain-indexed token, resolved token, or known EVM asset. Tokens supply decimals, but still need `authorization` unless known-asset transfer metadata provides the EIP-3009 domain. See [`Currency`](/sdk/typescript/core/Currency).
 
 ```ts twoslash
 import { evm } from 'mppx/server'
@@ -93,7 +93,7 @@ const method = evm.charge({
 
 - **Type:** `number`
 
-Token decimal places. Required for custom currency addresses and inferred for known assets.
+Token decimal places. Required for raw addresses; inferred from tokens and known assets when omitted.
 
 ### onPaymentSuccess (optional)
 
@@ -117,9 +117,11 @@ The callback runs only during broadcast. `validateCredential()` still verifies t
 
 ### x402 (optional)
 
-- **Type:** `{ facilitator?: string | Facilitator; fetch?: typeof globalThis.fetch; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource' }`
+- **Type:** `{ facilitator?: string | Facilitator; fetch?: typeof globalThis.fetch; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource'; siwx?: Siwx.ServerOptions }`
 
 x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`.
+
+`siwx` enables x402 sign-in-with-x for wallets your application already permits to access the resource. Provide a shared atomic `store` and a `grant` callback; each proof is single-use. A valid approved proof returns a Receipt without charging; declined or missing proofs continue to the payment flow. See [`Siwx.ServerOptions`](/sdk/typescript/x402/Siwx#server-options) and the [setup guide](/guides/use-mpp-with-x402#recognize-a-wallet-before-charging).
 
 `routeBinding` controls scoped-route interoperability:
 

@@ -119,6 +119,13 @@ const proxy = Proxy.create({
 
 Requests to routes not listed in the map receive `404`.
 
+For automatic Session proxying, price per request with `unitType: 'request'`. Per-item streams need a custom generator that awaits `stream.charge()` before upstream work; automatic per-item proxying returns `500` without forwarding content. Session payments always run verification instead of using proxy replay.
+
+- Pass session handlers directly, or preserve their `_internal` metadata in wrappers. Missing canonical pricing metadata returns `500` for session content, including request-priced sessions.
+- Keep billable per-item and request-priced session offers on separate routes. A composed per-item offer can make request-priced session content return `500` too.
+
+See [Proxy routes](/sdk/typescript/proxy#usage) and [streaming usage](/guides/usage-based#streaming).
+
 ### Start the proxy
 
 The proxy returns two handlers for different runtimes.
