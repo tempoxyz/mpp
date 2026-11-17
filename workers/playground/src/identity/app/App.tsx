@@ -130,7 +130,6 @@ const groups: {
     ],
   },
 ];
-const tiers = groups.flatMap((g) => g.tiers);
 const agentTiers: readonly Tier[] = ["poppy", "erc8004", "webBotAuth"];
 
 export function App() {
