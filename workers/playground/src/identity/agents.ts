@@ -21,8 +21,9 @@ export const registry = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 export const chainId = 42431;
 
 /** The demo Personal Agent's client_id. This Worker serves its metadata and keys in process. */
-export const poppyClientId = "https://mpp.dev/playground/identity/agent.json";
-const poppyJwksUri = "https://mpp.dev/playground/identity/agent-jwks.json";
+export const poppyClientId =
+  "https://mpp.dev/playground/identity/api/agent.json";
+const poppyJwksUri = "https://mpp.dev/playground/identity/api/agent-jwks.json";
 const poppyKid = "playground-agent-1";
 
 /** Cloudflare's demo bot directory: it publishes the RFC 9421 test key (test-key-ed25519). */
@@ -82,6 +83,25 @@ async function poppyKey(env: Env): Promise<AgentKey> {
   return agentKey;
 }
 
+/**
+ * The demo Personal Agent's client metadata and JWKS, which any verifier fetches from
+ * https://mpp.dev/playground/identity/api/agent.json and agent-jwks.json.
+ */
+export async function metadata(
+  env: Env,
+  url: string,
+): Promise<Response | undefined> {
+  if (url === poppyClientId)
+    return Response.json({
+      client_id: poppyClientId,
+      client_name: "MPP Playground Agent",
+      jwks_uri: poppyJwksUri,
+    });
+  if (url === poppyJwksUri)
+    return Response.json({ keys: [(await poppyKey(env)).publicJwk] });
+  return undefined;
+}
+
 /** The agent verifiers of one deployment, bound to its origin. */
 export function create(parameters: {
   audience: string;
@@ -97,15 +117,9 @@ export function create(parameters: {
     clients: [poppyClientId],
     fetch: async (input) => {
       const url = input instanceof Request ? input.url : String(input);
-      if (url === poppyClientId)
-        return Response.json({
-          client_id: poppyClientId,
-          client_name: "MPP Playground Agent",
-          jwks_uri: poppyJwksUri,
-        });
-      if (url === poppyJwksUri)
-        return Response.json({ keys: [(await poppyKey(env)).publicJwk] });
-      return new Response("Not found", { status: 404 });
+      return (
+        (await metadata(env, url)) ?? new Response("Not found", { status: 404 })
+      );
     },
   });
 

@@ -132,6 +132,18 @@ export default {
 
     if (url.pathname === "/api/health") return Response.json({ status: "ok" });
 
+    // The demo Personal Agent's metadata and keys, for verifiers outside this Worker.
+    if (
+      url.pathname === "/api/agent.json" ||
+      url.pathname === "/api/agent-jwks.json"
+    ) {
+      const served = await Agents.metadata(
+        env,
+        "https://mpp.dev" + base + url.pathname,
+      );
+      if (served) return served;
+    }
+
     if (url.pathname === "/api/config")
       return Response.json({
         issuer: app.issuer,

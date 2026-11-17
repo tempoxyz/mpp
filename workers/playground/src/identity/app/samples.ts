@@ -25,7 +25,7 @@ const clientParameters: Partial<Record<SampleTier, string>> = {
   erc8004: "\n  agent: { account: LocalAccount; id: bigint },",
   link: "\n  getLinkToken: () => Promise<string | undefined>,",
   poppy:
-    "\n  agent: { delegation: string; key: CryptoKeyPair; userId: string },",
+    "\n  agent: { delegation: () => Promise<string>; key: CryptoKeyPair; userId: string },",
   webBotAuth: "\n  botKey: CryptoKeyPair,",
 };
 
@@ -58,8 +58,8 @@ const clientIdentity: Partial<Record<SampleTier, string>> = {
   poppy: `    // Your Personal Agent delegated this key: it signs a Session for each request.
     identity: [Poppy.Client.prover({
       audience: origin,
-      clientId: 'https://mpp.dev/playground/identity/agent.json',
-      delegation: () => agent.delegation,
+      clientId: 'https://mpp.dev/playground/identity/api/agent.json',
+      delegation: agent.delegation, // Returns a current delegation, renewed before it expires.
       key: {
         jwk: await crypto.subtle.exportKey('jwk', agent.key.publicKey),
         privateKey: agent.key.privateKey,
@@ -174,7 +174,7 @@ const serverVerifier: Partial<Record<SampleTier, string>> = {
   poppy: `    // Accept Sessions from the Personal Agents you trust, by client_id.
     const verifier = Poppy.Server.verifier({
       audience: new URL(request.url).origin,
-      clients: ['https://mpp.dev/playground/identity/agent.json'],
+      clients: ['https://mpp.dev/playground/identity/api/agent.json'],
     })
 `,
   webBotAuth: `    // Trust keys from the bot directories you know, never one a caller names.

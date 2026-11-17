@@ -174,8 +174,8 @@ function apiKeyProver(key: string, origin: string): Identity.Prover {
 export type Agent =
   | {
       kind: "poppy";
-      /** The demo Personal Agent's delegation of the browser's key. */
-      delegation: string;
+      /** A current delegation of the browser's key from the demo Personal Agent. */
+      delegation: () => Promise<string>;
       clientId: string;
       key: CryptoKeyPair;
       jwk: JsonWebKey;
@@ -204,7 +204,7 @@ function agentProver(agent: Agent, origin: string): Identity.Prover {
     return Poppy.Client.prover({
       audience: origin,
       clientId: agent.clientId,
-      delegation: () => agent.delegation,
+      delegation: agent.delegation,
       key: { jwk: agent.jwk, privateKey: agent.key.privateKey },
       scope: [origin],
       userId: agent.userId,
@@ -243,18 +243,34 @@ export async function poppyAgent(parameters: {
     key.publicKey,
   );
   const jwk = { crv, kty, x, y };
-  const response = await fetch(delegationUrl, {
-    body: JSON.stringify({ publicKey: jwk }),
-    headers: { "content-type": "application/json" },
-    method: "POST",
-  });
-  if (!response.ok)
-    throw new Error(`The agent refused the delegation (${response.status}).`);
-  const { clientId, delegation } = (await response.json()) as {
-    clientId: string;
-    delegation: string;
+  async function request() {
+    const response = await fetch(delegationUrl, {
+      body: JSON.stringify({ publicKey: jwk }),
+      headers: { "content-type": "application/json" },
+      method: "POST",
+    });
+    if (!response.ok)
+      throw new Error(`The agent refused the delegation (${response.status}).`);
+    return (await response.json()) as {
+      clientId: string;
+      delegation: string;
+      expiresAt: number;
+    };
+  }
+  let current = await request();
+  // Ask again a minute before the delegation expires, so a long visit keeps signing.
+  async function delegation() {
+    if (Date.now() > current.expiresAt - 60_000) current = await request();
+    return current.delegation;
+  }
+  return {
+    clientId: current.clientId,
+    delegation,
+    jwk,
+    key,
+    kind: "poppy",
+    userId,
   };
-  return { clientId, delegation, jwk, key, kind: "poppy", userId };
 }
 
 /** Cloudflare's demo bot signs with the RFC 9421 test key, which its directory publishes. */
