@@ -30,5 +30,10 @@
   "observability": { "enabled": true },
   // mpp.dev/playground proxies here: attestations are bound to mpp.dev, and the caller's IP
   // comes from Vercel's X-Real-IP (Cloudflare only sees Vercel's).
-  "vars": { "PUBLIC_ORIGIN": "https://mpp.dev", "TRUST_PROXY_IP": "true" }
+  "vars": {
+    "PUBLIC_ORIGIN": "https://mpp.dev",
+    // The playground's registered Tempo ID app (public client ID), whose tokens carry compliance states.
+    "TEMPO_ID_CLIENT_ID": "gRHutzOVXKyNIzcdoEoSMBXppwtxlRdo",
+    "TRUST_PROXY_IP": "true"
+  }
 }
