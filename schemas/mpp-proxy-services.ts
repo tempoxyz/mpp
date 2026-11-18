@@ -116,6 +116,20 @@ export const mppProxyServices: MppProxyServiceDef[] = [
     provider: { name: "Serper", url: "https://serper.dev" },
   },
   {
+    id: "millionverifier",
+    url: "https://api.millionverifier.com",
+    integration: "third-party",
+    tags: ["email", "verification", "validation", "deliverability"],
+    docs: {
+      homepage: "https://www.millionverifier.com",
+      apiReference: "https://developer.millionverifier.com",
+    },
+    provider: {
+      name: "MillionVerifier",
+      url: "https://www.millionverifier.com",
+    },
+  },
+  {
     id: "codestorage",
     url: "https://code.storage",
     integration: "third-party",
