@@ -577,6 +577,10 @@ export default defineConfig({
           { text: "Monetize MCP servers", link: "/guides/monetize-mcp-server" },
           { text: "Monetize WebMCP tools", link: "/guides/webmcp-payments" },
           { text: "Accept x402 payments", link: "/guides/use-mpp-with-x402" },
+          {
+            text: "Get paid on Tempo for x402",
+            link: "/guides/tempo-x402-facilitator",
+          },
         ],
       },
       {
