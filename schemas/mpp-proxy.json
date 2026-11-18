@@ -1959,6 +1959,47 @@
       }
     },
     {
+      "id": "millionverifier",
+      "domain": "millionverifier.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "MillionVerifier",
+        "description": "Email verification: whether an address is deliverable, catch-all, disposable, role-based or invalid.",
+        "categories": [
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/verify",
+            "description": "Verify one email address",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "5000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://www.millionverifier.com",
+          "apiReference": "https://developer.millionverifier.com"
+        }
+      }
+    },
+    {
       "id": "openai",
       "domain": "openai.mpp.tempo.xyz",
       "manifest": {
