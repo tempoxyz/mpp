@@ -13,6 +13,22 @@ The Tempo x402 facilitator settles standard x402 payments on Base and pays the s
 
 Use it when you sell over x402 and want to receive stablecoins on Tempo. If you already accept MPP on Tempo, you're paid on Tempo directly and don't need it.
 
+## Supported networks
+
+Buyers pay on these networks:
+
+| Network | Chain ID | Token | Schemes |
+| --- | --- | --- | --- |
+| Base mainnet | `eip155:8453` | USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) | `exact` (EIP-3009 or Permit2; x402 v1 and v2) |
+
+Tempo pays you out on these networks:
+
+| Network | Chain ID | Token |
+| --- | --- | --- |
+| Tempo mainnet | `eip155:4217` | OUSD (`0x20c0000000000000000000006a37da5c996874be`) |
+
+`GET /v1/x402/supported` lists the networks and schemes the facilitator accepts right now.
+
 ## How it works
 
 <MermaidDiagram chart={`sequenceDiagram
@@ -169,10 +185,9 @@ All routes live under `https://api.tempo.xyz/v1/x402` and take your API key.
 | `GET /payouts/{id}` | Payout status and Tempo hash |
 | `GET /settlements/{transaction}` | Settlement and payout by Base hash |
 
-### Networks and amounts
+### Amounts and limits
 
-- **Accepted**: USDC on Base mainnet (`eip155:8453`), x402 `exact` scheme, v1 and v2
-- **Paid out**: OUSD on Tempo mainnet (`eip155:4217`)
+- **Networks**: see [Supported networks](#supported-networks)
 - **Amount**: the payout equals the amount settled on Base. The facilitator charges no fee today; any fee is announced before it applies
 - **Limits**: the minimum payment is 0.01 USDC. Verify refuses amounts outside the facilitator's limits
 
