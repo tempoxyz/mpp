@@ -358,15 +358,16 @@ Keep selling over x402 and get paid on Tempo. The Tempo x402 facilitator settles
     Seller-->>Buyer: (2) 402 Payment Required
     Buyer->>Seller: (3) Retry with signed USDC
     Seller->>Tempo: (4) Verify and settle
-    Note over Tempo: (5) Settle USDC on Base, send OUSD on Tempo
-    Tempo-->>Seller: (6) Base and Tempo hashes
+    Note over Tempo: (5) Settle USDC on Base
+    Tempo-->>Seller: (6) Base hash, payout pending
     Seller-->>Buyer: (7) 200 OK
+    Note over Tempo: (8) Base block safe: send OUSD on Tempo
 `} />
 
 1. Your route offers an `exact` USDC payment to Tempo's deposit address (`payTo`).
 2. `extra.tempoSettlement` names your Tempo payout address.
 3. The facilitator settles on Base, then sends the same amount in OUSD to your payout address.
-4. The settle response returns both hashes.
+4. The settle response returns the Base hash and a pending Tempo payout. Tempo sends the payout minutes later, after Base marks the settlement's block safe from reorgs.
 
 ### Supported payment networks
 
@@ -666,7 +667,7 @@ app.listen(4021)
 
 ### Check the payout
 
-Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo pays out once Base marks the settlement's block safe from reorgs, which takes minutes.
+Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo sends it after Base marks the settlement's block safe from reorgs, which takes minutes.
 
 ```json
 {
@@ -687,7 +688,7 @@ Settle waits for the Base receipt, then returns the Base hash in `transaction` a
 ```
 
 - Poll `GET /v1/x402/payouts/{payoutId}` until `status` is `confirmed`: `pending`, then `submitted` (broadcast on Tempo), then `confirmed`
-- `transaction` is the Tempo hash once set, and it never changes
+- After it's set, `transaction` is the Tempo hash and never changes
 - Or look it up by Base hash with `GET /v1/x402/settlements/{transaction}`
 - If settle answers `settlement_pending`, retry it with the same payload; it never pays twice
 
