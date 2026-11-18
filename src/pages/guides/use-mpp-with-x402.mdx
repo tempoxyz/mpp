@@ -375,26 +375,20 @@ Keep selling over x402 and get paid on Tempo. The Tempo x402 facilitator settles
 | Pay in | Base mainnet | `eip155:8453` | [USDC](https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) | `exact` (EIP-3009 or Permit2) |
 | Pay out | Tempo mainnet | `eip155:4217` | [OUSD](https://explore.tempo.xyz/address/0x20c0000000000000000000006a37da5c996874be) | — |
 
-`GET /v1/x402/supported` lists what the facilitator accepts right now.
+- `GET /v1/x402/supported` lists what the facilitator accepts right now. It's public
+- Permit2 payments need an existing Permit2 allowance or an EIP-2612 permit; Tempo doesn't sponsor gas for an ERC-20 approval
 
 ### Set up the facilitator
 
 - Create a [Tempo API](https://tempo.xyz/developers/docs/api/mpp) key with the `mpp:write` scope
-- Send it in the `tempo-api-key` header (or as `Authorization: Bearer`); sandbox keys get `403 production_api_key_required`
-- Register each Tempo payout address; the facilitator refuses unregistered ones
-
-```bash [test.sh]
-$ curl -X POST https://api.tempo.xyz/v1/x402/payout-addresses \
-    -H "tempo-api-key: $TEMPO_API_KEY" \
-    -H "content-type: application/json" \
-    -d '{"address":"0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00","label":"Main payouts"}'
-```
+- Send it on verify and settle in the `tempo-api-key` header (or as `Authorization: Bearer`)
+- Sandbox keys get `403 production_api_key_required`. Testnet: coming soon
 
 Then point your server at the facilitator:
 
 - **Facilitator**—`https://api.tempo.xyz/v1/x402`, with your API key
-- **`payTo`**—the deposit address from `/supported`
-- **`extra.tempoSettlement`**—your registered Tempo payout address
+- **`payTo`**—Tempo's deposit address from `GET /v1/x402/supported`. The x402 SDK reads it when the middleware starts
+- **`extra.tempoSettlement`**—the Tempo address that receives payouts, from `TEMPO_PAYOUT_ADDRESS`. Any valid Tempo address works; it's screened
 
 <Tabs stateKey="x402-facilitator-sdk">
 <Tab title="x402 SDK">
@@ -427,22 +421,20 @@ const network = 'eip155:8453' // Base mainnet
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
-  createAuthHeaders: async () => ({ settle: headers, supported: headers, verify: headers }),
+  createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
 
-// Tempo's deposit address on Base
-const { kinds } = await facilitator.getSupported()
-const payTo = kinds.find((kind) => kind.network === network && kind.scheme === 'exact')
-  ?.extra?.payTo as string
-
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
+
+// Tempo's deposit address on Base, read from GET /supported when the middleware starts
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
 
 export const GET = withX402(
   async () => NextResponse.json({ data: 'premium content' }),
   {
     accepts: {
-      extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+      extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
       network,
       payTo,
       price: '$0.01',
@@ -463,16 +455,14 @@ const network = 'eip155:8453' // Base mainnet
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
-  createAuthHeaders: async () => ({ settle: headers, supported: headers, verify: headers }),
+  createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
 
-// Tempo's deposit address on Base
-const { kinds } = await facilitator.getSupported()
-const payTo = kinds.find((kind) => kind.network === network && kind.scheme === 'exact')
-  ?.extra?.payTo as string
-
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
+
+// Tempo's deposit address on Base, read from GET /supported when the middleware starts
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
 
 const app = new Hono()
 
@@ -481,7 +471,7 @@ app.use(
     {
       'GET /api/data': {
         accepts: {
-          extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
           network,
           payTo,
           price: '$0.01',
@@ -508,16 +498,14 @@ const network = 'eip155:8453' // Base mainnet
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
-  createAuthHeaders: async () => ({ settle: headers, supported: headers, verify: headers }),
+  createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
 
-// Tempo's deposit address on Base
-const { kinds } = await facilitator.getSupported()
-const payTo = kinds.find((kind) => kind.network === network && kind.scheme === 'exact')
-  ?.extra?.payTo as string
-
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
+
+// Tempo's deposit address on Base, read from GET /supported when the middleware starts
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
 
 const app = express()
 
@@ -526,7 +514,7 @@ app.use(
     {
       'GET /api/data': {
         accepts: {
-          extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
           network,
           payTo,
           price: '$0.01',
@@ -568,6 +556,13 @@ $ bun add mppx
 
 :::
 
+Set `TEMPO_DEPOSIT_ADDRESS` to the deposit address from `GET /v1/x402/supported` (no API key needed):
+
+```bash [test.sh]
+$ export TEMPO_DEPOSIT_ADDRESS=$(curl -s https://api.tempo.xyz/v1/x402/supported \
+    | jq -r '[.kinds[] | select(.network == "eip155:8453")][0].extra.payTo')
+```
+
 :::code-group
 
 ```ts [Next.js]
@@ -582,10 +577,10 @@ const mppx = Mppx.create({
   methods: [
     evm.charge({
       currency: evm.assets.base.USDC,
-      // Tempo's deposit address on Base
-      recipient: await evm.facilitatorPayTo(facilitator, { network: 'eip155:8453' }),
+      // Tempo's deposit address on Base, from GET /v1/x402/supported
+      recipient: process.env.TEMPO_DEPOSIT_ADDRESS as `0x${string}`,
       x402: {
-        extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+        extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
         facilitator,
       },
     }),
@@ -611,10 +606,10 @@ const mppx = Mppx.create({
   methods: [
     evm.charge({
       currency: evm.assets.base.USDC,
-      // Tempo's deposit address on Base
-      recipient: await evm.facilitatorPayTo(facilitator, { network: 'eip155:8453' }),
+      // Tempo's deposit address on Base, from GET /v1/x402/supported
+      recipient: process.env.TEMPO_DEPOSIT_ADDRESS as `0x${string}`,
       x402: {
-        extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+        extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
         facilitator,
       },
     }),
@@ -644,10 +639,10 @@ const mppx = Mppx.create({
   methods: [
     evm.charge({
       currency: evm.assets.base.USDC,
-      // Tempo's deposit address on Base
-      recipient: await evm.facilitatorPayTo(facilitator, { network: 'eip155:8453' }),
+      // Tempo's deposit address on Base, from GET /v1/x402/supported
+      recipient: process.env.TEMPO_DEPOSIT_ADDRESS as `0x${string}`,
       x402: {
-        extra: { tempoSettlement: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00' },
+        extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
         facilitator,
       },
     }),
@@ -671,7 +666,7 @@ app.listen(4021)
 
 ### Check the payout
 
-The settle response returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`:
+Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo pays out once the Base block is final, which takes minutes.
 
 ```json
 {
@@ -682,35 +677,64 @@ The settle response returns the Base hash in `transaction` and the Tempo payout 
     "tempoSettlement": {
       "amount": "10000",
       "payoutId": "x402pay_…",
-      "status": "submitted",
-      "to": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+      "status": "pending",
+      "to": "0x…",
       "token": "0x20c0000000000000000000006a37DA5C996874BE",
-      "transaction": "0x…"
+      "transaction": null
     }
   }
 }
 ```
 
-- Settle returns once the payout is broadcast, and the Tempo hash never changes
-- Poll `GET /v1/x402/payouts/{payoutId}` until `status` is `confirmed`
+- Poll `GET /v1/x402/payouts/{payoutId}` until `status` is `confirmed`: `pending`, then `submitted` (broadcast on Tempo), then `confirmed`
+- `transaction` is the Tempo hash once set, and it never changes
 - Or look it up by Base hash with `GET /v1/x402/settlements/{transaction}`
+- If settle answers `settlement_pending`, retry it with the same payload; it never pays twice
+
+### Pay a Tempo-facilitated seller
+
+Buyers pay USDC on Base mainnet, so use `evm.assets.base.USDC`:
+
+```ts [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+const fetch = Fetch.from({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com'],
+  },
+  methods: [
+    evm.charge({
+      account,
+      currencies: [evm.assets.base.USDC],
+      maxAmount: '1.00',
+    }),
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+```
+
+- `@x402/fetch` refuses payments above $1 by default; raise its limit to pay pricier routes
+- If a paid request comes back with `settlement_pending`, resend the same signed payment; don't sign a new one
 
 ### Facilitator reference
 
-All routes live under `https://api.tempo.xyz/v1/x402` and take your API key.
+All routes live under `https://api.tempo.xyz/v1/x402`. `GET /supported` is public; the others take your API key.
 
 | Route | Purpose |
 |---|---|
 | `GET /supported` | Supported kinds, with the deposit address in `extra.payTo` |
 | `POST /verify`, `POST /settle` | Standard x402 verify and settle |
-| `POST /payout-addresses` | Register a payout address: `{ address, label? }` |
-| `GET /payout-addresses` | List payout addresses |
-| `DELETE /payout-addresses/{address}` | Remove a payout address |
 | `GET /payouts/{id}` | Payout status and Tempo hash |
 | `GET /settlements/{transaction}` | Settlement and payout by Base hash |
 
 - **Amount**: the payout equals the amount settled on Base. No fee today; any fee is announced before it applies
-- **Limits**: the minimum payment is 0.01 USDC
+- **Limits**: no minimum, any amount above 0. Tempo sets the maximum per payment
+- **Rate limits**: settle is rate-limited per API key and answers `429` with `Retry-After` over the limit
 - **Retries**: retrying a settled payment returns the same response and never pays twice
 
 Verify and settle answer HTTP `200` with `isValid: false` or `success: false` and a reason:
@@ -719,10 +743,9 @@ Verify and settle answer HTTP `200` with `isValid: false` or `success: false` an
 |---|---|
 | `payto_not_deposit_address` | Set `payTo` to the deposit address from `/supported` |
 | `missing_tempo_settlement` | Add `extra.tempoSettlement` to the payment requirements |
-| `payout_address_not_registered` | Register the address with `POST /payout-addresses` |
-| `amount_below_minimum`, `amount_above_maximum` | Price the route within the limits |
+| `amount_above_maximum` | Price the route below the maximum per payment |
 | `insufficient_tempo_liquidity` | Temporary—retry later |
-| `settlement_pending` | The Base settlement hasn't confirmed yet—retry the same settle request |
+| `settlement_pending` | Rare: Base hasn't returned the receipt yet—retry settle with the same payload |
 
 ## Next steps
 
