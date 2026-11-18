@@ -20,6 +20,10 @@ const messageType = "tempo-id:code";
 // visits id.tempo.xyz, and the page sees it as closed. The two pages share an origin, so the
 // popup hands the code back on a BroadcastChannel instead.
 const channelName = "playground.tempoId";
+const ackType = "tempo-id:ack";
+
+/** Ends the sign-in still waiting, so a new click starts over (a closed popup never answers). */
+let cancelPending: (() => void) | undefined;
 
 /** The stored session, unless it expired. */
 export function load(): Session | undefined {
@@ -48,22 +52,38 @@ export function handleReturn(): boolean {
   const params = new URLSearchParams(location.search);
   const state = params.get("state");
   if (!state?.startsWith("tempo-id.")) return false;
+  const code = params.get("code");
   const channel = new BroadcastChannel(channelName);
+  // Close only once the page that started this sign-in confirms it got the result: a post with
+  // no listener (the page timed out, reloaded or started over) fails silently.
+  const unanswered = setTimeout(() => {
+    channel.close();
+    document.body.textContent =
+      "The playground isn't waiting for this sign-in any more. Go back to it and sign in again.";
+  }, 2000);
+  channel.onmessage = (event: MessageEvent) => {
+    const data = event.data as { state?: string; type?: string };
+    if (data?.type !== ackType || data.state !== state) return;
+    clearTimeout(unanswered);
+    channel.close();
+    window.close();
+    // A browser that keeps the window open shows where to go next.
+    document.body.textContent = code
+      ? "Signed in. You can close this window."
+      : "Sign-in didn't finish. You can close this window.";
+  };
   channel.postMessage({
-    code: params.get("code"),
+    code,
     error: params.get("error_description") ?? params.get("error"),
     state,
     type: messageType,
   });
-  channel.close();
-  window.close();
-  // A browser that keeps the window open shows where to go next.
-  document.body.textContent = "Signed in. You can close this window.";
   return true;
 }
 
 /** Signs in with Tempo ID in a popup. Call it from a click, so the popup isn't blocked. */
 export async function signIn(config: Config): Promise<Session> {
+  cancelPending?.();
   // Open the popup before any await, while the click still counts as a user gesture.
   const popup = window.open(
     "about:blank",
@@ -100,7 +120,12 @@ export async function signIn(config: Config): Promise<Session> {
     function done() {
       clearTimeout(timeout);
       channel.close();
+      cancelPending = undefined;
     }
+    cancelPending = () => {
+      done();
+      reject(new Superseded());
+    };
     function listen(event: MessageEvent) {
       const data = event.data as {
         code?: string | null;
@@ -110,6 +135,7 @@ export async function signIn(config: Config): Promise<Session> {
       };
       if (data?.type !== messageType) return;
       if (data.state !== state) return;
+      channel.postMessage({ state, type: ackType });
       done();
       if (data.code) resolve(data.code);
       else reject(new Error(data.error ?? "Tempo ID sign-in failed."));
@@ -169,4 +195,12 @@ function base64url(bytes: Uint8Array) {
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replace(/=+$/, "");
+}
+
+/** A sign-in that a newer click replaced: the page ignores it. */
+export class Superseded extends Error {
+  override name = "TempoIdSignIn.Superseded";
+  constructor() {
+    super("A newer Tempo ID sign-in replaced this one.");
+  }
 }
