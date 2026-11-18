@@ -3,6 +3,7 @@
 //   anonymous  nothing                                  0.03 OUSD, a haiku for a stranger
 //   email      a verified email (Identity-Attestation)  0.02 OUSD, a haiku about you
 //   apiKey     an API key, or an @tempo.xyz email 0.01 OUSD, inside jokes
+//   tempoId    a Tempo ID sign-in (a passkey)        0.01 OUSD, a haiku for a verified Tempo user
 //   poppy      a Personal Agent's Session               0.02 OUSD, a haiku for the agent's user
 //   erc8004    an ERC-8004 agent's wallet signature     0.02 OUSD, a haiku for the agent
 //   webBotAuth a Web Bot Auth request signature         0.02 OUSD, a haiku for the bot
@@ -15,12 +16,14 @@ import * as Identity from "mppx/identity";
 import * as Agents from "./agents.js";
 import * as Issuer from "./issuer.js";
 import { prices as defaultPrices } from "./prices.js";
+import * as TempoId from "./tempo-id.js";
 import type { Trace } from "./trace.js";
 
 export type Tier =
   | "anonymous"
   | "email"
   | "apiKey"
+  | "tempoId"
   | "poppy"
   | "erc8004"
   | "webBotAuth";
@@ -46,6 +49,7 @@ const rank: Record<Tier, number> = {
   erc8004: 1,
   webBotAuth: 1,
   apiKey: 2,
+  tempoId: 2,
 };
 
 /** A member, as the server's own database knows them. */
@@ -69,7 +73,7 @@ const memberDomains: Record<string, Omit<Member, "name">> = {
 export function create(parameters: {
   audience: string;
   issuer: string;
-  env: Issuer.Env & Agents.Env;
+  env: Issuer.Env & Agents.Env & TempoId.Env;
   store: Parameters<typeof Agents.create>[0]["store"];
 }) {
   const { audience, env, issuer, store } = parameters;
@@ -106,11 +110,15 @@ export function create(parameters: {
   });
   const member = Identity.anyOf(apiKey, memberEmail);
 
+  // step: identity.tempoId
+  const tempoId = TempoId.create({ env, store });
+
   /** The verifier a tier requires; none for anonymous. */
   const verifiers = {
     anonymous: undefined,
     email,
     apiKey: member,
+    tempoId,
     ...agents,
   } as const;
 
@@ -134,11 +142,23 @@ export function create(parameters: {
      * proof never blocks the request: it falls back to the tier below.
      */
     async resolve(request: Request, trace: Trace): Promise<Tier> {
-      const [asMember, asEmail, asPoppy] = await Promise.all([
+      const [asTempoId, asMember, asEmail, asPoppy] = await Promise.all([
+        tempoId.verify(request.clone()),
         member.verify(request.clone()),
         email.verify(request.clone()),
         agents.poppy.verify(request.clone()),
       ]);
+      // A Tempo ID token that fails (expired, or a flagged account) falls back to a lower tier.
+      if (asTempoId.status === "valid") {
+        const { email } = asTempoId.value;
+        trace.step(
+          "identity.tempoId",
+          `verified Tempo ID user${email ? ` ${email}` : ""}`,
+        );
+        return "tempoId";
+      }
+      if (asTempoId.status !== "missing")
+        trace.step("identity.tempoId", asTempoId.reason);
       if (asMember.status === "valid") {
         trace.step("identity.member", "member proof verified");
         return "apiKey";
@@ -183,6 +203,24 @@ export function create(parameters: {
     },
     /** The caller's identity details the haiku may use, from a settled charge. */
     profile(results: Identity.Results | undefined): Profile {
+      const user = results?.get(tempoId);
+      if (user) {
+        const states = Object.values(user.compliance);
+        return {
+          kind: "tempoId",
+          accounts: user.accounts.length,
+          // Empty until Tempo ID registers the playground's app.
+          compliance:
+            states.length > 0 ? [...new Set(states)].join(", ") : undefined,
+          name: user.email ? nameOf(user.email) : undefined,
+          seen: [
+            "Tempo ID user",
+            ...(user.email ? ["email"] : []),
+            "accounts",
+            ...(states.length > 0 ? ["compliance"] : []),
+          ],
+        };
+      }
       const key = results?.get(apiKey);
       if (key)
         return { kind: "member", ...key, seen: ["name", "team", "role"] };
@@ -198,7 +236,10 @@ export function create(parameters: {
       if (onchain)
         return {
           kind: "agent",
-          agent: `ERC-8004 agent #${onchain.agentId} on Tempo`,
+          agent:
+            BigInt(onchain.agentId) === Agents.demoAgentId
+              ? `the MPP Demo Agent (ERC-8004 #${onchain.agentId} on Tempo)`
+              : `ERC-8004 agent #${onchain.agentId} on Tempo`,
           seen: ["agent ID", "wallet"],
         };
       const bot = results?.get(agents.webBotAuth);
@@ -212,9 +253,7 @@ export function create(parameters: {
         results?.get(memberEmail)?.email ?? results?.get(email)?.email;
       if (!address) return { kind: "anonymous", seen: [] };
       const [local, domain] = address.split("@") as [string, string];
-      const name = local
-        .split(/[.+_-]/)[0]!
-        .replace(/^./, (c) => c.toUpperCase());
+      const name = nameOf(local);
       const known = Object.hasOwn(memberDomains, domain)
         ? memberDomains[domain]
         : undefined;
@@ -225,11 +264,26 @@ export function create(parameters: {
   };
 }
 
+/** A first name from an email address or its local part: "ada.lovelace@…" is Ada. */
+function nameOf(address: string) {
+  return address
+    .split("@")[0]!
+    .split(/[.+_-]/)[0]!
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
 /** What the haiku knows about the caller, and which verified claims it came from. */
 export type Profile =
   | { kind: "anonymous"; seen: string[] }
   | { kind: "email"; name: string; domain: string; seen: string[] }
   | { kind: "agent"; agent: string; seen: string[] }
+  | {
+      kind: "tempoId";
+      accounts: number;
+      compliance?: string | undefined;
+      name?: string | undefined;
+      seen: string[];
+    }
   | ({ kind: "member"; domain?: string; seen: string[] } & Member);
 
 /** Whether `tier` is above `other`. */

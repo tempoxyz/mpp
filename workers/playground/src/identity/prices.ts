@@ -4,6 +4,7 @@ export const prices = {
   anonymous: "0.03",
   email: "0.02",
   apiKey: "0.01",
+  tempoId: "0.01",
   poppy: "0.02",
   erc8004: "0.02",
   webBotAuth: "0.02",

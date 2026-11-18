@@ -5,6 +5,7 @@ import { Mppx, tempo } from "mppx/client";
 import * as EmailOtp from "mppx/extensions/identity/email-otp";
 import * as Erc8004 from "mppx/extensions/identity/erc8004";
 import * as Poppy from "mppx/extensions/identity/poppy";
+import * as TempoId from "mppx/extensions/identity/tempo";
 import * as WebBotAuth from "mppx/extensions/identity/web-bot-auth";
 import type * as Identity from "mppx/identity";
 
@@ -29,6 +30,13 @@ export type Options = {
     | undefined;
   /** Plug in an API key. */
   apiKey?: string | undefined;
+  /** Plug in a Tempo ID sign-in: its access token, and its ID token for the email. */
+  tempoId?:
+    | {
+        accessToken: () => string | Promise<string>;
+        idToken?: (() => string | undefined) | undefined;
+      }
+    | undefined;
   /** Plug in an agent's proof. */
   agent?: Agent | undefined;
   /**
@@ -52,6 +60,7 @@ export function create(
     issuer,
     maxAmount,
     origin,
+    tempoId,
     wallet,
   } = options;
   const endpoint = options.endpoint ?? `${origin}/api/haiku`;
@@ -98,6 +107,16 @@ export function create(
 
     // prover: API key
     if (apiKey) identity.push(apiKeyProver(apiKey, origin));
+
+    // prover: Tempo ID
+    if (tempoId)
+      identity.push(
+        TempoId.Client.prover({
+          accessToken: tempoId.accessToken,
+          idToken: tempoId.idToken,
+          scope: [origin],
+        }),
+      );
 
     // prover: agent
     if (agent) identity.push(agentProver(agent, origin));
