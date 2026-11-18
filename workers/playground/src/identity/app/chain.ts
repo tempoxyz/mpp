@@ -1,5 +1,12 @@
 // Tempo testnet reads, the faucet and test-wallet keys, loaded on demand after first paint.
-import { createClient, http, parseAbi, parseEventLogs } from "viem";
+import {
+  createClient,
+  http,
+  keccak256,
+  parseAbi,
+  parseEventLogs,
+  stringToHex,
+} from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { writeContractSync } from "viem/actions";
 import { Actions, Chain } from "viem/tempo";
@@ -16,6 +23,14 @@ const registryAbi = parseAbi([
   "function register() returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
 ]);
+
+/**
+ * The MPP Demo Agent's wallet key, public by design: anyone may sign as ERC-8004 agent #1086.
+ * It holds no funds; the payment comes from the visitor's own wallet.
+ */
+export const demoAgentKey = keccak256(
+  stringToHex("mpp.dev playground: MPP Demo Agent"),
+);
 
 /**
  * Registers a new agent in the ERC-8004 Identity Registry: funds a fresh key from the faucet for

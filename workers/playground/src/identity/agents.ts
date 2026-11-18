@@ -20,6 +20,17 @@ export const registry = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 /** Tempo Moderato. */
 export const chainId = 42431;
 
+/**
+ * The MPP Demo Agent: ERC-8004 agent #1086 on Moderato, which anyone may sign as. Its wallet's
+ * key is keccak256("mpp.dev playground: MPP Demo Agent"), public by design like the RFC 9421 test
+ * key the demo bot uses: it holds no funds and proves only that a caller chose to act as the demo.
+ */
+export const demoAgentId = 1086n;
+
+/** The demo agent's ERC-8004 registration file, which its tokenURI names. */
+export const demoAgentUri =
+  "https://mpp.dev/playground/identity/api/erc8004-agent.json";
+
 /** The demo Personal Agent's client_id. This Worker serves its metadata and keys in process. */
 export const poppyClientId =
   "https://mpp.dev/playground/identity/api/agent.json";
@@ -96,6 +107,23 @@ export async function metadata(
       client_id: poppyClientId,
       client_name: "MPP Playground Agent",
       jwks_uri: poppyJwksUri,
+    });
+  if (url === demoAgentUri)
+    return Response.json({
+      type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+      name: "MPP Demo Agent",
+      description:
+        "A shared demo agent for the MPP identity playground. Anyone may sign as it on Tempo Moderato.",
+      services: [
+        { name: "web", endpoint: "https://mpp.dev/playground/identity" },
+      ],
+      registrations: [
+        {
+          agentId: Number(demoAgentId),
+          agentRegistry: `eip155:${chainId}:${registry}`,
+        },
+      ],
+      supportedTrust: [],
     });
   if (url === poppyJwksUri)
     return Response.json({ keys: [(await poppyKey(env)).publicJwk] });

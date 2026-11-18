@@ -3,6 +3,7 @@ export type SampleTier =
   | "anonymous"
   | "email"
   | "apiKey"
+  | "tempoId"
   | "poppy"
   | "erc8004"
   | "webBotAuth"
@@ -16,6 +17,7 @@ const clientImports: Partial<Record<SampleTier, string>> = {
     "import * as Erc8004 from 'mppx/extensions/identity/erc8004'\nimport type { LocalAccount } from 'viem'\n",
   link: "import * as Link from 'mppx/extensions/identity/link'\n",
   poppy: "import * as Poppy from 'mppx/extensions/identity/poppy'\n",
+  tempoId: "import * as TempoId from 'mppx/extensions/identity/tempo'\n",
   webBotAuth:
     "import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'\n",
 };
@@ -26,6 +28,8 @@ const clientParameters: Partial<Record<SampleTier, string>> = {
   link: "\n  getLinkToken: () => Promise<string | undefined>,",
   poppy:
     "\n  agent: { delegation: () => Promise<string>; key: CryptoKeyPair; userId: string },",
+  tempoId:
+    "\n  session: { accessToken: () => Promise<string>; idToken: () => string | undefined },",
   webBotAuth: "\n  botKey: CryptoKeyPair,",
 };
 
@@ -53,6 +57,13 @@ const clientIdentity: Partial<Record<SampleTier, string>> = {
     identity: [Link.Client.attestation({
       scope: [origin],
       token: getLinkToken,
+    })],
+`,
+  tempoId: `    // The user signed in with Tempo ID (a passkey): send their tokens to this origin only.
+    identity: [TempoId.Client.prover({
+      accessToken: session.accessToken,
+      idToken: session.idToken, // Lets the server read the user's email.
+      scope: [origin],
     })],
 `,
   poppy: `    // Your Personal Agent delegated this key: it signs a Session for each request.
@@ -138,6 +149,7 @@ const serverImports: Partial<Record<SampleTier, string>> = {
   erc8004: "import * as Erc8004 from 'mppx/extensions/identity/erc8004'\n",
   link: "import * as Link from 'mppx/extensions/identity/link'\n",
   poppy: "import * as Poppy from 'mppx/extensions/identity/poppy'\n",
+  tempoId: "import * as TempoId from 'mppx/extensions/identity/tempo'\n",
   webBotAuth:
     "import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'\n",
 };
@@ -171,6 +183,15 @@ const serverVerifier: Partial<Record<SampleTier, string>> = {
     }).verifier
 `,
   link: "    const verifier = Link.Server.attestation()\n",
+  tempoId: `    // Accept tokens Tempo ID issued to your app; refuse accounts its screening flagged.
+    const verifier = TempoId.Server.create({
+      allow: (user) =>
+        !Object.values(user.compliance).some(
+          (state) => state === 'blocked' || state === 'exit_only',
+        ),
+      clientId: 'https://mpp.dev/playground/identity/api/tempo-id.json',
+    }).verifier
+`,
   poppy: `    // Accept Sessions from the Personal Agents you trust, by client_id.
     const verifier = Poppy.Server.verifier({
       audience: new URL(request.url).origin,
@@ -197,6 +218,7 @@ const serverPrice: Record<SampleTier, string> = {
   erc8004: "0.02",
   link: "0.01",
   poppy: "0.02",
+  tempoId: "0.01",
   webBotAuth: "0.02",
 };
 
@@ -227,7 +249,11 @@ ${nonce ? "  // Use a shared store in production, such as a Durable Object or Re
       getClient: () => client,
       recipient: options.recipient,
     })],
-${tier === "link" ? "    requiresAuth: true, // Keep Link tokens in Authorization.\n" : ""}    secretKey: options.secretKey,
+${
+  tier === "link" || tier === "tempoId"
+    ? `    requiresAuth: true, // Keep ${tier === "link" ? "Link" : "Tempo ID"} tokens in Authorization.\n`
+    : ""
+}    secretKey: options.secretKey,
   })
 
   return async (request: Request): Promise<Response> => {
@@ -257,7 +283,7 @@ export function explanations(source: string) {
     ],
     [
       "requiresAuth:",
-      "Keep the Link token in Authorization; payment Credentials use Payment-Authorization.",
+      "Keep the identity token in Authorization; payment Credentials use Payment-Authorization.",
     ],
     [
       "const { attestation } =",
@@ -275,6 +301,14 @@ export function explanations(source: string) {
     [
       "identity: [WebBotAuth.Client.prover",
       "Sign each request (RFC 9421) with a key your bot's HTTPS directory publishes.",
+    ],
+    [
+      "identity: [TempoId.Client.prover",
+      "Send the Tempo ID access token, and the ID token for the email, only to this origin.",
+    ],
+    [
+      "const verifier = TempoId.Server.create",
+      "Accept tokens Tempo ID issued to your app. With a registered app, the token carries the account's compliance states, so a flagged account is refused before it pays.",
     ],
     [
       "const verifier = Poppy.Server.verifier",

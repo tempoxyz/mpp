@@ -14,6 +14,7 @@ import type * as Client from "../client.js";
 import { prices } from "../prices.js";
 import { CodeLines } from "./CodeLines.js";
 import { serverUsage, usage } from "./samples.js";
+import * as TempoIdSignIn from "./tempo-id.js";
 import { ousd, unloaded, type Wallet } from "./wallet-state.js";
 
 // The payment client (mppx) is most of the page's JavaScript: load it after first paint, so the
@@ -41,6 +42,7 @@ type Tier =
   | "anonymous"
   | "email"
   | "apiKey"
+  | "tempoId"
   | "poppy"
   | "erc8004"
   | "webBotAuth"
@@ -51,16 +53,18 @@ type Config = {
   limit: number;
   origin: string;
   prices: Partial<Record<Exclude<Tier, "link">, string>>;
+  /** Tempo ID sign-in settings; absent from a Worker that predates the tier. */
+  tempoId?: TempoIdSignIn.Config;
   /** The agent tiers' settings; absent from a Worker that predates them. */
   agents?: {
     botDirectory: string;
     chainId: number;
+    /** The shared MPP Demo Agent's ERC-8004 ID. */
+    demoAgentId?: string;
     poppyClientId: string;
     registry: `0x${string}`;
   };
 };
-/** The ERC-8004 agent this browser registered, kept across visits. */
-type RegisteredAgent = { agentId: string; key: HexValue; tx: HexValue };
 type Hop = { method: string; path: string; status: number };
 type Result = {
   haiku: string[];
@@ -71,7 +75,12 @@ type Result = {
   seen: string[];
   tier: string;
   topic?: string;
-  profile?: { agent?: string };
+  profile?: {
+    agent?: string;
+    accounts?: number;
+    compliance?: string;
+    kind?: string;
+  };
 };
 type PendingCode = {
   email: string;
@@ -80,6 +89,9 @@ type PendingCode = {
 };
 
 const explorer = "https://explore.testnet.tempo.xyz";
+/** The MPP Demo Agent's registration in the ERC-8004 Identity Registry on Moderato. */
+const demoAgentRegistration =
+  "0x143a8de4da30097bc48a3e94bf84f57e9a507204d0bc533df2b197437a01155b";
 /** Where mpp.dev serves the playground, with a trailing slash. */
 const basePath = `${import.meta.env.BASE_URL}identity/`;
 /** The samples, grouped as the dropdown lists them. */
@@ -99,6 +111,10 @@ const groups: {
         label: "Email",
       },
       {
+        id: "tempoId",
+        label: "Tempo ID",
+      },
+      {
         id: "apiKey",
         label: "API key",
       },
@@ -113,7 +129,7 @@ const groups: {
       },
       {
         id: "erc8004",
-        label: "ERC-8004 agent",
+        label: "MPP Demo Agent (ERC-8004)",
       },
       {
         id: "webBotAuth",
@@ -314,7 +330,12 @@ function SamplePicker({ f }: { f: Demo }) {
                     aria-current={t.id === f.tier}
                     className="sample-option"
                     data-tier={t.id}
-                    disabled={offline && agentTiers.includes(t.id)}
+                    disabled={
+                      (offline && agentTiers.includes(t.id)) ||
+                      (t.id === "tempoId" &&
+                        f.config !== undefined &&
+                        !f.config.tempoId)
+                    }
                     id={`sample-${t.id}`}
                     key={t.id}
                     onClick={() => choose(t.id)}
@@ -500,13 +521,33 @@ function Composer({ f }: { f: Demo }) {
       )}
       {f.tier === "erc8004" && (
         <span className="input dim">
-          {f.registering
-            ? "registering an agent on Moderato…"
-            : f.agent
-              ? `signs as agent #${f.agent.agentId}`
-              : "registers an agent on Moderato first"}
+          signs as the MPP Demo Agent, #
+          {f.config?.agents?.demoAgentId ?? "1086"} on Moderato
         </span>
       )}
+      {f.tier === "tempoId" &&
+        (f.tempoId ? (
+          <span className="input dim">
+            signed in{f.tempoId.email ? ` as ${f.tempoId.email}` : ""} ·{" "}
+            <button
+              className="action"
+              disabled={f.busy}
+              onClick={f.signOutTempoId}
+              type="button"
+            >
+              sign out
+            </button>
+          </span>
+        ) : (
+          <button
+            className="action"
+            disabled={!f.config?.tempoId || f.signingIn}
+            onClick={f.signInTempoId}
+            type="button"
+          >
+            {f.signingIn ? "Signing in…" : "Sign in with Tempo ID"}
+          </button>
+        ))}
       {f.tier === "webBotAuth" && (
         <span className="input dim">signs as Cloudflare's demo bot</span>
       )}
@@ -521,13 +562,11 @@ function Composer({ f }: { f: Demo }) {
         </button>
       )}
       <button className="button" disabled={!f.ready || f.busy} type="submit">
-        {f.registering
-          ? "Registering…"
-          : f.busy
-            ? "Paying…"
-            : f.tier === "link"
-              ? "Not set up"
-              : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
+        {f.busy
+          ? "Paying…"
+          : f.tier === "link"
+            ? "Not set up"
+            : `Buy haiku · ${f.price ?? prices[f.tier]} OUSD`}
       </button>
       <div className="topic">
         <span className="dim">topic</span>
@@ -563,12 +602,12 @@ function Haiku({ f }: { f: Demo }) {
       {result.profile?.agent && (
         <div className="dim">
           Signed as {result.profile.agent}
-          {f.tier === "erc8004" && f.agent && (
+          {f.tier === "erc8004" && (
             <>
               {" · "}
               <a
                 className="link"
-                href={`${explorer}/tx/${f.agent.tx}`}
+                href={`${explorer}/tx/${demoAgentRegistration}`}
                 rel="noreferrer"
                 target="_blank"
               >
@@ -576,6 +615,13 @@ function Haiku({ f }: { f: Demo }) {
               </a>
             </>
           )}
+        </div>
+      )}
+      {result.profile?.kind === "tempoId" && (
+        <div className="dim">
+          Verified Tempo ID user · {result.profile.accounts ?? 0}{" "}
+          {result.profile.accounts === 1 ? "account" : "accounts"} · compliance{" "}
+          {result.profile.compliance ?? "not shared with this app"}
         </div>
       )}
       <div className="dim">
@@ -738,12 +784,9 @@ function useDemo() {
   const [result, setResult] = useState<Result>();
   const [pending, setPending] = useState<PendingCode>();
   const [code, setCode] = useState("");
-  const [registering, setRegistering] = useState(false);
-  // The ERC-8004 agent this browser registered: one per browser, reused across visits.
-  const [agent, setAgent] = useState<RegisteredAgent | undefined>(() => {
-    const stored = localStorage.getItem("playground.erc8004");
-    return stored ? (JSON.parse(stored) as RegisteredAgent) : undefined;
-  });
+  // The Tempo ID sign-in, kept for the tab's session.
+  const [tempoId, setTempoId] = useState(() => TempoIdSignIn.load());
+  const [signingIn, setSigningIn] = useState(false);
   // The pseudonymous user the demo Personal Agent acts for.
   const [poppyUser] = useState(() => {
     const stored = localStorage.getItem("playground.poppy.user");
@@ -768,7 +811,10 @@ function useDemo() {
 
   // Custom topics are for verified tiers: the server refuses one from an anonymous buyer (403).
   const topicAllowed =
-    tier === "email" || tier === "apiKey" || agentTiers.includes(tier);
+    tier === "email" ||
+    tier === "apiKey" ||
+    tier === "tempoId" ||
+    agentTiers.includes(tier);
   const sentTopic = topicAllowed ? topic.trim() : "";
 
   // The client code for the current inputs; the panel shows it as additions to the anonymous base.
@@ -796,6 +842,27 @@ function useDemo() {
     } finally {
       setFunding(false);
     }
+  }
+
+  /** Signs in with Tempo ID in a popup: call from a click. */
+  async function signInTempoId() {
+    if (!config?.tempoId) return;
+    setSigningIn(true);
+    setError(undefined);
+    try {
+      setTempoId(await TempoIdSignIn.signIn(config.tempoId));
+      buyRef.current = undefined;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSigningIn(false);
+    }
+  }
+
+  function signOutTempoId() {
+    TempoIdSignIn.signOut();
+    setTempoId(undefined);
+    buyRef.current = undefined;
   }
 
   function link() {
@@ -862,6 +929,12 @@ function useDemo() {
 
   async function buy() {
     if (!config || !address) return;
+    // An open page outlives the access token: sign in again rather than send an expired one.
+    if (tier === "tempoId" && tempoId && !TempoIdSignIn.load()) {
+      signOutTempoId();
+      setError("Your Tempo ID sign-in expired. Sign in again.");
+      return;
+    }
     setBusy(true);
     setError(undefined);
     setResult(undefined);
@@ -870,7 +943,9 @@ function useDemo() {
     try {
       // Reuse the client while its inputs hold: the email prover keeps its attestation,
       // so repeat purchases don't send a new code each time.
-      const key = [tier, email, apiKey, address].join("|");
+      const key = [tier, email, apiKey, address, tempoId?.accessToken].join(
+        "|",
+      );
       if (buyRef.current?.key !== key) {
         const Client = await loadClient();
         const proof = await agentProof(Client);
@@ -878,6 +953,13 @@ function useDemo() {
           buy: Client.create({
             agent: proof,
             apiKey: tier === "apiKey" ? apiKey : undefined,
+            tempoId:
+              tier === "tempoId" && tempoId
+                ? {
+                    accessToken: () => tempoId.accessToken,
+                    idToken: () => tempoId.idToken,
+                  }
+                : undefined,
             email:
               tier === "email" && email
                 ? { address: email, code: askForCode }
@@ -927,7 +1009,7 @@ function useDemo() {
     }
   }
 
-  /** The selected agent tier's proof, registering this browser's ERC-8004 agent the first time. */
+  /** The selected agent tier's proof. */
   async function agentProof(
     Client: typeof import("../client.js"),
   ): Promise<Client.Agent | undefined> {
@@ -940,22 +1022,11 @@ function useDemo() {
         userId: poppyUser,
       });
     if (tier === "webBotAuth") return Client.demoBot(agents.botDirectory);
-    const { privateKeyToAccount, registerAgent } = await loadChain();
-    let registered = agent;
-    if (!registered) {
-      setRegistering(true);
-      try {
-        const { agentId, key, tx } = await registerAgent(agents.registry);
-        registered = { agentId: agentId.toString(), key, tx };
-        localStorage.setItem("playground.erc8004", JSON.stringify(registered));
-        setAgent(registered);
-      } finally {
-        setRegistering(false);
-      }
-    }
+    // Every visitor signs as the shared MPP Demo Agent: no registration, no wait.
+    const { demoAgentKey, privateKeyToAccount } = await loadChain();
     return {
-      account: privateKeyToAccount(registered.key),
-      agentId: BigInt(registered.agentId),
+      account: privateKeyToAccount(demoAgentKey),
+      agentId: BigInt(agents.demoAgentId ?? "1086"),
       chainId: agents.chainId,
       kind: "erc8004",
       registry: agents.registry,
@@ -984,11 +1055,11 @@ function useDemo() {
       Number(balance) >= Number(price)) &&
     (tier !== "email" || /@/.test(email)) &&
     (tier !== "apiKey" || Boolean(apiKey)) &&
+    (tier !== "tempoId" || Boolean(tempoId)) &&
     (!agentTiers.includes(tier) || Boolean(config?.agents));
 
   return {
     address,
-    agent,
     apiKey,
     balance,
     busy,
@@ -1005,7 +1076,6 @@ function useDemo() {
     pending,
     poppyUser,
     price,
-    registering,
     ready,
     result,
     setApiKey,
@@ -1015,7 +1085,11 @@ function useDemo() {
     sentTopic,
     setWallet,
     setTopic,
+    signInTempoId,
+    signingIn,
+    signOutTempoId,
     source,
+    tempoId,
     tier,
     topic,
     topicAllowed,

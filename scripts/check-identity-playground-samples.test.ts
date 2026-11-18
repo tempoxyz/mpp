@@ -12,6 +12,7 @@ const tiers: SampleTier[] = [
   "anonymous",
   "email",
   "apiKey",
+  "tempoId",
   "poppy",
   "erc8004",
   "webBotAuth",
