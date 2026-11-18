@@ -16,6 +16,10 @@ export type Session = {
 
 const storageKey = "playground.tempoId";
 const messageType = "tempo-id:code";
+// mpp.dev sends Cross-Origin-Opener-Policy: same-origin, so the popup loses window.opener once it
+// visits id.tempo.xyz, and the page sees it as closed. The two pages share an origin, so the
+// popup hands the code back on a BroadcastChannel instead.
+const channelName = "playground.tempoId";
 
 /** The stored session, unless it expired. */
 export function load(): Session | undefined {
@@ -43,17 +47,18 @@ export function signOut() {
 export function handleReturn(): boolean {
   const params = new URLSearchParams(location.search);
   const state = params.get("state");
-  if (!state?.startsWith("tempo-id.") || !window.opener) return false;
-  (window.opener as Window).postMessage(
-    {
-      code: params.get("code"),
-      error: params.get("error_description") ?? params.get("error"),
-      state,
-      type: messageType,
-    },
-    location.origin,
-  );
+  if (!state?.startsWith("tempo-id.")) return false;
+  const channel = new BroadcastChannel(channelName);
+  channel.postMessage({
+    code: params.get("code"),
+    error: params.get("error_description") ?? params.get("error"),
+    state,
+    type: messageType,
+  });
+  channel.close();
   window.close();
+  // A browser that keeps the window open shows where to go next.
+  document.body.textContent = "Signed in. You can close this window.";
   return true;
 }
 
@@ -86,14 +91,15 @@ export async function signIn(config: Config): Promise<Session> {
   popup.location.href = url.toString();
 
   const code = await new Promise<string>((resolve, reject) => {
-    const closed = setInterval(() => {
-      if (!popup.closed) return;
+    // popup.closed reads true as soon as the popup leaves mpp.dev, so wait on a timer instead.
+    const channel = new BroadcastChannel(channelName);
+    const timeout = setTimeout(() => {
       done();
-      reject(new Error("Tempo ID sign-in was closed."));
-    }, 500);
+      reject(new Error("Tempo ID sign-in timed out. Try again."));
+    }, 5 * 60_000);
     function done() {
-      clearInterval(closed);
-      window.removeEventListener("message", listen);
+      clearTimeout(timeout);
+      channel.close();
     }
     function listen(event: MessageEvent) {
       const data = event.data as {
@@ -102,14 +108,13 @@ export async function signIn(config: Config): Promise<Session> {
         state?: string;
         type?: string;
       };
-      if (event.origin !== location.origin || data?.type !== messageType)
-        return;
+      if (data?.type !== messageType) return;
       if (data.state !== state) return;
       done();
       if (data.code) resolve(data.code);
       else reject(new Error(data.error ?? "Tempo ID sign-in failed."));
     }
-    window.addEventListener("message", listen);
+    channel.onmessage = listen;
   });
 
   const response = await fetch(new URL("/oauth2/token", config.issuer), {
