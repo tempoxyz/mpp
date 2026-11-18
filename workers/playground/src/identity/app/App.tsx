@@ -929,6 +929,12 @@ function useDemo() {
 
   async function buy() {
     if (!config || !address) return;
+    // An open page outlives the access token: sign in again rather than send an expired one.
+    if (tier === "tempoId" && tempoId && !TempoIdSignIn.load()) {
+      signOutTempoId();
+      setError("Your Tempo ID sign-in expired. Sign in again.");
+      return;
+    }
     setBusy(true);
     setError(undefined);
     setResult(undefined);

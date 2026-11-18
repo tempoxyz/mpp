@@ -52,7 +52,9 @@ export function create(parameters: { env: Env; store: Store.AtomicStore }) {
     allow: (user) =>
       !Object.values(user.compliance).some((state) => refused.has(state)),
     chainId: 42431,
-    clientId: [...new Set([clientId, client(env)])],
+    // Once registered, only the registered app's tokens count: the unregistered app's carry
+    // no compliance states, so accepting them would skip the screening.
+    clientId: [client(env)],
     issuer,
     store,
   }).verifier;

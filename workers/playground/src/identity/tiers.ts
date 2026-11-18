@@ -128,6 +128,11 @@ export function create(parameters: {
     async rejection(
       request: Request,
     ): Promise<{ code: number; reason: string } | undefined> {
+      // A Tempo ID user the app refuses (a flagged account) is refused outright, never priced
+      // at a lower tier that skips the screening.
+      const user = await tempoId.verify(request.clone());
+      if (user.status === "forbidden")
+        return { code: 403, reason: user.reason };
       if (!request.headers.has("X-Api-Key")) return undefined;
       const result = await apiKey.verify(request.clone());
       if (result.status === "valid" || result.status === "missing")
