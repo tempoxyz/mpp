@@ -541,11 +541,14 @@ function Composer({ f }: { f: Demo }) {
         ) : (
           <button
             className="action"
-            disabled={!f.config?.tempoId || f.signingIn}
+            // Stays enabled while waiting: a closed popup never answers, so a click starts over.
+            disabled={!f.config?.tempoId}
             onClick={f.signInTempoId}
             type="button"
           >
-            {f.signingIn ? "Signing in…" : "Sign in with Tempo ID"}
+            {f.signingIn
+              ? "Signing in… (click to restart)"
+              : "Sign in with Tempo ID"}
           </button>
         ))}
       {f.tier === "webBotAuth" && (
@@ -787,6 +790,8 @@ function useDemo() {
   // The Tempo ID sign-in, kept for the tab's session.
   const [tempoId, setTempoId] = useState(() => TempoIdSignIn.load());
   const [signingIn, setSigningIn] = useState(false);
+  // The latest sign-in attempt: an earlier one a click replaced must not touch the state.
+  const signInAttempt = useRef(0);
   // The pseudonymous user the demo Personal Agent acts for.
   const [poppyUser] = useState(() => {
     const stored = localStorage.getItem("playground.poppy.user");
@@ -847,15 +852,17 @@ function useDemo() {
   /** Signs in with Tempo ID in a popup: call from a click. */
   async function signInTempoId() {
     if (!config?.tempoId) return;
+    const attempt = ++signInAttempt.current;
     setSigningIn(true);
     setError(undefined);
     try {
       setTempoId(await TempoIdSignIn.signIn(config.tempoId));
       buyRef.current = undefined;
     } catch (e) {
+      if (e instanceof TempoIdSignIn.Superseded) return;
       setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setSigningIn(false);
+      if (attempt === signInAttempt.current) setSigningIn(false);
     }
   }
 

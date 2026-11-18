@@ -16,6 +16,14 @@ export type Session = {
 
 const storageKey = "playground.tempoId";
 const messageType = "tempo-id:code";
+// mpp.dev sends Cross-Origin-Opener-Policy: same-origin, so the popup loses window.opener once it
+// visits id.tempo.xyz, and the page sees it as closed. The two pages share an origin, so the
+// popup hands the code back on a BroadcastChannel instead.
+const channelName = "playground.tempoId";
+const ackType = "tempo-id:ack";
+
+/** Ends the sign-in still waiting, so a new click starts over (a closed popup never answers). */
+let cancelPending: (() => void) | undefined;
 
 /** The stored session, unless it expired. */
 export function load(): Session | undefined {
@@ -43,22 +51,39 @@ export function signOut() {
 export function handleReturn(): boolean {
   const params = new URLSearchParams(location.search);
   const state = params.get("state");
-  if (!state?.startsWith("tempo-id.") || !window.opener) return false;
-  (window.opener as Window).postMessage(
-    {
-      code: params.get("code"),
-      error: params.get("error_description") ?? params.get("error"),
-      state,
-      type: messageType,
-    },
-    location.origin,
-  );
-  window.close();
+  if (!state?.startsWith("tempo-id.")) return false;
+  const code = params.get("code");
+  const channel = new BroadcastChannel(channelName);
+  // Close only once the page that started this sign-in confirms it got the result: a post with
+  // no listener (the page timed out, reloaded or started over) fails silently.
+  const unanswered = setTimeout(() => {
+    channel.close();
+    document.body.textContent =
+      "The playground isn't waiting for this sign-in any more. Go back to it and sign in again.";
+  }, 2000);
+  channel.onmessage = (event: MessageEvent) => {
+    const data = event.data as { state?: string; type?: string };
+    if (data?.type !== ackType || data.state !== state) return;
+    clearTimeout(unanswered);
+    channel.close();
+    window.close();
+    // A browser that keeps the window open shows where to go next.
+    document.body.textContent = code
+      ? "Signed in. You can close this window."
+      : "Sign-in didn't finish. You can close this window.";
+  };
+  channel.postMessage({
+    code,
+    error: params.get("error_description") ?? params.get("error"),
+    state,
+    type: messageType,
+  });
   return true;
 }
 
 /** Signs in with Tempo ID in a popup. Call it from a click, so the popup isn't blocked. */
 export async function signIn(config: Config): Promise<Session> {
+  cancelPending?.();
   // Open the popup before any await, while the click still counts as a user gesture.
   const popup = window.open(
     "about:blank",
@@ -86,15 +111,21 @@ export async function signIn(config: Config): Promise<Session> {
   popup.location.href = url.toString();
 
   const code = await new Promise<string>((resolve, reject) => {
-    const closed = setInterval(() => {
-      if (!popup.closed) return;
+    // popup.closed reads true as soon as the popup leaves mpp.dev, so wait on a timer instead.
+    const channel = new BroadcastChannel(channelName);
+    const timeout = setTimeout(() => {
       done();
-      reject(new Error("Tempo ID sign-in was closed."));
-    }, 500);
+      reject(new Error("Tempo ID sign-in timed out. Try again."));
+    }, 5 * 60_000);
     function done() {
-      clearInterval(closed);
-      window.removeEventListener("message", listen);
+      clearTimeout(timeout);
+      channel.close();
+      cancelPending = undefined;
     }
+    cancelPending = () => {
+      done();
+      reject(new Superseded());
+    };
     function listen(event: MessageEvent) {
       const data = event.data as {
         code?: string | null;
@@ -102,14 +133,14 @@ export async function signIn(config: Config): Promise<Session> {
         state?: string;
         type?: string;
       };
-      if (event.origin !== location.origin || data?.type !== messageType)
-        return;
+      if (data?.type !== messageType) return;
       if (data.state !== state) return;
+      channel.postMessage({ state, type: ackType });
       done();
       if (data.code) resolve(data.code);
       else reject(new Error(data.error ?? "Tempo ID sign-in failed."));
     }
-    window.addEventListener("message", listen);
+    channel.onmessage = listen;
   });
 
   const response = await fetch(new URL("/oauth2/token", config.issuer), {
@@ -164,4 +195,12 @@ function base64url(bytes: Uint8Array) {
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replace(/=+$/, "");
+}
+
+/** A sign-in that a newer click replaced: the page ignores it. */
+export class Superseded extends Error {
+  override name = "TempoIdSignIn.Superseded";
+  constructor() {
+    super("A newer Tempo ID sign-in replaced this one.");
+  }
 }
