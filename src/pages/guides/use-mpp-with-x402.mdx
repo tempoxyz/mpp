@@ -666,7 +666,7 @@ app.listen(4021)
 
 ### Check the payout
 
-Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo pays out once the Base block is final, which takes minutes.
+Settle waits for the Base receipt, then signs and broadcasts the Tempo payout before it answers. The response carries the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`, already `submitted` with its Tempo hash.
 
 ```json
 {
@@ -677,19 +677,18 @@ Settle waits for the Base receipt, then returns the Base hash in `transaction` a
     "tempoSettlement": {
       "amount": "10000",
       "payoutId": "x402pay_…",
-      "status": "pending",
+      "status": "submitted",
       "to": "0x…",
       "token": "0x20c0000000000000000000006a37DA5C996874BE",
-      "transaction": null
+      "transaction": "0x…"
     }
   }
 }
 ```
 
-- Poll `GET /v1/x402/payouts/{payoutId}` until `status` is `confirmed`: `pending`, then `submitted` (broadcast on Tempo), then `confirmed`
-- `transaction` is the Tempo hash once set, and it never changes
+- You don't need to poll: `transaction` is the Tempo hash, known when the payout is signed, and it never changes. Watch it on Tempo, or read `GET /v1/x402/payouts/{payoutId}` once if you need `confirmed`
 - Or look it up by Base hash with `GET /v1/x402/settlements/{transaction}`
-- If settle answers `settlement_pending`, retry it with the same payload; it never pays twice
+- If settle answers `settlement_pending`, the payout stays `pending` until Tempo sees the Base settlement reach Base's safe head, which takes minutes. Retry settle with the same payload, or poll `GET /v1/x402/payouts/{payoutId}`; it never pays twice
 
 ### Pay a Tempo-facilitated seller
 
