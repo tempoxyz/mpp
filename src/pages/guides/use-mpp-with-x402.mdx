@@ -666,7 +666,7 @@ app.listen(4021)
 
 ### Check the payout
 
-Settle waits for the Base receipt, then signs and broadcasts the Tempo payout before it answers. The response carries the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`, already `submitted` with its Tempo hash.
+Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo pays out once Base marks the settlement's block safe from reorgs, which takes minutes.
 
 ```json
 {
@@ -677,18 +677,19 @@ Settle waits for the Base receipt, then signs and broadcasts the Tempo payout be
     "tempoSettlement": {
       "amount": "10000",
       "payoutId": "x402pay_…",
-      "status": "submitted",
+      "status": "pending",
       "to": "0x…",
       "token": "0x20c0000000000000000000006a37DA5C996874BE",
-      "transaction": "0x…"
+      "transaction": null
     }
   }
 }
 ```
 
-- You don't need to poll: `transaction` is the Tempo hash, known when the payout is signed, and it never changes. Watch it on Tempo, or read `GET /v1/x402/payouts/{payoutId}` once if you need `confirmed`
+- Poll `GET /v1/x402/payouts/{payoutId}` until `status` is `confirmed`: `pending`, then `submitted` (broadcast on Tempo), then `confirmed`
+- `transaction` is the Tempo hash once set, and it never changes
 - Or look it up by Base hash with `GET /v1/x402/settlements/{transaction}`
-- If settle answers `settlement_pending`, the payout stays `pending` until Tempo sees the Base settlement reach Base's safe head, which takes minutes. Retry settle with the same payload, or poll `GET /v1/x402/payouts/{payoutId}`; it never pays twice
+- If settle answers `settlement_pending`, retry it with the same payload; it never pays twice
 
 ### Pay a Tempo-facilitated seller
 
@@ -741,10 +742,19 @@ Verify and settle answer HTTP `200` with `isValid: false` or `success: false` an
 | Reason | Fix |
 |---|---|
 | `payto_not_deposit_address` | Set `payTo` to the deposit address from `/supported` |
-| `missing_tempo_settlement` | Add `extra.tempoSettlement` to the payment requirements |
+| `missing_tempo_settlement` | Set `extra.tempoSettlement` to a valid Tempo address, not the zero or deposit address |
+| `payout_address_unresolved` | The virtual payout address has no registered master—use a resolvable address |
+| `amount_below_minimum` | The amount is zero—price the route above 0 |
 | `amount_above_maximum` | Price the route below the maximum per payment |
 | `insufficient_tempo_liquidity` | Temporary—retry later |
-| `settlement_pending` | Rare: Base hasn't returned the receipt yet—retry settle with the same payload |
+| `screen_rejected` | The payer or payout address failed address screening |
+| `screening_unavailable` | Screening couldn't run—temporary, retry later |
+| `payment_conflict` | The payment was already settled with other terms or by another organization |
+| `invalid_payload` | The payment must carry exactly one authorization for its scheme |
+| `unsupported_scheme`, `unsupported_network`, `unsupported_asset` | Pay `exact` in USDC on Base, as `/supported` lists |
+| `settlement_pending` | Rare: Base doesn't hold the settlement yet—retry settle with the same payload |
+
+Other reasons come from the x402 SDK's signature and Base checks. An upstream failure answers `unexpected_verify_error` or `unexpected_settle_error`.
 
 ## Next steps
 
