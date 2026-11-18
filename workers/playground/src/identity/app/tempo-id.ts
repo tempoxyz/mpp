@@ -59,6 +59,13 @@ export function handleReturn(): boolean {
 
 /** Signs in with Tempo ID in a popup. Call it from a click, so the popup isn't blocked. */
 export async function signIn(config: Config): Promise<Session> {
+  // Open the popup before any await, while the click still counts as a user gesture.
+  const popup = window.open(
+    "about:blank",
+    "tempo-id",
+    "popup,width=480,height=720",
+  );
+  if (!popup) throw new Error("Allow popups to sign in with Tempo ID.");
   const verifier = random(32);
   const state = `tempo-id.${random(16)}`;
   const challenge = base64url(
@@ -76,8 +83,7 @@ export async function signIn(config: Config): Promise<Session> {
     scope: "openid email",
     state,
   }).toString();
-  const popup = window.open(url, "tempo-id", "popup,width=480,height=720");
-  if (!popup) throw new Error("Allow popups to sign in with Tempo ID.");
+  popup.location.href = url.toString();
 
   const code = await new Promise<string>((resolve, reject) => {
     const closed = setInterval(() => {

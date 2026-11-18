@@ -283,7 +283,7 @@ export function explanations(source: string) {
     ],
     [
       "requiresAuth:",
-      "Keep the Link token in Authorization; payment Credentials use Payment-Authorization.",
+      "Keep the identity token in Authorization; payment Credentials use Payment-Authorization.",
     ],
     [
       "const { attestation } =",

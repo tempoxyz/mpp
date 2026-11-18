@@ -95,6 +95,7 @@ export function prerenderCode(): Plugin {
       "anonymous",
       "email",
       "apiKey",
+      "tempoId",
       "poppy",
       "erc8004",
       "webBotAuth",

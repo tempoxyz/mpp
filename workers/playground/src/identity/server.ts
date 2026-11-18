@@ -164,11 +164,15 @@ export default {
         limit: Tiers.anonymousDailyLimit,
         origin,
         prices: Tiers.prices,
-        tempoId: {
-          clientId: TempoId.client(env),
-          issuer: TempoId.issuer,
-          redirectUri: TempoId.redirectUri,
-        },
+        // Tempo ID returns sign-ins to mpp.dev only, so other origins (local dev) leave the tier off.
+        tempoId:
+          origin === new URL(TempoId.redirectUri).origin
+            ? {
+                clientId: TempoId.client(env),
+                issuer: TempoId.issuer,
+                redirectUri: TempoId.redirectUri,
+              }
+            : undefined,
         agents: {
           botDirectory: Agents.botDirectory,
           chainId: Agents.chainId,
