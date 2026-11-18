@@ -5,10 +5,19 @@ import {
   type SampleTier,
   serverUsage,
   usage,
-} from "../workers/identity-playground/src/app/samples.js";
+} from "../workers/playground/src/identity/app/samples.js";
 
-const directory = path.resolve("workers/identity-playground/src/app");
-const tiers: SampleTier[] = ["anonymous", "email", "apiKey", "link"];
+const directory = path.resolve("workers/playground/src/identity/app");
+const tiers: SampleTier[] = [
+  "anonymous",
+  "email",
+  "apiKey",
+  "tempoId",
+  "poppy",
+  "erc8004",
+  "webBotAuth",
+  "link",
+];
 const samples = tiers.flatMap((tier) => [
   { name: `${tier}-client`, source: usage(tier) },
   { name: `${tier}-server`, source: serverUsage(tier) },

@@ -1,8 +1,13 @@
 "use client";
 
 import blogPosts from "virtual:blog-posts";
-import { useEffect, useState } from "react";
-import { type FeaturedService, fetchFeaturedServices } from "../data/registry";
+import { useEffect, useRef, useState } from "react";
+import {
+  FEATURED_SERVICE_IDS,
+  type FeaturedService,
+  fetchFeaturedServices,
+  withLogos,
+} from "../data/registry";
 import { BlogRow } from "./marketing/BlogRow";
 import { Button } from "./marketing/Button";
 import { Header } from "./marketing/Header";
@@ -10,7 +15,6 @@ import { SectionLabel } from "./marketing/SectionLabel";
 import { ServiceCard } from "./marketing/ServiceCard";
 import { Terminal } from "./Terminal";
 
-const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
 const integrations = [
   { href: "https://www.amazon.com", name: "Amazon", slug: "amazon" },
   { href: "https://www.alchemy.com", name: "Alchemy", slug: "alchemy" },
@@ -71,16 +75,65 @@ function DesignedBy() {
   );
 }
 
-export function LandingPage() {
+/**
+ * A muted looping video that downloads and plays only while it's on screen.
+ * Under a hidden parent (this one is mobile-only) it never intersects, so
+ * desktop never fetches it, which autoPlay alone would.
+ */
+function PlayWhenVisible({
+  className,
+  height,
+  src,
+  width,
+}: {
+  className?: string;
+  /** The clip's pixel size, so its box is reserved before metadata loads. */
+  height: number;
+  src: string;
+  width: number;
+}) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Several entries can queue up; the last one is the current state.
+        const entry = entries[entries.length - 1];
+        if (entry?.isIntersecting) void video.play().catch(() => {});
+        else video.pause();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <video
+      className={className}
+      height={height}
+      loop
+      muted
+      playsInline
+      preload="none"
+      ref={ref}
+      width={width}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
+export function LandingPage({ logos }: { logos?: Record<string, string> }) {
   const [services, setServices] = useState<FeaturedService[]>([]);
 
   useEffect(() => {
     document.body.classList.add("marketing-home");
     fetchFeaturedServices(FEATURED_SERVICE_IDS)
-      .then(setServices)
+      .then((featured) => setServices(withLogos(featured, logos ?? {})))
       .catch(() => {});
     return () => document.body.classList.remove("marketing-home");
-  }, []);
+  }, [logos]);
 
   return (
     <div className="marketing-route not-prose bg-[#060606] text-offwhite [--marketing-page-bg:#060606]">
@@ -138,16 +191,12 @@ export function LandingPage() {
             />
           </div>
           <div className="relative -mt-px w-full border border-border bg-[#191919] min-[1000px]:hidden">
-            <video
-              autoPlay
+            <PlayWhenVisible
               className="pointer-events-none block h-auto w-full"
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            >
-              <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
-            </video>
+              height={940}
+              src="/marketing/mobile-terminal.mp4"
+              width={1694}
+            />
           </div>
         </div>
 

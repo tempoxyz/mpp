@@ -33,7 +33,7 @@ Mppx.create({
     // [!code focus:start]
     tempo.session({
       account: provider.getAccount({ signable: true }),
-      allowedChainIds: [42431], // Tempo testnet (Moderato)
+      allowedChainIds: [4217], // Tempo mainnet
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -53,7 +53,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo.session({ account, allowedChainIds: [42431] }), // Tempo testnet (Moderato)
+    tempo.session({ account, allowedChainIds: [4217] }), // Tempo mainnet
     // [!code focus:end]
   ],
 })
@@ -101,6 +101,8 @@ Mppx.create({
 </Tab>
 </Tabs>
 
+For MACH channels without `autoSwap`, opens and manual top-ups check the deposit balance before signing. A shortfall throws `InsufficientBalanceError`; on mainnet, `fundingUrl` links to Tempo Wallet with the payer and missing MACH. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
+
 ## Automatic open retries
 
 `Fetch.from` and `Mppx.create` keep automatic opens provisional until the server accepts the response or acknowledges the open with a matching Receipt or snapshot. Rejected or unacknowledged opens retry on the next paid request. Opens sharing a payment scope and channel store are serialized.
@@ -119,7 +121,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
-  allowedChainIds: [42431], // Tempo testnet (Moderato)
+  allowedChainIds: [4217], // Tempo mainnet
   // [!code hl:start]
   currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
   decimals: 6,

@@ -14,7 +14,7 @@ pnpm check:markdown                     # audit generated Markdown output
 pnpm check:generated                    # src/pages.gen.ts matches pnpm generate:pages
 pnpm build                              # production build, type-checks every twoslash snippet; needs MPP_SECRET_KEY (CI uses a placeholder)
 pnpm mcp-services:check                 # workers/mcp-services Worker
-pnpm identity-playground:check          # workers/identity-playground Worker
+pnpm playground:check                   # workers/playground Worker
 docker compose up -d --wait tempo && pnpm test:integration   # Tempo localnet integration tests
 ```
 
@@ -44,7 +44,7 @@ vocs.config.ts     — config file
 - `schemas/`: discovery and service directory schemas and data (`services.ts`, `mpp-proxy.json`, synced with `pnpm sync:mpp-proxy`).
 - `scripts/`: build-time generators (discovery, diagrams, CLI help, pages, OG images) and docs lint tests (`check-*.test.ts`).
 - `workers/mcp-services/`: the MPP Discovery Service MCP Worker.
-- `workers/identity-playground/`: the identity playground Worker at `mpp.dev/playground/identity`; `src/pages/_api/playground/` proxies it to the deployed Worker (`IDENTITY_PLAYGROUND_WORKER_ORIGIN` overrides it); a `vercel.ts` rewrite never fires, since Vocs's catch-all route answers first.
+- `workers/playground/`: one Worker for every playground under `mpp.dev/playground` (`src/index.ts` routes `src/identity/` and `src/session/`); `src/pages/_api/playground/` proxies it to the deployed Worker (`PLAYGROUND_WORKER_ORIGIN` overrides it); a `vercel.ts` rewrite never fires, since Vocs's catch-all route answers first. The session API takes the topic in the path, never a query string: mppx treats a POST with a query as a content request, so each voucher POST would open a new stream. Pass a linked Tempo Wallet's access key to `getMppxParameters({ accessKey })` for sessions: the Accounts SDK picks a scoped key by the calls it will make, a channel open or voucher names none, and the root account then prompts for the open and every voucher.
 - `integration/`, `e2e/`: localnet integration and terminal demo tests.
 - `public/AGENTS.md` is a published artifact, not guidance for this repository.
 - [MARKDOWN.md](./MARKDOWN.md): generated Markdown output rules.
@@ -399,7 +399,8 @@ Use each language's standard toolchain, run through the commands in `## Commands
 ### Changes
 
 - Commits and pull request titles use Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, optionally scoped.
-- Never edit `CHANGELOG.md` by hand. Record a release note the way `## Conventions` says (changeset, `.changelog/` fragment, or none when a workflow writes it), in the past tense.
+- Never edit `CHANGELOG.md` by hand. Record a release note the way `## Conventions` says (changeset, `.changelog/` fragment, or none when a workflow writes it).
+- Keep changelog entries concise and in the past tense: at most two sentences on what changed for users. Leave design details and edge cases to the pull request.
 - Before 1.0, bump `patch` for everything except a breaking public API change, which is `minor`.
 - Don't edit README files unless asked.
 - Never force-push.

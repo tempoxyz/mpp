@@ -59,10 +59,7 @@ export function Dropdown({
           "flex items-center gap-2 whitespace-nowrap border border-border bg-[#101010] font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite transition-colors hover:border-[rgba(235,235,235,0.4)]",
           size === "sm" ? "px-3 py-1.5" : "h-10 px-4",
         )}
-        onClick={(event) => {
-          event.stopPropagation();
-          setOpen((value) => !value);
-        }}
+        onClick={() => setOpen((value) => !value)}
         type="button"
       >
         <span>{label}</span>

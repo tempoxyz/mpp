@@ -1,0 +1,65 @@
+---
+description: "Read the inquiry status and identifiers returned by Persona verification."
+imageDescription: "Use verified inquiry results in your API"
+---
+
+# Persona types [Inquiry and verification results]
+
+Exports inquiry statuses and the results of Persona inquiry creation and verification.
+
+## Usage
+
+```ts twoslash
+import type * as Persona from 'mppx/extensions/identity/persona'
+
+declare const inquiry: Persona.VerifiedInquiry
+console.log(inquiry.inquiryId)
+// @log: inq_example
+```
+
+## InquiryStatus
+
+`Persona.InquiryStatus` is the union below. Only `approved` is accepted by default; `completed` means the flow completed, not that a workflow or reviewer approved it.
+
+```ts
+type InquiryStatus =
+  | 'approved'
+  | 'completed'
+  | 'created'
+  | 'declined'
+  | 'expired'
+  | 'failed'
+  | 'needs_review'
+  | 'pending'
+```
+
+## StartedInquiry
+
+`Persona.StartedInquiry`, returned by [`startInquiry`](/sdk/typescript/server/Persona.startInquiry) as a frozen object:
+
+| Property | Type | Meaning |
+|---|---|---|
+| `inquiryId` | `string` | Persona inquiry ID (`inq_…`) |
+| `url` | `string` | One-time link to the hosted KYC flow |
+
+## VerifiedInquiry
+
+`Persona.VerifiedInquiry`, returned by successful [`paymentCheck`](/sdk/typescript/server/Persona.paymentCheck) and [`verifier`](/sdk/typescript/server/Persona.verifier) lookups as a frozen object:
+
+| Property | Type | Meaning |
+|---|---|---|
+| `inquiryId` | `string` | Accepted Persona inquiry ID |
+| `referenceId` | `string` | Exact reference ID matched by the check |
+| `status` | `Persona.InquiryStatus` | Accepted inquiry status |
+| `verifiedAt` (optional) | `Date` | `decisioned-at`, falling back to `completed-at`; absent if unparseable or missing |
+
+## Server types
+
+| Export | Reference |
+|---|---|
+| `Persona.Server.LookupOptions` | [Shared cache, freshness, status, and onboarding options](/sdk/typescript/server/Persona.paymentCheck#parameters) |
+| `Persona.Server.Persona` | [Client returned by `create`](/sdk/typescript/server/Persona.create#return-type) |
+| `Persona.Server.create.Config` | [Client configuration](/sdk/typescript/server/Persona.create#parameters) |
+| `Persona.Server.create.PaymentParameters` | [Payment check callback input](/sdk/typescript/server/Persona.paymentCheck#referenceid) |
+| `Persona.Server.verifyWallet.Parameters` | [Wallet signature verification input](/sdk/typescript/server/Persona.verifyWallet#parameters) |
+| `Persona.did.Parameters` | [Wallet DID input](/sdk/typescript/core/Persona.did#parameters) |

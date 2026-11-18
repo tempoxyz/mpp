@@ -20,6 +20,10 @@ schemas/discovery.example.json
 public/services/catalog.json
 public/services/llms.txt
 
+# Built by scripts/build-logos.ts
+public/services/logos/
+public/services/logos.json
+
 # Generated from skills/ by `pnpm generate:discovery`
 public/.well-known/agent-skills/
 
@@ -31,5 +35,6 @@ package-lock.json
 yarn.lock
 _
 
-# Built from workers/identity-playground by scripts/copy-identity-playground.ts
-public/playground/identity/
+# Built from workers/playground by scripts/copy-playground.ts
+public/playground/assets/
+public/playground/fonts/

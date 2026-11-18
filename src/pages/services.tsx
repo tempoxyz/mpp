@@ -5,6 +5,7 @@ import { Footer } from "../components/marketing/Footer";
 import { ServicesAgentDiscovery } from "../components/ServicesAgentDiscovery";
 import { ServicesPage } from "../components/ServicesPage";
 import type { Service } from "../data/registry";
+import { readServiceLogos } from "../data/service-logos";
 
 async function loadServices(): Promise<Service[]> {
   const catalog = JSON.parse(
@@ -13,12 +14,15 @@ async function loadServices(): Promise<Service[]> {
       "utf8",
     ),
   ) as { services: Service[] };
+  const logos = readServiceLogos();
   return catalog.services.map((service) => ({
     categories: service.categories,
     description: service.description,
     docs: service.docs,
     endpoints: [],
     id: service.id,
+    integration: service.integration,
+    logo: logos[service.id],
     methods: {},
     name: service.name,
     provider: service.provider,

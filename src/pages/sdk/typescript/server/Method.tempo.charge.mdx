@@ -202,6 +202,8 @@ const mppx = Mppx.create({
 
 See [Relays](/extensions/relays) for the lifecycle, custom API base URLs, and custom `validate` and `broadcast` hooks.
 
+A pre-broadcast MACH-route failure with a confirmed MACH shortfall returns `VerificationFailedError`; mainnet Problem Details include `fundingUrl`. Settled replays still return `CredentialReplayedError`, not a funding error. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
+
 ### With replay protection for zero-dollar auth
 
 Pass `store` when you want zero-dollar proof Credentials to be single-use.

@@ -46,7 +46,7 @@ Address to receive the code. The issuer validates the address.
 - **Type:** `typeof globalThis.fetch`
 - **Default:** `globalThis.fetch`
 
-Fetch for the issuer call. The call bypasses automatic payment handling in Machine Payments Protocol (MPP) fetch wrappers, so it never pays an issuer's `402` payment request.
+Fetch for the issuer call. The call unwraps recognized MPP payment wrappers and explicitly opts out of automatic payment, including through `Identity.Client.wrapFetch`. An issuer `402` throws `EmailOtpError`; it doesn't create or pay a Credential. Custom forwarding layers must preserve the request init's symbol properties, not only construct a new `Request`, for the opt-out to survive.
 
 ### issuer
 

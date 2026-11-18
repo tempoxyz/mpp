@@ -15,4 +15,10 @@ export const playgrounds: readonly Playground[] = [
     slug: "identity",
     title: "Identity",
   },
+  {
+    description: "Stream a story paid by the word over one payment channel.",
+    href: "/playground/session",
+    slug: "session",
+    title: "Sessions",
+  },
 ];

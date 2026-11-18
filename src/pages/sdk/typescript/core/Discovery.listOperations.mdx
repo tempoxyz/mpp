@@ -1,0 +1,104 @@
+---
+description: "Inspect API operations, advertised prices, and request schemas before making a paid request."
+imageDescription: "Plan paid API requests before you call them"
+---
+
+# `listOperations` [Inspect a discovery document]
+
+Lists paid and unpaid operations with their payment offers and JSON request schemas.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { listOperations } from 'mppx/discovery'
+
+const document = {
+  info: { title: 'Forecast API', version: '1.0.0' },
+  openapi: '3.1.0',
+  paths: {
+    '/v1/forecast': {
+      post: {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: { properties: { city: { type: 'string' } }, type: 'object' },
+            },
+          },
+        },
+        responses: { '200': { description: 'OK' }, '402': { description: 'Payment Required' } },
+        summary: 'Forecast',
+        'x-payment-info': {
+          offers: [{
+            amount: '2000',
+            currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+            intent: 'charge',
+            method: 'tempo',
+          }],
+        },
+      },
+    },
+  },
+}
+
+// [!code hl:start]
+const operations = listOperations(document)
+console.log(operations[0]?.method, operations[0]?.path, operations[0]?.offers[0]?.amount)
+// @log: post /v1/forecast 2000
+// [!code hl:end]
+```
+
+Fetch a discovery document yourself, then pass its JSON body to `listOperations`:
+
+```ts twoslash [client.ts]
+import { listOperations } from 'mppx/discovery'
+
+const response = await fetch('https://api.example.com/openapi.json')
+if (!response.ok) throw new Error(`Discovery request failed: ${response.status}`)
+const document: unknown = await response.json()
+const operations = listOperations(document) // [!code hl]
+```
+
+Discovery is advisory. Use the runtime `402` Challenge—not an advertised offer—to authorize payment. See the [discovery guide](/extensions/discovery) for publishing documents.
+
+## Return type
+
+`Operation[]`. See [discovery types](/sdk/typescript/core/Discovery.Types) for `Operation`, `OperationMethod`, and `PaymentOffer`.
+
+- Includes operations without payment information as `offers: []`; this is not a guarantee of free access.
+- Preserves offer order and normalizes flat `x-payment-info` shorthand to a one-element `offers` array.
+- Visits paths in document order; methods within each path follow `get`, `post`, `put`, `patch`, `delete`, `head`, `options`, `trace`.
+- Skips paths that don't start with `/` or start with `//`. Returns `[]` when there are no operations.
+- Returns paths relative to the document's server; it doesn't resolve server URLs or construct requests.
+
+## Parameters
+
+### document
+
+- **Type:** `unknown`
+
+A raw OpenAPI JSON body or an already parsed `DiscoveryDocument` from `mppx/discovery`.
+
+## Reference resolution
+
+- Follows local JSON Pointer `$ref` chains for path items, request bodies, and the top-level request schema. Percent-decodes the fragment before decoding `~1` and `~0` pointer tokens.
+- Does not fetch remote references. Missing, circular, remote, or malformed-fragment references resolve to `undefined`.
+- Merges a referenced path item with inline fields; inline fields win. An unresolved path reference contributes no operations, but inline operations still appear.
+- Leaves nested schema references unchanged. Retain the document to interpret those references.
+- Preserves keywords beside the request schema's `$ref` using `allOf` with the resolved target. A `false` target remains `false`; a `true` target leaves sibling keywords unchanged.
+
+## Request schemas
+
+`requestSchema` is an object, a boolean JSON Schema, or `undefined`:
+
+- Reads `requestBody.content['application/json'].schema`. Media types match case-insensitively and can include parameters such as `application/json; charset=utf-8`.
+- Prefers the exact `application/json` key; otherwise uses the first matching entry. Does not infer schemas from other media types.
+- Preserves `true` and `false` schemas. Arrays and other non-schema values produce `undefined`, as do missing or unresolved schemas.
+- Extracts schema metadata only; it doesn't validate request data against the schema.
+
+## Validation
+
+`listOperations` parses the document with `DiscoveryDocument.parse` and throws on invalid document structure or payment information, including invalid resolved path items. It requires string `openapi`, `info.title`, and `info.version` fields; it isn't a complete OpenAPI validator.
+
+Every defined payment field is type-checked. Amounts accept `null` or non-negative integer strings without leading zeros except `"0"`. An `offers` array must be nonempty and can't coexist with flat `amount`, `currency`, `description`, `intent`, or `method` fields.
+
+Use `validate` from `mppx/discovery` or [`mppx discover validate`](/extensions/discovery#cli) for semantic checks such as a paid operation's required `402` response. `listOperations` does not perform those checks.

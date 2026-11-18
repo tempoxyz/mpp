@@ -21,16 +21,22 @@ export function ServiceCard({
           <img
             alt=""
             className="size-[43px] shrink-0 object-contain"
+            decoding="async"
+            height={43}
+            loading="lazy"
             src={serviceIconUrl(service)}
+            width={43}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
-              {service.name}
-            </Heading>
+            <div className="flex min-w-0 items-center gap-2">
+              <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
+                {service.name}
+              </Heading>
+              {badges}
+            </div>
             <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
               {category}
             </p>
-            {badges}
           </div>
         </div>
         <p className="font-sans text-lg leading-[1.2] text-secondary">

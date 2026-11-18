@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-/// <reference path="../workers/identity-playground/src/app/virtual.d.ts" />
+/// <reference path="../workers/playground/src/identity/app/virtual.d.ts" />
 
 import {
   cleanup,
@@ -10,11 +10,11 @@ import {
 } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { App } from "../workers/identity-playground/src/app/App.js";
+import { App } from "../workers/playground/src/identity/app/App.js";
 import {
   unloaded,
   type Wallet,
-} from "../workers/identity-playground/src/app/wallet-state.js";
+} from "../workers/playground/src/identity/app/wallet-state.js";
 
 const mocks = vi.hoisted(() => ({
   wallet: {} as Wallet,
@@ -22,21 +22,21 @@ const mocks = vi.hoisted(() => ({
   privateKeyToAccount: vi.fn(),
 }));
 
-vi.mock("../workers/identity-playground/src/app/CodeLines.js", () => ({
+vi.mock("../workers/playground/src/identity/app/CodeLines.js", () => ({
   CodeLines: () => null,
 }));
-vi.mock("../workers/identity-playground/src/app/WalletBridge.js", () => ({
+vi.mock("../workers/playground/src/identity/app/WalletBridge.js", () => ({
   default: ({ onChange }: { onChange: (wallet: Wallet) => void }) => {
     useEffect(() => onChange(mocks.wallet), [onChange]);
     return null;
   },
 }));
-vi.mock("../workers/identity-playground/src/app/chain.js", () => ({
+vi.mock("../workers/playground/src/identity/app/chain.js", () => ({
   Actions: { token: { getBalance: async () => ({ amount: 1_000_000n }) } },
   privateKeyToAccount: mocks.privateKeyToAccount,
   rpc: {},
 }));
-vi.mock("../workers/identity-playground/src/client.js", () => ({
+vi.mock("../workers/playground/src/identity/client.js", () => ({
   create: mocks.create,
 }));
 
@@ -74,6 +74,14 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
+
+/** Picks a sample from the Buy as dropdown. */
+function choose(tier: string) {
+  fireEvent.click(screen.getByLabelText("Buy as"));
+  const option = document.getElementById(`sample-${tier}`);
+  if (!option) throw new Error(`no option ${tier}`);
+  fireEvent.click(option);
+}
 
 describe("identity playground wallet selection", () => {
   it.each([
@@ -165,7 +173,7 @@ describe("identity playground example changes", () => {
     });
     fireEvent.click(buy);
     await screen.findByText("Test response");
-    fireEvent.click(screen.getByRole("button", { name: "Email 0.02" }));
+    choose("email");
     expect(screen.queryByText("Test response")).toBeNull();
     expect((screen.getByLabelText("Topic") as HTMLInputElement).value).toBe("");
   });
@@ -200,7 +208,7 @@ describe("identity playground example changes", () => {
     fireEvent.click(buy);
     await screen.findByText("Old poem");
     expect(screen.getByText("Requests")).not.toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "API key 0.01" }));
+    choose("apiKey");
     expect(screen.queryByText("Old poem")).toBeNull();
     expect(screen.queryByText("Requests")).toBeNull();
     expect(screen.queryByRole("link", { name: "receipt" })).toBeNull();
@@ -220,7 +228,7 @@ describe("identity playground example changes", () => {
     render(<App />);
     const topic = (await screen.findByLabelText("Topic")) as HTMLInputElement;
     expect(topic.disabled).toBe(true);
-    fireEvent.click(screen.getByRole("button", { name: "API key 0.01" }));
+    choose("apiKey");
     expect((screen.getByLabelText("Topic") as HTMLInputElement).disabled).toBe(
       false,
     );
@@ -242,18 +250,13 @@ describe("identity playground example changes", () => {
     fireEvent.click(buy);
     await screen.findByRole("button", { name: "Paying…" });
     expect(
-      (screen.getByRole("button", { name: "Email 0.02" }) as HTMLButtonElement)
-        .disabled,
+      (screen.getByLabelText("Buy as") as HTMLButtonElement).disabled,
     ).toBe(true);
     await waitFor(() => expect(finish).toBeDefined());
     finish(new Response("Test response", { status: 400 }));
     await waitFor(() =>
       expect(
-        (
-          screen.getByRole("button", {
-            name: "Email 0.02",
-          }) as HTMLButtonElement
-        ).disabled,
+        (screen.getByLabelText("Buy as") as HTMLButtonElement).disabled,
       ).toBe(false),
     );
   });

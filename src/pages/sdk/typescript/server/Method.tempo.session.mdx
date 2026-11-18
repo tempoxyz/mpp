@@ -22,6 +22,8 @@ Creates [Sessions](/payment-methods/tempo/session) server methods for voucher ve
 - For custom `tempo.Sse.serve()` adapters, verify live reserve state in `beforeCharge: () => Promise<void>`.
 :::
 
+Insufficient balance on a mainnet MACH channel includes a Tempo Wallet `fundingUrl` in `InsufficientBalanceError` and its Problem Details. This applies to channel charges and SSE payment-required responses. See [funding errors](/sdk/typescript/core/Errors#mach-funding-errors).
+
 ## Usage
 
 Creates one payment offer per accepted stablecoin: OUSD first, then USDC.e on mainnet or pathUSD on Moderato (`chainId: 42431`). Set `currencies` to accept a different list.
@@ -37,7 +39,7 @@ const mppx = Mppx.create({
     // [!code focus:start]
     tempo.session({
       account,
-      chainId: 42431,
+      chainId: 4217,
       store: Store.memory(),
     }),
     // [!code focus:end]
@@ -61,7 +63,6 @@ const mppx = Mppx.create({
       account,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
-      testnet: true,
     }),
   ],
 })
@@ -85,7 +86,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       bootstrap: true,
-      chainId: 42431,
+      chainId: 4217,
       currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store,
       resolveChannelId({ request, source }) {
@@ -269,7 +270,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
-  chainId: 42431,
+  chainId: 4217,
   // [!code hl:start]
   onSessionSettlementFailure({ chainId, channelId, error, trigger }) {
     console.error({ chainId, channelId, error, trigger })
@@ -386,7 +387,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
-  chainId: 42431,
+  chainId: 4217,
   store: Store.memory(), // [!code focus]
 })
 ```

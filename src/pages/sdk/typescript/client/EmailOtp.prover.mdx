@@ -75,7 +75,7 @@ Address to verify, or a callback to choose it for this API and issuer. Return `u
 - **Type:** `typeof globalThis.fetch`
 - **Default:** `globalThis.fetch`
 
-Fetch for the issuer's code endpoints, not your API. The SDK unwraps MPP fetch wrappers and doesn't follow redirects, so issuer calls never pay automatically.
+Fetch for the issuer's code endpoints, not your API. The SDK unwraps recognized MPP fetch wrappers, explicitly disables automatic payment through identity-wrapped fetch, and doesn't follow redirects. An issuer `402` is an acquisition error, not a payment. Custom forwarding layers must preserve the request init's symbol properties so the payment opt-out survives; forwarding only a reconstructed `Request` drops it.
 
 ### issuers
 
