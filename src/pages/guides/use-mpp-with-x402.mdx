@@ -409,23 +409,25 @@ import { withX402 } from '@x402/next'
 import { NextResponse } from 'next/server'
 
 const network = 'eip155:8453' // Base mainnet
+// [!code hl:start]
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
   createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
+// [!code hl:end]
 
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
 
 // Tempo's deposit address on Base, read from GET /supported when the middleware starts
-const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string // [!code hl]
 
 export const GET = withX402(
   async () => NextResponse.json({ data: 'premium content' }),
   {
     accepts: {
-      extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
+      extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! }, // [!code hl]
       network,
       payTo,
       price: '$0.01',
@@ -443,17 +445,19 @@ import { paymentMiddleware } from '@x402/hono'
 import { Hono } from 'hono'
 
 const network = 'eip155:8453' // Base mainnet
+// [!code hl:start]
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
   createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
+// [!code hl:end]
 
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
 
 // Tempo's deposit address on Base, read from GET /supported when the middleware starts
-const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string // [!code hl]
 
 const app = new Hono()
 
@@ -462,7 +466,7 @@ app.use(
     {
       'GET /api/data': {
         accepts: {
-          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
+          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! }, // [!code hl]
           network,
           payTo,
           price: '$0.01',
@@ -486,17 +490,19 @@ import { paymentMiddleware } from '@x402/express'
 import express from 'express'
 
 const network = 'eip155:8453' // Base mainnet
+// [!code hl:start]
 const headers = { 'tempo-api-key': process.env.TEMPO_API_KEY! }
 
 const facilitator = new HTTPFacilitatorClient({
   createAuthHeaders: async () => ({ settle: headers, verify: headers }),
   url: 'https://api.tempo.xyz/v1/x402',
 })
+// [!code hl:end]
 
 const server = new x402ResourceServer(facilitator).register(network, new ExactEvmScheme())
 
 // Tempo's deposit address on Base, read from GET /supported when the middleware starts
-const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string
+const payTo = () => server.getSupportedKind(2, network, 'exact')?.extra?.payTo as string // [!code hl]
 
 const app = express()
 
@@ -505,7 +511,7 @@ app.use(
     {
       'GET /api/data': {
         accepts: {
-          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
+          extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! }, // [!code hl]
           network,
           payTo,
           price: '$0.01',
@@ -555,6 +561,7 @@ const mppx = Mppx.create({
   methods: [
     evm.charge({
       currency: evm.assets.base.USDC,
+      // [!code hl:start]
       recipient: await evm.facilitatorPayTo(facilitator, { network: 'eip155:8453' }),
       x402: {
         extra: { tempoSettlement: process.env.TEMPO_PAYOUT_ADDRESS! },
@@ -562,6 +569,7 @@ const mppx = Mppx.create({
         headers: { 'tempo-api-key': process.env.TEMPO_API_KEY! },
         routeBinding: 'resource', // accept any x402 client
       },
+      // [!code hl:end]
     }),
   ],
 })
@@ -594,18 +602,22 @@ from mpp.methods.evm import server as evm
 from mpp.server import Mpp, pay
 from mpp.x402 import HttpFacilitator
 
+# [!code hl:start]
 facilitator = HttpFacilitator(
     "https://api.tempo.xyz/v1/x402",
     headers={"tempo-api-key": os.environ["TEMPO_API_KEY"]},
 )
+# [!code hl:end]
 
 mpp = Mpp(
     methods=evm.charge(
         currency=BASE_USDC,
-        recipient=os.environ["TEMPO_DEPOSIT_ADDRESS"],  # extra.payTo from GET /v1/x402/supported
+        # [!code hl:start]
+        recipient=os.environ["TEMPO_DEPOSIT_ADDRESS"],  # payTo from /supported
         facilitator=facilitator,
         x402_extra={"tempoSettlement": os.environ["TEMPO_PAYOUT_ADDRESS"]},
         route_binding="resource",  # accept any x402 client
+        # [!code hl:end]
     ),
 )
 

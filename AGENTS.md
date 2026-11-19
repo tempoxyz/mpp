@@ -311,6 +311,8 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 
 Code blocks longer than five lines should highlight the critical lines.
 
+In integration guides, highlight the lines specific to that integration, the ones a reader copies or changes (for the Tempo x402 facilitator: the facilitator URL and API key headers, `payTo`, and `extra.tempoSettlement`), not imports or app boilerplate. Highlight the same lines in every tab of a code group.
+
 When highlighting code blocks you should ALWAYS use block comments when there is more than one line. Only use inline comments when there is a single line which you wish to highlight.
 
 Example:
