@@ -667,7 +667,7 @@ app.listen(4021)
 
 ### Check the payout
 
-Settle waits for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. The payout is usually still `pending`: Tempo sends it after Base marks the settlement's block safe from reorgs, which takes minutes.
+Settle waits up to 20 seconds for the Base receipt, then returns the Base hash in `transaction` and the Tempo payout under `extensions.tempoSettlement`. If Base holds the settlement but hasn't mined it by then, settle still answers success. The payout is usually still `pending`: Tempo sends it after Base marks the settlement's block safe from reorgs, which takes minutes.
 
 ```json
 {
@@ -735,7 +735,7 @@ All routes live under `https://api.tempo.xyz/v1/x402`. `GET /supported` is publi
 
 - **Amount**: the payout equals the amount settled on Base. No fee today; any fee is announced before it applies
 - **Limits**: no minimum, any amount above 0. Tempo sets the maximum per payment
-- **Rate limits**: settle is rate-limited per API key and answers `429` with `Retry-After` over the limit
+- **Rate limits**: settle allows 50 requests per second per API key and answers `429` with `Retry-After` over the limit
 - **Retries**: retrying a settled payment returns the same response and never pays twice
 
 Verify and settle answer HTTP `200` with `isValid: false` or `success: false` and a reason:
@@ -753,7 +753,7 @@ Verify and settle answer HTTP `200` with `isValid: false` or `success: false` an
 | `payment_conflict` | The payment was already settled with other terms or by another organization |
 | `invalid_payload` | The payment must carry exactly one authorization for its scheme |
 | `unsupported_scheme`, `unsupported_network`, `unsupported_asset` | Pay `exact` in USDC on Base, as `/supported` lists |
-| `settlement_pending` | Rare: Base doesn't hold the settlement yet—retry settle with the same payload |
+| `settlement_pending` | Rare: Base doesn't hold the settlement transaction—retry settle with the same payload |
 
 Other reasons come from the x402 SDK's signature and Base checks. An upstream failure answers `unexpected_verify_error` or `unexpected_settle_error`.
 
