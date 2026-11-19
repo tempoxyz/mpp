@@ -136,7 +136,8 @@ export const mppProxyServices: MppProxyServiceDef[] = [
     tags: ["web", "scraping", "unblocking", "markdown"],
     docs: {
       homepage: "https://brightdata.com",
-      apiReference: "https://docs.brightdata.com/scraping-automation/web-unlocker/introduction",
+      apiReference:
+        "https://docs.brightdata.com/scraping-automation/web-unlocker/introduction",
     },
     provider: {
       name: "Bright Data",
