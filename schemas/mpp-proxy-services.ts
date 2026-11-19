@@ -130,6 +130,20 @@ export const mppProxyServices: MppProxyServiceDef[] = [
     },
   },
   {
+    id: "brightdata",
+    url: "https://brightdata.com",
+    integration: "third-party",
+    tags: ["web", "scraping", "unblocking", "markdown"],
+    docs: {
+      homepage: "https://brightdata.com",
+      apiReference: "https://docs.brightdata.com/scraping-automation/web-unlocker/introduction",
+    },
+    provider: {
+      name: "Bright Data",
+      url: "https://brightdata.com",
+    },
+  },
+  {
     id: "codestorage",
     url: "https://code.storage",
     integration: "third-party",
