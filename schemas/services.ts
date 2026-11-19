@@ -2599,7 +2599,7 @@ export const services: ServiceDef[] = [
         docs: "https://paperfeel.ing/agents",
       },
       {
-        route: "POST /v1/jobs/{id}/purchase/mpp",
+        route: "POST /v1/jobs/:id/purchase/mpp",
         desc: "Unlock the full scanned PDF for a prepared job",
         dynamic: true,
         amountHint: "€1 base per document plus applicable tax and fees",
