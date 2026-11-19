@@ -143,6 +143,9 @@ export const mppProxyServices: MppProxyServiceDef[] = [
       name: "Bright Data",
       url: "https://brightdata.com",
     },
+    healthChecks: {
+      "POST /unlock": { body: { url: "https://example.com" } },
+    },
   },
   {
     id: "codestorage",
