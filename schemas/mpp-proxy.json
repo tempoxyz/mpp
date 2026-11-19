@@ -107,6 +107,47 @@
       }
     },
     {
+      "id": "brightdata",
+      "domain": "brightdata.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Bright Data",
+        "description": "Web Unlocker: fetch any public page past bot blocks and CAPTCHAs, from a chosen country, as HTML, JSON, Markdown or a screenshot.",
+        "categories": [
+          "web"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/unlock",
+            "description": "Fetch a web page past bot protection",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://brightdata.com",
+          "apiReference": "https://docs.brightdata.com/api-reference/introduction"
+        }
+      }
+    },
+    {
       "id": "codestorage",
       "domain": "codestorage.mpp.tempo.xyz",
       "manifest": {
