@@ -1389,6 +1389,58 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── AgentLine ──────────────────────────────────────────────────────────
+  {
+    categories: ["ai", "social"],
+    description:
+      "Real US and Canada phone numbers, outbound SMS, AI voice calls and inbound call answering for agents. Add credit with a Tempo MPP charge (no signup; the paying wallet gets an agent_token), then rent numbers for $3 per 30 days, place calls at $0.12/min and send texts at $0.02; transcripts, webhooks and an MCP server run on the same credential.",
+    docs: {
+      apiReference: "https://api.agentline.cloud/openapi.json",
+      homepage: "https://agentline.cloud",
+      llmsTxt: "https://api.agentline.cloud/llms.txt",
+    },
+    endpoints: [
+      {
+        amountHint: "$1 – $1000 of credit per payment",
+        desc: "Add credit and receive an agent_token (Tempo MPP; also accepts x402)",
+        dynamic: true,
+        healthCheck: { body: { amount: 1 } },
+        route: "POST /v1/billing/topup/x402/pay",
+      },
+      {
+        desc: "Rent a US or Canada phone number for 30 days ($3 of credit; agent_token auth)",
+        healthCheck: false,
+        route: "POST /v1/x402/numbers/buy",
+      },
+      {
+        desc: "Place an AI voice call from a rented number ($0.12/min of credit; agent_token auth)",
+        healthCheck: false,
+        route: "POST /v1/x402/calls",
+      },
+      {
+        desc: "Read the transcript of a call",
+        healthCheck: false,
+        route: "GET /v1/x402/calls/:call_id/transcript",
+      },
+      {
+        desc: "Poll call, SMS and inbound events for your numbers",
+        healthCheck: false,
+        route: "GET /v1/x402/events",
+      },
+    ],
+    icon: "https://api.agentline.cloud/favicon.png",
+    id: "agentline",
+    integration: "first-party",
+    intent: "charge",
+    name: "AgentLine",
+    payments: [TEMPO_PAYMENT],
+    provider: { name: "AgentLine", url: "https://agentline.cloud" },
+    realm: "api.agentline.cloud",
+    serviceUrl: "https://api.agentline.cloud",
+    status: "active",
+    tags: ["phone-numbers", "sms", "voice-calls", "voice-agents", "telephony"],
+    url: "https://agentline.cloud",
+  },
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
