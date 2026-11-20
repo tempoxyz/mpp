@@ -14,7 +14,12 @@ const HOP_BY_HOP = [
 
 /** Where mpp.dev serves the playgrounds, and each playground's page. */
 const BASE = "/playground";
-const PAGES = ["/playground/identity", "/playground/session"];
+const PAGES = [
+  "/playground/identity",
+  "/playground/session",
+  "/playground/charge",
+  "/playground/discovery",
+];
 
 /**
  * How long browsers and Vercel's CDN keep each response, so repeat visits skip the

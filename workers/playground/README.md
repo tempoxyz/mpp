@@ -4,6 +4,10 @@ One Cloudflare Worker for every MPP playground under [mpp.dev/playground](https:
 
 - **Identity** ([/playground/identity](https://mpp.dev/playground/identity), `src/identity/`): pay for a haiku as an anonymous, API-key or verified-email buyer and see each tier's price, limits and Receipt. Email codes go to the demo inbox on the page, not to real email.
 - **Sessions** ([/playground/session](https://mpp.dev/playground/session), `src/session/`): open a payment channel, stream a story paid by the word with vouchers, top up and close. Each word costs 0.001 OUSD on Moderato testnet (chain 42431).
+- **Charge** ([/playground/charge](https://mpp.dev/playground/charge), `src/charge/`): buy a fortune for 0.01 OUSD and see the round trip: the 402 Challenge, the Credential that pays it and the Receipt.
+- **Discovery** ([/playground/discovery](https://mpp.dev/playground/discovery), `src/discovery/`): a registry of five small paid APIs, each publishing an OpenAPI document with `x-payment-info` and its own request schema. The page builds a form from each schema and pays the call.
+
+Charge and discovery share `src/shared/` (the charge server, wallet and code panes) and one Durable Object store, `CHARGE_STORE`.
 
 `src/index.ts` routes each playground's path to its server. Each has its own Durable Object store (`MPPX_STORE` for identity, `SESSION_STORE` for sessions); both share the Workers AI binding and the payee key. Vite builds both pages (`identity/index.html`, `session/index.html`) with shared assets under `/playground/assets/`.
 

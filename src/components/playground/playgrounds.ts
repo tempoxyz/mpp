@@ -21,4 +21,17 @@ export const playgrounds: readonly Playground[] = [
     slug: "session",
     title: "Sessions",
   },
+  {
+    description: "Buy a fortune: one request, one payment, one Receipt.",
+    href: "/playground/charge",
+    slug: "charge",
+    title: "Charge",
+  },
+  {
+    description:
+      "Browse five paid APIs, read their prices and schemas, and call one.",
+    href: "/playground/discovery",
+    slug: "discovery",
+    title: "Discovery",
+  },
 ];

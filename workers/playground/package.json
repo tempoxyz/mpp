@@ -6,7 +6,7 @@
     "build": "vite build && node scripts/nest-assets.mjs && node scripts/prerender-html.ts",
     "check:types": "tsgo -b",
     "check": "pnpm check:types && pnpm check:samples && pnpm build",
-    "check:samples": "pnpm --workspace-root exec vitest run scripts/check-identity-playground-samples.test.ts scripts/check-session-playground-samples.test.ts",
+    "check:samples": "pnpm --workspace-root exec vitest run scripts/check-identity-playground-samples.test.ts scripts/check-session-playground-samples.test.ts scripts/check-charge-playground-samples.test.ts",
     "deploy": "pnpm build && wrangler deploy",
     "dev": "vite dev",
     "pubkeys": "tsx src/identity/pubkeys.ts"

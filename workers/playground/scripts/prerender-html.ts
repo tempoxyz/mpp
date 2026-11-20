@@ -8,6 +8,8 @@ import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { createServer } from "vite";
 
+import { prerenderCode as chargeCode } from "../src/charge/prerender-code.ts";
+import { prerenderCode as discoveryCode } from "../src/discovery/prerender-code.ts";
 import { prerenderCode as identityCode } from "../src/identity/prerender-code.ts";
 import { prerenderCode as sessionCode } from "../src/session/prerender-code.ts";
 
@@ -34,6 +36,13 @@ const pages = [
       '<link rel="preload" as="fetch" crossorigin href="/playground/identity/api/config">',
   },
   { name: "session", preload: "" },
+  { name: "charge", preload: "" },
+  {
+    name: "discovery",
+    // The registry with the page: the directory waits on it.
+    preload:
+      '<link rel="preload" as="fetch" crossorigin href="/playground/discovery/api/registry">',
+  },
 ];
 
 // fileURLToPath, not .pathname: a checkout path with spaces or non-ASCII characters stays intact.
@@ -44,7 +53,13 @@ const vite = await createServer({
   base: "/playground/",
   configFile: false,
   logLevel: "error",
-  plugins: [react(), identityCode(), sessionCode()],
+  plugins: [
+    react(),
+    identityCode(),
+    sessionCode(),
+    chargeCode(),
+    discoveryCode(),
+  ],
   root,
   server: { middlewareMode: true },
 });

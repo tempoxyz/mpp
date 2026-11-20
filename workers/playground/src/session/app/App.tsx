@@ -454,7 +454,7 @@ function CodePanel({
           onClick={() => setExplain(!explain)}
           type="button"
         >
-          Explain code
+          Explain
         </button>
       </PanelHead>
       <div className="code-body">

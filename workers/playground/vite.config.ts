@@ -3,6 +3,8 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+import { prerenderCode as chargeCode } from "./src/charge/prerender-code.ts";
+import { prerenderCode as discoveryCode } from "./src/discovery/prerender-code.ts";
 import { prerenderCode as identityCode } from "./src/identity/prerender-code.ts";
 import { prerenderCode as sessionCode } from "./src/session/prerender-code.ts";
 
@@ -26,6 +28,12 @@ export default defineConfig(({ command }) => ({
             session: fileURLToPath(
               new URL("session/index.html", import.meta.url),
             ),
+            charge: fileURLToPath(
+              new URL("charge/index.html", import.meta.url),
+            ),
+            discovery: fileURLToPath(
+              new URL("discovery/index.html", import.meta.url),
+            ),
           },
         },
       },
@@ -35,6 +43,8 @@ export default defineConfig(({ command }) => ({
     react(),
     identityCode(),
     sessionCode(),
+    chargeCode(),
+    discoveryCode(),
     cloudflare(
       command === "serve" && process.env.PLAYGROUND_LOCAL
         ? {
