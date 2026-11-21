@@ -2570,6 +2570,46 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // Paperfeel
+  {
+    id: "paperfeel",
+    name: "paperfeel.ing",
+    url: "https://paperfeel.ing",
+    serviceUrl: "https://paperfeel.ing",
+    description:
+      "Give a PDF a simulated scanned finish. Preview the first page free, then purchase the full document.",
+    icon: "https://paperfeel.ing/favicon.svg",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["pdf", "documents", "conversion"],
+    status: "active",
+    docs: {
+      homepage: "https://paperfeel.ing/agents",
+      llmsTxt: "https://paperfeel.ing/llms.txt",
+      apiReference: "https://paperfeel.ing/openapi.json",
+    },
+    provider: { name: "paperfeel.ing", url: "https://paperfeel.ing" },
+    realm: "paperfeel.ing",
+    intent: "charge",
+    payments: [{ method: "stripe", currency: "eur", decimals: 2 }],
+    endpoints: [
+      {
+        route: "GET /v1/capabilities",
+        desc: "Current methods, upload limits, and tax modes",
+        docs: "https://paperfeel.ing/agents",
+      },
+      {
+        route: "POST /v1/jobs/:id/purchase/mpp",
+        desc: "Unlock the full scanned PDF for a prepared job",
+        dynamic: true,
+        amountHint: "€1 base per document plus applicable tax and fees",
+        unitType: "document",
+        healthCheck: false,
+        docs: "https://paperfeel.ing/agents",
+      },
+    ],
+  },
+
   // ── Parallel ───────────────────────────────────────────────────────────
   {
     id: "parallel",
