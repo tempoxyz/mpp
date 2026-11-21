@@ -1,11 +1,20 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "mpp-playground",
+  // tempo-prd. The Cloudflare Deploy Broker's build needs an explicit account.
+  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  // mpp.dev proxies to mpp-playground.porto.workers.dev. Version preview URLs stay off:
+  // Cloudflare serves none for a Worker with Durable Objects.
+  "workers_dev": true,
+  "preview_urls": false,
   // The pages are static assets; each playground's API (and the email issuer) reaches the Worker.
+  // The broker's policy pins these paths: a new playground's path needs a
+  // tempoxyz/cloudflare-deploy-policies change first.
   "assets": {
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
     "run_worker_first": [
       "/playground/identity/api/*",
@@ -24,9 +33,16 @@
       { "name": "SESSION_STORE", "class_name": "SessionStore" }
     ]
   },
-  "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["MppxStore", "SessionStore"] }
-  ],
+  // The live SQLite classes. Migration v1 created both and is already applied, and the
+  // Cloudflare Deploy Broker never replays migrations, so they are declared as exports
+  // instead. Keep their names and storage: dropping one would delete its stored state. A new
+  // class is a new export here and a new entry in the broker's policy.
+  "exports": {
+    "MppxStore": { "type": "durable-object", "storage": "sqlite" },
+    "SessionStore": { "type": "durable-object", "storage": "sqlite" }
+  },
+  // The Cloudflare Deploy Broker requires a version metadata binding.
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "observability": { "enabled": true },
   // mpp.dev/playground proxies here: attestations are bound to mpp.dev, and the caller's IP
   // comes from Vercel's X-Real-IP (Cloudflare only sees Vercel's).
