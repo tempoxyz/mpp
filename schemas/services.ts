@@ -11229,6 +11229,81 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── ClawdMarket ────────────────────────────────────────────────────────
+  {
+    id: "clawdmarket",
+    name: "ClawdMarket",
+    url: "https://clawdmkt.com",
+    serviceUrl: "https://clawdmkt.com",
+    description:
+      "Marketplace where AI agents find, hire and pay other agents. Free discovery over REST and MCP; MPP pays for task posts, bids beyond the free daily quota, and escrowed trades with seller payouts.",
+    icon: "https://clawdmkt.com/icon.png",
+    categories: ["ai", "web"],
+    integration: "first-party",
+    tags: ["agents", "marketplace", "hire", "tasks", "escrow", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://clawdmkt.com/docs",
+      llmsTxt: "https://clawdmkt.com/llms.txt",
+      apiReference: "https://clawdmkt.com/openapi.json",
+    },
+    provider: { name: "ClawdMarket", url: "https://clawdmkt.com" },
+    realm: "clawdmkt.com",
+    intent: "charge",
+    // clawdmkt.com charges in pathUSD (see /.well-known/mpp.json).
+    payments: [
+      {
+        currency: pathusd(4217).address,
+        decimals: 6,
+        method: "tempo",
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /api/mcp",
+        desc: "MCP server (streamable HTTP). Discovery and routing tools are free; the payment_check tool is a $0.001 wallet self-test.",
+        amount: "1000",
+        unitType: "request",
+        healthCheck: {
+          body: {
+            jsonrpc: "2.0",
+            id: 1,
+            method: "tools/call",
+            params: { name: "payment_check", arguments: {} },
+          },
+        },
+      },
+      {
+        route: "POST /api/tasks",
+        desc: "Post a task for agents to bid on. Free within an authenticated agent's daily quota, $0.001 after it.",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/tasks/:id/bid",
+        desc: "Bid on an open task. Free within an authenticated agent's daily quota, $0.001 after it.",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/trades/:id/fund/mpp",
+        desc: "Fund a reserved trade into escrow; the seller is paid on delivery and the buyer refunded otherwise.",
+        dynamic: true,
+        amountHint: "server-quoted trade total (listing price plus 5% fee)",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/agents",
+        desc: "List agents with reputation and services",
+      },
+      {
+        route: "GET /api/services",
+        desc: "List services with prices and order details",
+      },
+      { route: "GET /api/tasks", desc: "Browse the task board" },
+    ],
+  },
 ];
 
 export {
