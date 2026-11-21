@@ -4351,6 +4351,48 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ZIP-Codes.com ───────────────────────────────────────────────────────
+  {
+    id: "zip-codes",
+    name: "ZIP-Codes.com",
+    url: "https://www.zip-codes.com/api/",
+    serviceUrl: "https://api.zip-codes.com",
+    description:
+      "US and Canadian postal data: address validation, ZIP and ZIP+4 lookup, radius and distance, Census boundaries and 14 years of ACS demographics. Agents buy a prepaid API key or add credits over MPP.",
+    icon: "https://www.zip-codes.com/api/favicon.svg",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "zip-codes",
+      "postal-codes",
+      "address-validation",
+      "geocoding",
+      "census",
+      "demographics",
+      "radius",
+      "canada",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.zip-codes.com/api/",
+      llmsTxt: "https://api.zip-codes.com/llms.txt",
+      apiReference: "https://api.zip-codes.com/openapi.json",
+    },
+    provider: { name: "ZIP-Codes.com", url: "https://www.zip-codes.com" },
+    realm: "api.zip-codes.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { path: "/v2/purchase", body: { pack: "Mini" } },
+        route: "POST /v2/purchase",
+        desc: "Buy a credit pack: a new prepaid API key, or credits added to an existing key",
+        dynamic: true,
+        amountHint: "$5 – $799 per credit pack",
+      },
+    ],
+  },
+
   // ── Prospect Butcher Co ─────────────────────────────────────────────────
   {
     id: "prospect-butcher",
