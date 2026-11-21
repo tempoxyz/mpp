@@ -11229,6 +11229,54 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "ipvolt",
+    name: "ipvolt",
+    url: "https://ipvolt.com",
+    serviceUrl: "https://ipvolt.com",
+    description:
+      "Dedicated mobile proxies for agents: a device on a carrier network, rented for 1 day or 30 days. Top up a prepaid USD balance with USDC on Base, then rent from it through the API.",
+    icon: "https://ipvolt.com/apple-icon.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["proxies", "mobile-proxies", "networking", "usdc", "base"],
+    status: "active",
+    docs: {
+      homepage: "https://ipvolt.com/auth.md",
+      llmsTxt: "https://ipvolt.com/llms.txt",
+      apiReference: "https://ipvolt.com/openapi.json",
+    },
+    provider: { name: "ipvolt", url: "https://ipvolt.com" },
+    realm: "ipvolt.com",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: usdc(8453).address,
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        healthCheck: { path: "/api/v1?amountMinor=1000" },
+        route: "GET /api/v1",
+        desc: "Add prepaid USD balance to an ipvolt account. Pass ?amountMinor=<US cents> and send the account's agent token or API key as a Bearer token with the payment; 1 USDC adds 1.00 USD.",
+        dynamic: true,
+        amountHint: "buyer-chosen, $1 to $500",
+        unitType: "request",
+      },
+      {
+        healthCheck: false,
+        route: "GET /beta/api/v1/catalog",
+        desc: "List mobile proxy offers: country, carrier, period, stock and price (agent token)",
+      },
+      {
+        healthCheck: false,
+        route: "POST /beta/api/v1/purchase",
+        desc: "Rent mobile proxies from the prepaid balance (agent token)",
+      },
+    ],
+  },
 ];
 
 export {
