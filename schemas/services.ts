@@ -1789,6 +1789,152 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  {
+    categories: ["data"],
+    description:
+      "U.S. options flow, gamma and vanna exposure, options activity profiles, dark pool trades, and trade prices. Each successful GET costs $0.01 in USDC.e on Tempo or $0.50 by card through Stripe MPP. Prices and availability come from the live payment Challenge; check response timestamps for data timing.",
+    docs: {
+      apiReference: "https://api.bullflow.io/openapi.json",
+      homepage: "https://www.bullflow.io/api/docs",
+      llmsTxt: "https://www.bullflow.io/llms.txt",
+    },
+    endpoints: [
+      {
+        amount: "10000",
+        desc: "Gamma exposure by strike and expiration. Uses open interest by default; type=volume uses cumulative contract volume from the current or most recent trading day. Check as_of for response timing.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/netgex?ticker=SPY",
+        },
+        route: "GET /v1/data/netgex",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Closing gamma exposure by strike and expiration. Defaults to the latest eligible trading session; each session becomes eligible after 17:15 America/New_York. date and open_interest_date identify the represented sessions.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/eodGex?ticker=SPY",
+        },
+        route: "GET /v1/data/eodGex",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Vanna exposure by strike and expiration, with the underlying spot price and response timestamp.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/netvex?ticker=SPY",
+        },
+        route: "GET /v1/data/netvex",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Cumulative call and put net premium over the selected period or date range. Premium values are in USD.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/netPremiumSeries?ticker=SPY",
+        },
+        route: "GET /v1/data/netPremiumSeries",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Latest available trade price for a stock or supported index. timestamp is the trade time when available; market closures can leave the latest trade in an earlier session.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/lastTradePrice?ticker=SPY",
+        },
+        route: "GET /v1/data/lastTradePrice",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "One page of dark pool trades for an inclusive date range of at most 30 days. Follow nextCursor to retrieve additional pages.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/darkPoolTrades?ticker=SPY&from=2026-11-10&to=2026-11-10&limit=1",
+        },
+        route: "GET /v1/data/darkPoolTrades",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Highest option price and percent return observed after the supplied trade timestamp, relative to the entry price.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/peakReturn?sym=O%3ASPY261120C00700000&old_price=1&trade_timestamp=1794330000",
+        },
+        route: "GET /v1/data/peakReturn",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Rank tickers by recorded options volume, premium, or directional net premium. Choose date or an inclusive from/to range of at most 30 days. With no dates, uses the latest available session.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/optionsTopTickers",
+        },
+        route: "GET /v1/data/optionsTopTickers",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Recorded options volume, premium, execution-side activity, relative-volume ratios, and unusual contracts for the latest available session. Ratios can be null when comparison history is insufficient; coverage is not a complete market-wide total.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/optionsProfile?symbol=SPY",
+        },
+        route: "GET /v1/data/optionsProfile",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "One page of recorded options trades, newest first. Supply date or both from and to, covering at most 30 days. Cancelled trades are excluded; unavailable fields are null. Follow nextCursor with the same filters.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/historicalOptionsFlow?ticker=SPY&date=2026-11-10&limit=1",
+        },
+        route: "GET /v1/data/historicalOptionsFlow",
+        unitType: "request",
+      },
+      {
+        amount: "10000",
+        desc: "Near-node and largest-node movement alerts for the closest options expiration. Defaults to the current U.S. Eastern date; days without alerts return an empty list. Supply date or a from/to range of at most 30 days.",
+        docs: "https://www.bullflow.io/api/docs",
+        healthCheck: {
+          path: "/v1/data/gexAlerts?ticker=SPY&date=2026-11-10&limit=1",
+        },
+        route: "GET /v1/data/gexAlerts",
+        unitType: "request",
+      },
+    ],
+    icon: "https://www.bullflow.io/favicon.ico",
+    id: "bullflow",
+    integration: "first-party",
+    intent: "charge",
+    name: "Bullflow Market Data",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    provider: {
+      name: "Bullflow",
+      url: "https://www.bullflow.io",
+    },
+    realm: "api.bullflow.io",
+    serviceUrl: "https://api.bullflow.io",
+    status: "active",
+    tags: [
+      "options",
+      "stocks",
+      "gamma-exposure",
+      "vanna-exposure",
+      "options-flow",
+      "dark-pool",
+      "market-data",
+    ],
+    url: "https://www.bullflow.io/api",
+  },
+
   // ── Browserbase ────────────────────────────────────────────────────────
   {
     id: "browserbase",
