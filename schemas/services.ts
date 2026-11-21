@@ -11229,6 +11229,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Tragent ─────────────────────────────────────────────────────────────
+  {
+    id: "tragent",
+    name: "Tragent",
+    url: "https://tragent.fyi",
+    serviceUrl: "https://tragent.fyi",
+    description:
+      "Research answers on token prices and on-chain activity with live data, paid per answer. An agent can also buy an account of its own: a trading agent and its own wallet on Base.",
+    icon: "https://tragent.fyi/brand/icon-512.png",
+    categories: ["ai", "data", "blockchain"],
+    integration: "first-party",
+    tags: ["crypto", "trading", "research", "on-chain", "base", "wallet", "agent"],
+    status: "active",
+    docs: {
+      homepage: "https://tragent.fyi/developers",
+      llmsTxt: "https://tragent.fyi/llms.txt",
+      apiReference: "https://tragent.fyi/openapi.json",
+    },
+    provider: { name: "Tragent", url: "https://tragent.fyi" },
+    realm: "tragent.fyi",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/mpp/ask",
+        desc: "One answer about token prices or on-chain activity, with live data",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/mpp/plan",
+        desc: "An account of the agent's own for 30 days: its own trading agent, a wallet on Base and 1,000 credits",
+        amount: "2000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
