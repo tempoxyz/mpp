@@ -136,6 +136,46 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  {
+    id: "lasso",
+    name: "Lasso",
+    url: "https://lasso.sh",
+    serviceUrl: "https://lasso.sh",
+    description:
+      "Aggregated EVM JSON-RPC routing: each request goes to one of several providers per chain by measured latency and health, with failover on replay-safe reads. Custom profiles put your own nodes and provider accounts behind the same routing. Buy a funded RPC key from $0.05 over MPP on Tempo or x402 on Base, with no signup; days of Custom access are sold separately.",
+    icon: "https://lasso.sh/favicon.ico",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "rpc",
+      "json-rpc",
+      "evm",
+      "routing",
+      "custom-profiles",
+      "prepaid-key",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://docs.lasso.sh",
+      llmsTxt: "https://lasso.sh/llms.txt",
+      apiReference: "https://lasso.sh/openapi.json",
+    },
+    provider: { name: "Lasso", url: "https://lasso.sh" },
+    realm: "lasso.sh",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: {} },
+        route: "POST /api/v1/credit",
+        desc: 'Buy a funded key for aggregated EVM JSON-RPC. Send {"usd":"0.05"} or an empty body for the minimum. The paid response returns RPC and WebSocket URL templates under key. Custom profiles, bought as separate Custom access, route over your own nodes and provider accounts.',
+        dynamic: true,
+        amountHint:
+          "buyer-chosen, $0.05 to $100 credit; RPC metered separately",
+        unitType: "request",
+      },
+    ],
+  },
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
