@@ -11229,6 +11229,48 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── GTMMAXING ────────────────────────────────────────────────────────
+  {
+    id: "gtmmaxing",
+    name: "GTMMAXING",
+    url: "https://gtmmaxing.com",
+    serviceUrl: "https://gtmmaxing.com",
+    description:
+      "Find work emails from a LinkedIn profile or a name and company, and check email mailboxes. Pay per found email without signup. Misses are free.",
+    icon: "https://gtmmaxing.com/favicon.svg",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["email", "verification", "enrichment", "b2b", "outreach"],
+    status: "active",
+    docs: {
+      homepage: "https://gtmmaxing.com/mpp/llms.txt",
+      llmsTxt: "https://gtmmaxing.com/mpp/llms.txt",
+      apiReference: "https://gtmmaxing.com/mpp/openapi.json",
+    },
+    provider: { name: "GTMMAXING", url: "https://gtmmaxing.com" },
+    realm: "gtmmaxing.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/email-finder",
+        desc: "Find a work email from a LinkedIn profile or name and company. Misses are free.",
+        amount: "20000",
+        unitType: "found email",
+        docs: "https://gtmmaxing.com/mpp/openapi.json",
+        healthCheck: false,
+      },
+      {
+        route: "POST /mpp/email-verifier",
+        desc: "Check an email mailbox. Unknown, webmail and disposable verdicts are free.",
+        amount: "40000",
+        unitType: "definitive verification",
+        docs: "https://gtmmaxing.com/mpp/openapi.json",
+        healthCheck: false,
+      },
+    ],
+  },
 ];
 
 export {
