@@ -11229,6 +11229,51 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Content's Not Dead ──────────────────────────────────────────────
+  {
+    id: "contents-not-dead",
+    name: "Content's Not Dead",
+    url: "https://www.contentsnotdead.com",
+    serviceUrl: "https://api.contentsnotdead.com",
+    description:
+      "Pay per item for essays, fiction, and art delivered as Markdown. Each item costs $0.50 over MPP, with free metadata and teasers for discovery.",
+    icon: "https://www.contentsnotdead.com/icon.svg",
+    categories: ["media"],
+    integration: "first-party",
+    tags: ["content", "articles", "publishing", "markdown", "paywall"],
+    status: "active",
+    docs: {
+      homepage: "https://api.contentsnotdead.com/.well-known/mpp.md",
+      llmsTxt: "https://api.contentsnotdead.com/llms.txt",
+      apiReference: "https://api.contentsnotdead.com/openapi.json",
+    },
+    provider: {
+      name: "Content's Not Dead",
+      url: "https://www.contentsnotdead.com",
+    },
+    realm: "api.contentsnotdead.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { path: "/api/content/making-agents-pay" },
+        route: "GET /api/content/:id",
+        desc: "Get the full Markdown body of a content item",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /agents",
+        desc: "List all content with metadata and teasers",
+      },
+      {
+        healthCheck: { path: "/agents/making-agents-pay" },
+        route: "GET /agents/:id",
+        desc: "Get metadata and a teaser for one content item",
+      },
+    ],
+  },
 ];
 
 export {
