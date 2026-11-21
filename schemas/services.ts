@@ -11229,6 +11229,39 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Wazza ───────────────────────────────────────────────────────────────
+  {
+    id: "wazza",
+    name: "Wazza",
+    url: "https://wazza.ai",
+    serviceUrl: "https://api-pro.wazza.ai",
+    description:
+      "AI generation, QC, conform and delivery tools for film, animation and video. Agents buy prepaid credit packs with MPP. Requires a Wazza API key.",
+    icon: "https://wazza.ai/favicon.ico",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: ["video", "film", "animation", "generation", "qc", "credits", "mcp"],
+    status: "beta",
+    docs: {
+      homepage: "https://api-pro.wazza.ai/docs/guide#machine-payments",
+      llmsTxt: "https://api-pro.wazza.ai/llms.txt",
+      apiReference: "https://api-pro.wazza.ai/v1/openapi.json",
+    },
+    provider: { name: "Wazza", url: "https://wazza.ai" },
+    realm: "api-pro.wazza.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: false,
+        route: "POST /v1/topups",
+        desc: "Buy a credit pack (send Accept-Payment: stripe/charge)",
+        dynamic: true,
+        amountHint: "$10, $50, $500 or $1,000 per pack",
+      },
+    ],
+  },
 ];
 
 export {
