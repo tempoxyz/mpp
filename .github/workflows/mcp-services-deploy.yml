@@ -33,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Secure runner fetches its StepSecurity policy-store credential with OIDC.
+      id-token: write
     timeout-minutes: 20
     steps:
       - name: Secure runner
