@@ -11229,6 +11229,67 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // Inferrail: Web Read (a public page as markdown) and x402 Finder (which paid API to call),
+  // both charged only on delivery, on one origin.
+  {
+    id: "inferrail",
+    name: "Inferrail",
+    url: "https://tryinferrail.com",
+    serviceUrl: "https://inferrail-cost-gateway.onrender.com",
+    description:
+      "Two pay-per-call services for agents, charged only on delivery. Web Read: one public web page as clean markdown (title, main text, headings, lists, tables, links) with a word count, content hash and receipt; blocked, missing or failing pages and refusals cost nothing. x402 Finder: up to five paid x402 APIs that fit a task, ranked by text match and by how many wallets actually paid them in the last 30 days, with URL, method, price, network, payTo and an example input; no match costs nothing. A retry of the same request and request_id from the same payer within 10 minutes never pays twice.",
+    icon: "https://tryinferrail.com/favicon-192x192.png",
+    categories: ["web", "search", "data"],
+    integration: "first-party",
+    tags: [
+      "web-read",
+      "url-to-markdown",
+      "scraping",
+      "markdown",
+      "api-discovery",
+      "api-recommendation",
+      "tool-selection",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://tryinferrail.com",
+      llmsTxt: "https://inferrail-cost-gateway.onrender.com/llms.txt",
+      apiReference: "https://inferrail-cost-gateway.onrender.com/openapi.json",
+    },
+    provider: { name: "Inferrail", url: "https://tryinferrail.com" },
+    realm: "inferrail-cost-gateway.onrender.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: { url: "https://example.com/" },
+        },
+        route: "POST /read/v1/page",
+        desc: 'Web Read: a public URL as markdown. Body: {"url": "...", "request_id": "optional"}',
+        amount: "2000",
+        unitType: "page",
+      },
+      {
+        healthCheck: {
+          path: "/read/v1/page?url=https%3A%2F%2Fexample.com%2F",
+        },
+        route: "GET /read/v1/page",
+        desc: "Web Read: a public URL as markdown. Query: ?url=...&request_id=optional",
+        amount: "2000",
+        unitType: "page",
+      },
+      {
+        healthCheck: {
+          body: { need: "read a web page as markdown" },
+        },
+        route: "POST /find/v1/find",
+        desc: 'x402 Finder: up to five paid x402 APIs for a task. Body: {"need": "...", "network": "optional", "max_price_usd": "optional", "limit": 1-5, "request_id": "optional"}',
+        amount: "2000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
