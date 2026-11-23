@@ -16,6 +16,8 @@ import * as Identity from 'mppx/identity'
 
 export async function forward(request: Request, upstream: string) {
   const headers = new Headers(request.headers)
+  headers.delete('Authorization')
+  headers.delete('Payment-Authorization')
   for (const name of Identity.Headers.request) headers.delete(name) // [!code hl]
   const response = await fetch(upstream, { headers, method: request.method })
   const scrubbed = new Headers(response.headers)
@@ -39,9 +41,9 @@ Identity schemes in `WWW-Authenticate`. The proxy removes these challenges from 
 
 ### request
 
-- **Type:** `readonly ['identity-attestation', 'identity-presentation']`
+- **Type:** `readonly ['agent-id', 'agent-signature', 'dpop', 'identity-attestation', 'identity-presentation', 'poppy-session', 'tempo-id-token']`
 
-Sensitive identity proof headers. Don't forward them to another origin or upstream service.
+Sensitive identity proof headers. Don't forward them to another origin or upstream service. `Authorization` and `Payment-Authorization` aren't in this list; strip those separately when forwarding untrusted requests.
 
 ### response
 

@@ -1,0 +1,128 @@
+---
+description: "Verify Tempo ID users and require payment from their approved accounts."
+imageDescription: "Bind payment to a Tempo ID user"
+---
+
+# `TempoId.Server.create` [Bind payment to a Tempo ID user]
+
+Creates a direct-token verifier and payment check for one API.
+
+## Usage
+
+```ts twoslash
+import * as TempoId from 'mppx/extensions/identity/tempo'
+import { Mppx, tempo } from 'mppx/server'
+import type { Store } from 'mppx'
+
+declare const store: Store.AtomicStore
+
+// [!code hl:start]
+const user = TempoId.Server.create({
+  chainId: 42431,
+  clientId: 'app_reports',
+  store,
+})
+const mppx = Mppx.create({
+  methods: [tempo.charge({ testnet: true })],
+  requiresAuth: true,
+})
+// [!code hl:end]
+const charge = mppx.tempo.charge({
+  amount: '0.05',
+  identity: { payment: user.paymentCheck },
+})
+```
+
+Use `identity: [user.verifier]` for a request-only token check; use `identity: { payment: user.paymentCheck }` to bind payment to one of the token's accounts. Both read `Authorization`; `requiresAuth: true` is required. Pair with [`TempoId.Client.prover`](/sdk/typescript/client/TempoId.prover).
+
+## Return type
+
+`TempoId.Server.TempoId` contains `verifier: Identity.Verifier<TempoId.Caller>` and `paymentCheck: Identity.PaymentCheck<TempoId.Payer>`.
+
+| Caller field | Type | Meaning |
+|---|---|---|
+| `accounts` | `readonly Address[]` | Granted accounts, checksummed and deduplicated. |
+| `clientId` | `string` | App the user signed in to. |
+| `compliance` | `Readonly<Record<Address, TempoId.ComplianceState>>` | Screening state by account; empty for an unregistered app. |
+| `email` (optional) | `string` | Lowercased email from the matching ID token, if present and live. |
+| `emailVerified` (optional) | `boolean` | Whether Tempo ID verified that address. |
+| `userId` | `string` | Stable Tempo ID user ID. |
+
+`TempoId.Payer` adds optional `account: Address`, present on a paid check. `TempoId.ComplianceState` is `'clear' | 'exit_only' | 'blocked' | 'pending'`.
+
+## Parameters
+
+Configuration type: `TempoId.Server.create.Config`.
+
+### allow (optional)
+
+- **Type:** `(user: TempoId.Payer) => boolean | Promise<boolean>`
+
+Application policy after verification. Defaults to accept; `false` returns `forbidden`. On a paid retry it also receives `account`.
+
+### audience (optional)
+
+- **Type:** `string`
+
+Audience the access token must name. Defaults to the Tempo ID issuer’s origin. Additional audiences other than its `/oauth2/userinfo` endpoint are rejected.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Chain whose granted accounts may pay. Defaults to Tempo mainnet; set `42431` for Moderato.
+
+### clientId (optional)
+
+- **Type:** `string | readonly string[]`
+
+Accepted apps. Defaults to any app; restrict it for your API.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch` for Tempo ID key discovery.
+
+### issuer (optional)
+
+- **Type:** `string`
+
+Tempo ID origin. Defaults to `https://id.tempo.xyz`.
+
+### store (optional)
+
+- **Type:** `Store.AtomicStore`
+
+Accepts a DPoP proof once. Share across instances. Without it, a proof is reusable during its `300`-second lifetime plus `60` seconds of clock tolerance.
+
+## Verification behavior
+
+- Verifies RS256 `at+jwt` access tokens against Tempo ID's JWKS, issuer, audience, expiry, optional `nbf`, and app allowlist. Authorization scheme matching is case-insensitive, accepts one or more spaces, and requires one token.
+- DPoP-bound tokens require ES256 proofs bound to the key thumbprint, access token hash, method, and URL without query or fragment. Bearer tokens don't accept DPoP binding.
+- An optional `Tempo-Id-Token` must verify for the same user and app. An expired ID token supplies no email; a malformed or mismatched one rejects the request.
+- The payment check accepts only the `tempo` method, rejects Zone payments, and requires a `did:pkh:eip155:<chainId>:<address>` source in the caller's accounts. An explicit compliance state other than `clear` rejects; an absent state does not.
+- Missing or invalid tokens return `401`; policy, app, or payer refusal returns `403`; key or replay-store outages return `503`. Missing/invalid token responses include `WWW-Authenticate: DPoP algs="ES256", Bearer`.
+
+## Constants
+
+`TempoId.Constants` is exported from `mppx/extensions/identity/tempo`:
+
+| Property | Value |
+|---|---|
+| `attestPath` | `/tempo-id/attest` |
+| `attestationTypes` | `['tempo-id', 'email']` |
+| `clockTolerance` | `60` seconds |
+| `idTokenHeader` | `Tempo-Id-Token` |
+| `issuer` | `https://id.tempo.xyz` |
+| `proofMaxAge` | `300` seconds |
+| `type` | `tempo-id` |
+
+## Network defaults
+
+Both direct-token and issuer configurations default to the mainnet account chain. Set `chainId` explicitly for testnet use.
+
+| Network | Chain ID |
+|---|---|
+| Tempo mainnet (default) | `4217` |
+| Moderato testnet | `42431` |

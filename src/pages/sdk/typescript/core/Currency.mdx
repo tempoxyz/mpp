@@ -1,0 +1,132 @@
+---
+description: "Configure accepted tokens and payment limits with chain-aware currency metadata."
+imageDescription: "Choose accepted tokens without repeating decimals"
+---
+
+# `Currency` [Resolve tokens for payment configuration]
+
+Configure the tokens a buyer pays with or a seller accepts in the `mppx` TypeScript SDK. `mppx/client` supplies buyer payment methods; `mppx/server` supplies seller payment handlers.
+
+## Usage
+
+Prefer token metadata for accepted currencies and `maxAmount`, the maximum price per charge or Session unit in readable token units, such as `'1.00'` rather than `'1000000'` base units. Tokens carry their own decimals; a raw address needs explicit `decimals` with a client `maxAmount`. In this buyer example, `allowedChainIds` permits only Moderato, the Tempo testnet.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { ousd } from 'viem/tokens'
+
+const method = tempo.charge({
+  allowedChainIds: [42431], // Tempo testnet (Moderato)
+  // [!code hl:start]
+  currencies: [ousd],
+  maxAmount: '1.00',
+  // [!code hl:end]
+})
+```
+
+A currency is one of:
+
+| Form | Example | Chain and decimals |
+| --- | --- | --- |
+| Address | `ousd(42431).address` | Extracted address string; no chain binding or decimals metadata. |
+| Chain-indexed token | `ousd` | Resolves its address on the configured chain; supplies decimals. |
+| Resolved token | `ousd(42431)` | Matches only its own chain; supplies decimals. |
+
+On a seller, configure the network separately: token metadata does not select the Tempo server network. Set `testnet: true` for the `tempo()` and `tempo.charge()` server factories, or `chainId: 42431` for `tempo.session()`. These factories create an offer per accepted token at one shared USD price. They skip tokens without a deployment on that chain and tokens not denominated in USD. The grouped `evm()` server factory applies the same filtering. An explicit currency list replaces the factory’s default list.
+
+EVM methods also accept known assets such as `evm.assets.baseSepolia.USDC`, which include the domain name and version for EIP-3009 transfer signatures. A resolved token supplies chain and decimals, not that domain. Configure the `authorization` option when using a resolved token; see [`evm.charge`](/sdk/typescript/server/Method.evm.charge).
+
+Known EVM assets expose `chainId`, derived from their `network` by `assets.define`, so `Currency.chainIdOf` recognizes them as resolved tokens. The EVM `assets.Currency` type accepts every `Currency.Currency` form plus known assets. The older `assets.ViemToken` type alias is deprecated; import `Token` from `viem/tokens` instead.
+
+## Return type
+
+```ts
+import type { Address, ResolvedToken } from 'viem'
+import type { Token } from 'viem/tokens'
+
+type Currency = Address | Token | ResolvedToken
+type Resolved = Omit<ResolvedToken, 'decimals'> & {
+  decimals: number | undefined
+}
+```
+
+Import these types through the `Currency` namespace from `mppx`: `Currency.Currency` and `Currency.Resolved`. `Resolved.decimals` is `undefined` only for an address resolved without explicit decimals.
+
+## Helpers
+
+Import the namespace with `import { Currency } from 'mppx'`.
+
+### `chainIdOf`
+
+Returns `number | undefined`: a resolved token's chain ID, otherwise `undefined`.
+
+### `find`
+
+Returns the first case-insensitive address match as `{ currency, decimals }`, or `undefined`. With `chainId`, tokens must resolve on that chain. Without it, chain-indexed tokens can match on any chain in their `addresses` map. Address currencies use the supplied `decimals`; tokens use their own.
+
+```ts twoslash
+import { Currency } from 'mppx'
+import { ousd } from 'viem/tokens'
+
+const token = ousd(42431)
+// [!code hl:start]
+const match = Currency.find([ousd], token.address, { chainId: 42431 })
+console.log(match?.decimals)
+// [!code hl:end]
+// @log: 6
+```
+
+### `isResolvedToken`
+
+Type guard for resolved-token metadata with `address`, `chainId`, and `decimals`.
+
+### `isToken`
+
+Type guard for a chain-indexed token function with `addresses` and `decimals`.
+
+### `resolve`
+
+Resolves a currency on one chain to `Currency.Resolved | undefined`. A missing token deployment or mismatched resolved-token chain returns `undefined`. Raw addresses resolve on any supplied chain, with optional `decimals`.
+
+```ts twoslash
+import { Currency } from 'mppx'
+import { ousd } from 'viem/tokens'
+
+// [!code hl:start]
+const resolved = Currency.resolve(ousd, { chainId: 42431 })
+console.log(resolved?.decimals)
+// [!code hl:end]
+// @log: 6
+```
+
+## Parameters
+
+### address
+
+- **Type:** `string`
+
+Address to match in `find(currencies, address, options)`.
+
+### currencies
+
+- **Type:** `readonly Currency.Currency[]`
+
+Ordered currencies searched by `find`.
+
+### currency
+
+- **Type:** `Currency.Currency`
+
+Currency passed to `chainIdOf` or `resolve`.
+
+### options
+
+- **Type:** `{ chainId: number; decimals?: number }` for `resolve`; `{ chainId?: number; decimals?: number }` for `find`
+
+`chainId` selects the resolution chain for any currency; omitting it from `find` searches token addresses across their chains. `decimals` supplies only the scale for raw addresses. `find`'s entire options argument is optional. Token metadata takes precedence over these decimals.
+
+### value
+
+- **Type:** `unknown`
+
+Value inspected by `isResolvedToken` or `isToken`.

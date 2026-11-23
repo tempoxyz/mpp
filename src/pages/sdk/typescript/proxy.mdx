@@ -79,7 +79,9 @@ Route values use the current `EndpointMap` shape:
 
 - Use an mppx intent handler like `mppx.charge({ amount: '0.05' })` for paid routes.
 - Use `true` or `{ free: true, summary, requestBody }` for free passthrough routes.
-- Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
+- Use request pricing for automatic session proxying: `mppx.tempo.session({ amount: '0.01', unitType: 'request' })`. Billable per-item session streams require a custom generator that charges before upstream work; the automatic proxy returns `500` without forwarding content for these routes. Session management requests still reach verification, and composed one-time charge offers remain usable.
+- Pass session handlers directly, or preserve their `_internal` metadata when wrapping them. Without canonical pricing metadata, session content returns `500`, even for request-priced sessions.
+- Keep billable per-item and request-priced session offers on separate routes. Composing them can return `500` for a request-priced session selection when a matching per-item offer requires manual generation. See [streaming usage](/guides/usage-based#streaming).
 - Wrap a paid handler as `{ pay, summary, requestBody }` to describe the endpoint in generated `/openapi.json`. `summary` is a short string; `requestBody` is an OpenAPI request body object.
 
 A route without a valid handler or explicit `free: true` fails closed.
@@ -322,7 +324,7 @@ const proxy = Proxy.create({
 
 - Retries must match the Credential, method, origin, path, query, and body.
 - Retries reuse the original request's headers, minus payment and hop-by-hop fields.
-- Routes with identity verifiers or a payment check bypass replay and verify every request.
+- Routes with identity verifiers or a payment check, and session payments, bypass replay and verify every request. Session content is metered again; an earlier stored proxy response does not replace payment verification.
 
 | Recorded outcome | Retry response |
 | --- | --- |

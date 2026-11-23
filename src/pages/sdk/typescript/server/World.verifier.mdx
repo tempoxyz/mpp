@@ -1,0 +1,106 @@
+---
+description: "Require a World ID attestation before accepting payment."
+imageDescription: "Require a verified human"
+---
+
+# `World.Server.verifier` [Require a verified human]
+
+Creates a request verifier for a trusted issuer’s `world-id` attestation.
+
+## Usage
+
+```ts twoslash
+import * as World from 'mppx/extensions/identity/world'
+
+// [!code hl:start]
+const human = World.Server.verifier({
+  acr: [World.Constants.acr.orb, World.Constants.acr.orbFace],
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.example.com',
+})
+// [!code hl:end]
+```
+
+Pass `human` in a route's `identity: [human]`. The API verifies the issuer's signature locally and hosts no World IdP routes. Use [`World.Issuer.create`](/sdk/typescript/core/World.Issuer.create) to run the issuer yourself.
+
+## Return type
+
+`Identity.Verifier<World.VerifiedHuman>`. A valid value contains:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `acr` (optional) | `string` | World IdP authentication class, if attested. |
+| `expiresAt` | `Date` | Attestation expiry. |
+| `id` (optional) | `string` | Attestation `jti`. |
+| `issuer` | `string` | Attestation issuer URL. |
+| `subject` | `string` | Pseudonymous human ID. Store with `issuer`; cross-origin stability depends on issuer policy. |
+
+Missing or invalid proofs return `401` with `Identity-Attestation-Required: world-id;issuer="https://identity.example.com"`, telling the client prover which type and issuer to acquire; a rejected authentication class returns `403`; unavailable issuer keys return `503`. See [attestation verification behavior](/sdk/typescript/server/Attestation.verifier#behavior).
+
+## Parameters
+
+Configuration type: `World.Server.verifier.Config`.
+
+### acr (optional)
+
+- **Type:** `readonly string[]`
+
+Accepted authentication classes. Defaults to any attested class. An empty array throws `TypeError`.
+
+### audience
+
+- **Type:** `string | Attestation.Server.verifier.AudienceFunction`
+
+Public API origin. Prefer a fixed string; the request-derived function form is deprecated.
+
+### clockTolerance (optional)
+
+- **Type:** `number`
+
+Clock tolerance in seconds; defaults to `60`.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch` for JWKS discovery. Ignored with `keyResolver`.
+
+### issuer
+
+- **Type:** `string`
+
+Trusted World ID attestation issuer URL, not `https://auth.world.org`.
+
+### keyResolver (optional)
+
+- **Type:** `Attestation.KeyResolver`
+
+Defaults to the issuer’s JWKS. Use a self-hosted issuer’s `keyResolver` in process.
+
+### maxAge (optional)
+
+- **Type:** `number`
+
+Oldest accepted attestation in seconds since issuance. Defaults to the token’s own expiry.
+
+## Constants
+
+`World.Constants` (import from `mppx/extensions/identity/world`):
+
+| Property | Value |
+|---|---|
+| `acr.orb` | `https://world.org/oidc/acr/orb` |
+| `acr.orbFace` | `https://world.org/oidc/acr/orb-face` |
+| `acr.selfie` | `https://world.org/oidc/acr/selfie` |
+| `acr.selfieFace` | `https://world.org/oidc/acr/selfie-face` |
+| `attestationTtl` | `3600` seconds |
+| `clockTolerance` | `60` seconds |
+| `devicePath` | `/world/device` |
+| `interval` | `5` seconds |
+| `requestTimeout` | `10000` milliseconds |
+| `retryDelay` | `60` seconds |
+| `slowDown` | `5` seconds |
+| `tokenPath` | `/world/token` |
+| `type` | `world-id` |
+| `worldIssuer` | `https://auth.world.org` |
+| `worldSandboxIssuer` | `https://sandbox.auth.world.org` |

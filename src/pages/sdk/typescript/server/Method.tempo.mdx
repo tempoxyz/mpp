@@ -126,10 +126,10 @@ Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An exp
 
 ### currencies (optional)
 
-- **Type:** `readonly (string | Token)[]`
+- **Type:** `readonly Currency.Currency[]`
 - **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+Ordered accepted addresses, chain-indexed tokens such as `ousd`, or resolved tokens such as `ousd(42431)` from `viem/tokens`. An explicit list replaces the defaults. Tokens resolve on the configured chain; a resolved token only matches its own chain. Unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### currency (optional, deprecated)
 
@@ -142,7 +142,7 @@ Accepts one token address. Use `currencies: [currency]` instead. Don't set both 
 - **Type:** `number`
 - **Default:** `6`
 
-Decimal places for amount parsing.
+Decimal places for address currencies; defaults to `6`. Tokens supply their own decimals. An explicit value must match every accepted token’s decimals.
 
 ### feePayer (optional)
 

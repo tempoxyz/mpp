@@ -1,0 +1,134 @@
+---
+description: "Configure x402 payment tokens with chain-aware addresses, decimals, and signing metadata."
+imageDescription: "Choose payment tokens without guessing their metadata"
+---
+
+# `x402.assets` [Configure accepted tokens]
+
+Resolves token metadata for EVM and x402 payment methods through `assets` from `mppx/x402` or `evm.assets`.
+
+## Usage
+
+Prefer a known asset when available: it includes the chain, decimals, and transfer-signing domain.
+
+```ts twoslash [server.ts]
+import { evm } from 'mppx/server'
+
+const method = evm.charge({
+  currency: evm.assets.baseSepolia.USDC, // [!code hl]
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  x402: { facilitator: 'https://x402.org/facilitator' },
+})
+```
+
+For another token, use `assets.fromToken` with a chain-indexed `viem/tokens` definition and explicit transfer metadata:
+
+```ts twoslash [asset.ts]
+import { assets } from 'mppx/x402'
+import { usdc } from 'viem/tokens'
+
+// [!code hl:start]
+const currency = assets.fromToken(usdc, {
+  chainId: 84532,
+  transfer: { name: 'USDC', type: 'eip3009', version: '2' },
+})
+// [!code hl:end]
+console.log(currency.chainId)
+// @log: 84532
+```
+
+## Return type
+
+`define` and `fromToken` return `KnownAsset`: an `Asset` with a numeric `chainId`, CAIP-2 EVM `network`, and an internal marker. `Asset` contains `address`, `decimals`, and `transfer`.
+
+## Parameters
+
+### define
+
+- **Signature:** `assets.define({ address, decimals, network, transfer }): KnownAsset`
+- **`address` type:** `` `0x${string}` ``
+- **`decimals` type:** `number`
+- **`network` type:** `` `eip155:${number}` ``
+- **`transfer` type:** `ExactTransfer`
+
+Creates known asset metadata for a custom token. Every property is required. `chainId` is derived from `network`.
+
+`ExactTransfer` describes the signing mechanism: `{ name: string; type: 'eip3009'; version: string }` for EIP-3009, or `{ name?: string; type: 'permit2'; version?: string }` for Permit2. EIP-3009 `name` and `version` are the token’s EIP-712 signing-domain fields.
+
+### fromToken
+
+- **Signature:** `assets.fromToken(token, { chainId, transfer }): KnownAsset`
+- **`token` type:** `Token` from `viem/tokens`
+- **`chainId` type:** `number`
+- **`transfer` type:** EIP-3009 metadata with optional `name`, or Permit2 metadata
+
+Resolves the token's address and decimals on one chain. For EIP-3009, an explicit `transfer.name` wins; otherwise the token's name is used. Throws if no EIP-3009 domain name is available. The token must support the requested chain. Don't assume the on-chain token name is its signing domain name.
+
+## Currencies and resolution
+
+`assets.Currency` is `Address | Token | ResolvedToken | KnownAsset`: a raw address, a chain-indexed token definition, token metadata for one chain, or known x402 metadata. The first three alternatives also form the shared [`Currency`](/sdk/typescript/core/Currency) type. A `Token` from `viem/tokens` is a callable definition mapping chain IDs to token addresses; calling it with a supported chain ID returns a `ResolvedToken`, the address and metadata for that one chain. A raw address is also a currency. `EvmNetwork` means the CAIP-2 string `eip155:<chainId>`.
+
+- A known asset carries its transfer metadata and chain.
+- A resolved token, such as `usdc(84532)`, carries its chain, address, and decimals. It matches only that chain. Supply EIP-3009 `authorization: { name, version }` when configuring `evm.charge` directly; these are the same signing-domain values as in `transfer`.
+- A chain-indexed token resolves only on chains it lists; configure `chainId` when the method cannot infer one.
+- A raw address has no chain, decimals, or transfer metadata; configure those separately.
+
+The multi-currency `evm()` helper infers a resolved currency's chain, skips currencies unavailable on the chosen chain, and skips non-USD or unknown-denomination token definitions when applying one shared USD price.
+
+## Helpers
+
+### isAsset
+
+- **Signature:** `assets.isAsset(value: unknown): value is KnownAsset`
+
+Checks the internal known-asset marker. A plain metadata object isn't automatically a known asset; construct it with `define` or `fromToken`.
+
+### isRawAddress
+
+- **Signature:** `assets.isRawAddress(currency: Currency): currency is Address`
+
+Checks whether a currency is a string without chain metadata.
+
+### isToken
+
+- **Signature:** `assets.isToken(value: unknown): value is Token`
+
+Checks for a chain-indexed `viem/tokens` definition, not a resolved token. Uses `Currency.isToken`.
+
+### matches
+
+- **Signature:** `assets.matches(currency: Currency, acceptedCurrency: Address, network: EvmNetwork): boolean`
+
+Resolves the currency on the network and compares addresses case-insensitively. Returns `false` when that currency doesn't resolve on the network.
+
+### resolve
+
+- **Signature:** `assets.resolve(currency: Currency, network: EvmNetwork): assets.resolve.Result | undefined`
+
+Returns `{ address, decimals?, name?, transfer? }`. Known assets resolve only on their network and include transfer metadata. Viem tokens include their decimals and name; resolved tokens match only their own chain. Raw addresses return only the address. Returns `undefined` for an unsupported network.
+
+### toChainId
+
+- **Signature:** `assets.toChainId(network: EvmNetwork): number`
+
+Converts an EVM CAIP-2 network identifier to its numeric chain ID.
+
+### toNetwork
+
+- **Signature:** `assets.toNetwork(chainId: number): EvmNetwork`
+
+Returns `eip155:<chainId>`.
+
+## Known assets
+
+These exports are properties of `assets`, for example `assets.baseSepolia.USDC`.
+
+| Export | Token | Network |
+|---|---|---|
+| `base.USDC` | USDC | Base |
+| `baseSepolia.USDC` | Test USDC | Base Sepolia |
+| `celo.USDC` | USDC | Celo |
+| `celo.USDT` | USDT | Celo |
+| `celoSepolia.USDC` | Test USDC | Celo Sepolia |
+
+`ViemToken` is a deprecated alias for `Token` from `viem/tokens`. `Assets` from `mppx/x402` is a deprecated alias for the lowercase `assets` namespace.

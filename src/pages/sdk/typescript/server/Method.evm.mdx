@@ -33,7 +33,7 @@ Mppx.create({
 
 - **Type:** `readonly evm.Currency[]`
 
-Ordered token addresses, known assets, or USD token definitions from `viem/tokens`. Supply `chainId` for token definitions and raw addresses; known assets carry their own network. Definitions missing from that chain and non-USD definitions are skipped. Duplicate chain/address pairs are removed, and an empty resolved list throws.
+Ordered token addresses, known assets, or USD tokens from `viem/tokens`, either chain-indexed or resolved to one chain. Supply `chainId` for chain-indexed tokens and raw addresses; resolved tokens and known assets carry their own chain. A resolved token only matches its own chain. Unavailable and non-USD tokens are skipped. Duplicate chain/address pairs are removed, and an empty resolved list throws. See [`Currency`](/sdk/typescript/core/Currency).
 
 Token metadata alone doesn't establish EIP-3009 support. Use `evm.assets.fromToken(token, { chainId, transfer })` with the correct authorization domain for supported tokens. Base Sepolia examples use USDC because the configured facilitator supports its EIP-3009 flow.
 

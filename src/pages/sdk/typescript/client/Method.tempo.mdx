@@ -198,15 +198,15 @@ Store for reusable Sessions channels. Defaults to an in-memory store.
 
 ### currencies (optional)
 
-- **Type:** `readonly Address[]`
+- **Type:** `readonly Currency[]`
 
-Case-insensitive currency allowlist for both charges and Sessions. Required with either amount cap; an empty list rejects all offers.
+Currency allowlist for both charges and Sessions: addresses, chain-indexed tokens, or resolved tokens from `viem/tokens`. Tokens match on the signing chain; a resolved token only matches its own chain. Required with either amount cap; an empty list rejects all offers. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### decimals (optional)
 
 - **Type:** `number`
 
-Currency decimals. Set explicitly with `maxAmount`.
+Decimals for address currencies. Tokens carry their own. Set explicitly with `maxAmount` when accepting addresses.
 
 ### expectedChainId (optional)
 
@@ -232,7 +232,7 @@ Function that returns a viem client for the given chain ID.
 
 - **Type:** `string`
 
-Maximum display-unit price per charge or Session unit. Requires `currencies` and `decimals`. This is not a total session-spend limit.
+Maximum display-unit price per charge or Session unit. Requires `currencies` and decimals for every address currency. This is not a total session-spend limit.
 
 ### maxAtomicAmount (optional)
 
@@ -244,7 +244,7 @@ Maximum price per charge or Session unit in raw base units. Requires `currencies
 
 - **Type:** `string`
 
-Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
+Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups. Uses the matched token’s decimals, otherwise configured `decimals` or `6`.
 
 ### origin (optional)
 

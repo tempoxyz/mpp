@@ -52,6 +52,8 @@ Use `charge` when each request maps to one known payment. Use `subscription` whe
 
 To build it, see the [Session](/guides/usage-based) guide for sellers and [Pay for sessions](/guides/pay-for-sessions) for buyers.
 
+For Tempo SSE and WebSocket streams, pass a generator function and await `stream.charge()` before generating each paid item. Raw billable per-item iterables are rejected. With request-priced SSE (`unitType: 'request'`), automatic iterables charge once before iteration. See [streaming usage](/guides/usage-based#streaming).
+
 ## Request schema
 
 The session intent defines the shared semantics for reusable payment state. Method-specific session implementations define the exact `request` and `payload` fields needed to open, update, and settle that state.
