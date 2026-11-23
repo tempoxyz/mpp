@@ -59,8 +59,8 @@ importers:
         specifier: ^11.17.2
         version: 11.17.2
       mppx:
-        specifier: 0.20.1
-        version: 0.20.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
+        specifier: 0.21.1
+        version: 0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
       nuqs:
         specifier: 2.9.1
         version: 2.9.1(react@19.3.1)
@@ -78,7 +78,7 @@ importers:
         version: 4.3.3
       viem:
         specifier: 2.57.19
-        version: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+        version: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       vocs:
         specifier: 2.12.0
         version: 2.12.0(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.3.0)(@vue/compiler-sfc@3.5.43)(date-fns@4.1.0)(esbuild@0.28.2)(idb-keyval@6.3.0)(mermaid@11.17.2)(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.105.2(esbuild@0.28.2)))(react@19.3.1)(rolldown@1.2.18)(rollup@4.60.1)(typescript@6.0.3)(vite@8.3.4(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(waku@1.0.0-rc.3(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.105.2(esbuild@0.28.2)))(react@19.3.1)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.105.2(esbuild@0.28.2))
@@ -198,8 +198,8 @@ importers:
         specifier: 0.21.1
         version: 0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@types/react@19.3.0)(@wagmi/core@3.6.9)(express@5.2.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)(wagmi@3.7.11)
       mppx:
-        specifier: 0.20.1
-        version: 0.20.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
+        specifier: 0.21.1
+        version: 0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
       react:
         specifier: ~19.3.1
         version: 19.3.1
@@ -208,7 +208,7 @@ importers:
         version: 19.3.1(react@19.3.1)
       viem:
         specifier: 2.57.19
-        version: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+        version: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       wagmi:
         specifier: ^3.7.11
         version: 3.7.11(@tanstack/query-core@5.107.1)(@tanstack/react-query@5.107.1(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(accounts@0.21.1)(react@19.3.1)(typescript@6.0.3)(viem@2.57.19)
@@ -4470,13 +4470,14 @@ packages:
       next:
         optional: true
 
-  mppx@0.20.1:
-    resolution: {integrity: sha512-qn1gC2cEwxuEw4g2rJEhb+41LOteq0ZzNuNT5HhXz/haFOSPpTIJc/0YjT1ACRLtqW4uMu8NplkKBv/aYeqQnw==}
+  mppx@0.21.1:
+    resolution: {integrity: sha512-71+y/cOamBOH1+UehF9EgttkGkwCFmlbDGIs2fB/+0WvZqWCqw5zPqY0rKjxhru+jb1nZo9tK4/S3D1aSLCn7w==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
       '@stripe/agent-identity': '>=0.3.0'
       '@x402/core': '>=2.22.0'
+      '@x402/evm': '>=2.22.0'
       '@x402/express': '>=2.22.0'
       '@x402/hono': '>=2.22.0'
       '@x402/mcp': '>=2.22.0'
@@ -4492,6 +4493,8 @@ packages:
       '@stripe/agent-identity':
         optional: true
       '@x402/core':
+        optional: true
+      '@x402/evm':
         optional: true
       '@x402/express':
         optional: true
@@ -8285,7 +8288,7 @@ snapshots:
   '@wagmi/connectors@8.0.20(@wagmi/core@3.5.5)(accounts@0.14.12)(typescript@6.0.3)(viem@2.57.19)':
     dependencies:
       '@wagmi/core': 3.5.5(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.14.12)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
     optionalDependencies:
       accounts: 0.14.12(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@types/react@19.3.0)(@wagmi/core@3.5.5)(express@5.2.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)(wagmi@3.6.21)
       typescript: 6.0.3
@@ -8293,7 +8296,7 @@ snapshots:
   '@wagmi/connectors@8.2.4(@wagmi/core@3.6.9)(accounts@0.21.1)(typescript@6.0.3)(viem@2.57.19)':
     dependencies:
       '@wagmi/core': 3.6.9(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.21.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
     optionalDependencies:
       accounts: 0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@types/react@19.3.0)(@wagmi/core@3.6.9)(express@5.2.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)(wagmi@3.7.11)
       typescript: 6.0.3
@@ -8302,7 +8305,7 @@ snapshots:
     dependencies:
       eventemitter3: 5.0.1
       mipd: 0.0.7(typescript@6.0.3)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       zustand: 5.0.0(@types/react@19.3.0)(react@19.3.1)(use-sync-external-store@1.4.0(react@19.3.1))
     optionalDependencies:
       '@tanstack/query-core': 5.107.1
@@ -8318,7 +8321,7 @@ snapshots:
     dependencies:
       eventemitter3: 5.0.1
       mipd: 0.0.7(typescript@6.0.3)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       zustand: 5.0.0(@types/react@19.3.0)(react@19.3.1)(use-sync-external-store@1.4.0(react@19.3.1))
     optionalDependencies:
       '@tanstack/query-core': 5.107.1
@@ -8440,7 +8443,7 @@ snapshots:
     optionalDependencies:
       '@wagmi/core': 3.5.5(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.14.12)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
       react: 19.3.1
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       wagmi: 3.6.21(@tanstack/query-core@5.107.1)(@tanstack/react-query@5.107.1(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(accounts@0.14.12)(react@19.3.1)(typescript@6.0.3)(viem@2.57.19)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -8467,7 +8470,7 @@ snapshots:
     optionalDependencies:
       '@wagmi/core': 3.6.9(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.21.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
       react: 19.3.1
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       wagmi: 3.7.11(@tanstack/query-core@5.107.1)(@tanstack/react-query@5.107.1(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(accounts@0.21.1)(react@19.3.1)(typescript@6.0.3)(viem@2.57.19)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -10409,7 +10412,7 @@ snapshots:
       eventsource-parser: 3.1.1
       ox: 0.14.45(typescript@6.0.3)(zod@4.6.7)
       structured-headers: 2.0.3
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7)
@@ -10418,11 +10421,11 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.20.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19):
+  mppx@0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19):
     dependencies:
       ox: 0.14.65(typescript@6.0.3)(zod@4.6.7)
       structured-headers: 2.1.0
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7)
@@ -10438,7 +10441,7 @@ snapshots:
       eventsource-parser: 3.1.1
       ox: 0.14.33(typescript@6.0.3)(zod@4.6.7)
       structured-headers: 2.0.3
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7)
@@ -11591,7 +11594,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  viem@2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7):
+  viem@2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -11602,7 +11605,7 @@ snapshots:
       ox: 0.14.65(typescript@6.0.3)(zod@4.6.7)
       ws: 8.21.0
     optionalDependencies:
-      mppx: 0.20.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
+      mppx: 0.21.1(@modelcontextprotocol/sdk@1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@stripe/agent-identity@0.3.0)(express@5.2.1)(hono@4.13.18)(typescript@6.0.3)(viem@2.57.19)
       typescript: 6.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -11890,7 +11893,7 @@ snapshots:
       '@wagmi/core': 3.5.5(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.14.12)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
       react: 19.3.1
       use-sync-external-store: 1.4.0(react@19.3.1)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
     optionalDependencies:
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -11913,7 +11916,7 @@ snapshots:
       '@wagmi/core': 3.6.9(@tanstack/query-core@5.107.1)(@types/react@19.3.0)(accounts@0.21.1)(react@19.3.1)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.3.1))(viem@2.57.19)
       react: 19.3.1
       use-sync-external-store: 1.4.0(react@19.3.1)
-      viem: 2.57.19(mppx@0.20.1)(typescript@6.0.3)(zod@4.6.7)
+      viem: 2.57.19(mppx@0.21.1)(typescript@6.0.3)(zod@4.6.7)
     optionalDependencies:
       typescript: 6.0.3
     transitivePeerDependencies:

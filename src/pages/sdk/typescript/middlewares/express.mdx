@@ -39,12 +39,17 @@ Import `Mppx` and `tempo` from `mppx/express` to create an Express-aware payment
 
 When route options omit `scope` and reserved scope metadata, the middleware binds the Challenge to the Express method and route path automatically.
 
+Pass `allowedHosts` to `Mppx.create` to accept only exact incoming hosts, including ports. An unlisted host is rejected before identity or payment verification. Apply the same host policy at your trusted ingress.
+
 ```ts [server.ts]
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] }) // [!code hl]
+const mppx = Mppx.create({
+  allowedHosts: ['api.example.com'],
+  methods: [tempo.charge({ testnet: true })],
+})
 
 app.get(
   '/premium', 

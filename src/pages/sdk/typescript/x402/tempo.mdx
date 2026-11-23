@@ -1,0 +1,89 @@
+---
+description: "Accept USDC payments on Base and receive payouts on Tempo with the official x402 SDK."
+imageDescription: "Receive x402 payments on Tempo"
+---
+
+# `tempoX402` [Settle x402 payments through Tempo]
+
+Connects the official x402 server SDK to Tempo's facilitator. Buyers pay USDC on Base; Tempo sends the payout to your Tempo address.
+
+## Install
+
+:::code-group
+
+```bash [npm]
+$ npm install mppx @x402/core @x402/evm @x402/hono
+```
+
+```bash [pnpm]
+$ pnpm add mppx @x402/core @x402/evm @x402/hono
+```
+
+```bash [bun]
+$ bun add mppx @x402/core @x402/evm @x402/hono
+```
+
+:::
+
+## Usage
+
+Set `TEMPO_API_KEY` to an API key with `mpp:write` scope and `TEMPO_PAYOUT_ADDRESS` to the Tempo address receiving payouts.
+
+```ts
+import { paymentMiddleware } from '@x402/hono'
+import { Hono } from 'hono'
+import { tempoX402 } from 'mppx/x402/tempo'
+
+const app = new Hono()
+const tempo = tempoX402()
+
+app.use(paymentMiddleware({
+  'GET /weather': tempo.route({ price: '$0.01' }),
+}, tempo.server))
+
+app.get('/weather', (context) => context.json({ temperature: 72 }))
+```
+
+The helper reads the facilitator's deposit address from `GET /supported` and uses it as `payTo`. It sends your API key only with verification and settlement requests. A route can override the default payout address with `tempo.route({ payoutAddress, price })`.
+
+## Return type
+
+```ts
+type ReturnType = {
+  payTo: () => string
+  route: (options: RouteOptions) => RouteConfig
+  server: x402ResourceServer
+}
+```
+
+`payTo()` returns the facilitator's deposit address after the x402 server initializes.
+
+## Parameters
+
+### apiKey (optional)
+
+- **Type:** `string`
+
+Tempo API key with `mpp:write` scope. Defaults to `TEMPO_API_KEY`.
+
+### payoutAddress (optional)
+
+- **Type:** `string`
+
+Default Tempo payout address. Defaults to `TEMPO_PAYOUT_ADDRESS`. A missing or malformed payout address throws when you configure a route.
+
+## Route parameters
+
+### payoutAddress (optional)
+
+- **Type:** `string`
+
+Tempo payout address for this route.
+
+### price
+
+- **Type:** `string`
+
+Price per request in USD, such as `'$0.01'`.
+
+Other x402 `RouteConfig` fields are also accepted, except `accepts`, which the helper builds.

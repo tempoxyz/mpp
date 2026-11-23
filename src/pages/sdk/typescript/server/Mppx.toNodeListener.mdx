@@ -52,9 +52,9 @@ The payment handler function returned by calling an intent on the payment object
 
 ### options (optional)
 
-- **Type:** `{ host?: string; maxBodySize?: number; protocol?: string }`
+- **Type:** `{ allowedHosts?: readonly string[]; host?: string; maxBodySize?: number; protocol?: string }`
 
-Configures Node-to-Fetch request conversion. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).
+Configures Node-to-Fetch request conversion. `allowedHosts` accepts exact incoming hosts, including ports, before payment verification. An empty array rejects all hosts; also enforce the list at trusted ingress. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).
 
 ```ts twoslash
 import * as http from 'node:http'

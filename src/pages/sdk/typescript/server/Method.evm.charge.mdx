@@ -117,9 +117,11 @@ The callback runs only during broadcast. `validateCredential()` still verifies t
 
 ### x402 (optional)
 
-- **Type:** `{ facilitator?: string | Facilitator; fetch?: typeof globalThis.fetch; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource'; siwx?: Siwx.ServerOptions }`
+- **Type:** `{ extra?: Record<string, unknown>; facilitator?: string | { url: string; headers?: FacilitatorHeaders } | Facilitator; fetch?: typeof globalThis.fetch; headers?: FacilitatorHeaders; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource'; siwx?: Siwx.ServerOptions }`
 
-x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`.
+x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `headers` authenticates a URL facilitator with a flat record, path-specific records for `verify`, `settle`, and `supported`, or a function returning either. `extra` adds facilitator-specific payment requirement fields. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`. A non-2xx facilitator response raises `Errors.FacilitatorResponseError`.
+
+For facilitators that publish their deposit address in `GET /supported`, call `evm.facilitatorPayTo(facilitator, { network })` at startup and use the result as `recipient`.
 
 `siwx` enables x402 sign-in-with-x for wallets your application already permits to access the resource. Provide a shared atomic `store` and a `grant` callback; each proof is single-use. A valid approved proof returns a Receipt without charging; declined or missing proofs continue to the payment flow. See [`Siwx.ServerOptions`](/sdk/typescript/x402/Siwx#server-options) and the [setup guide](/guides/use-mpp-with-x402#recognize-a-wallet-before-charging).
 

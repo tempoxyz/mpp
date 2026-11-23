@@ -462,6 +462,13 @@ const mppx = Mppx.create({
 })
 ```
 
+### zoneCredentialGraceMs (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Accept a `zone` Credential for up to five minutes after its Challenge expires when the withdrawal settled before expiry. A Challenge must be issued with this option enabled to qualify. Cannot be combined with `relay`.
+
 ### zones (optional)
 
 - **Type:** `number[] | true`
