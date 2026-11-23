@@ -62,14 +62,8 @@ export async function createDemoClient() {
           const res = await globalThis.fetch("/api/demo/create-spt", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              amount: params.amount,
-              currency: params.currency,
-              expiresAt: params.expiresAt,
-              metadata: params.metadata,
-              networkId: params.networkId,
-              paymentMethod: params.paymentMethod,
-            }),
+            // The server sets the token's amount, currency and expiry.
+            body: JSON.stringify({ paymentMethod: params.paymentMethod }),
           });
           if (!res.ok) {
             const err = (await res.json()) as { error: string };

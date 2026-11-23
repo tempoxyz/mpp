@@ -1,3 +1,9 @@
+/** The demo routes' price: 100 USD cents (`/api/demo/*` and `/api/payment-link/photo-stripe`). */
+const amount = "100";
+const currency = "usd";
+/** How long a token stays usable: long enough to pay one challenge. */
+const ttlSeconds = 10 * 60;
+
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
@@ -20,20 +26,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const params = (await request.json()) as {
-    amount: string;
-    currency: string;
-    expiresAt: number;
-    metadata?: Record<string, string>;
-    networkId?: string;
-    paymentMethod: string;
-  };
+  // The client picks only the payment method; the server sets the token's limits.
+  const params = (await request.json().catch(() => undefined)) as
+    | { paymentMethod?: unknown }
+    | undefined;
+  const paymentMethod = params?.paymentMethod;
+  if (typeof paymentMethod !== "string" || !/^pm_\w+$/.test(paymentMethod))
+    return Response.json({ error: "Invalid paymentMethod." }, { status: 400 });
 
+  const expiresAt = Math.floor(Date.now() / 1000) + ttlSeconds;
   const body = new URLSearchParams({
-    payment_method: params.paymentMethod,
-    "usage_limits[currency]": params.currency,
-    "usage_limits[max_amount]": params.amount,
-    "usage_limits[expires_at]": params.expiresAt.toString(),
+    payment_method: paymentMethod,
+    "usage_limits[currency]": currency,
+    "usage_limits[expires_at]": expiresAt.toString(),
+    "usage_limits[max_amount]": amount,
   });
 
   const response = await fetch(
