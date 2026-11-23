@@ -32,25 +32,24 @@ function checkInstallTabs(
   const violations: Array<{ line: number; missing: string[] }> = [];
 
   for (let i = 0; i < lines.length; i++) {
-    // Look for a bash [npm] block that contains an install command
-    const line = lines[i];
-    if (!/^```bash \[npm\]/.test(line)) continue;
+    const opening = lines[i].match(/^(:{3,4})code-group$/);
+    if (!opening) continue;
 
-    // Check the next line for an install command (npm install / npx)
-    const cmdLine = lines[i + 1] ?? "";
-    const isInstall =
-      /^\$?\s*npm install\b/.test(cmdLine) || /^\$?\s*npx\b/.test(cmdLine);
+    const end = lines.indexOf(opening[1], i + 1);
+    if (end === -1) continue;
+
+    const group = lines.slice(i + 1, end);
+    const isInstall = group.some((line) =>
+      /^\$?\s*(?:npm install|npx|pnpm add|pnpm dlx|bun add|bunx)\b/.test(line),
+    );
     if (!isInstall) continue;
 
-    // Scan the surrounding code-group for which tabs exist
-    const found = new Set<string>(["npm"]);
-
-    // Scan forward until ::: closing
-    for (let j = i + 1; j < lines.length; j++) {
-      if (/^:::$/.test(lines[j].trim())) break;
-      const tabMatch = lines[j].match(/^```bash \[(npm|pnpm|bun)\]/);
-      if (tabMatch) found.add(tabMatch[1]);
-    }
+    const found = new Set(
+      group.flatMap((line) => {
+        const tabMatch = line.match(/^```bash \[(npm|pnpm|bun)\]$/);
+        return tabMatch ? [tabMatch[1]] : [];
+      }),
+    );
 
     const missing = REQUIRED_TABS.filter((t) => !found.has(t));
     if (missing.length > 0) {
@@ -62,6 +61,37 @@ function checkInstallTabs(
 }
 
 describe("install code-groups must include npm, pnpm, and bun", () => {
+  it("detects install groups with framework labels", () => {
+    const content = `:::code-group
+\`\`\`bash [Next.js]
+$ npm install mppx
+\`\`\`
+\`\`\`bash [Hono]
+$ npm install mppx hono
+\`\`\`
+:::`;
+
+    expect(checkInstallTabs(content)).toEqual([
+      { line: 1, missing: ["npm", "pnpm", "bun"] },
+    ]);
+  });
+
+  it("accepts npm, pnpm, and bun install tabs", () => {
+    const content = `:::code-group
+\`\`\`bash [npm]
+$ npm install mppx
+\`\`\`
+\`\`\`bash [pnpm]
+$ pnpm add mppx
+\`\`\`
+\`\`\`bash [bun]
+$ bun add mppx
+\`\`\`
+:::`;
+
+    expect(checkInstallTabs(content)).toEqual([]);
+  });
+
   const files = findMdxFiles(PAGES_DIR);
 
   for (const file of files) {
