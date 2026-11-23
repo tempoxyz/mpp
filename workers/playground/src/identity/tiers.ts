@@ -2,7 +2,7 @@
 //
 //   anonymous  nothing                                  0.03 OUSD, a haiku for a stranger
 //   email      a verified email (Identity-Attestation)  0.02 OUSD, a haiku about you
-//   apiKey     an API key, or an @tempo.xyz email 0.01 OUSD, inside jokes
+//   apiKey     an API key, or an emailed @tempo.xyz code 0.01 OUSD, inside jokes
 //   tempoId    a Tempo ID sign-in (a passkey)        0.01 OUSD, a haiku for a verified Tempo user
 //   poppy      a Personal Agent's Session               0.02 OUSD, a haiku for the agent's user
 //   erc8004    an ERC-8004 agent's wallet signature     0.02 OUSD, a haiku for the agent
@@ -64,7 +64,10 @@ export const members: Record<string, Member> = {
   },
 };
 
-/** Members by email domain: every verified @tempo.xyz address is a member. */
+/**
+ * Members by email domain: every verified @tempo.xyz address is a member, but only when the
+ * issuer emails its codes. Demo inbox codes are public, so those addresses get the email tier.
+ */
 const memberDomains: Record<string, Omit<Member, "name">> = {
   "tempo.xyz": { team: "Tempo", role: "teammate" },
 };
@@ -77,6 +80,7 @@ export function create(parameters: {
   store: Parameters<typeof Agents.create>[0]["store"];
 }) {
   const { audience, env, issuer, store } = parameters;
+  const domains = Issuer.sendsEmail(env) ? memberDomains : {};
   const agents = Agents.create({ audience, env, store });
 
   // step: identity.email
@@ -105,8 +109,7 @@ export function create(parameters: {
     audience,
     issuer,
     keyResolver: Issuer.keyResolver(env),
-    allow: (address) =>
-      Object.hasOwn(memberDomains, address.split("@")[1] ?? ""),
+    allow: (address) => Object.hasOwn(domains, address.split("@")[1] ?? ""),
   });
   const member = Identity.anyOf(apiKey, memberEmail);
 
@@ -259,8 +262,8 @@ export function create(parameters: {
       if (!address) return { kind: "anonymous", seen: [] };
       const [local, domain] = address.split("@") as [string, string];
       const name = nameOf(local);
-      const known = Object.hasOwn(memberDomains, domain)
-        ? memberDomains[domain]
+      const known = Object.hasOwn(domains, domain)
+        ? domains[domain]
         : undefined;
       if (known)
         return { kind: "member", name, ...known, domain, seen: ["email"] };
