@@ -126,4 +126,4 @@ npx mppx example.com -v        # verbose output
 - [Server quickstart](https://mpp.dev/quickstart/server)
 - [mppx repository](https://github.com/wevm/mppx)
 - [IETF Specification](https://paymentauth.org)
-- [Tempo docs](https://docs.tempo.xyz)
+- [Tempo docs](https://tempo.com/developers)
