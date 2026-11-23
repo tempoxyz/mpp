@@ -1,0 +1,107 @@
+---
+description: "Issue origin-bound identity attestations and publish the verification key."
+imageDescription: "Run an identity issuer"
+---
+
+# `Attestation.Issuer.create` [Run an identity issuer]
+
+Creates an Ed25519 issuer after your application checks a fact about a user. An attestation is the issuer’s signed token stating that fact, scoped to the receiving API’s origin.
+
+## Usage
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const signingKey: CryptoKeyPair // Ed25519
+
+// [!code hl:start]
+const issuer = Attestation.Issuer.create({
+  issuer: 'https://issuer.example.com',
+  signingKey,
+})
+const token = await issuer.sign({
+  audience: 'https://api.example.com',
+  sub: 'usr_Q7c1vK',
+  type: 'account',
+  uid: 'usr_Q7c1vK',
+})
+// [!code hl:end]
+const result = await Attestation.verify(token, {
+  audience: 'https://api.example.com',
+  issuer: issuer.issuer,
+  keyResolver: issuer.keyResolver,
+  type: 'account',
+})
+console.log(result.status)
+// @log: valid
+
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response(null, { status: 404 })
+}
+```
+
+Check the asserted fact before calling `sign`. Remote APIs use [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver); colocated APIs can use `issuer.keyResolver` without a network call.
+
+## Return type
+
+`Attestation.Issuer.Issuer`:
+
+| Member | Type | Behavior |
+|---|---|---|
+| `handle` | `(request: Request) => Promise<Response \| undefined>` | Serves `GET`/`HEAD <issuer path>/.well-known/jwks.json`; returns `undefined` otherwise. |
+| `issuer` | `string` | Configured URL without trailing slashes. |
+| `jwks` | `() => Promise<{ readonly keys: readonly JsonWebKey[] }>` | Publishes one Ed25519 key, never its private material. |
+| `keyResolver` | `Attestation.KeyResolver` | Resolves only this issuer and its current key ID. |
+| `sign` | `(parameters: Attestation.Issuer.SignParameters) => Promise<string>` | Signs one audience-bound token. |
+
+The JWKS response allows all CORS origins and caches for `300` seconds.
+
+## Parameters
+
+Configuration type: `Attestation.Issuer.create.Config`.
+
+### issuer
+
+- **Type:** `string`
+
+Issuer URL; HTTPS, or HTTP on `localhost` or `127.0.0.1`. Queries and fragments are rejected. Path prefixes are supported.
+
+### keyId (optional)
+
+- **Type:** `string`
+
+Nonempty JWS `kid`. Defaults to the RFC 7638 thumbprint of the public key.
+
+### signingKey
+
+- **Type:** `SigningKey`
+
+Ed25519 pair or [remote signer](/sdk/typescript/core/Identity.SigningKey). The public key must be exportable as JWK.
+
+### ttl (optional)
+
+- **Type:** `number`
+
+Token lifetime in seconds. Defaults to `3600`; positive safe integer, at most `31536000` (one year).
+
+## `issuer.sign` parameters
+
+`Attestation.Issuer.SignParameters` has these fields:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `audience` | `string` | HTTPS URL (HTTP only on localhost); normalized to its origin for `aud`. |
+| `claims` (optional) | `Readonly<Record<string, unknown>>` | Extra JSON-serializable claims. Registered claims and explicit `uid`/`cnf` take precedence. A `toJSON` hook on the payload or `cnf` is rejected. |
+| `cnf` (optional) | `Attestation.Confirmation` | RFC 7800 binding: optional string `addr` (paying account) and `jkt` (signing-key thumbprint), plus extension members. |
+| `sub` | `string` | Nonempty subject: the verified fact or stable provider account ID. |
+| `ttl` (optional) | `number` | Overrides issuer lifetime, with the same limits. |
+| `type` | `string` | Structured-field token, such as `email`, `github`, or `tempo-id`. |
+| `uid` (optional) | `string` | Nonempty issuer user ID, shared across that user's attestation types. |
+
+The issuer sets `iss`, origin-normalized `aud`, `iat`, `exp`, and a random `jti`. `uid` correlates facts within one issuer. A `cnf` claim describes a binding; the consuming verifier must enforce it. The generic attestation verifier only checks its shape.
+
+`Attestation.Issuer.isConfirmation(value: unknown): value is Attestation.Confirmation` tests for a non-array object whose optional `addr` and `jkt` are strings; it doesn't validate an address, thumbprint, or ownership.
+
+## Errors
+
+Invalid construction options throw `TypeError`. `sign` throws `Attestation.Issuer.InvalidParametersError` (a `TypeError` subclass) for invalid claims, times, or a token longer than `8192` characters. Other failures come from key export or signing; handle those as issuer outages, not invalid user input.

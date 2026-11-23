@@ -84,7 +84,7 @@ Expected per-tick amount. Set this for custom routes that do not return their ca
 
 - **Type:** `AsyncIterable<string> | ((stream: SessionController) => AsyncIterable<string>)`
 
-Async iterable that produces application messages. When passed as a function, receives a `SessionController` with a `charge(amount?: bigint)` method for requesting payment before yielding each value. Omit `amount` to use the Challenge tick cost, or pass a base-unit amount for dynamic pricing. Each yielded string is sent to the client as an application message frame.
+Generator function that produces application messages. Billable per-item streams require this function form; a raw async iterable throws a `TypeError` unless the tick cost is zero. The function receives a `SessionController`; await its `charge(amount?: bigint)` before starting each item’s work, including before advancing an upstream iterator. Omit `amount` to use the Challenge tick cost, or pass a base-unit amount for dynamic pricing. Each yielded string is sent to the client as an application message frame.
 
 ### maxBufferedAmount (optional)
 

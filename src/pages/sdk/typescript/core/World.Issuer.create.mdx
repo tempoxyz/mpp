@@ -1,0 +1,151 @@
+---
+description: "Host World ID approval and publish attestations for APIs."
+imageDescription: "Host World ID approval"
+---
+
+# `World.Issuer.create` [Host World ID approval]
+
+Creates a confidential World IdP client that exchanges human approval for audience-bound attestations.
+
+## Usage
+
+```ts twoslash
+import * as World from 'mppx/extensions/identity/world'
+import type { Store } from 'mppx'
+
+declare const signingKey: CryptoKeyPair // Ed25519
+declare const store: Store.AtomicStore
+declare function isSignedIn(request: Request): Promise<boolean>
+
+// [!code hl:start]
+const issuer = World.Issuer.create({
+  audiences: ['https://api.example.com'],
+  authorize: isSignedIn,
+  clientId: process.env.WORLD_CLIENT_ID!,
+  clientSecret: process.env.WORLD_CLIENT_SECRET!,
+  secretKey: process.env.MPP_SECRET_KEY!,
+  signingKey,
+  store,
+  url: 'https://identity.example.com',
+})
+// [!code hl:end]
+export async function handler(request: Request) {
+  return await issuer.handle(request) ?? new Response(null, { status: 404 })
+}
+```
+
+Implement `isSignedIn` with your application’s authentication check. Keep client credentials and the stable pairwise secret on the issuer. For sandbox credentials, set `worldIssuer: World.Constants.worldSandboxIssuer`.
+
+## Return type
+
+`World.Issuer.Issuer` has `url: string`, `handle(request): Promise<Response | undefined>`, `keyResolver: Attestation.KeyResolver`, and `jwks(): Promise<{ keys: readonly Record<string, string>[] }>`.
+
+Unlike the generic attestation issuer’s `JsonWebKey[]` declaration, World’s `jwks` return type declares its exported key fields as string records; both produce a standard JSON Web Key Set.
+
+`handle` serves paths relative to `url`:
+
+| Route | Request | Response |
+|---|---|---|
+| `POST /world/device` | `{ audience: string }` | `{ expires_in, id, interval, user_code, verification_uri, verification_uri_complete? }` |
+| `POST /world/token` | `{ id: string }` | `{ attestation, expires_at }`, or an OAuth-style error. |
+| `GET`/`HEAD /.well-known/jwks.json` | None | Public Ed25519 key with a thumbprint `kid`; cached for `300` seconds. |
+
+Device and token bodies are JSON, at most `4096` bytes. Unknown paths return `undefined`; unsupported methods return `405`. Errors include `400` (`invalid_request`, `authorization_pending`, `slow_down`, `access_denied`, `expired_token`), `403` for start policy, `429` for start limits, and `503` for World IdP outages. An approved ID token is kept through a key outage, so a later poll retries verification without asking the human again. Completed attempts return the same attestation until the attempt expires.
+
+## Parameters
+
+Configuration type: `World.Issuer.create.Config`.
+
+### acr (optional)
+
+- **Type:** `readonly string[]`
+
+Essential authentication classes requested and checked in the ID token. Defaults to `[World.Constants.acr.orb, World.Constants.acr.orbFace]`. Must not be empty.
+
+### audiences (optional)
+
+- **Type:** `readonly string[] | ((audience: string, request: Request) => boolean | Promise<boolean>)`
+
+Allowed API origins. Defaults to any HTTPS origin. For a self-hosted app, list its own origin.
+
+### authorize (optional)
+
+- **Type:** `(request: Request) => boolean | Promise<boolean>`
+
+Who may start an attempt. Defaults to anyone; configure `limit` for an open issuer.
+
+### clientAuthentication (optional)
+
+- **Type:** `'client_secret_basic' | 'client_secret_post'`
+
+World IdP client authentication method; defaults to `client_secret_basic`.
+
+### clientId
+
+- **Type:** `string`
+
+Confidential client ID registered with World IdP.
+
+### clientSecret
+
+- **Type:** `string`
+
+Confidential client secret registered with World IdP.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch`. World IdP calls time out after `10000` milliseconds.
+
+### limit (optional)
+
+- **Type:** `{ key: (request: Request) => string | undefined | Promise<string | undefined>; max: number; window: number }`
+
+Start limit per caller, with `window` in seconds. Return `undefined` from `key` to skip that caller. Use a trusted caller identifier.
+
+### secretKey (optional)
+
+- **Type:** `string`
+
+Required for the default pairwise subjects. Keep stable: changing it changes every human ID.
+
+### signingKey
+
+- **Type:** `SigningKey`
+
+Ed25519 pair or [remote signer](/sdk/typescript/core/Identity.SigningKey), with an exportable public key.
+
+### store
+
+- **Type:** `Store.AtomicStore`
+
+Share an atomic store across instances. Holds attempts, poll intervals, and rate limits; expired records are cleaned up during starts.
+
+### subject (optional)
+
+- **Type:** `'pairwise' | 'world'`
+
+Defaults to `pairwise`: derives a different subject for each audience. `world` passes World’s subject through and needs no pairwise secret.
+
+### ttl (optional)
+
+- **Type:** `number`
+
+Attestation lifetime in seconds, default `3600`. Must be a positive safe integer.
+
+### url
+
+- **Type:** `string`
+
+Public issuer URL. HTTPS, except HTTP on localhost. Path prefixes are supported.
+
+### worldIssuer (optional)
+
+- **Type:** `string`
+
+Defaults to `https://auth.world.org`; use `World.Constants.worldSandboxIssuer` for sandbox credentials.
+
+## Errors
+
+Invalid URL, missing credentials or pairwise secret, an empty `acr`, invalid `ttl`, or an unsupported signing key throws `TypeError`. Store and signing failures can reject `handle`; handle application failures without returning raw upstream errors.

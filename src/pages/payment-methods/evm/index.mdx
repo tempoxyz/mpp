@@ -114,7 +114,7 @@ To inspect payment terms before selecting a signer, omit `account`, call [`prepa
 | Celo         | `42220`    | `evm.assets.celo.USDC`, `evm.assets.celo.USDT` |
 | Celo Sepolia | `11142220` | `evm.assets.celoSepolia.USDC`                  |
 
-Use known assets when possible so `mppx` can infer the chain ID, token decimals, and authorization metadata:
+Use known assets when possible so `mppx` can infer the chain ID, token decimals, and authorization metadata. Chain-indexed and resolved tokens from `viem/tokens` also work; resolved tokens bind one chain and supply decimals, but still need an EIP-3009 authorization domain. See [`Currency`](/sdk/typescript/core/Currency).
 
 ```ts twoslash
 import { evm } from 'mppx/server'

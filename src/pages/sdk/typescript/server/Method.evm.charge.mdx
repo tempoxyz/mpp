@@ -69,13 +69,13 @@ Returns whether this configured EVM offer is available when an HTTP handler comp
 
 - **Type:** `number`
 
-EVM chain ID. Required for custom currency addresses and inferred for known assets.
+EVM chain ID. Required for raw addresses and chain-indexed tokens; inferred from resolved tokens and known assets. A resolved token on another chain is rejected.
 
 ### currency
 
-- **Type:** `Address | KnownAsset`
+- **Type:** `Currency.Currency | KnownAsset`
 
-Token contract address or known EVM asset metadata.
+Token address, chain-indexed token, resolved token, or known EVM asset. Tokens supply decimals, but still need `authorization` unless known-asset transfer metadata provides the EIP-3009 domain. See [`Currency`](/sdk/typescript/core/Currency).
 
 ```ts twoslash
 import { evm } from 'mppx/server'
@@ -93,7 +93,7 @@ const method = evm.charge({
 
 - **Type:** `number`
 
-Token decimal places. Required for custom currency addresses and inferred for known assets.
+Token decimal places. Required for raw addresses; inferred from tokens and known assets when omitted.
 
 ### onPaymentSuccess (optional)
 
@@ -109,17 +109,21 @@ Wallet address that receives the payment.
 
 ### settle (optional)
 
-- **Type:** `(parameters: SettleAuthorizationParameters) => Promise<{ reference: string; timestamp?: string }>`
+- **Type:** `(parameters: SettleAuthorizationParameters) => Promise<{ extensions?: Record<string, unknown>; reference: string; timestamp?: string }>`
 
-Custom settlement callback. Use this instead of `x402.facilitator` when you settle EIP-3009 authorization Credentials yourself.
+Custom settlement callback. Use this instead of `x402.facilitator` when you settle EIP-3009 authorization Credentials yourself. Return `extensions` to pass settlement metadata through the Receipt and x402 `PAYMENT-RESPONSE`.
 
 The callback runs only during broadcast. `validateCredential()` still verifies the signature, Challenge binding, payment terms, validity window, and declared source without calling `settle`.
 
 ### x402 (optional)
 
-- **Type:** `{ facilitator?: string | Facilitator; fetch?: typeof globalThis.fetch; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource' }`
+- **Type:** `{ extra?: Record<string, unknown>; facilitator?: string | { headers?: FacilitatorHeaders; url: string } | Facilitator; fetch?: typeof globalThis.fetch; headers?: FacilitatorHeaders; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource'; siwx?: Siwx.ServerOptions }`
 
-x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`.
+x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `extra` adds facilitator-specific fields to each payment requirement. `headers` adds authentication to URL facilitator requests as one record for every request, per-path records for `verify`, `settle`, and `supported`, or a function that returns either form. A facilitator `{ url, headers }` config takes precedence. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`.
+
+Non-`2xx` facilitator responses throw [`FacilitatorResponseError`](/sdk/typescript/core/Errors#facilitatorresponseerror), except valid failed verification or settlement results. Successful settlement extensions are preserved in the Receipt.
+
+`siwx` enables x402 sign-in-with-x for wallets your application already permits to access the resource. Provide a shared atomic `store` and a `grant` callback; each proof is single-use. A valid approved proof returns a Receipt without charging; declined or missing proofs continue to the payment flow. See [`Siwx.ServerOptions`](/sdk/typescript/x402/Siwx#server-options) and the [setup guide](/guides/use-mpp-with-x402#recognize-a-wallet-before-charging).
 
 `routeBinding` controls scoped-route interoperability:
 

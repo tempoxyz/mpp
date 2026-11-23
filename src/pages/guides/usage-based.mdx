@@ -214,7 +214,7 @@ const mppx = Mppx.create({
 
 #### Create the streaming poem route
 
-Pass an async generator to `withReceipt`. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free. If the balance runs out, the server emits `event: payment-need-voucher` and waits for a new voucher.
+Pass an async generator **function**, not an already-created iterable, to `withReceipt`. Await `stream.charge()` before generating each paid item, including before reading from an upstream generator. Billable per-item automatic iterables are rejected. Metadata and newlines can be yielded without charging. If the balance runs out, the server emits `event: payment-need-voucher` and waits for a new voucher.
 
 ```ts [server.ts]
 import { Mppx, Store, tempo } from "mppx/server";
@@ -260,7 +260,7 @@ Bun.serve({
     return result.withReceipt(async function* (stream) {
       yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge();
+        if (word !== "\\n") await stream.charge();
         yield word;
       }
     });

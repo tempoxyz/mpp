@@ -1,0 +1,69 @@
+---
+description: "Sign identity proofs with local keys or a remote key service."
+imageDescription: "Keep signing keys in your key service"
+---
+
+# `SigningKey` [Keep signing keys in your key service]
+
+Defines the local or remote key used by TAP, Web Bot Auth, and attestation issuers.
+
+## Usage
+
+```ts twoslash
+import type { Signer } from 'mppx/extensions/identity'
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const publicKey: CryptoKey // Ed25519, with verify usage
+declare function signRemotely(payload: Uint8Array): Promise<Uint8Array>
+
+// [!code hl:start]
+const signingKey: Signer = {
+  publicKey,
+  sign: ({ payload }) => signRemotely(payload),
+}
+const issuer = Attestation.Issuer.create({
+  issuer: 'https://issuer.example.com',
+  signingKey,
+})
+// [!code hl:end]
+```
+
+## Types
+
+```ts
+type SigningKey = CryptoKeyPair | Signer
+type Signer = {
+  readonly publicKey: CryptoKey
+  readonly sign: (parameters: { readonly payload: Uint8Array }) => Promise<Uint8Array>
+}
+```
+
+Import these types from `mppx/extensions/identity`. A local key pair contains both `privateKey` and `publicKey`; a remote signer never exposes its private key.
+
+## Properties
+
+### publicKey
+
+- **Type:** `CryptoKey`
+
+Ed25519 or RSA-PSS with SHA-512. A remote signer's key needs `verify` usage. Keep it extractable where the provider derives a thumbprint or publishes a JWK. Attestation signing accepts only Ed25519.
+
+### sign
+
+- **Type:** `(parameters: { readonly payload: Uint8Array }) => Promise<Uint8Array>`
+
+Sign the complete `payload`, not a digest. Return raw signature bytes: `64` bytes for Ed25519, or the RSA modulus length for RSA-PSS SHA-512, with SHA-512 MGF1 and a `64`-byte salt. Do not return DER or base64. mppx verifies each remote signature against `publicKey` before sending it.
+
+## Migrate existing signers
+
+- `Tap.Client.prover`: replace `key: privateKey` with `key: { privateKey, publicKey }` or a `Signer`. Keep `keyId`.
+- `WebBotAuth.Client.prover`: replace the private key with a pair or `Signer`, and remove `keyId`. The prover derives the RFC 7638 SHA-256 thumbprint from `publicKey`.
+- `Attestation.sign`: pass a pair or `Signer` as `options.key`. `options.keyId` remains optional and defaults to the public-key thumbprint.
+
+`SignatureAlgorithm` is `'ed25519' | 'rsa-pss-sha512'`. `Algorithms.ed25519` and `Algorithms.rsaPssSha512` export those values. `Headers.signature` is `'Signature'`; `Headers.signatureInput` is `'Signature-Input'` (all from `mppx/extensions/identity`).
+
+`SigningContext` contains `{ created: number; nonce: string }`, shared by signatures on one HTTP attempt; `created` is Unix seconds and `nonce` is random base64url. `KeyResolver` accepts `{ algorithm: SignatureAlgorithm; keyId: string; request: Request }` and returns a public `CryptoKey` or `undefined`, synchronously or asynchronously.
+
+## Errors
+
+An unsupported key, private key without its public key, mismatched key-pair algorithms, missing remote `verify` usage, or non-byte signature throws `TypeError`. A remote signature that fails local verification throws `Error`. Key-service failures propagate.

@@ -79,7 +79,9 @@ Route values use the current `EndpointMap` shape:
 
 - Use an mppx intent handler like `mppx.charge({ amount: '0.05' })` for paid routes.
 - Use `true` or `{ free: true, summary, requestBody }` for free passthrough routes.
-- Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
+- Use request pricing for automatic session proxying: `mppx.tempo.session({ amount: '0.01', unitType: 'request' })`. Billable per-item session streams require a custom generator that charges before upstream work; the automatic proxy returns `500` without forwarding content for these routes. Session management requests still reach verification, and composed one-time charge offers remain usable.
+- Pass session handlers directly, or preserve their `_internal` metadata when wrapping them. Without canonical pricing metadata, session content returns `500`, even for request-priced sessions.
+- Keep billable per-item and request-priced session offers on separate routes. Composing them can return `500` for a request-priced session selection when a matching per-item offer requires manual generation. See [streaming usage](/guides/usage-based#streaming).
 - Wrap a paid handler as `{ pay, summary, requestBody }` to describe the endpoint in generated `/openapi.json`. `summary` is a short string; `requestBody` is an OpenAPI request body object.
 
 A route without a valid handler or explicit `free: true` fails closed.
@@ -298,7 +300,7 @@ Request bodies remain available across retries, and retries don't re-verify paym
 
 ### Recover a paid response
 
-Enable `replay` so a payer that loses its connection can retry the exact paid request with the same Credential without paying again. Share one atomic store across every proxy instance.
+Enable `replay` so a payer that loses its connection can retry the exact paid request with the same Credential without paying again. Share one atomic store across every proxy instance. Set `authority` to a stable, trusted identifier; use the same value only for replicas with identical payment policies and upstream permissions.
 
 ```ts twoslash [server.ts]
 import { Store } from 'mppx'
@@ -309,6 +311,7 @@ const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] })
 const proxy = Proxy.create({
   // [!code hl:start]
   replay: {
+    authority: 'reports-production',
     maxAttempts: 1,
     store: Store.memory(), // Single-process example; use a shared atomic store in production.
   },
@@ -322,7 +325,7 @@ const proxy = Proxy.create({
 
 - Retries must match the Credential, method, origin, path, query, and body.
 - Retries reuse the original request's headers, minus payment and hop-by-hop fields.
-- Routes with identity verifiers or a payment check bypass replay and verify every request.
+- Routes with identity verifiers or a payment check, and session payments, bypass replay and verify every request. Session content is metered again; an earlier stored proxy response does not replace payment verification.
 
 | Recorded outcome | Retry response |
 | --- | --- |
@@ -399,10 +402,11 @@ Default handler for thrown upstream request errors and non-`2xx` responses. Retu
 - **Type:** `Proxy.ReplayOptions`
 - **Default:** disabled
 
-Paid-delivery recovery options. All fields except `store` are optional.
+Paid-delivery recovery options. `authority` and `store` are required.
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
+| `authority` | `string` | — | Stable trusted payment-authority identifier. Changing it invalidates outstanding replay records. Never derive it from request headers. |
 | `maxAttempts` (optional) | `number` | `3` | Total upstream delivery attempts per Credential, including the first. |
 | `maxBodySize` (optional) | `number` | `1_048_576` | Maximum response body bytes retained. |
 | `maxRequestBodySize` (optional) | `number` | `1_048_576` | Maximum paid replay request bytes; the smaller of this limit and the outer proxy limit applies. Larger requests return `413`. |

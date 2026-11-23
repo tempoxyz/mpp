@@ -46,6 +46,9 @@ const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
     // Known Base contract addresses
     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
 
+    // ERC-8004 Identity Registry (mppx Erc8004.Defaults.identityRegistry)
+    "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+
     // Placeholder/example addresses
     "0x1234567890abcdef1234567890abcdef12345678", // generic placeholder
     "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00", // Challenge.fromMethod example

@@ -62,7 +62,11 @@ The portal pays your recipient on Tempo and emits `WithdrawalProcessed` for the 
 
 ### Verify
 
-The client sends `{ type: 'zone', zoneId, senderTag, hash }`. Your server verifies the portal, recipient, exact amount, currency, and Challenge-bound memo, then claims the `senderTag` to prevent replay.
+The client sends `{ type: 'zone', zoneId, senderTag, hash }`. Your server verifies the portal, recipient, exact amount, currency, and Challenge-bound memo, then claims the `senderTag` to prevent replay. Use this `zone` Credential to redeem a portal payout.
+
+:::info[Unreleased after mppx 0.20.1]
+Upstream `main` accepts a portal payout only through its `zone` Credential, not through a regular transaction-hash Credential. This additional redemption check is not included in `mppx` 0.20.1.
+:::
 
 ::::
 
@@ -144,7 +148,7 @@ Otherwise, the client pays from `account` on Tempo.
 
 ### Handle slow settlement
 
-Withdrawals can't be undone. A settlement timeout throws `Errors.ZoneSettlementPendingError` with `challengeId`, `senderTag`, and `zoneId`.
+Withdrawals can't be undone. A settlement timeout throws `Errors.ZoneSettlementPendingError` with `challengeId`, `senderTags`, and `zoneId`. `senderTag` is set only when exactly one candidate remains. When a Zone RPC omits withdrawal events, the client derives candidate tags and finds the one that settles on Tempo; it does not withdraw again.
 
 Keep the `402` response and retry Credential creation for that exact Challenge with the same client. Repeating the resource request can issue a new Challenge and withdraw again. Here, `polyfill: false` preserves global fetch; `rawFetch` doesn't pay, and `createCredential` pays the saved Challenge:
 
@@ -178,7 +182,8 @@ const response = await mppx.rawFetch(url, { headers: { Authorization: credential
 
 - Concurrent attempts for the same full Challenge share one withdrawal. After settlement, retain and resend the Credential rather than paying again.
 - After a lost send response, the client checks the signed transaction's known hash on the Zone for up to 15 seconds. An unknown outcome blocks another withdrawal for that Challenge. Only pre-submission failures and confirmed reverts permit a fresh attempt.
-- Pending state is in memory. Retry before process exit or Challenge expiry. Otherwise, check the `senderTag` with the [withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal) before paying again.
+- If the withdrawal was sent but the Zone RPC cannot yet provide enough data to derive its tag, retry Credential creation for the same Challenge with the same client. The client retries that read without withdrawing again.
+- Pending state is in memory. Retry before process exit or Challenge expiry. Otherwise, check `senderTag` or every candidate in `senderTags` with the [withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal) before paying again.
 
 ## Constraints
 

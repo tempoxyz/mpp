@@ -103,11 +103,13 @@ const methods = tempo({
 })
 ```
 
-- `maxAmount` caps each charge or Session unit, not total spend. It requires `currencies` and `decimals`; use `maxAtomicAmount` for raw units.
+- `maxAmount` caps each charge or Session unit, not total spend. It requires `currencies` and decimals for each address currency. Tokens from `viem/tokens` supply their own decimals; use `maxAtomicAmount` for raw units.
 - `maxDeposit` caps reserved funds per channel. Use an access-key limit to cap spend across channels and processes.
 - Use a separate Session store per API origin. Per-request `autoSwap` limits also apply to automatic top-ups.
 
 Explicit Session closes bypass price and recipient policy so clients can reclaim funds.
+
+Charge payments and Session deposits simulate before signing. Handle `Errors.SpendingLimitExceededError` by raising the access-key limit, waiting for its reset, or using another key. Handle a simulation’s `Errors.InsufficientBalanceError` by funding the account. See [pre-signing errors](/sdk/typescript/core/Errors#spendinglimitexceedederror).
 
 ### Use the key with `mppx`
 

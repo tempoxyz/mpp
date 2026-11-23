@@ -596,14 +596,13 @@ import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 import type { Account } from 'viem'
 
 declare const account: Account
-declare const botPrivateKey: CryptoKey
+declare const botKeys: CryptoKeyPair
 
 const client = Mppx.create({
   // [!code hl:start]
   identity: [
     WebBotAuth.Client.prover({
-      key: botPrivateKey,
-      keyId: process.env.WEB_BOT_AUTH_KEY_ID!,
+      key: botKeys,
       scope: ['https://api.example.com'],
       signatureAgent: process.env.WEB_BOT_AUTH_DIRECTORY!,
     }),
@@ -620,14 +619,14 @@ import * as Tap from 'mppx/extensions/identity/tap'
 import type { Account } from 'viem'
 
 declare const account: Account
-declare const agentPrivateKey: CryptoKey
+declare const agentKeys: CryptoKeyPair
 
 const client = Mppx.create({
   // [!code hl:start]
   identity: [
     Tap.Client.prover({
       intent: 'payment',
-      key: agentPrivateKey,
+      key: agentKeys,
       keyId: 'agent-provider-key-1',
       scope: ['https://merchant.example'],
     }),

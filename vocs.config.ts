@@ -4,6 +4,7 @@ import { loadBlogPosts } from "./scripts/blog";
 import { transformMarkdownOutput } from "./scripts/markdown-output.ts";
 import remarkMppMarkdown from "./scripts/remark-mpp-markdown.ts";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
+import { viemTokenLinks } from "./src/shiki-viem-links.js";
 
 // Pages merged into their parent page. Each also redirects its Markdown
 // URL (/page.md) to the parent's Markdown, which has no anchors.
@@ -982,6 +983,10 @@ export default defineConfig({
             text: "x402 compatibility",
             items: [
               {
+                text: "Assets",
+                link: "/sdk/typescript/x402/assets",
+              },
+              {
                 text: "Express",
                 link: "/sdk/typescript/x402/express",
               },
@@ -996,6 +1001,14 @@ export default defineConfig({
               {
                 text: "Next.js",
                 link: "/sdk/typescript/x402/next",
+              },
+              {
+                text: "Sign-in with X",
+                link: "/sdk/typescript/x402/Siwx",
+              },
+              {
+                text: "Tempo facilitator",
+                link: "/sdk/typescript/x402/tempo",
               },
             ],
           },
@@ -1014,6 +1027,10 @@ export default defineConfig({
                   {
                     text: ".Constants",
                     link: "/sdk/typescript/core/Attestation.Constants",
+                  },
+                  {
+                    text: ".Issuer.create",
+                    link: "/sdk/typescript/core/Attestation.Issuer.create",
                   },
                   {
                     text: ".Jwks.resolver",
@@ -1068,6 +1085,20 @@ export default defineConfig({
                 ],
               },
               {
+                text: "Erc8004",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/Erc8004.prover",
+                  },
+                  {
+                    text: ".Server.create",
+                    link: "/sdk/typescript/server/Erc8004.create",
+                  },
+                ],
+              },
+              {
                 text: "Identity",
                 collapsed: true,
                 items: [
@@ -1078,6 +1109,10 @@ export default defineConfig({
                   {
                     text: ".Rejection",
                     link: "/sdk/typescript/core/Identity.Rejection",
+                  },
+                  {
+                    text: ".SigningKey",
+                    link: "/sdk/typescript/core/Identity.SigningKey",
                   },
                   {
                     text: ".Status",
@@ -1185,6 +1220,60 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "Poppy",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/Poppy.prover",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/Poppy.verifier",
+                  },
+                ],
+              },
+              {
+                text: "TempoId",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.attestations",
+                    link: "/sdk/typescript/client/TempoId.attestations",
+                  },
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/TempoId.prover",
+                  },
+                  {
+                    text: ".Issuer.create",
+                    link: "/sdk/typescript/core/TempoId.Issuer.create",
+                  },
+                  {
+                    text: ".Server.create",
+                    link: "/sdk/typescript/server/TempoId.create",
+                  },
+                ],
+              },
+              {
+                text: "World",
+                collapsed: true,
+                items: [
+                  {
+                    text: ".Client.prover",
+                    link: "/sdk/typescript/client/World.prover",
+                  },
+                  {
+                    text: ".Issuer.create",
+                    link: "/sdk/typescript/core/World.Issuer.create",
+                  },
+                  {
+                    text: ".Server.verifier",
+                    link: "/sdk/typescript/server/World.verifier",
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1275,6 +1364,10 @@ export default defineConfig({
                     link: "/sdk/typescript/core/Credential.serialize",
                   },
                 ],
+              },
+              {
+                text: "Currency",
+                link: "/sdk/typescript/core/Currency",
               },
               {
                 text: "Discovery",
@@ -1419,7 +1512,7 @@ export default defineConfig({
   codeHighlight: {
     engine: "highlights",
     langs: ruby,
-    transformers: [shikiStyleToClass()],
+    transformers: [shikiStyleToClass(), viemTokenLinks()],
   },
   twoslash: {
     twoslashOptions: {
