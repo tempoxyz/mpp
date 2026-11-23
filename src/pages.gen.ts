@@ -246,6 +246,7 @@ type Page =
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }
   | { path: '/sdk/typescript/x402/next'; render: 'static' }
+  | { path: '/sdk/typescript/x402/tempo'; render: 'static' }
   | { path: '/services'; render: 'static' }
   | { path: '/tools/wallet'; render: 'static' }
   | { path: '/use-cases/agentic-payments'; render: 'static' }

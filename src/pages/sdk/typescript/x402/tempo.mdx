@@ -1,0 +1,72 @@
+---
+description: "Route x402 payments through Tempo and receive stablecoins on Tempo."
+imageDescription: "Receive x402 payments on Tempo"
+---
+
+# `x402/tempo` [Tempo facilitator setup]
+
+Connects the official x402 resource server to Tempo's facilitator so buyers pay USDC on Base and you receive funds on Tempo.
+
+Requires `@x402/core` and `@x402/evm` 2.22 or later.
+
+## Usage
+
+```ts [server.ts]
+import { paymentMiddleware } from '@x402/hono'
+import { tempoX402 } from 'mppx/x402/tempo'
+
+const tempo = tempoX402({
+  apiKey: process.env.TEMPO_API_KEY!,
+  payoutAddress: '0x20C0000000000000000000000000000000000001',
+})
+
+// [!code hl:start]
+app.use(paymentMiddleware({
+  'GET /weather': tempo.route({ price: '$0.01' }),
+}, tempo.server))
+// [!code hl:end]
+```
+
+The helper fixes the facilitator URL to `https://api.tempo.xyz/v1/x402`, registers exact EVM settlement on Base mainnet, and authenticates `verify` and `settle` requests. It reads the facilitator's deposit address from `GET /supported`; each route adds the Tempo payout address as `extra.tempoSettlement`.
+
+## Return type
+
+```ts
+type ReturnType = {
+  payTo: () => string
+  route: (parameters: RouteOptions) => RouteConfig
+  server: x402ResourceServer
+}
+```
+
+Call `payTo()` only after the x402 middleware initializes the resource server and loads facilitator support.
+
+## Parameters
+
+### apiKey (optional)
+
+- **Type:** `string`
+
+Tempo API key with the `mpp:write` scope. Defaults to `TEMPO_API_KEY`.
+
+### payoutAddress (optional)
+
+- **Type:** `string`
+
+Tempo address that receives each payment. Defaults to `TEMPO_PAYOUT_ADDRESS`; a route can override it.
+
+## Route parameters
+
+### payoutAddress (optional)
+
+- **Type:** `string`
+
+Tempo payout address for this route.
+
+### price
+
+- **Type:** `string`
+
+Price per request in USD, such as `'$0.01'`.
+
+Other route fields pass through to the official x402 `RouteConfig`.

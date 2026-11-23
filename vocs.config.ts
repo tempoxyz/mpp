@@ -1006,6 +1006,10 @@ export default defineConfig({
                 text: "Sign-in with X",
                 link: "/sdk/typescript/x402/Siwx",
               },
+              {
+                text: "Tempo facilitator",
+                link: "/sdk/typescript/x402/tempo",
+              },
             ],
           },
           {

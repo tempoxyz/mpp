@@ -462,11 +462,18 @@ const mppx = Mppx.create({
 })
 ```
 
+### zoneCredentialGraceMs (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Accepts a late Zone Credential for up to this many milliseconds after Challenge expiry, only when the withdrawal settled before expiry and the Challenge advertised the grace period. The value must be from `0` through `300_000`. This option isn't compatible with `relay`.
+
 ### zones (optional)
 
 - **Type:** `number[] | true`
 
-Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. Zone IDs are positive integers below `421_700_000`; an explicit array must not be empty. Verification requires a successful canonical portal event and top-level `processWithdrawals` calldata with the exact recipient, token, amount, Challenge-bound memo, and `gasLimit: 0`. Bounced withdrawals are rejected. Upstream `main` additionally accepts portal payouts only through their `zone` Credential, not a regular transaction-hash Credential; this check is unreleased after `mppx` 0.20.1. A Zone Receipt omits `payer`; `validateSender` cannot establish the private Zone payer's identity. See [private payments](/guides/private-payments).
+Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. Zone IDs are positive integers below `421_700_000`; an explicit array must not be empty. Verification requires a successful canonical portal event and top-level `processWithdrawals` calldata with the exact recipient, token, amount, Challenge-bound memo, and `gasLimit: 0`. Bounced withdrawals are rejected. Portal payouts are accepted only through their `zone` Credential, not a regular transaction-hash Credential. A Zone Receipt omits `payer`; `validateSender` cannot establish the private Zone payer's identity. See [private payments](/guides/private-payments).
 
 ## Request parameters
 

@@ -44,7 +44,10 @@ import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo.charge({ testnet: true })] }) // [!code hl]
+const mppx = Mppx.create({
+  allowedHosts: ['api.example.com'],
+  methods: [tempo.charge({ testnet: true })],
+})
 
 app.get(
   '/premium', 
@@ -52,6 +55,8 @@ app.get(
   (req, res) => res.json({ data: 'paid content' }),
 )
 ```
+
+The optional adapter config accepts `allowedHosts`, an exact list of incoming hosts including ports. Requests outside the list return `421 Misdirected Request`; an empty list rejects every host. Enforce the same list at trusted ingress because forwarded host headers aren't trusted.
 
 ### Body-bearing requests
 

@@ -30,4 +30,4 @@ The session API takes the topic in the path (`/api/story/<topic>`), never a quer
 
 ## Local development
 
-Create `.dev.vars` with `PUBLIC_ORIGIN=http://localhost:8790`, `TRUST_PROXY_IP=false`, `MPP_REALM=localhost` and `MPP_PRIVATE_KEY`, then run `PLAYGROUND_LOCAL=1 pnpm dev` and open `/playground/identity/` or `/playground/session/`. `PLAYGROUND_LOCAL=1` drops the AI binding.
+Create `.dev.vars` with `PUBLIC_ORIGIN=http://localhost:8790`, `TRUST_PROXY_IP=false`, `MPP_REALM=localhost` and `MPP_PRIVATE_KEY`, then run `PLAYGROUND_LOCAL=1 pnpm --filter mpp-playground dev` and open `/playground/identity/` or `/playground/session/`. `PLAYGROUND_LOCAL=1` drops the AI binding.

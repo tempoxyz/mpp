@@ -164,6 +164,13 @@ TTL in milliseconds for cached on-chain channel state. After this duration, the 
 
 Charge request-priced content before the handler runs, when its voucher is accepted. Always enabled with `sse`, including plain POST responses. Credit unserved content with [`tempo.session.credit`](#temposessioncredit), or enable [automatic prepaid credits](#automatic-prepaid-credits) for managed SSE.
 
+### configurableVouchers (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Accepts TIP-1166 configurable account vouchers and close authorizations, and advertises support in the Challenge. Each voucher must match the signer configuration commitment recorded when the channel opened. Enable this only after the chain runs T15.
+
 ### currencies (optional)
 
 - **Type:** `readonly Currency.Currency[]`

@@ -63,10 +63,11 @@ Use a framework-specific x402 entrypoint when you already have an official x402 
 | Hono | [`mppx/x402/hono`](/sdk/typescript/x402/hono) |
 | MCP | [`mppx/x402/mcp`](/sdk/typescript/x402/mcp) |
 | Next.js | [`mppx/x402/next`](/sdk/typescript/x402/next) |
+| Tempo facilitator | [`mppx/x402/tempo`](/sdk/typescript/x402/tempo) |
 
 ### Advanced options
 
-Use lightweight entrypoints when a deployment only needs core server primitives or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph.
+Use lightweight entrypoints when a deployment only needs client primitives, core server primitives, one Tempo runtime, or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph. Import from `mppx/client/core`, `mppx/server/core`, `mppx/tempo/client`, or `mppx/tempo/server` as needed; the full `mppx/client` and `mppx/server` entrypoints remain unchanged.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
