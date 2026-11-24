@@ -11229,6 +11229,83 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Cvedo ──────────────────────────────────────────────────────────────
+  {
+    id: "cvedo",
+    name: "Cvedo UK Job Data",
+    url: "https://cvedo.co.uk",
+    serviceUrl: "https://cvedo.co.uk",
+    description:
+      "Facts and links about live UK job adverts, UK employer profiles from public registers, a weekly UK job market pulse, and public sector pay scales with sources. Paid per call in GBP with a Stripe Shared Payment Token. No advert text.",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "jobs",
+      "uk",
+      "job-adverts",
+      "employers",
+      "pay-scales",
+      "labour-market",
+    ],
+    status: "active",
+    docs: {
+      llmsTxt: "https://cvedo.co.uk/llms.txt",
+      apiReference: "https://cvedo.co.uk/agent/v1/openapi.json",
+    },
+    provider: { name: "Cvedo Ltd", url: "https://cvedo.co.uk" },
+    realm: "cvedo.co.uk",
+    intent: "charge",
+    payments: [{ method: "stripe", currency: "gbp", decimals: 2 }],
+    endpoints: [
+      {
+        route: "GET /agent/v1/adverts/search",
+        desc: "Search live UK job adverts by role, location, minimum salary or closing date: up to 20 adverts as facts and links",
+        amount: "50",
+        unitType: "request",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { path: "/agent/v1/adverts/search?role=nurse" },
+      },
+      {
+        route: "POST /agent/v1/adverts/check",
+        desc: "Check one advert by its URL: whether it is in the corpus, live, and when it closes",
+        amount: "50",
+        unitType: "request",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { body: { url: "https://example.com/job" } },
+      },
+      {
+        route: "GET /agent/v1/adverts/sample",
+        desc: "Free one-row sample of an advert search",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { path: "/agent/v1/adverts/sample?role=nurse" },
+      },
+      {
+        route: "GET /agent/v1/employers",
+        desc: "UK employer profile: Companies House record, live adverts and pay, sponsor licence, gender pay gap and modern slavery statement, each with its public source",
+        amount: "200",
+        unitType: "request",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { path: "/agent/v1/employers?name=tesco" },
+      },
+      {
+        route: "GET /agent/v1/pulse",
+        desc: "UK job market pulse: adverts first posted each week for a role, area or employer, and how many are live",
+        amount: "100",
+        unitType: "request",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { path: "/agent/v1/pulse?role=nurse" },
+      },
+      {
+        route: "GET /agent/v1/pay",
+        desc: "Public sector pay scales (NHS Agenda for Change, Civil Service, police, Australian APS, US GS) with sources; the list of keys is free",
+        amount: "50",
+        unitType: "request",
+        docs: "https://cvedo.co.uk/agent/v1/openapi.json",
+        healthCheck: { path: "/agent/v1/pay?scheme=nhs_afc&key=5" },
+      },
+    ],
+  },
 ];
 
 export {
