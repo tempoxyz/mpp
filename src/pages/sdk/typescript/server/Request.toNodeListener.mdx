@@ -12,6 +12,7 @@ const listener = Request.toNodeListener((request) => {
   const pathname = new URL(request.url).pathname
   return new Response(`Requested ${pathname}`)
 }, {
+  allowedHosts: ['api.example.com'],
   maxBodySize: 1024 * 1024,
 })
 
@@ -54,6 +55,6 @@ A Fetch API handler that receives a `Request` and returns a `Response`.
 
 ### options (optional)
 
-- **Type:** `{ host?: string; maxBodySize?: number; onError?: (error: unknown) => void | Response | Promise<void | Response>; protocol?: string }`
+- **Type:** `{ allowedHosts?: readonly string[]; host?: string; maxBodySize?: number; onError?: (error: unknown) => void | Response | Promise<void | Response>; protocol?: string }`
 
-Configures the trusted request origin, body limit, and error response. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).
+Configures ingress validation, the trusted request origin, body limit, and error response. `allowedHosts` contains exact incoming hosts, including ports; an empty list rejects every host with `421`. Validate the same hosts at trusted ingress because forwarded host headers aren't trusted. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).

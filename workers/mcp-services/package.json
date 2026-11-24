@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --port 8787",
-    "deploy": "node scripts/prepare-deploy-config.mjs && wrangler deploy --config wrangler.deploy.jsonc",
-    "deploy:dry-run": "node scripts/prepare-deploy-config.mjs --dry-run && wrangler deploy --dry-run --config wrangler.deploy.jsonc",
+    "deploy:dry-run": "wrangler deploy --dry-run",
     "gen:types": "wrangler types",
     "check:types": "tsc --noEmit",
     "test": "vitest --run",

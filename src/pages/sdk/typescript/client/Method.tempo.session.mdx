@@ -33,7 +33,7 @@ Mppx.create({
     // [!code focus:start]
     tempo.session({
       account: provider.getAccount({ signable: true }),
-      allowedChainIds: [42431], // Tempo testnet (Moderato)
+      allowedChainIds: [4217], // Tempo mainnet
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -53,7 +53,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo.session({ account, allowedChainIds: [42431] }), // Tempo testnet (Moderato)
+    tempo.session({ account, allowedChainIds: [4217] }), // Tempo mainnet
     // [!code focus:end]
   ],
 })
@@ -121,7 +121,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
   account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
-  allowedChainIds: [42431], // Tempo testnet (Moderato)
+  allowedChainIds: [4217], // Tempo mainnet
   // [!code hl:start]
   currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
   decimals: 6,
@@ -141,6 +141,8 @@ import type { Method } from 'mppx'
 
 type ReturnType = Method.Client
 ```
+
+Transaction preparation maps spending-limit and token-balance reverts to `Errors.SpendingLimitExceededError` and `Errors.InsufficientBalanceError` before signing. This also applies to Session opens and top-ups. See [pre-signing errors](/sdk/typescript/core/Errors#spendinglimitexceedederror).
 
 ## Parameters
 
@@ -200,7 +202,7 @@ Allowed Tempo chain IDs; use `[4217]` for mainnet.
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }`
 
 Acquires only the missing session currency before opens and top-ups.
 
@@ -210,6 +212,8 @@ Acquires only the missing session currency before opens and top-ups.
 
 Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
 
+Custom `tokenIn` entries accept addresses, chain-indexed tokens, or resolved tokens. Tokens resolve on the client’s chain; missing or mismatched-chain entries are skipped, and duplicate addresses are tried once. See [`Currency`](/sdk/typescript/core/Currency).
+
 ### channelStore (optional)
 
 - **Type:** `ChannelStore`
@@ -218,16 +222,16 @@ Pluggable persistence for reusable channels. Defaults to an in-memory store. Use
 
 ### currencies (optional)
 
-- **Type:** `readonly Address[]`
+- **Type:** `readonly Currency[]`
 
-Case-insensitive allowlist of session currencies. An empty list rejects all offers. Required with `maxAmount` or `maxAtomicAmount`.
+Allowlist of session currency addresses, chain-indexed tokens, or resolved tokens from `viem/tokens`. Addresses match without case sensitivity; tokens match on the signing chain, and resolved tokens only match their own chain. Checked again before signing when the Challenge omits a chain. An empty list rejects all offers. Required with `maxAmount` or `maxAtomicAmount`. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### decimals (optional)
 
 - **Type:** `number`
 - **Default:** `6`
 
-Token decimals for parsing human-readable amounts. Set this explicitly with `maxAmount`; omitting it rejects that cap rather than assuming six decimals.
+Decimals for address currencies when parsing human-readable amounts. Matched tokens supply their own decimals for `maxDeposit`, `topUpAmount`, and Credential context amounts. Address amounts default to six decimals, except `maxAmount`: set this explicitly for every address currency in that allowlist.
 
 ### escrow (optional)
 
@@ -253,7 +257,7 @@ Function that returns a viem client for the given chain ID.
 
 Maximum display-unit price per session unit (Challenge `amount`), not total spend.
 
-- Requires `currencies` and explicit `decimals`; excess fractional digits are rejected.
+- Requires `currencies` and decimals for every address currency. Tokens supply their own decimals; excess fractional digits are rejected at construction.
 - Checked during selection, before signing, and before automatic top-ups.
 - Explicit closes are exempt.
 
@@ -267,7 +271,7 @@ Maximum per-unit price in raw base units. Requires `currencies`. Checked alongsi
 
 - **Type:** `string`
 
-Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
+Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups. Uses the matched token’s decimals, otherwise configured `decimals` or `6`.
 
 ### onChannelUpdate (optional)
 
@@ -303,7 +307,7 @@ type SessionContext = {
   action?: 'open' | 'topUp' | 'voucher' | 'close'
   additionalDeposit?: string
   additionalDepositRaw?: string
-  autoSwap?: boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }
+  autoSwap?: boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }
   channelId?: Hex
   cumulativeAmount?: string
   cumulativeAmountRaw?: string
@@ -321,8 +325,8 @@ type SessionContext = {
 | `channelId` | Channel ID to reuse or manually operate on. |
 | `descriptor` | TIP-1034 descriptor required for recovery and manual Credentials. |
 | `transaction` | Signed Tempo transaction for manual `open` or `topUp` Credentials. |
-| `cumulativeAmount` | Human-readable cumulative voucher authorization, parsed with `decimals`. |
+| `cumulativeAmount` | Human-readable cumulative voucher authorization, parsed with the matched token’s decimals or the address `decimals`. |
 | `cumulativeAmountRaw` | Raw cumulative voucher authorization. Takes precedence over `cumulativeAmount`. |
-| `additionalDeposit` | Human-readable top-up amount, parsed with `decimals`. |
+| `additionalDeposit` | Human-readable top-up amount, parsed with the matched token’s decimals or the address `decimals`. |
 | `additionalDepositRaw` | Raw top-up amount. Takes precedence over `additionalDeposit`. |
 | `depositRaw` | Raw opening deposit override for automatic open Credentials. |

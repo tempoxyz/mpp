@@ -137,32 +137,30 @@ pnpm --filter mpp-services-mcp check
 pnpm --filter mpp-services-mcp dev
 ```
 
-Production deploys run from the `production` GitHub Environment. Configure:
+## Deploy
 
-```text
-CLOUDFLARE_ACCOUNT_ID=<production-account-id>  # GitHub Environment variable
-CLOUDFLARE_API_TOKEN=<deploy-token>            # GitHub Environment secret
-```
+`.github/workflows/mcp-services-deploy.yml` deploys `main` to the tempo-prd
+account through the
+[Cloudflare Deploy Broker](https://github.com/tempoxyz/cloudflare-deploy-broker).
+No job holds a Cloudflare credential. After `check` passes, the trusted
+`cloudflare-deploy-broker-build.yml` workflow builds `wrangler.jsonc` and
+attests the Worker and its configuration. The deploy job, in the GitHub
+`Production` environment, sends that artifact to the broker as deployment
+`mpp-services-mcp`, and the broker uploads, promotes and verifies the version.
+Don't deploy with Wrangler or a Cloudflare API token.
 
-The token is provisioned through `tempoxyz/secrets`; request `account: prd`
-with `account_settings_read`, `workers_scripts_write`, and
-`workers_kv_storage_write`.
-
-The deploy workflow watches this Worker package, the shared metrics helper in
+The workflow watches this Worker package, the shared metrics helper in
 `src/lib/worker-metrics*.ts`, root dependency files, and the deploy workflow
 itself.
 
-Local deployments use the same environment variables:
+`wrangler.jsonc` names the production `MPP_CATALOG_CACHE` KV namespace by its
+ID and declares every var, including the Datadog settings that used to live
+only in the dashboard: the broker deploys exactly the vars in the file. Code,
+vars and the cron schedule change with an ordinary push. A new binding, or a
+change to the account, the Worker name, the KV namespace or the endpoint
+settings, needs a change in `tempoxyz/cloudflare-deploy-policies` first. The
+Worker has no secrets; add one in the broker dashboard's Workers tab
+(https://cf.tehq.net/), and every later deploy keeps it.
 
-```bash
-export CLOUDFLARE_ACCOUNT_ID=<account-id>
-export CLOUDFLARE_API_TOKEN=<deploy-token>
-pnpm --filter mpp-services-mcp deploy:dry-run
-pnpm --filter mpp-services-mcp deploy
-```
-
-The deploy script creates `wrangler.deploy.jsonc` locally, resolving or creating
-the production `MPP_CATALOG_CACHE` KV namespace before invoking Wrangler. It
-requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` with Account Read,
-Workers Scripts Write, and Workers KV Storage Write permissions. Zone
-permissions are not required.
+`pnpm --filter mpp-services-mcp deploy:dry-run` bundles the Worker locally
+without deploying.

@@ -6,7 +6,6 @@ src/pages.gen.ts
 .dev.vars*
 .env
 worker-configuration.d.ts
-wrangler.deploy.jsonc
 public/specs/
 src/pages/specs/index.mdx
 src/snippets/cli-help.txt
@@ -19,6 +18,10 @@ schemas/discovery.json
 schemas/discovery.example.json
 public/services/catalog.json
 public/services/llms.txt
+
+# Built by scripts/build-logos.ts
+public/services/logos/
+public/services/logos.json
 
 # Generated from skills/ by `pnpm generate:discovery`
 public/.well-known/agent-skills/

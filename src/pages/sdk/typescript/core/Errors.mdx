@@ -68,17 +68,33 @@ A sponsored payment fails simulation before broadcast. Inspect `phase`, not node
 | `phase` | `'sender' \| 'sponsored'` | Sender's calls before sponsorship, or the final fee-payer-billed envelope. |
 | `sender` | `` `0x${string}` \| undefined `` | Sender of the simulated transaction. |
 
+### SpendingLimitExceededError
+
+Tempo charge payments and Session opens or top-ups simulate during transaction preparation, before signing. A spending-limit revert throws `SpendingLimitExceededError` with `account`, optional `accessKey`, and the simulation error in `cause`. Raise the limit, wait for its period to reset, or use another key. No payment is signed for this failed preparation.
+
+A token-balance revert throws `InsufficientBalanceError` with the simulation error in `cause` and the available and required token amounts in its message. Fund the account or use another payment account. Other simulation failures keep their original errors; don’t classify them by node error text.
+
 ### ZoneSettlementPendingError
 
-`ZoneSettlementPendingError` is thrown when a private payment withdraws funds from a Zone (a private execution environment) but its transfer to Tempo hasn't settled before the client stops waiting. It carries `challengeId`, `senderTag`, and `zoneId`. The withdrawal can't be undone and may still settle.
+`ZoneSettlementPendingError` is thrown when a private payment withdraws funds from a Zone (a private execution environment) but its transfer to Tempo hasn't settled before the client stops waiting. It carries `challengeId`, `senderTags`, and `zoneId`. `senderTag` is available when exactly one candidate remains. The withdrawal can't be undone and may still settle.
 
 | Property | Type | Description |
 | --- | --- | --- |
 | `challengeId` | `string` | Challenge paid by the withdrawal. |
-| `senderTag` | `` `0x${string}` `` | Withdrawal tag to find on the Zone portal. |
+| `senderTag` | `` `0x${string} \| undefined` `` | Withdrawal tag when exactly one candidate remains. |
+| `senderTags` | `` readonly `0x${string}`[] `` | Candidate tags to find on the Zone portal. |
 | `zoneId` | `number` | Zone the withdrawal left. |
 
-Call `mppx.createCredential(response)` again with the original `402` response and the same client to resume waiting; a repeated request gets a new Challenge and pays again. See [private payments](/guides/private-payments#handle-slow-settlement).
+Call `mppx.createCredential(response)` again with the original `402` response and the same client to resume waiting. Reuse the original Challenge—the client resumes the same withdrawal instead of withdrawing again. See [private payments](/guides/private-payments#handle-slow-settlement).
+
+### FacilitatorResponseError
+
+An x402 facilitator returned a non-`2xx` response or malformed success body from `verify`, `settle`, or `supported`. Inspect `path`, `status`, and the truncated `body` on the server. Failed verification and settlement result bodies remain normal results rather than throwing this error.
+
+### Configurable account errors
+
+- `ConfigurableVouchersUnsupportedError` means a configurable account client tried to open a Session whose Challenge didn't advertise `configurableVouchers`. Use a primitive account or access key, or enable configurable vouchers on a compatible server.
+- `SignerConfigChangedError` means the account configuration no longer matches the commitment recorded when the channel opened. Close that channel and open a new one.
 
 ## Return type
 
@@ -96,7 +112,7 @@ type PaymentOutcomeUnknownError = Errors.PaymentError & {
 
 - **Type:** `unknown`
 
-Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, or `ZoneSettlementPendingError`.
+Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, `SpendingLimitExceededError`, `InsufficientBalanceError`, or `ZoneSettlementPendingError`.
 
 ### fundingUrl (optional)
 

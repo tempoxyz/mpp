@@ -288,10 +288,10 @@ If a broadcast attempt fails before settlement completes, the server releases it
 
 ### currencies (optional)
 
-- **Type:** `readonly (string | Token)[]`
+- **Type:** `readonly Currency.Currency[]`
 - **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+Ordered accepted addresses, chain-indexed tokens such as `ousd`, or resolved tokens such as `ousd(42431)` from `viem/tokens`. An explicit list replaces the defaults. Tokens resolve on the configured chain; a resolved token only matches its own chain. Unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### currency (optional, deprecated)
 
@@ -304,7 +304,7 @@ Accepts one token address. Use `currencies: [currency]` instead. Don't set both 
 - **Type:** `number`
 - **Default:** `6`
 
-Decimal places for amount parsing.
+Decimal places for address currencies; defaults to `6`. Tokens supply their own decimals. An explicit value must match every accepted token’s decimals.
 
 ### externalId (optional)
 
@@ -462,11 +462,18 @@ const mppx = Mppx.create({
 })
 ```
 
+### zoneCredentialGraceMs (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Accepts a late Zone Credential for up to this many milliseconds after Challenge expiry, only when the withdrawal settled before expiry and the Challenge advertised the grace period. The value must be from `0` through `300_000`. This option isn't compatible with `relay`.
+
 ### zones (optional)
 
 - **Type:** `number[] | true`
 
-Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. Zone IDs are positive integers below `421_700_000`; an explicit array must not be empty. Verification requires a successful canonical portal event and top-level `processWithdrawals` calldata with the exact recipient, token, amount, Challenge-bound memo, and `gasLimit: 0`. Bounced withdrawals are rejected. A Zone Receipt omits `payer`; `validateSender` cannot establish the private Zone payer's identity. See [private payments](/guides/private-payments).
+Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. Zone IDs are positive integers below `421_700_000`; an explicit array must not be empty. Verification requires a successful canonical portal event and top-level `processWithdrawals` calldata with the exact recipient, token, amount, Challenge-bound memo, and `gasLimit: 0`. Bounced withdrawals are rejected. Portal payouts are accepted only through their `zone` Credential, not a regular transaction-hash Credential. A Zone Receipt omits `payer`; `validateSender` cannot establish the private Zone payer's identity. See [private payments](/guides/private-payments).
 
 ## Request parameters
 

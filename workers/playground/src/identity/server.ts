@@ -13,9 +13,11 @@ import { createClient, type Hex, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { Chain } from "viem/tempo";
 
+import * as Agents from "./agents.js";
 import * as Haiku from "./haiku.js";
 import * as Issuer from "./issuer.js";
 import * as Keys from "./keys.js";
+import * as TempoId from "./tempo-id.js";
 import * as Tiers from "./tiers.js";
 import * as Trace from "./trace.js";
 
@@ -49,7 +51,8 @@ export class MppxStore extends Store.DurableObjectStore {
 }
 
 type Env = Issuer.Env &
-  Haiku.Env & {
+  Haiku.Env &
+  TempoId.Env & {
     /** Durable Object namespace of {@link MppxStore}. */
     MPPX_STORE: Store.durableObject.Namespace;
     /** Payee account key: receives payments and pays gas as the fee payer. */
@@ -76,24 +79,32 @@ function createApp(env: Env, origin: string) {
     chain: Chain.testnet,
     transport: http(env.TEMPO_RPC_URL),
   });
-  const mppx = Mppx.create({
-    secretKey:
-      env.MPP_SECRET_KEY?.trim() || Keys.secretKey(env.MPP_PRIVATE_KEY),
-    methods: [
-      tempo({
-        account,
-        chainId: Chain.testnet.id,
-        currency: "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
-        // No feePayer: the payer pays its own network fee in pathUSD (OUSD can't pay fees).
-        // Moderato's sponsored simulation rejects fee-payer transactions as of 2026-11-09.
-        getClient: () => client,
-        recipient: account.address,
-        store,
-      }),
-    ],
-  });
-  const tiers = Tiers.create({ audience: origin, env, issuer });
-  return { issuer, mppx, store: store as unknown as Issuer.Store, tiers };
+  const methods = [
+    tempo({
+      account,
+      chainId: Chain.testnet.id,
+      currency: "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
+      // No feePayer: the payer pays its own network fee in pathUSD (OUSD can't pay fees).
+      // Moderato's sponsored simulation rejects fee-payer transactions as of 2026-11-09.
+      getClient: () => client,
+      recipient: account.address,
+      store,
+    }),
+  ] as const;
+  const secretKey =
+    env.MPP_SECRET_KEY?.trim() || Keys.secretKey(env.MPP_PRIVATE_KEY);
+  const mppx = Mppx.create({ methods, secretKey });
+  // Tempo ID's token travels in Authorization, so its charges take Payment Credentials in
+  // Payment-Authorization (requiresAuth); every other tier keeps the default.
+  const mppxAuth = Mppx.create({ methods, requiresAuth: true, secretKey });
+  const tiers = Tiers.create({ audience: origin, env, issuer, store });
+  return {
+    issuer,
+    mppx,
+    mppxAuth,
+    store: store as unknown as Issuer.Store,
+    tiers,
+  };
 }
 
 /** The path mpp.dev serves the playground under. */
@@ -131,13 +142,49 @@ export default {
 
     if (url.pathname === "/api/health") return Response.json({ status: "ok" });
 
+    // The demo Personal Agent's metadata and keys, for verifiers outside this Worker.
+    // The Tempo ID client metadata document: the playground's client ID.
+    if (url.pathname === "/api/tempo-id.json") return TempoId.metadata();
+
+    if (
+      url.pathname === "/api/agent.json" ||
+      url.pathname === "/api/agent-jwks.json" ||
+      url.pathname === "/api/erc8004-agent.json"
+    ) {
+      const served = await Agents.metadata(
+        env,
+        "https://mpp.dev" + base + url.pathname,
+      );
+      if (served) return served;
+    }
+
     if (url.pathname === "/api/config")
       return Response.json({
         issuer: app.issuer,
         limit: Tiers.anonymousDailyLimit,
         origin,
         prices: Tiers.prices,
+        // Tempo ID returns sign-ins to mpp.dev only, so other origins (local dev) leave the tier off.
+        tempoId:
+          origin === new URL(TempoId.redirectUri).origin
+            ? {
+                clientId: TempoId.client(env),
+                issuer: TempoId.issuer,
+                redirectUri: TempoId.redirectUri,
+              }
+            : undefined,
+        agents: {
+          botDirectory: Agents.botDirectory,
+          chainId: Agents.chainId,
+          demoAgentId: Agents.demoAgentId.toString(),
+          poppyClientId: Agents.poppyClientId,
+          registry: Agents.registry,
+        },
       });
+
+    // The demo Personal Agent delegates a key to the browser, which signs each Session with it.
+    if (url.pathname === "/api/poppy/delegation" && request.method === "POST")
+      return Agents.delegate(env, request);
 
     // The demo inbox: the message the issuer would have emailed, while the code is pending.
     if (url.pathname.startsWith("/api/inbox/")) {
@@ -163,8 +210,15 @@ export default {
       );
     }
 
-    if (url.pathname === "/api/haiku")
-      return trace.attach(await haiku(request, { app, env, trace }));
+    if (url.pathname === "/api/haiku") {
+      // Agents sign the URL they called (mpp.dev's), which the Worker sees under its own host.
+      const incoming = new URL(request.url);
+      const signed = new Request(
+        origin + incoming.pathname + incoming.search,
+        request,
+      );
+      return trace.attach(await haiku(signed, { app, env, trace }));
+    }
 
     return new Response("Not found", { status: 404 });
   },
@@ -179,9 +233,12 @@ async function haiku(
   },
 ): Promise<Response> {
   const { app, env, trace } = parameters;
-  const { mppx, tiers } = app;
+  const { tiers } = app;
   const url = new URL(request.url);
-  const paid = request.headers.has("Authorization");
+  // A Tempo ID caller sends its token in Authorization and pays in Payment-Authorization.
+  const paid =
+    request.headers.has("Payment-Authorization") ||
+    /^Payment\s/i.test(request.headers.get("Authorization") ?? "");
   // step: request
   trace.step(
     "request",
@@ -214,7 +271,7 @@ async function haiku(
     return Response.json(
       {
         error:
-          "Custom topics are for verified buyers: verify an email or use an API key.",
+          "Custom topics are for verified buyers: sign in with Tempo ID, verify an email, use an API key or sign as an agent.",
       },
       { status: 403 },
     );
@@ -244,6 +301,7 @@ async function haiku(
   }
   // step: charge
   const verifier = tiers.verifiers[tier];
+  const mppx = tier === "tempoId" ? app.mppxAuth : app.mppx;
   const result = await mppx
     .charge({
       amount: Tiers.prices[tier],

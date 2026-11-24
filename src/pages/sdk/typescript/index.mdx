@@ -49,6 +49,10 @@ Use `mppx/server` for most servers. It exports the server runtime and every buil
 
 Use [`mppx/cloudflare`](/sdk/typescript/cloudflare) for Durable Object session storage and queued settlement. The [upstream examples](https://github.com/wevm/mppx/tree/main/examples) run as Workers, including charge, subscription, and SSE session servers. For other shared databases, use [`Store.postgres`](/sdk/typescript/core/Store.postgres), [`Store.sqlite`](/sdk/typescript/core/Store.sqlite), or [`Store.d1`](/sdk/typescript/core/Store.d1).
 
+### Identity
+
+Use the [identity guide](/extensions/identity) for Tempo ID, World ID, Poppy, ERC-8004, and key-pair or remote signing setup. The reference navigation lists each provider’s client, server, and issuer APIs.
+
 ### x402 compatibility
 
 Use a framework-specific x402 entrypoint when you already have an official x402 route table and resource server. These wrappers preserve x402 handling and add native MPP Challenges and Credentials to the same route.
@@ -59,10 +63,11 @@ Use a framework-specific x402 entrypoint when you already have an official x402 
 | Hono | [`mppx/x402/hono`](/sdk/typescript/x402/hono) |
 | MCP | [`mppx/x402/mcp`](/sdk/typescript/x402/mcp) |
 | Next.js | [`mppx/x402/next`](/sdk/typescript/x402/next) |
+| Tempo facilitator | [`mppx/x402/tempo`](/sdk/typescript/x402/tempo) |
 
 ### Advanced options
 
-Use lightweight entrypoints when a deployment only needs core server primitives or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph.
+Use lightweight entrypoints when a deployment only needs client primitives, core server primitives, one Tempo runtime, or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph. Import from `mppx/client/core`, `mppx/server/core`, `mppx/tempo/client`, or `mppx/tempo/server` as needed; the full `mppx/client` and `mppx/server` entrypoints remain unchanged.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
@@ -409,7 +414,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currencies` lists the accepted TIP-20 token addresses; this example accepts only OUSD on Tempo. Omit the list to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists accepted TIP-20 token addresses or tokens from `viem/tokens`, such as `ousd` and `ousd(4217)`. Tokens carry their decimals; an address uses the configured `decimals`. This example accepts only OUSD on Tempo. Omit the list to offer OUSD first with the network's fallback token (USDC.e on mainnet). `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.

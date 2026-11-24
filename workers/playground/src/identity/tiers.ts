@@ -2,18 +2,31 @@
 //
 //   anonymous  nothing                                  0.03 OUSD, a haiku for a stranger
 //   email      a verified email (Identity-Attestation)  0.02 OUSD, a haiku about you
-//   apiKey     an API key, or an @tempo.xyz email 0.01 OUSD, inside jokes
+//   apiKey     an API key, or an emailed @tempo.xyz code 0.01 OUSD, inside jokes
+//   tempoId    a Tempo ID sign-in (a passkey)        0.01 OUSD, a haiku for a verified Tempo user
+//   poppy      a Personal Agent's Session               0.02 OUSD, a haiku for the agent's user
+//   erc8004    an ERC-8004 agent's wallet signature     0.02 OUSD, a haiku for the agent
+//   webBotAuth a Web Bot Auth request signature         0.02 OUSD, a haiku for the bot
 //
 // Each tier above anonymous is an mppx identity verifier: `EmailOtp.Server.verifier`
 // for email, and `Identity.from` over the member table for API keys.
 import * as EmailOtp from "mppx/extensions/identity/email-otp";
 import * as Identity from "mppx/identity";
 
+import * as Agents from "./agents.js";
 import * as Issuer from "./issuer.js";
 import { prices as defaultPrices } from "./prices.js";
+import * as TempoId from "./tempo-id.js";
 import type { Trace } from "./trace.js";
 
-export type Tier = "anonymous" | "email" | "apiKey";
+export type Tier =
+  | "anonymous"
+  | "email"
+  | "apiKey"
+  | "tempoId"
+  | "poppy"
+  | "erc8004"
+  | "webBotAuth";
 
 /** Price per haiku, in OUSD. */
 /** Haikus an anonymous caller (one IP, or one IPv6 /64) may buy per UTC day. Verified tiers have no limit. */
@@ -29,7 +42,15 @@ export function topic(value: string | null): string | undefined {
 
 export const prices = defaultPrices satisfies Record<Tier, string>;
 
-const rank: Record<Tier, number> = { anonymous: 0, email: 1, apiKey: 2 };
+const rank: Record<Tier, number> = {
+  anonymous: 0,
+  email: 1,
+  poppy: 1,
+  erc8004: 1,
+  webBotAuth: 1,
+  apiKey: 2,
+  tempoId: 2,
+};
 
 /** A member, as the server's own database knows them. */
 export type Member = { name: string; team: string; role: string };
@@ -43,7 +64,10 @@ export const members: Record<string, Member> = {
   },
 };
 
-/** Members by email domain: every verified @tempo.xyz address is a member. */
+/**
+ * Members by email domain: every verified @tempo.xyz address is a member, but only when the
+ * issuer emails its codes. Demo inbox codes are public, so those addresses get the email tier.
+ */
 const memberDomains: Record<string, Omit<Member, "name">> = {
   "tempo.xyz": { team: "Tempo", role: "teammate" },
 };
@@ -52,9 +76,12 @@ const memberDomains: Record<string, Omit<Member, "name">> = {
 export function create(parameters: {
   audience: string;
   issuer: string;
-  env: Issuer.Env;
+  env: Issuer.Env & Agents.Env & TempoId.Env;
+  store: Parameters<typeof Agents.create>[0]["store"];
 }) {
-  const { audience, env, issuer } = parameters;
+  const { audience, env, issuer, store } = parameters;
+  const domains = Issuer.sendsEmail(env) ? memberDomains : {};
+  const agents = Agents.create({ audience, env, store });
 
   // step: identity.email
   const email = EmailOtp.Server.verifier({
@@ -82,13 +109,21 @@ export function create(parameters: {
     audience,
     issuer,
     keyResolver: Issuer.keyResolver(env),
-    allow: (address) =>
-      Object.hasOwn(memberDomains, address.split("@")[1] ?? ""),
+    allow: (address) => Object.hasOwn(domains, address.split("@")[1] ?? ""),
   });
   const member = Identity.anyOf(apiKey, memberEmail);
 
+  // step: identity.tempoId
+  const tempoId = TempoId.create({ env, store });
+
   /** The verifier a tier requires; none for anonymous. */
-  const verifiers = { anonymous: undefined, email, apiKey: member } as const;
+  const verifiers = {
+    anonymous: undefined,
+    email,
+    apiKey: member,
+    tempoId,
+    ...agents,
+  } as const;
 
   return {
     verifiers,
@@ -96,6 +131,11 @@ export function create(parameters: {
     async rejection(
       request: Request,
     ): Promise<{ code: number; reason: string } | undefined> {
+      // A Tempo ID user the app refuses (a flagged account) is refused outright, never priced
+      // at a lower tier that skips the screening.
+      const user = await tempoId.verify(request.clone());
+      if (user.status === "forbidden")
+        return { code: 403, reason: user.reason };
       if (!request.headers.has("X-Api-Key")) return undefined;
       const result = await apiKey.verify(request.clone());
       if (result.status === "valid" || result.status === "missing")
@@ -110,10 +150,23 @@ export function create(parameters: {
      * proof never blocks the request: it falls back to the tier below.
      */
     async resolve(request: Request, trace: Trace): Promise<Tier> {
-      const [asMember, asEmail] = await Promise.all([
+      const [asTempoId, asMember, asEmail, asPoppy] = await Promise.all([
+        tempoId.verify(request.clone()),
         member.verify(request.clone()),
         email.verify(request.clone()),
+        agents.poppy.verify(request.clone()),
       ]);
+      // A Tempo ID token that fails (expired, or a flagged account) falls back to a lower tier.
+      if (asTempoId.status === "valid") {
+        const { email } = asTempoId.value;
+        trace.step(
+          "identity.tempoId",
+          `verified Tempo ID user${email ? ` ${email}` : ""}`,
+        );
+        return "tempoId";
+      }
+      if (asTempoId.status !== "missing")
+        trace.step("identity.tempoId", asTempoId.reason);
       if (asMember.status === "valid") {
         trace.step("identity.member", "member proof verified");
         return "apiKey";
@@ -126,22 +179,91 @@ export function create(parameters: {
       }
       if (asEmail.status !== "missing")
         trace.step("identity.email", asEmail.reason);
+      // step: identity.agent
+      if (asPoppy.status === "valid") {
+        trace.step("identity.agent", "poppy verified");
+        return "poppy";
+      }
+      if (asPoppy.status !== "missing")
+        trace.step("identity.agent", `poppy: ${asPoppy.reason}`);
+      // ERC-8004 and Web Bot Auth signatures carry one-time nonces: the charge verifies them,
+      // once. So the tier here comes from the signer the headers name, and only a signer this
+      // Worker trusts gets an agent tier; any other signed caller pays as anonymous.
+      const { headers } = request;
+      const agentId = headers.get("agent-id")?.toLowerCase() ?? "";
+      if (
+        headers.has("agent-signature") &&
+        agentId.startsWith(
+          `eip155:${Agents.chainId}:${Agents.registry.toLowerCase()}:`,
+        )
+      ) {
+        trace.step("identity.agent", "erc8004 signature present");
+        return "erc8004";
+      }
+      if (
+        headers.has("signature-input") &&
+        headers.get("signature-agent")?.includes(`"${Agents.botDirectory}"`)
+      ) {
+        trace.step("identity.agent", "webBotAuth signature present");
+        return "webBotAuth";
+      }
       return "anonymous";
     },
     /** The caller's identity details the haiku may use, from a settled charge. */
     profile(results: Identity.Results | undefined): Profile {
+      const user = results?.get(tempoId);
+      if (user) {
+        const states = Object.values(user.compliance);
+        return {
+          kind: "tempoId",
+          accounts: user.accounts.length,
+          // Empty until Tempo ID registers the playground's app.
+          compliance:
+            states.length > 0 ? [...new Set(states)].join(", ") : undefined,
+          name: user.email ? nameOf(user.email) : undefined,
+          seen: [
+            "Tempo ID user",
+            ...(user.email ? ["email"] : []),
+            "accounts",
+            ...(states.length > 0 ? ["compliance"] : []),
+          ],
+        };
+      }
       const key = results?.get(apiKey);
       if (key)
         return { kind: "member", ...key, seen: ["name", "team", "role"] };
+      const session = results?.get(agents.poppy);
+      if (session)
+        return {
+          kind: "agent",
+          // The caller picks the user ID, so only a short plain one reaches the prompt.
+          agent: `a Personal Agent acting for ${topic(session.userId) ? `its user ${topic(session.userId)}` : "a pseudonymous user"}`,
+          seen: ["agent", "user ID"],
+        };
+      const onchain = results?.get(agents.erc8004);
+      if (onchain)
+        return {
+          kind: "agent",
+          agent:
+            BigInt(onchain.agentId) === Agents.demoAgentId
+              ? `the MPP Demo Agent (ERC-8004 #${onchain.agentId} on Tempo)`
+              : `ERC-8004 agent #${onchain.agentId} on Tempo`,
+          seen: ["agent ID", "wallet"],
+        };
+      const bot = results?.get(agents.webBotAuth);
+      if (bot)
+        return {
+          kind: "agent",
+          agent: `a bot from ${new URL(bot.signatureAgent).hostname}`,
+          seen: ["bot directory"],
+        };
       const address =
         results?.get(memberEmail)?.email ?? results?.get(email)?.email;
       if (!address) return { kind: "anonymous", seen: [] };
       const [local, domain] = address.split("@") as [string, string];
-      const name = local
-        .split(/[.+_-]/)[0]!
-        .replace(/^./, (c) => c.toUpperCase());
-      const known = Object.hasOwn(memberDomains, domain)
-        ? memberDomains[domain]
+      const name = nameOf(local);
+      const known = Object.hasOwn(domains, domain)
+        ? domains[domain]
         : undefined;
       if (known)
         return { kind: "member", name, ...known, domain, seen: ["email"] };
@@ -150,10 +272,26 @@ export function create(parameters: {
   };
 }
 
+/** A first name from an email address or its local part: "ada.lovelace@…" is Ada. */
+function nameOf(address: string) {
+  return address
+    .split("@")[0]!
+    .split(/[.+_-]/)[0]!
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
 /** What the haiku knows about the caller, and which verified claims it came from. */
 export type Profile =
   | { kind: "anonymous"; seen: string[] }
   | { kind: "email"; name: string; domain: string; seen: string[] }
+  | { kind: "agent"; agent: string; seen: string[] }
+  | {
+      kind: "tempoId";
+      accounts: number;
+      compliance?: string | undefined;
+      name?: string | undefined;
+      seen: string[];
+    }
   | ({ kind: "member"; domain?: string; seen: string[] } & Member);
 
 /** Whether `tier` is above `other`. */
@@ -163,7 +301,7 @@ export function above(tier: Tier, other: Tier) {
 
 /** Parses a requested tier, ignoring unknown values. */
 export function parse(value: string | null): Tier | undefined {
-  return value === "anonymous" || value === "email" || value === "apiKey"
-    ? value
+  return value !== null && Object.hasOwn(rank, value)
+    ? (value as Tier)
     : undefined;
 }

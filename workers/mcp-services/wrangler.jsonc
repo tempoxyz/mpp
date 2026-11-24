@@ -1,12 +1,14 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "mpp-services-mcp",
+  // tempo-prd. The Cloudflare Deploy Broker's build needs an explicit account.
+  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
   "main": "src/index.ts",
   "compatibility_date": "2026-06-17",
   "compatibility_flags": ["nodejs_compat"],
+  // mpp.dev/mcp/services proxies to mpp-services-mcp.porto.workers.dev.
   "workers_dev": true,
   "preview_urls": true,
-  "keep_vars": true,
   "logpush": true,
   "observability": {
     "enabled": true,
@@ -24,10 +26,21 @@
   "kv_namespaces": [
     {
       "binding": "MPP_CATALOG_CACHE",
-      "id": "REPLACE_WITH_PRODUCTION_KV_NAMESPACE_ID"
+      // The production namespace (titled MPP_CATALOG_CACHE in tempo-prd). The broker binds it
+      // by this exact ID, which its policy names, and never creates or deletes it.
+      "id": "aa5172323b5640b8a02c23a62d4b38f8"
     }
   ],
+  // The Cloudflare Deploy Broker requires a version metadata binding.
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   "vars": {
+    // Datadog settings added in the Cloudflare dashboard, copied from the live Worker. This
+    // code doesn't read them. keep_vars kept them across Wrangler deploys; the broker deploys
+    // exactly the vars declared here, so they are declared to keep them.
+    "DATADOG_ENABLED": "true",
+    "DATADOG_ENV": "production",
+    "DATADOG_SERVICE": "mpp-discovery-service-mcp",
+    "DATADOG_SITE": "us5.datadoghq.com",
     "MPP_SERVICES_URL": "https://mpp.dev/api/services",
     "PUBLIC_MCP_ENDPOINT": "https://mpp.dev/mcp/services"
   }

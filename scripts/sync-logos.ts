@@ -185,6 +185,35 @@ function domainForService(svc: ServiceEntry): string | null {
   return domainFromUrl(raw);
 }
 
+// logo.dev rate-limits bursts: space requests out and retry 429s with backoff.
+const REQUEST_SPACING_MS = 300;
+const MAX_ATTEMPTS = 6;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+let lastRequestAt = 0;
+
+async function fetchLogo(url: string): Promise<ArrayBuffer> {
+  for (let attempt = 1; ; attempt++) {
+    const wait = lastRequestAt + REQUEST_SPACING_MS - Date.now();
+    if (wait > 0) await sleep(wait);
+    lastRequestAt = Date.now();
+
+    const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    if (res.ok) return res.arrayBuffer();
+    if ((res.status !== 429 && res.status < 500) || attempt >= MAX_ATTEMPTS) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const retryAfter = Number(res.headers.get("retry-after"));
+    const backoff =
+      Number.isFinite(retryAfter) && retryAfter > 0
+        ? Math.min(60_000, retryAfter * 1000)
+        : Math.min(30_000, 1000 * 2 ** attempt);
+    console.warn(`  HTTP ${res.status}, retrying in ${backoff}ms`);
+    await sleep(backoff);
+  }
+}
+
 function logoUrl(domain: string): string {
   return `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&greyscale=true&theme=dark&fallback=monogram&retina=true`;
 }
@@ -239,9 +268,7 @@ async function main() {
       logoBuf = domainCache.get(domain) ?? null;
     } else {
       try {
-        const res = await fetch(logoUrl(domain));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        logoBuf = await res.arrayBuffer();
+        logoBuf = await fetchLogo(logoUrl(domain));
         domainCache.set(domain, logoBuf);
       } catch (err) {
         console.warn(`[${svc.id}] fetch failed for ${domain}:`, err);

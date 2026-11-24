@@ -65,17 +65,6 @@ export const mppProxyServices: MppProxyServiceDef[] = [
     provider: { name: "Firecrawl", url: "https://firecrawl.dev" },
   },
   {
-    id: "modal",
-    url: "https://api.modal.com",
-    integration: "third-party",
-    tags: ["gpu", "serverless", "sandbox", "compute"],
-    docs: {
-      homepage: "https://modal.com/docs",
-      llmsTxt: "https://modal.com/llms.txt",
-    },
-    provider: { name: "Modal", url: "https://modal.com" },
-  },
-  {
     id: "openai",
     url: "https://api.openai.com",
     icon: "https://mpp.tempo.xyz/icons/openai.svg",
@@ -114,6 +103,57 @@ export const mppProxyServices: MppProxyServiceDef[] = [
       llmsTxt: "https://docs.tempo.xyz/llms.txt",
     },
     provider: { name: "Tempo", url: "https://tempo.xyz" },
+  },
+  {
+    id: "serper",
+    url: "https://google.serper.dev",
+    integration: "third-party",
+    tags: ["search", "google", "serp", "news", "images", "maps"],
+    docs: {
+      homepage: "https://serper.dev",
+      apiReference: "https://serper.dev/playground",
+    },
+    provider: { name: "Serper", url: "https://serper.dev" },
+  },
+  {
+    id: "millionverifier",
+    url: "https://api.millionverifier.com",
+    integration: "third-party",
+    tags: ["email", "verification", "validation", "deliverability"],
+    docs: {
+      homepage: "https://www.millionverifier.com",
+      apiReference: "https://developer.millionverifier.com",
+    },
+    provider: {
+      name: "MillionVerifier",
+      url: "https://www.millionverifier.com",
+    },
+  },
+  {
+    id: "brightdata",
+    url: "https://brightdata.com",
+    integration: "third-party",
+    tags: ["web", "scraping", "unblocking", "markdown"],
+    docs: {
+      homepage: "https://brightdata.com",
+      apiReference:
+        "https://docs.brightdata.com/scraping-automation/web-unlocker/introduction",
+    },
+    provider: {
+      name: "Bright Data",
+      url: "https://brightdata.com",
+    },
+    healthChecks: {
+      "POST /unlock": { body: { url: "https://example.com" } },
+    },
+  },
+  {
+    id: "codestorage",
+    url: "https://code.storage",
+    integration: "third-party",
+    tags: ["git", "repositories", "code", "storage"],
+    docs: { homepage: "https://code.storage/docs" },
+    provider: { name: "Code Storage", url: "https://code.storage" },
   },
   {
     id: "storage",

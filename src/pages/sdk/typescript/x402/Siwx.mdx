@@ -1,0 +1,212 @@
+---
+description: "Let an entitled wallet sign in before paying, with single-use x402 SIWX proofs and automatic payment fallback."
+imageDescription: "Recognize returning wallets before charging"
+---
+
+# `Siwx` [Sign in before paying]
+
+Creates, signs, and verifies x402 sign-in-with-x (SIWX) proofs through `mppx/x402`. A proof is a signed wallet-address assertion: the server advertises a nonce in a `402 Payment Required` response, the buyer signs it, and the seller can grant access without payment.
+
+## Usage
+
+Pass `Siwx.wrapFetch` as the underlying fetch of your payment client. It tries a signed wallet proof before the outer client pays:
+
+```ts twoslash [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { Siwx } from 'mppx/x402'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+const fetch = Fetch.from({
+  // [!code hl:start]
+  fetch: Siwx.wrapFetch(globalThis.fetch, { account }),
+  // [!code hl:end]
+  methods: [evm.charge({
+    account,
+    currencies: [evm.assets.baseSepolia.USDC],
+    maxAmount: '1.00',
+  })],
+})
+console.log((await fetch('https://api.example.com/report')).status)
+// @log: 200
+```
+
+The server opts in with `evm.charge({ x402: { siwx } })`. See the [setup guide](/guides/use-mpp-with-x402#recognize-a-wallet-before-charging).
+
+## Return type
+
+`wrapFetch` returns `typeof globalThis.fetch`. Lower-level helpers return the types listed below.
+
+## Parameters
+
+### account
+
+- **Type:** `Account` from viem
+
+Second argument's required `account` in `Siwx.wrapFetch(fetch, { account })`. Must expose `signMessage`; an account without it leaves the `402` untouched.
+
+### fetch
+
+- **Type:** `typeof globalThis.fetch`
+
+First argument to `wrapFetch`. No default: pass `globalThis.fetch` or your own implementation.
+
+## Server options
+
+`Siwx.ServerOptions` is the type of `x402.siwx`. SIWX is disabled when omitted.
+
+### client (optional)
+
+- **Type:** `Client` from viem
+- **Default:** None; EOA signatures only
+
+Verifies EIP-1271 and EIP-6492 smart-wallet signatures. Its chain must match the payment method's configured chain; an unavailable or mismatched chain returns `invalid_siwx_verifier_error`.
+
+### grant
+
+- **Type:** `(parameters: { address: Address; chainId: number; request: Request }) => boolean | Promise<boolean>`
+
+Decides whether a verified wallet can access the resource without paying. Receives a request copy, which can read the body without consuming the handler's body. Returns `false` to continue to the normal payment Challenge. A successful grant yields a Receipt with the wallet's DID as its reference, but no funds move. A route can also configure `identity`: functions that verify caller proofs before access, or a payment-stage check that normally verifies who pays before settlement. Those checks must succeed too; on a SIWX grant the payment-stage check receives no payment Credential. See [identity checks](/extensions/identity#how-identity-checks-run).
+
+### origin
+
+- **Type:** `string`
+
+Fixed public origin, including scheme and optional port, such as `https://api.example.com`. The proof's `domain` must match the configured origin's host, and its `uri` must share the configured origin. The URI path isn't matched to the current route: `grant` must decide access for the current request. Never derive this option from caller-controlled headers.
+
+### store
+
+- **Type:** `Store.AtomicStore`
+
+Required atomic nonce store. Use a shared backend across instances. When a route offers several payment methods with `Mppx.compose`, reuse the same store object across SIWX-enabled methods sharing one backend. Before `grant` runs, the integration atomically records the nonce as consumed (a claim); that claim is shared across those methods for this request. A reused proof never reaches `grant`. A proof remains spent even if every offer declines it; clients sign a fresh proof for another attempt.
+
+## Lower-level functions
+
+Use these when implementing your own exchange rather than `wrapFetch` or the EVM method's built-in SIWX hook.
+
+### claim
+
+- **Signature:** `Siwx.claim({ payload, store }): Promise<void>`
+- **`payload` type:** `Pick<Payload, 'issuedAt' | 'nonce'>`
+- **`store` type:** `Store.AtomicStore`
+
+Atomically consumes a verified proof's nonce. A reused nonce throws `InvalidProofError` with `invalid_siwx_nonce`. The claim expires at `Date.parse(issuedAt) + 300000 + 60000` milliseconds. Verify before claiming.
+
+### createExtension
+
+- **Signature:** `Siwx.createExtension({ chainId, origin, url }): Extension`
+- **`chainId` type:** `number`
+- **`origin` type:** `string`
+- **`url` type:** `string`
+
+Creates a fresh 16-byte random nonce, version `1`, current `issuedAt`, and an `expirationTime` five minutes later. It advertises one `eip191` chain as `eip155:<chainId>` and `payloadJsonSchema`. The URI uses the configured origin plus the requested URL's path and query, percent-encoding characters SIWE cannot represent.
+
+### decode
+
+- **Signature:** `Siwx.decode(value: string): Payload`
+
+Decodes base64 JSON and validates `PayloadSchema`. Malformed input throws `InvalidProofError` with `invalid_siwx_payload`.
+
+### encode
+
+- **Signature:** `Siwx.encode(payload: Payload): string`
+
+Returns base64-encoded JSON for the `SIGN-IN-WITH-X` request header. It encodes a payload; it doesn't sign or verify it.
+
+### fromPaymentRequired
+
+- **Signature:** `Siwx.fromPaymentRequired(paymentRequired: { extensions?: Record<string, unknown> }): Extension | undefined`
+
+Parses `extensions['sign-in-with-x']` from a decoded x402 payment-required object. Returns `undefined` if the extension is absent or malformed.
+
+### release
+
+- **Signature:** `Siwx.release({ payload, store }): Promise<void>`
+- **`payload` type:** `Pick<Payload, 'issuedAt' | 'nonce'>`
+- **`store` type:** `Store.AtomicStore`
+
+Call only for a nonce claim this request made, using the same store; `release` cannot determine claim ownership for you. Leaves claims within five seconds of expiry, or already expired, untouched. For custom authorization flows that deliberately make a declined proof reusable; the built-in EVM SIWX hook keeps declined proofs spent.
+
+### toMessage
+
+- **Signature:** `Siwx.toMessage(payload: Omit<Payload, 'signature'>): string`
+
+Builds the EIP-4361 SIWE message, checks its field format, checksums the address, and preserves RFC 3339 timestamp text exactly as supplied. Throws for fields the message format cannot encode. Only `eip155:<number>` chain IDs are accepted.
+
+### verify
+
+- **Signature:** `Siwx.verify({ chainId, options, payload }): Promise<{ address: Address; chainId: number }>`
+- **`chainId` type:** `number`
+- **`options` type:** `Pick<ServerOptions, 'client' | 'origin'>`
+- **`payload` type:** `Payload`
+
+Checks the origin, timestamps, EVM chain, nonce format, wallet address, and signature. `issuedAt` can be at most five minutes old or 60 seconds ahead; explicit expiry and not-before times also apply. Nonces have at least eight alphanumeric characters. Does **not** consume the nonce: call `claim` before acting on the proof. Returns the checksummed address and numeric chain ID.
+
+### wrapFetch
+
+- **Signature:** `Siwx.wrapFetch(fetch, parameters: Siwx.wrapFetch.Parameters): typeof globalThis.fetch`
+- **`parameters` type:** `{ account: Account }`
+
+Reads SIWX from the x402 `PAYMENT-REQUIRED` response header. Selects the first supported `eip155`/`eip191` chain and signs only when the declared domain and URI origin match the requested origin. Retries at most once with `SIGN-IN-WITH-X`, without following redirects. Another `402` goes back to the outer payment client.
+
+It leaves these requests and responses untouched:
+
+- Streamed uploads, including a `Request` with a body
+- Non-`402` responses, redirected responses, and malformed or unsupported extensions
+- Requests already carrying SIWX, x402 payment signatures, or an `Authorization: Payment` Credential
+- Requests with `Signature-Input` or `DPoP`, which need fresh single-use proofs
+- Accounts without `signMessage`
+
+Symbol-keyed request controls, such as automatic-payment opt-outs, are preserved. No proof cache is kept.
+
+## Types and schemas
+
+Each type has a corresponding exported validation schema: `ChainSchema`, `InfoSchema`, `ExtensionSchema`, and `PayloadSchema`.
+
+| Type | Required fields | Optional fields |
+|---|---|---|
+| `Chain` | `chainId: string`, `type: string` | `signatureScheme: string` |
+| `Info` | `domain: string`, `issuedAt: string`, `nonce: string`, `uri: string`, `version: string` | `expirationTime: string`, `notBefore: string`, `requestId: string`, `resources: string[]`, `statement: string` |
+| `Extension` | `info: Info`, `schema: Record<string, unknown>`, `supportedChains: Chain[]` | None |
+| `Payload` | Required `Info` fields plus `address: string`, `chainId: string`, `signature: string`, `type: string` | All optional `Info` fields plus `signatureScheme: string` |
+
+`Payload` inherits the optionality of `Info`; its optional fields aren't required. `ServerOptions` and `wrapFetch.Parameters` are described above. `payloadJsonSchema` is the exported JSON Schema advertised in the extension.
+
+The generic x402 `Types.ExtensionSchema` (also exported from `mppx/x402`) validates `info` and `schema` while preserving additional provider-defined fields. For example, a SIWX extension keeps its `supportedChains` field when parsed as a generic x402 extension. This is separate from `Siwx.ExtensionSchema`, which validates the SIWX-specific shape.
+
+## Constants
+
+| Export | Value |
+|---|---|
+| `extensionKey` | `'sign-in-with-x'` |
+| `header` | `'SIGN-IN-WITH-X'` |
+| `ttl` | `300000` milliseconds |
+
+## Errors
+
+`InvalidProofError` extends `Error`. Construct it with an `ErrorCode`; its `name` is `Siwx.InvalidProofError`, and its `code` and message contain that code. `decode`, `verify`, and `claim` use it; the EVM integration returns the normal payment rejection with the code as its reason.
+
+`ErrorCode` is the union of these strings:
+
+```ts
+type ErrorCode =
+  | 'invalid_siwx_chain_id'
+  | 'invalid_siwx_domain_mismatch'
+  | 'invalid_siwx_expiration_time'
+  | 'invalid_siwx_expired'
+  | 'invalid_siwx_issued_at'
+  | 'invalid_siwx_issued_at_in_future'
+  | 'invalid_siwx_issued_at_too_old'
+  | 'invalid_siwx_nonce'
+  | 'invalid_siwx_not_before'
+  | 'invalid_siwx_not_yet_valid'
+  | 'invalid_siwx_payload'
+  | 'invalid_siwx_signature'
+  | 'invalid_siwx_unsupported_chain'
+  | 'invalid_siwx_uri_mismatch'
+  | 'invalid_siwx_verifier_error'
+```
+
+See the [x402 SIWX specification](https://github.com/coinbase/x402/blob/main/specs/extensions/sign-in-with-x.md) for the wire format.

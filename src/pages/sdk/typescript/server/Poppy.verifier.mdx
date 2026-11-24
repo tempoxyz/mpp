@@ -1,0 +1,87 @@
+---
+description: "Verify the agent, user, and delegated session on each API call."
+imageDescription: "Verify a Poppy session"
+---
+
+# `Poppy.Server.verifier` [Verify a Poppy session]
+
+Creates a request verifier for Poppy’s delegated `Poppy-Session` JWT: a Personal Agent’s signed statement of which user it acts for at your Company (the seller).
+
+## Usage
+
+```ts twoslash
+import * as Poppy from 'mppx/extensions/identity/poppy'
+
+// [!code hl:start]
+const session = Poppy.Server.verifier({
+  audience: 'https://api.example.com',
+  clients: ['https://agent.example.com/agent.json'],
+})
+// [!code hl:end]
+```
+
+Pass `session` in a route's `identity: [session]`. Pair with [`Poppy.Client.prover`](/sdk/typescript/client/Poppy.prover). Verify any accompanying access token separately, including that it was issued to the verified Session's `clientId`. If that verifier uses `Authorization`, configure server `Mppx.create({ requiresAuth: true, ... })`.
+
+## Return type
+
+`Identity.Verifier<Poppy.Session>`. A valid value contains `clientId: string`, `sessionId: string`, `userId: string`, and optional `agentId: string`.
+
+Missing or invalid Sessions produce a verification outcome that the payment handler sends as HTTP `400`. The outcome’s `reason` is a serialized JSON string: `{ error: 'invalid_session', error_description: string }`. Poppy specifies `400` rather than `401` so OAuth clients keep a valid access token instead of treating the Session failure as an expired token. Key-fetch outages return `unavailable` (`503`). A Session doesn't grant account access.
+
+## Parameters
+
+Configuration type: `Poppy.Server.verifier.Config`.
+
+### audience
+
+- **Type:** `string`
+
+Company identifier matched exactly against `aud`.
+
+### clients
+
+- **Type:** `readonly string[]`
+
+Explicit Personal Agent client metadata URLs to accept. Only these URLs are fetched.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Defaults to `globalThis.fetch`. Metadata and JWKS calls use a `5000`-millisecond timeout and don’t follow redirects.
+
+### maxAge (optional)
+
+- **Type:** `number`
+
+Accepted seconds before or after a Session’s `iat`; default `60`. Must be a positive integer.
+
+## Verification behavior
+
+- Fetches each accepted `client_id` metadata document, checks its `client_id`, then fetches its HTTPS `jwks_uri` on the same hostname.
+- Verifies delegation signatures with ES256 or PS384. A delegation must be live and last no more than `86400` seconds. Its `cnf.jwk` delegates the ES256 Session key; the Session's `kid` must be that key's thumbprint.
+- Checks Session type, signature, audience, method, URL without query or fragment, timestamp, and access-token hash. Missing or malformed required claims reject.
+- Requires `ath` exactly when `Authorization` carries one Bearer or DPoP token. Combined or malformed values reject; Payment Credentials aren't access tokens. This binds a Session to the token, but doesn't verify the token itself.
+- Caches metadata and keys for `300` seconds. Unknown keys can refresh after `30` seconds; failures cache for `30` seconds. A failed refresh retains last-good keys for at most `3600` seconds after loading.
+
+## Constants
+
+`Poppy.Constants` exports:
+
+| Property | Value |
+|---|---|
+| `defaultDelegationLifetime` | `3600` seconds |
+| `delegationType` | `poppy-delegation+jwt` |
+| `keyCacheTtl` | `300` seconds |
+| `keyRetryAfter` | `30` seconds |
+| `keyStaleTtl` | `3600` seconds |
+| `maxAge` | `60` seconds |
+| `maxDelegationLifetime` | `86400` seconds |
+| `sessionHeader` | `Poppy-Session` |
+| `sessionType` | `poppy-session+jwt` |
+| `version` | `1.0` |
+| `versionHeader` | `Poppy-Version` |
+
+## Errors
+
+Malformed `clients` throws `TypeError`; invalid `maxAge` throws `RangeError`. Protocol refusals are returned as `Identity.Verification` outcomes, not thrown exceptions.

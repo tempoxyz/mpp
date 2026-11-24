@@ -30,7 +30,7 @@ await provider.request({ method: 'wallet_connect' })
 
 const session = tempo.session.manager({
   account: provider.getAccount({ signable: true }),
-  allowedChainIds: [42431], // Tempo testnet (Moderato)
+  allowedChainIds: [4217], // Tempo mainnet
   getClient: provider.getClient,
   maxDeposit: '1',
 })
@@ -59,7 +59,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 
 const session = tempo.session.manager({
   account,
-  allowedChainIds: [42431], // Tempo testnet (Moderato)
+  allowedChainIds: [4217], // Tempo mainnet
   maxDeposit: '1',
 })
 
@@ -614,7 +614,7 @@ Allowed chains for Sessions, bootstrap proofs, and snapshots; use `[4217]` for m
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Currency[] }`
 
 Acquires only the missing session currency before opens and top-ups.
 
@@ -622,6 +622,8 @@ Acquires only the missing session currency before opens and top-ups.
 - The default budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
 
 Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
+
+Custom `tokenIn` entries accept addresses, chain-indexed tokens, or resolved tokens. Tokens resolve on the client’s chain; missing or mismatched-chain entries are skipped, and duplicate addresses are tried once. See [`Currency`](/sdk/typescript/core/Currency).
 
 ### bootstrap (optional)
 

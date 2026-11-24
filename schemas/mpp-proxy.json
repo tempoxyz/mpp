@@ -17,6 +17,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -30,7 +31,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -40,7 +41,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -76,6 +77,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -89,7 +91,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -101,6 +103,99 @@
         "docs": {
           "homepage": "https://openrouter.ai",
           "apiReference": "https://openrouter.ai/docs"
+        }
+      }
+    },
+    {
+      "id": "brightdata",
+      "domain": "brightdata.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Bright Data",
+        "description": "Web Unlocker: fetch any public page past bot blocks and CAPTCHAs, from a chosen country, as HTML, JSON, Markdown or a screenshot.",
+        "categories": [
+          "web"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/unlock",
+            "description": "Fetch a web page past bot protection",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://brightdata.com",
+          "apiReference": "https://docs.brightdata.com/api-reference/introduction"
+        }
+      }
+    },
+    {
+      "id": "codestorage",
+      "domain": "codestorage.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Code Storage",
+        "description": "Create paid Git repositories on Code Storage. Returns authenticated clone URLs.",
+        "categories": [
+          "storage",
+          "developer-tools"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/repos",
+            "description": "Create a Git repository in your wallet namespace",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/repos/:id",
+            "description": "Get a fresh clone URL for one of your repositories",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "10000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://code.storage"
         }
       }
     },
@@ -120,6 +215,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -133,7 +229,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -143,7 +239,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -175,6 +271,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -188,7 +285,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -198,7 +295,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -208,7 +305,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -218,7 +315,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -228,7 +325,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -238,7 +335,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -248,7 +345,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -258,7 +355,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -268,7 +365,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -278,7 +375,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -288,7 +385,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -298,7 +395,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -308,7 +405,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -318,7 +415,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -328,7 +425,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -338,7 +435,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -348,7 +445,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -358,7 +455,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -368,7 +465,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -378,7 +475,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -388,7 +485,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -398,7 +495,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -408,7 +505,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -418,7 +515,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -428,7 +525,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -438,7 +535,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -448,7 +545,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -458,7 +555,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -468,7 +565,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -478,18 +575,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
-            }
-          },
-          {
-            "method": "POST",
-            "path": "/fal-ai/stable-video",
-            "description": "Stable Video Diffusion (async)",
-            "payment": {
-              "intent": "charge",
-              "method": "tempo",
-              "amount": "100000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -500,7 +586,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "550000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -511,7 +597,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "550000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -522,7 +608,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -533,7 +619,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -543,7 +629,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -553,7 +639,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -563,7 +649,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -573,7 +659,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -583,7 +669,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -593,7 +679,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -603,7 +689,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -613,7 +699,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -623,7 +709,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -633,7 +719,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -643,7 +729,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -653,7 +739,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -663,7 +749,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -673,7 +759,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -715,6 +801,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -728,7 +815,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -738,7 +825,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -748,7 +835,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -758,7 +845,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -768,7 +855,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -778,7 +865,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -788,7 +875,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -798,7 +885,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -808,7 +895,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -818,7 +905,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -828,7 +915,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -838,7 +925,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -848,7 +935,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -858,7 +945,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -868,7 +955,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -878,7 +965,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -888,7 +975,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -898,7 +985,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -908,7 +995,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -918,7 +1005,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -928,7 +1015,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -938,7 +1025,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -949,7 +1036,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "35000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -960,7 +1047,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "3000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -971,7 +1058,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "40000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -982,7 +1069,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "40000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -993,7 +1080,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "40000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1004,7 +1091,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "25000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1015,7 +1102,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "3000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1026,7 +1113,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "35000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1037,7 +1124,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "60000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
@@ -1064,6 +1151,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1078,7 +1166,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "2000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1089,7 +1177,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "2000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1100,7 +1188,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "2000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1111,7 +1199,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "4000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1122,7 +1210,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
@@ -1148,6 +1236,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1161,7 +1250,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1171,7 +1260,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1203,6 +1292,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1217,7 +1307,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1228,7 +1318,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1239,7 +1329,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1250,7 +1340,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1261,7 +1351,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1272,7 +1362,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1283,7 +1373,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1294,7 +1384,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1305,7 +1395,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1316,7 +1406,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "10000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1327,7 +1417,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1338,7 +1428,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1349,7 +1439,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1360,7 +1450,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1371,7 +1461,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
@@ -1396,6 +1486,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1409,7 +1500,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1434,7 +1525,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1465,6 +1556,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1479,7 +1571,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1490,7 +1582,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1501,7 +1593,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1512,7 +1604,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1523,7 +1615,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1534,7 +1626,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1545,7 +1637,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1556,7 +1648,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1567,7 +1659,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1578,7 +1670,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1589,7 +1681,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1600,7 +1692,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1611,7 +1703,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1622,7 +1714,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1633,7 +1725,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1644,7 +1736,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1655,7 +1747,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1666,7 +1758,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1677,7 +1769,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "500",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1688,7 +1780,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1699,7 +1791,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1710,7 +1802,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1721,7 +1813,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1732,7 +1824,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1743,7 +1835,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1754,7 +1846,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1765,7 +1857,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1776,7 +1868,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1787,7 +1879,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "5000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
@@ -1813,6 +1905,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1826,7 +1919,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1867,6 +1960,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1880,7 +1974,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1890,7 +1984,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -1906,15 +2000,14 @@
       }
     },
     {
-      "id": "modal",
-      "domain": "modal.mpp.tempo.xyz",
+      "id": "millionverifier",
+      "domain": "millionverifier.mpp.tempo.xyz",
       "manifest": {
         "version": 1,
-        "name": "Modal",
-        "description": "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
+        "name": "MillionVerifier",
+        "description": "Email verification: whether an address is deliverable, catch-all, disposable, role-based or invalid.",
         "categories": [
-          "compute",
-          "ai"
+          "data"
         ],
         "methods": {
           "tempo": {
@@ -1922,6 +2015,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -1929,52 +2023,20 @@
         },
         "endpoints": [
           {
-            "method": "POST",
-            "path": "/sandbox/create",
-            "description": "Create a sandbox (dynamic pricing by GPU and timeout)",
+            "method": "GET",
+            "path": "/verify",
+            "description": "Verify one email address",
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
-            }
-          },
-          {
-            "method": "POST",
-            "path": "/sandbox/exec",
-            "description": "Execute in sandbox",
-            "payment": {
-              "intent": "charge",
-              "method": "tempo",
-              "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
-            }
-          },
-          {
-            "method": "POST",
-            "path": "/sandbox/status",
-            "description": "Check sandbox status",
-            "payment": {
-              "intent": "charge",
-              "method": "tempo",
-              "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
-            }
-          },
-          {
-            "method": "POST",
-            "path": "/sandbox/terminate",
-            "description": "Terminate sandbox",
-            "payment": {
-              "intent": "charge",
-              "method": "tempo",
-              "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "amount": "5000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
         "docs": {
-          "homepage": "https://modal.com",
-          "apiReference": "https://modal.com/docs/reference"
+          "homepage": "https://www.millionverifier.com",
+          "apiReference": "https://developer.millionverifier.com"
         }
       }
     },
@@ -1996,6 +2058,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2009,7 +2072,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2019,7 +2082,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2029,7 +2092,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2040,7 +2103,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2051,7 +2114,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "50000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2062,7 +2125,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "50000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2073,7 +2136,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "10000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2084,7 +2147,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "10000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2095,7 +2158,7 @@
               "intent": "session",
               "method": "tempo",
               "amount": "20000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2133,6 +2196,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2146,7 +2210,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2156,7 +2220,7 @@
             "payment": {
               "intent": "session",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2166,7 +2230,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2191,7 +2255,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2201,7 +2265,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2235,6 +2299,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2249,7 +2314,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "20000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2259,7 +2324,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2269,7 +2334,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2279,7 +2344,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
@@ -2306,6 +2371,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2320,12 +2386,175 @@
               "intent": "session",
               "method": "tempo",
               "amount": "1000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ],
         "docs": {
           "homepage": "https://tempo.xyz"
+        }
+      }
+    },
+    {
+      "id": "serper",
+      "domain": "serper.mpp.tempo.xyz",
+      "manifest": {
+        "version": 1,
+        "name": "Serper",
+        "description": "Google Search results as JSON: web, news, images, videos, places, maps, reviews, shopping, scholar, patents, lens and autocomplete.",
+        "categories": [
+          "search",
+          "data"
+        ],
+        "methods": {
+          "tempo": {
+            "intents": [
+              "charge"
+            ],
+            "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
+              "0x20c000000000000000000000b9537d11c60e8b50",
+              "0x20c0000000000000000000000000000000000000"
+            ]
+          }
+        },
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/search",
+            "description": "Google web search: organic results, knowledge graph, people also ask and related searches ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/news",
+            "description": "Google News search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/images",
+            "description": "Google Images search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/videos",
+            "description": "Google Videos search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/places",
+            "description": "Google Places search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/maps",
+            "description": "Google Maps search ($0.003, $0.006 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/shopping",
+            "description": "Google Shopping search ($0.002, $0.004 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "2000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/scholar",
+            "description": "Google Scholar search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/patents",
+            "description": "Google Patents search ($0.002 above 10 results)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/autocomplete",
+            "description": "Google search autocomplete suggestions",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/reviews",
+            "description": "Google Maps reviews of a place by placeId, cid or fid",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "1000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          },
+          {
+            "method": "POST",
+            "path": "/lens",
+            "description": "Google Lens visual matches for an image URL ($0.003)",
+            "payment": {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "3000",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
+            }
+          }
+        ],
+        "docs": {
+          "homepage": "https://serper.dev",
+          "apiReference": "https://serper.dev/playground"
         }
       }
     },
@@ -2345,6 +2574,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2358,7 +2588,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2369,7 +2599,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2380,7 +2610,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2390,7 +2620,7 @@
             "payment": {
               "intent": "charge",
               "method": "tempo",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2401,7 +2631,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {
@@ -2412,7 +2642,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "100",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           }
         ]
@@ -2435,6 +2665,7 @@
               "charge"
             ],
             "assets": [
+              "0x20c0000000000000000000006a37DA5C996874BE",
               "0x20c000000000000000000000b9537d11c60e8b50",
               "0x20c0000000000000000000000000000000000000"
             ]
@@ -2449,7 +2680,7 @@
               "intent": "charge",
               "method": "tempo",
               "amount": "3000",
-              "currency": "0x20c000000000000000000000b9537d11c60e8b50"
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE"
             }
           },
           {

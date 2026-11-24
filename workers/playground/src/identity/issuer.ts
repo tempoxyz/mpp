@@ -27,6 +27,11 @@ export type Env = {
   EMAIL_FROM?: string | undefined;
 };
 
+/** Whether the issuer emails its codes; without `EMAIL` and `EMAIL_FROM` they go to the demo inbox. */
+export function sendsEmail(env: Env): boolean {
+  return Boolean(env.EMAIL && env.EMAIL_FROM);
+}
+
 /**
  * Where pending codes live: an atomic key-value store such as the mppx Durable Object
  * store. Counters go through `update` so concurrent requests can't race past the limits.
@@ -189,7 +194,7 @@ export async function handle(
     const client = clientKey(request);
     const limits: [string, number][] = [
       [`sent-ip:${client}`, clientLimit],
-      ...(env.EMAIL && env.EMAIL_FROM
+      ...(sendsEmail(env)
         ? [["sent-all", emailLimit] as [string, number]]
         : []),
       [`sent:${mailbox(email)}`, sendLimit],
@@ -222,7 +227,7 @@ export async function handle(
     };
     // step: issuer.email
     // Store the code before emailing it, so a failed write never sends a dead code.
-    const email_ = Boolean(env.EMAIL && env.EMAIL_FROM);
+    const email_ = sendsEmail(env);
     if (!email_) record.inbox = { ...message, code };
     await store.put(`otp:${id}`, record);
     if (email_) {
@@ -268,7 +273,7 @@ export async function handle(
     trace.step("issuer.verify", `code accepted for ${record.email}`);
 
     // step: issuer.sign
-    const { keyId, privateKey } = await key(env);
+    const { keyId, privateKey, publicKey } = await key(env);
     const iat = Math.floor(Date.now() / 1000);
     const attestation = await Attestation.sign(
       {
@@ -280,7 +285,7 @@ export async function handle(
         sub: record.email,
         type: "email",
       },
-      { key: privateKey, keyId },
+      { key: { privateKey, publicKey }, keyId },
     );
     trace.step(
       "issuer.sign",

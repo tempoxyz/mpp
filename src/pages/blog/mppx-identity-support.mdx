@@ -36,8 +36,7 @@ import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 const client = Mppx.create({
   identity: [
     WebBotAuth.Client.prover({
-      key: webBotAuthPrivateKey,
-      keyId: webBotAuthKeyId,
+      key: webBotAuthKeys,
       scope: ['https://api.example.com'],
       signatureAgent: 'https://bot.example',
     }),
@@ -55,7 +54,7 @@ const client = Mppx.create({
   identity: [
     Tap.Client.prover({
       intent: 'payment',
-      key: tapPrivateKey,
+      key: tapKeys,
       keyId: tapKeyId,
       scope: ['https://merchant.example'],
     }),

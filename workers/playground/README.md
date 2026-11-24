@@ -17,10 +17,11 @@ Charge and discovery share `src/shared/` (the charge server, wallet and code pan
 
 ```bash
 pnpm playground:check   # types, samples and build, from the repository root
-pnpm playground:deploy  # build and wrangler deploy
 ```
 
-The **Deploy MPP playground** workflow deploys on pushes to `main` that touch this directory.
+The **Deploy MPP playground** workflow deploys on pushes to `main` that touch this directory, through the [Cloudflare Deploy Broker](https://github.com/tempoxyz/cloudflare-deploy-broker). No job holds a Cloudflare credential: the trusted `cloudflare-deploy-broker-build.yml` workflow runs `pnpm build:broker` here and attests the Worker, its chunks, the pages' assets and the generated `dist/mpp_playground/wrangler.json`, and the deploy job, in the GitHub `Production` environment, hands that artifact to the broker as deployment `mpp-playground`. Don't deploy with Wrangler or a Cloudflare API token.
+
+Code, vars and assets (within the authorized size limits) change with an ordinary push. The broker's policy in `tempoxyz/cloudflare-deploy-policies` pins the rest, so these need a policy change there first: a new binding, a new Durable Object class (declared under `exports` in `wrangler.jsonc`, not `migrations`: migration `v1` created the live classes, and the broker never replays migrations), or a new `run_worker_first` path, such as a new playground's API.
 
 mpp.dev serves the pages itself (built with the site, cached at Vercel's edge until the next deploy), while their APIs come from this Worker, so the two deploy separately and can briefly run different commits. Keep each API backward compatible: add fields and routes rather than renaming or removing them, and remove one only after a deploy of mpp.dev that no longer uses it has gone out.
 
@@ -28,9 +29,9 @@ The session API takes the topic in the path (`/api/story/<topic>`), never a quer
 
 ## Setup
 
-1. The deploy workflow generates the payee key with Foundry (`cast wallet new`) and stores it as the `MPP_PRIVATE_KEY` Worker secret the first time; later deploys keep it. To rotate, delete the secret and rerun the workflow.
+1. The payee key is the `MPP_PRIVATE_KEY` Worker secret, generated with Foundry (`cast wallet new`) and stored only on the Worker; every deploy keeps it. Secrets are managed in the broker dashboard's Workers tab (https://cf.tehq.net/, open to the `app-tailscale-engineering` Okta group). To rotate, generate a new key and replace the secret there. A new key changes the payee address and the identity issuer key, so earlier attestations stop verifying.
 2. Production deployments of mpp.dev proxy to that Worker by default; set `PLAYGROUND_WORKER_ORIGIN` in Vercel only to point elsewhere. Preview deployments answer 404: identity attestations are bound to `https://mpp.dev`, and session Challenges name `mpp.dev` as their realm (`MPP_REALM` overrides it).
 
 ## Local development
 
-Create `.dev.vars` with `PUBLIC_ORIGIN=http://localhost:8790`, `TRUST_PROXY_IP=false`, `MPP_REALM=localhost` and `MPP_PRIVATE_KEY`, then run `PLAYGROUND_LOCAL=1 pnpm dev` and open `/playground/identity/` or `/playground/session/`. `PLAYGROUND_LOCAL=1` drops the AI binding.
+Create `.dev.vars` with `PUBLIC_ORIGIN=http://localhost:8790`, `TRUST_PROXY_IP=false`, `MPP_REALM=localhost` and `MPP_PRIVATE_KEY`, then run `PLAYGROUND_LOCAL=1 pnpm --filter mpp-playground dev` and open `/playground/identity/` or `/playground/session/`. `PLAYGROUND_LOCAL=1` drops the AI binding.

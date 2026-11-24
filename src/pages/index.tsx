@@ -2,6 +2,8 @@ import { LandingPage } from "../components/LandingPage";
 import { MarketingHead } from "../components/MarketingHead";
 import { Footer } from "../components/marketing/Footer";
 import { StructuredData } from "../components/StructuredData";
+import { FEATURED_SERVICE_IDS } from "../data/registry";
+import { readServiceLogos } from "../data/service-logos";
 
 const homepageStructuredData = {
   "@context": "https://schema.org",
@@ -43,6 +45,10 @@ const homepageStructuredData = {
 } as const;
 
 export default function HomePage() {
+  const logos = readServiceLogos();
+  const featuredLogos = Object.fromEntries(
+    FEATURED_SERVICE_IDS.flatMap((id) => (logos[id] ? [[id, logos[id]]] : [])),
+  );
   return (
     <>
       <MarketingHead
@@ -52,7 +58,7 @@ export default function HomePage() {
         title="Machine Payments Protocol"
       />
       <StructuredData data={homepageStructuredData} />
-      <LandingPage />
+      <LandingPage logos={featuredLogos} />
       <Footer />
     </>
   );
