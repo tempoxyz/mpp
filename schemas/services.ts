@@ -1169,6 +1169,67 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Public Records data ──────────────────────────────────────────────
+  {
+    id: "publicrecords-data",
+    name: "Public Records data",
+    url: "https://apify.com/publicrecords",
+    serviceUrl: "https://publicrecords-mpp.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call public-records lookups, each backed by a Public Records Apify Actor run: resolve a company domain, URL or name to its official social profiles with confidence and evidence, search US federal contract awards on USAspending.gov, and search US federal grant opportunities on Grants.gov. Up to 10 rows per call.",
+
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "public-records",
+      "company-data",
+      "social-profiles",
+      "enrichment",
+      "government",
+      "federal-contracts",
+      "usaspending",
+      "grants",
+      "apify",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://publicrecords-mpp.fmf-x402.workers.dev",
+      llmsTxt: "https://publicrecords-mpp.fmf-x402.workers.dev/llms.txt",
+      apiReference:
+        "https://publicrecords-mpp.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "Public Records",
+      url: "https://apify.com/publicrecords",
+    },
+    realm: "publicrecords-mpp.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/company/socials",
+        desc: "Company domain, URL or name to official social profiles (LinkedIn, X, Instagram, Facebook, YouTube, GitHub...) with confidence and evidence",
+        amount: "40000",
+        unitType: "request",
+        healthCheck: { body: { q: "apify.com" } },
+      },
+      {
+        route: "POST /mpp/usaspending/awards",
+        desc: "US federal contract awards from USAspending.gov by keyword, agency, recipient, NAICS and dates (up to 10 rows)",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: { body: { agency: "Department of Defense", limit: 3 } },
+      },
+      {
+        route: "POST /mpp/grants/search",
+        desc: "US federal grant opportunities from Grants.gov by keyword, agency and status (up to 10 rows)",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: { body: { keyword: "cybersecurity", limit: 3 } },
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
