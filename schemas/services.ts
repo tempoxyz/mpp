@@ -11362,7 +11362,7 @@ export const services: ServiceDef[] = [
       },
       {
         route: "POST /mpp/audio/transcribe",
-        desc: "Speech to text",
+        desc: "Speech to text (max 10 min; MP3/WAV up to 15 MB, other formats 8 MB)",
         amount: "10000",
         unitType: "request",
         docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
@@ -11372,7 +11372,7 @@ export const services: ServiceDef[] = [
       },
       {
         route: "POST /mpp/audio/memo",
-        desc: "Voice memo to Markdown document",
+        desc: "Voice memo to Markdown document (max 10 min; MP3/WAV)",
         amount: "20000",
         unitType: "request",
         docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
@@ -11382,7 +11382,7 @@ export const services: ServiceDef[] = [
       },
       {
         route: "POST /mpp/audio/meeting",
-        desc: "Meeting audio to summary",
+        desc: "Meeting audio to summary (max 10 min; MP3/WAV)",
         amount: "30000",
         unitType: "request",
         docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
@@ -11442,7 +11442,7 @@ export const services: ServiceDef[] = [
       },
       {
         route: "POST /mpp/audio/transcribe-long",
-        desc: "Long audio transcription (up to 90 min)",
+        desc: "Long audio transcription (up to 30 min, MP3 or WAV)",
         amount: "50000",
         unitType: "request",
         docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
