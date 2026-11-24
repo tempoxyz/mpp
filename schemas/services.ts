@@ -11229,6 +11229,122 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-chain",
+    name: "EVM Decoder: calldata, event logs, selectors, verified ABIs — any chain, no RPC",
+    url: "https://mpp-chain.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-chain.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call EVM decoding for AI agents: decode transaction calldata (including nested multicall/router/Safe calls) and receipt event logs into named, typed arguments; look up 4-byte selectors and event topics; fetch Sourcify-verified ABIs with proxy resolution; encode calldata from a signature. Works for Ethereum, Base, Arbitrum, Optimism, Polygon, BSC, Tempo and any EVM chain.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: ["evm", "decode", "abi", "calldata", "4byte"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-chain.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-chain.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-chain.fmf-x402.workers.dev" },
+    realm: "mpp-chain.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/evm/selector",
+        desc: "Selector and event-topic lookup (4byte)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/evm/calldata",
+        desc: "Decode EVM calldata (any chain, no RPC)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/evm/logs",
+        desc: "Decode EVM event logs (any chain, no RPC)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/evm/abi",
+        desc: "Verified contract ABI (Sourcify, any EVM chain)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/evm/encode",
+        desc: "Encode EVM calldata from a signature",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-chain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
+  {
+    id: "fmf-stt",
+    name: "Deepgram-compatible Speech-to-Text — /deepgram/transcribe and /v1/listen at $0.008",
+    url: "https://mpp-stt.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-stt.fmf-x402.workers.dev",
+    description:
+      "Drop-in Deepgram-shaped speech-to-text for AI agents on MPP. POST {\"url\": \"...\"} (or raw audio bytes) to /deepgram/transcribe — the same path and response shape as \"Deepgram via Locus MPP\", whose transcribe route is no longer in its live OpenAPI — or to Deepgram-native /v1/listen.",
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["speech-to-text", "transcription", "deepgram", "whisper"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-stt.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-stt.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-stt.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-stt.fmf-x402.workers.dev" },
+    realm: "mpp-stt.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /deepgram/transcribe",
+        desc: "Transcribe audio (Deepgram-compatible, Locus path)",
+        amount: "8000",
+        unitType: "request",
+        docs: "https://mpp-stt.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/listen",
+        desc: "Transcribe audio (Deepgram /v1/listen shape)",
+        amount: "8000",
+        unitType: "request",
+        docs: "https://mpp-stt.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
