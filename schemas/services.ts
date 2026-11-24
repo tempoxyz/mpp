@@ -11229,6 +11229,157 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-tools",
+    name: "Agent Utility Tools: Tempo chain, attestation, QR make/scan, DNS, email, IP",
+    url: "https://mpp-tools.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-tools.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call utilities for AI agents: signed timestamped attestation receipts for agent sessions and transcripts (SHA-256, RFC 6962 Merkle root, drand round, Tempo block; nothing stored) plus verification, Tempo gas/fees, transaction decoder, wallet snapshot and activity score, stablecoin peg monitor from on-chain DEX quotes, QR codes (PNG/SVG, Wi-Fi, vCard, Tempo payment) and QR/barcode scanning, DNS lookup with SPF/DMARC, no-send email verification, and IP geolocation/ASN. No account or API key: pay per call with MPP on Tempo (USDC.e or pathUSD).",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "tempo",
+      "attestation",
+      "timestamping",
+      "qr",
+      "dns",
+      "email-verification",
+      "ip-geolocation",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-tools.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-tools.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-tools.fmf-x402.workers.dev" },
+    realm: "mpp-tools.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/tempo/gas",
+        desc: "Tempo gas price and fee costs",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/tempo/tx",
+        desc: "Decode a Tempo transaction",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/tempo/wallet",
+        desc: "Tempo wallet snapshot and activity score",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/tempo/peg",
+        desc: "Tempo stablecoin peg monitor (DEX quotes)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/qr/png",
+        desc: "QR code PNG",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/qr/svg",
+        desc: "QR code SVG",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/qr/scan",
+        desc: "Scan QR codes and barcodes in an image",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/dns/lookup",
+        desc: "DNS lookup (all record types)",
+        amount: "500",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/email/verify",
+        desc: "Email address verification (no-send)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/ip/lookup",
+        desc: "IP geolocation and ASN",
+        amount: "800",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/attest/session",
+        desc: "Attest an agent session (signed timestamped receipt)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/attest/verify",
+        desc: "Verify an attestation receipt",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
