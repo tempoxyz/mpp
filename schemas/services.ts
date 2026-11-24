@@ -11229,6 +11229,415 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-compat",
+    name: "Compat APIs: OpenWeather-, Mapbox- and EDGAR-compatible routes",
+    url: "https://mpp-compat.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-compat.fmf-x402.workers.dev",
+    description:
+      "Request- and response-compatible drop-ins for popular paid data routes from sources that allow commercial reuse: OpenWeather-shaped current weather, 5-day/3-hour forecast and geocoding (MET Norway + GeoNames, CC BY 4.0), Mapbox-shaped city geocoding (GeoNames) and SEC EDGAR submissions, company facts and concepts (public domain). Same paths as the Locus listings, so switching is a base-URL change. Also accepts x402 on Base. Not affiliated with OpenWeather, Mapbox or the SEC.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["weather",  "geocoding",  "sec",  "edgar",  "openweather-compatible"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-compat.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-compat.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://mpp-compat.fmf-x402.workers.dev" },
+    realm: "mpp-compat.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /openweather/current-weather",
+        desc: "Current weather (OpenWeather-compatible)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /openweather/forecast-5day",
+        desc: "5-day / 3-hour forecast (OpenWeather-compatible)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /openweather/geocode",
+        desc: "Direct geocoding (OpenWeather-compatible)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /openweather/reverse-geocode",
+        desc: "Reverse geocoding (OpenWeather-compatible)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mapbox/geocode-forward",
+        desc: "Forward geocoding, city-level (Mapbox-compatible)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mapbox/geocode-reverse",
+        desc: "Reverse geocoding, city-level (Mapbox-compatible)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /edgar/company-submissions",
+        desc: "SEC company submissions (EDGAR-compatible)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /edgar/company-facts",
+        desc: "SEC XBRL company facts (EDGAR-compatible)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /edgar/company-concept",
+        desc: "SEC XBRL company concept (EDGAR-compatible)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-compat.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
+  {
+    id: "fmf-domain",
+    name: "Domain & Web Checks: RDAP WHOIS, domain age, availability, HTTP status, security headers, SPF/DMARC",
+    url: "https://mpp-domain.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-domain.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call domain and website diagnostics: RDAP WHOIS with port-43 fallback for ccTLDs, bulk domain age and availability (20 per call), HTTP status and redirect chains (10 URLs per call), security-header grading and SPF/DMARC/DKIM/MX audits. Invalid input or upstream failure returns 402 and is not charged. Also accepts x402 on Base.",
+    categories: ["web",  "data"],
+    integration: "third-party",
+    tags: ["whois",  "rdap",  "domain",  "dns",  "email-auth",  "http"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-domain.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-domain.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://mpp-domain.fmf-x402.workers.dev" },
+    realm: "mpp-domain.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /domain/whois",
+        desc: "Domain WHOIS via RDAP",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /domain/age",
+        desc: "Domain age and expiry",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /domain/available",
+        desc: "Bulk domain availability check",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /http/status",
+        desc: "HTTP status + redirect chain checker",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /http/security-headers",
+        desc: "HTTP security headers grade",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /email/auth",
+        desc: "Email authentication audit (SPF, DMARC, DKIM, MX, BIMI, MTA-STS)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-domain.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
+  {
+    id: "fmf-utils",
+    name: "Dev & Data Utils: IBAN, GTIN, ISIN, crypto addresses, JWT, hashes, cron, RRULE, semver, CSV",
+    url: "https://mpp-utils.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-utils.fmf-x402.workers.dev",
+    description:
+      "Deterministic utilities at $0.001 per call, batched up to 100 items: IBAN, EAN/UPC/ISBN, ISIN/CUSIP/SEDOL and card-number checks; multi-chain address validation; JWT decode, hashes/HMAC, semver, URL + Public Suffix parsing, UUID/ULID; cron and RRULE expansion, business days, time-zone conversion; string similarity, slugs, geodesic distance, geohash; CSV<->JSON. Pure compute, nothing stored. Also accepts x402 on Base.",
+    categories: ["compute",  "data"],
+    integration: "third-party",
+    tags: ["validation",  "iban",  "jwt",  "hash",  "cron",  "csv"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-utils.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-utils.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://mpp-utils.fmf-x402.workers.dev" },
+    realm: "mpp-utils.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /id/iban",
+        desc: "IBAN validator (batch of 100)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /id/gs1",
+        desc: "EAN/UPC/GTIN/ISBN check-digit validator",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /id/security",
+        desc: "ISIN / CUSIP / SEDOL / FIGI validator",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /id/card",
+        desc: "Payment card number check (Luhn + brand)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /chain/address",
+        desc: "Crypto address validator (EVM, BTC, SOL, TRON, LTC, DOGE)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /code/jwt",
+        desc: "JWT decoder",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /code/hash",
+        desc: "Hash / HMAC generator",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /code/semver",
+        desc: "Semver parse / compare / range check",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /code/url",
+        desc: "URL parser + registrable domain (Public Suffix List)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /text/similarity",
+        desc: "String similarity (Levenshtein, Jaro-Winkler, Soundex)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /text/slug",
+        desc: "URL slug generator (with transliteration)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /geo/distance",
+        desc: "Geodesic distance, bearing, midpoint + geohash",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /time/cron",
+        desc: "Cron expression: next/previous run times",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /time/rrule",
+        desc: "RFC 5545 RRULE expander",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /time/business-days",
+        desc: "Business days: add or count",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /time/convert",
+        desc: "Time zone converter",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /id/uuid",
+        desc: "UUID v4/v7 and ULID generator + decoder",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /data/csv-to-json",
+        desc: "CSV -> JSON",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /data/json-to-csv",
+        desc: "JSON -> CSV",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-utils.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
