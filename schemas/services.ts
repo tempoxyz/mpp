@@ -11229,6 +11229,109 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-research",
+    name: "Agent Research API: papers, FDA drugs and recalls, clinical trials, LEI",
+    url: "https://mpp-research.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-research.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call research data for AI agents: scholarly paper search and DOI metadata (Crossref, 150M+ works), FDA drug labels, FAERS adverse-event signals and food/drug/device recalls (openFDA), clinical trial search and study details (ClinicalTrials.gov), and global legal-entity lookup with parents (GLEIF LEI). Clean, normalized JSON.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["papers", "crossref", "fda", "recalls", "clinical-trials", "lei"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-research.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-research.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-research.fmf-x402.workers.dev" },
+    realm: "mpp-research.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/papers/search",
+        desc: "Scholarly paper search (150M+ works)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/papers/doi",
+        desc: "Paper metadata by DOI",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/drugs/label",
+        desc: "FDA drug label (indications, warnings, dosage)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/drugs/adverse-events",
+        desc: "FDA adverse event reports for a drug (FAERS)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/recalls/search",
+        desc: "FDA recalls search (food, drugs, devices)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/trials/search",
+        desc: "Clinical trials search (ClinicalTrials.gov)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/trials/study",
+        desc: "Clinical trial details by NCT id",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/company/lei",
+        desc: "Legal entity lookup (GLEIF LEI)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-research.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
