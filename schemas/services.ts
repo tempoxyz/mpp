@@ -11229,6 +11229,190 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-agent-data",
+    name: "Agent Web & Data API: scrape, extract, filings, weather, FX",
+    url: "https://mpp-agent-data.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-agent-data.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call web fetch/extract and public reference data for AI agents: URL to clean Markdown, article extraction, structured JSON extraction with your schema, page links and sitemaps, Wikipedia search, word of the day and on-this-day facts, SEC EDGAR filings/financials/full-text search, global weather forecast, US weather alerts, ECB FX reference rates and the US Treasury yield curve. No account, no API key: pay per call with MPP on Tempo (USDC.e or pathUSD).",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: [
+      "scraping",
+      "extraction",
+      "weather",
+      "sec",
+      "filings",
+      "fx",
+      "wikipedia",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-agent-data.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-agent-data.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "FMF",
+      url: "https://mpp-agent-data.fmf-x402.workers.dev",
+    },
+    realm: "mpp-agent-data.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/web/scrape",
+        desc: "URL to clean Markdown",
+        amount: "1500",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/web/links",
+        desc: "Page links (map)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/web/sitemap",
+        desc: "Site URL map from sitemaps",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/web/extract",
+        desc: "Structured extraction from a URL",
+        amount: "4000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/wiki/search",
+        desc: "Wikipedia search with extracts",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/weather/forecast",
+        desc: "Weather forecast (global)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/weather/alerts-us",
+        desc: "US weather alerts (NWS)",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/sec/filings",
+        desc: "SEC filings for a company",
+        amount: "4000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/sec/financials",
+        desc: "Company financials (SEC XBRL)",
+        amount: "4000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/sec/search",
+        desc: "SEC full-text filing search",
+        amount: "4000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/fx/rates",
+        desc: "FX reference rates (ECB)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/rates/treasury",
+        desc: "U.S. Treasury yield curve",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/daily/word",
+        desc: "Word of the day",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/daily/onthisday",
+        desc: "On this day + random fact",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/web/article",
+        desc: "Article extraction",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-agent-data.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
