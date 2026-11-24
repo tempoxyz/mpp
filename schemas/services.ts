@@ -11229,6 +11229,61 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Hermoso ─────────────────────────────────────────────────────────────
+  {
+    id: "hermoso",
+    name: "Hermoso",
+    url: "https://hermoso.ai",
+    serviceUrl: "https://app.hermoso.ai",
+    description:
+      "Launch and market a business from your AI agent: host the site with its domain, email and payments, make image and video ads, post to social channels and run ad campaigns. Agents sign up and pay over MPP.",
+    icon: "https://hermoso.ai/assets/brand/apple-touch-icon.png",
+    categories: ["ai", "media", "social", "web"],
+    integration: "first-party",
+    tags: [
+      "marketing",
+      "ads",
+      "video",
+      "image",
+      "social-media",
+      "websites",
+      "domains",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://hermoso.ai/docs/",
+      llmsTxt: "https://hermoso.ai/llms.txt",
+      apiReference: "https://app.hermoso.ai/openapi.json",
+    },
+    provider: { name: "Hermoso", url: "https://hermoso.ai" },
+    realm: "app.hermoso.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          path: "/api/signup/machine-payment",
+          body: {
+            email: "healthcheck@hermoso.ai",
+            plan: "starter_v3",
+            claim_token: "mpp-directory-healthcheck-0000000000",
+          },
+        },
+        route: "POST /api/signup/machine-payment",
+        desc: "Create a Hermoso account and pay for one prepaid month of a plan or a credit pack in one call. Body {email, claim_token, plan | packId}; the paid retry returns the account's API key.",
+        dynamic: true,
+        amountHint: "$10 – $400 depending on plan or pack",
+      },
+      {
+        healthCheck: false,
+        route: "POST /api/billing/machine-payment",
+        desc: "Top up an existing Hermoso account with a credit pack or a prepaid plan month. Needs the account's API key in X-Api-Key.",
+        dynamic: true,
+        amountHint: "$10 – $400 depending on plan or pack",
+      },
+    ],
+  },
 ];
 
 export {
