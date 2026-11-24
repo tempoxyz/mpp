@@ -11229,6 +11229,57 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Willow Rock Data Tools ───────────────────────────────────────────
+  {
+    id: "willow-rock-data-tools",
+    name: "Willow Rock Data Tools",
+    url: "https://willow-rock-data-tools.willowrock.workers.dev",
+    serviceUrl: "https://willow-rock-data-tools.willowrock.workers.dev",
+    description:
+      "Pay-per-job table tools: clean messy CSVs into typed JSON, validate rows against a schema, and convert csv/tsv/json/jsonl/markdown/html. Deterministic code, no LLM.",
+    icon: "https://willow-rock-data-tools.willowrock.workers.dev/favicon.ico",
+    categories: ["data", "ai"],
+    integration: "first-party",
+    tags: ["csv", "data-cleaning", "validation", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://willow-rock-data-tools.willowrock.workers.dev",
+      llmsTxt: "https://willow-rock-data-tools.willowrock.workers.dev/llms.txt",
+      apiReference:
+        "https://willow-rock-data-tools.willowrock.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "Willow Rock Holdings",
+      url: "https://willow-rock-data-tools.willowrock.workers.dev",
+    },
+    realm: "willow-rock-data-tools.willowrock.workers.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/clean-csv",
+        desc: "Clean a messy CSV/TSV/JSON table into typed JSON (or CSV/JSONL/TSV/MD/HTML), with a per-column report.",
+        amount: "100",
+        unitType: "job",
+        healthCheck: false,
+      },
+      {
+        route: "POST /api/v1/validate-data",
+        desc: "Validate rows against a column schema; returns a verdict and up to 1,000 row-level issues.",
+        amount: "75",
+        unitType: "job",
+        healthCheck: false,
+      },
+      {
+        route: "POST /api/v1/convert-format",
+        desc: "Convert a table between csv, tsv, json, jsonl, markdown, and html.",
+        amount: "50",
+        unitType: "job",
+        healthCheck: false,
+      },
+    ],
+  },
 ];
 
 export {
