@@ -12207,6 +12207,49 @@ export const services: ServiceDef[] = [
         },
       },
     ],
+  },
+  {
+    id: "fmf-cs2-sim",
+    name: 'CS2 Sim: loss bonus, buy or eco, half simulation',
+    url: "https://cs2-sim.fmf-x402.workers.dev",
+    serviceUrl: "https://cs2-sim.fmf-x402.workers.dev",
+    description:
+      'Counter-Strike 2 economy simulator for agents: free money rules and next-round money; paid buy/force/eco decision and a seeded half simulation using Competitive/Premier money rules. Also accepts x402 on Base. Unofficial fan tool, not affiliated with or endorsed by Valve.',
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["cs2",  "counter-strike",  "simulator",  "economy"],
+    status: "active",
+    docs: {
+      homepage: "https://cs2-sim.fmf-x402.workers.dev/",
+      llmsTxt: "https://cs2-sim.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://cs2-sim.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://cs2-sim.fmf-x402.workers.dev" },
+    realm: "cs2-sim.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/cs2/buy-decision",
+        desc: 'Buy, force, or eco decision from current money and loss bonus',
+        amount: "1000",
+        unitType: "request",
+        docs: "https://cs2-sim.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/cs2/economy-sim",
+        desc: 'Seeded Monte Carlo half using Competitive/Premier money rules',
+        amount: "3000",
+        unitType: "request",
+        docs: "https://cs2-sim.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
   }
 ];
 
