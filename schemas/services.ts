@@ -11229,6 +11229,229 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-docs",
+    name: "Doc Tools for Agents (PDF, Office, audio, OCR) via MPP",
+    url: "https://mpp-docs.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-docs.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call document conversion for AI agents: PDF to Markdown/text, PDF info/split/merge, DOCX/XLSX/CSV/HTML conversion, image OCR, Markdown to PDF, speech-to-text, voice memo to document, meeting notes, RAG chunking and JSON Schema validation. No account, no API key: pay per call with MPP on Tempo (USDC.e or pathUSD).",
+    categories: ["ai", "data"],
+    integration: "third-party",
+    tags: ["pdf", "documents", "ocr", "transcription", "markdown", "tokens"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-docs.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-docs.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-docs.fmf-x402.workers.dev" },
+    realm: "mpp-docs.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/pdf/markdown",
+        desc: "PDF to Markdown",
+        amount: "5000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/pdf/text",
+        desc: "PDF to plain text",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/pdf/info",
+        desc: "PDF metadata and page count",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/pdf/split",
+        desc: "PDF extract pages",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/pdf/merge",
+        desc: "PDF merge",
+        amount: "5000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/doc/markdown",
+        desc: "Any document to Markdown",
+        amount: "5000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/docx/markdown",
+        desc: "DOCX to Markdown",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/html/markdown",
+        desc: "URL/HTML to clean Markdown",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/sheet/json",
+        desc: "CSV/XLSX to JSON",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/image/ocr",
+        desc: "Image OCR",
+        amount: "4000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/markdown/pdf",
+        desc: "Markdown to PDF",
+        amount: "5000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/audio/transcribe",
+        desc: "Speech to text",
+        amount: "10000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/audio/memo",
+        desc: "Voice memo to Markdown document",
+        amount: "20000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/audio/meeting",
+        desc: "Meeting audio to summary",
+        amount: "30000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/url/metadata",
+        desc: "URL metadata / link preview",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/text/chunk",
+        desc: "Text chunking for RAG",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/json/validate",
+        desc: "JSON Schema validate",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/pdf/images",
+        desc: "PDF pages to images",
+        amount: "5000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/text/tokens",
+        desc: "Exact token count (tiktoken)",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/audio/transcribe-long",
+        desc: "Long audio transcription (up to 90 min)",
+        amount: "50000",
+        unitType: "request",
+        docs: "https://mpp-docs.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
