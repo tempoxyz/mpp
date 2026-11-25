@@ -11229,6 +11229,79 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── SpecStream ───────────────────────────────────────────────────────
+  {
+    id: "specstream",
+    name: "SpecStream",
+    url: "https://specstream.ai",
+    serviceUrl: "https://api.specstream.ai",
+    description:
+      "The live web data engine. One platform to build, search, extract, enrich, map, and monitor data across the entire web. Ask in plain words and get every match on the live web, in structured rows. Source URL and read time on every value.",
+    icon: "https://specstream.ai/logo/specstream-logo-1024.png",
+    categories: ["data", "search", "web"],
+    integration: "first-party",
+    tags: [
+      "web-data",
+      "deep-search",
+      "structured-data",
+      "datasets",
+      "enrichment",
+      "research",
+      "sources",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://specstream.ai/docs/agent-payments",
+      llmsTxt: "https://specstream.ai/llms.txt",
+      apiReference: "https://api.specstream.ai/openapi.json",
+    },
+    provider: { name: "SpecStream", url: "https://specstream.ai" },
+    realm: "api.specstream.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: { request: "public companies listed in Paris", count: 5 },
+        },
+        route: "POST /v1/agent/lists",
+        desc: "Ask for data in plain words, with a count from 1 to 500. The 402 states how the request was read, the columns, and the most the run can cost. Only delivered rows are charged, and the rest of the hold goes back to the card.",
+        dynamic: true,
+        amountHint:
+          "$0.05, $0.15 or $1.00 per delivered row, plus $0.05 for an email and $0.15 for a phone; $1 card minimum",
+        unitType: "row",
+        docs: "https://specstream.ai/docs/agent-payments",
+      },
+      {
+        route: "GET /v1/agent/lists",
+        desc: "The buying steps and the payment methods open right now, as JSON",
+        docs: "https://specstream.ai/docs/agent-payments",
+      },
+      {
+        healthCheck: false,
+        route: "GET /v1/agent/lists/:purchase_id",
+        desc: "Read a run's status and its rows with the bearer token from the purchase",
+        docs: "https://specstream.ai/docs/agent-payments",
+      },
+      {
+        healthCheck: { path: "/v1/web-search?q=Machine%20Payments%20Protocol" },
+        route: "GET /v1/web-search",
+        desc: "Search API: answer a question from the live web, each value with its source. The card buys a $5 block of prepaid credit; later calls send the purchase token as a bearer and draw $1 per 1,000 fast searches or $5 per 1,000 searches",
+        amount: "500",
+        unitType: "credit block",
+        docs: "https://specstream.ai/docs/agent-payments",
+      },
+      {
+        healthCheck: { body: { urls: ["https://mpp.dev"] } },
+        route: "POST /v1/extract",
+        desc: "Extract API: read up to 20 pages from their URLs as Markdown or text, with title and published date. The card buys a $5 block of prepaid credit; later calls send the purchase token as a bearer and draw $0.80 per 1,000 pages read",
+        amount: "500",
+        unitType: "credit block",
+        docs: "https://specstream.ai/docs/agent-payments",
+      },
+    ],
+  },
 ];
 
 export {
