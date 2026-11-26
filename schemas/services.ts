@@ -4440,6 +4440,57 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Mare Liberum ────────────────────────────────────────────────────────
+  {
+    id: "mare-liberum",
+    name: "Mare Liberum",
+    url: "https://mareliberum.dev",
+    serviceUrl: "https://mareliberum.dev",
+    description:
+      "Read any public web page as clean Markdown with robots.txt followed: a drop-in for Jina Reader and Firecrawl, free up to 100 pages a day without a key. Reader credit beyond that is sold by card or Link over MPP (USD 0.001 a page).",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "markdown",
+      "web-reader",
+      "scraping",
+      "jina-compatible",
+      "firecrawl-compatible",
+      "agents",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mareliberum.dev/reader",
+      llmsTxt: "https://mareliberum.dev/llms.txt",
+      apiReference: "https://mareliberum.dev/openapi.json",
+    },
+    provider: {
+      name: "Oroboros Design",
+      url: "https://mareliberum.dev/impressum",
+    },
+    realm: "mareliberum.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /reader/credit/stripe",
+        desc: "Reader credit: 500 pages of web pages as Markdown beyond the free 100 a day, valid 30 days",
+        amount: "50",
+        healthCheck: { body: {} },
+      },
+      {
+        route: "GET /r/:url",
+        desc: "Read a public web page as Markdown (free up to 100 pages a day, then credit)",
+        healthCheck: false,
+      },
+      {
+        route: "POST /v2/scrape",
+        desc: "Firecrawl-compatible scrape of one page: Markdown, links and metadata",
+        healthCheck: false,
+      },
+    ],
+  },
+
   // ── Sayer & Stone ───────────────────────────────────────────────────────
   {
     id: "sayer-and-stone",
