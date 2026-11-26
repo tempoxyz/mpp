@@ -11229,6 +11229,424 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-tools-utilities",
+    name: "FMF Tools Utilities",
+    url: "https://mpp-tools.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-tools.fmf-x402.workers.dev",
+    description:
+      "DNS, RDAP/WHOIS, email-auth, SSL certificate, IP/ASN, HTTP header and robots.txt checks, plus QR, geocoding, timezone, math and data diff/convert utilities. Fixed per-request prices from 0.0005 USD; invalid input is refused and not charged.",
+    icon: "https://raw.githubusercontent.com/GeminiGeorge22/fmf-tools/main/logo-400.png",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "dns",
+      "rdap",
+      "whois",
+      "email-auth",
+      "ssl",
+      "ip",
+      "asn",
+      "http-headers",
+      "robots",
+      "qr",
+      "geocoding",
+      "timezone",
+      "math",
+      "data-diff",
+    ],
+    docs: {
+      homepage: "https://mpp-tools.fmf-x402.workers.dev/docs",
+      llmsTxt: "https://mpp-tools.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-tools.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "FMF Tools",
+      url: "https://github.com/GeminiGeorge22/fmf-tools",
+    },
+    realm: "mpp-tools.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/tempo/gas",
+        desc: "Tempo gas price and fee costs",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            hash: "0xae8dd28db9cfa8693512e2798b8805d63172ed5eaf25088b9a809f4cacc0b4c1",
+          },
+        },
+        route: "POST /mpp/tempo/tx",
+        desc: "Decode a Tempo transaction",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { address: "0xB2070a4A874E7141E551890a3642bF7B24a1a148" },
+        },
+        route: "POST /mpp/tempo/wallet",
+        desc: "Tempo wallet snapshot and activity score",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { size: 100 } },
+        route: "POST /mpp/tempo/peg",
+        desc: "Tempo stablecoin peg monitor (DEX quotes)",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { text: "https://mpp.dev", size: 256 } },
+        route: "POST /mpp/qr/png",
+        desc: "QR code PNG",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { text: "https://mpp.dev" } },
+        route: "POST /mpp/qr/svg",
+        desc: "QR code SVG",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            image_base64:
+              "R0lGODdh0ADQAIAAAAAAAP///ywAAAAA0ADQAAAC/4yPqcvtD6OctNqLs968+w+G4kiW5omm6spSwAvH8kzX9g0wtU7zM7db4IbE4k9oTCp7yKMi+GRqoIml1eq7aofZWBf2fQGl1a35Fj6r0+ymbOwsq+dgN31tr0fjCCrGf3B3lyaIlSd2mJMI95ZYuET4mNS211jptQFoIHkWyUlEKWcpijlF1vepFYqiGdD6enrSSgLLJxu7ieuqOzvSK1I7yspLbJtrXPIbElyawqxHCo2KTKtbjawM8ox4KR1o7QsOXCx8i03ePF1ukv2xrajyvvpNHV4/fn6/jO59vL6rT5u4ffn+dVo0IRUohN24RYPE8CE8iZMiQlDIxSI9g/9m5vlLt/GKxwYYcYx8V7HhRHUgPxpS6aKkjZP8IMLU6NKmxJgya64M2Q+gKpxCWxZ9uTNhT580tzTl6JSoJ4xPjR68iZWikZFTFVYNejVpVpZIyTo0q4TnQlMFRRJFufVtR6VFGFmdOxboWb1p5UaVkDID3Lp+oQ7Nm7Mv4LhsDbtFfHRv4sBou5qku1awT8p8v+qs7IhxBM4WBmcGDTksaq2EF7fW3LZs58KPxbI+/YB0BdMZU28WvXpYSc+KbQfnq7udh57EkzMN/fo4O5nNgc/2/de4Oaq0ZSeuHv26M+rdP4uXHrk4+mvcsR/W/h067vjxyLuvjZ73ZcjsvZb/V39egNMF5A5esP3TH1gDCUTgcgb+sWCBsUmWTIQOZgdhgx3Is4JyGz54gYd2KajhiBQmaF5pFn444U8DImjPexnCiI9jQaHoYoUYhriiiTmKmEmPQe6oYolD2rjUTP8RB16SJDqJxpJS3gflb1X++ByVFOqXpGVdTglfek1C6eVSTIKZ35VKqqQmli2eqWWbbsp515toCphem2Uydyd9YXJpZgs11onknPgJimiifqbZom6KPjqenXE6CmmlOMJ5W2+WbvoioZ4+eSinokpY6Jj7jYrqhaX+R2mqrmL26ZZWzveqqbISmWeWmZ66Hqu6ogUooLauGeawxsqnKbC//yJn3aK5zRqrobwyG95ky1pbrZiwgjqts9gW6ly2wV5LErTc3kqratSuymaz2roGLrnhyrhutHuSe+yk5kbZrqS78lusr0Y2ZpRayfI48J9C8tfhwv/maPCN26Jb8MQQN5ywshnjGTHFEsNbcX0bfxvyaA4zSqPJI7OY8kXudnwxyOfGrHLL25XscrYw+8iVxZUC2a/NDgCt8MpEMyh0uTr7fKS9TX88qrpDv/y0xwDXqmqoStPKM7JQY70biFMvTfDMR4Pt9dXPkn1gtGej/bCHrbZt9slwx73i3DO6bffd9Xa79cFZ172y31IHDnjXQeNMquDvFs0u3v4irTXMHP/GOezlBNFbZLryfo7r24inGLa4oEeuseeFp03s3oBrjjLfpq++eOIWw44n7iS/3vfoAHbuuO6Px+7d8I0Xb/npTus7e9LJs51zewEPSqe0Vv+eayE9U09n5vviwTD3cnrf6CPbb1699erP61/46FdPfrzaSxVj+vHLLsj5lMMvsOrS9yo+PfXPcfpbG+r+1j3WiU5uvRNe+oInttIlbYHKe2D5oGdAxnlLgsuTXJXuZbS8NbCCFsQfAZkmsxOhEHIllB/XVhg9Dfrufk4CofPo574YzsyGZFLgCDXEwMkdT4U5HOL6fjhBfFWNZgB83/UoCEQllo2I03PiEUMYRSH/Do6KTdzfE5EoQ+EprmYyHGPqyohDFn4NYUmkHRkJd8MiblB0BdzgpVhnxgzusH5rtCMfv5hFF6IxgCIMXQR3NsA+6uiFtVPb7hzJwT02kok3s90kx4XFAz6Skp2ypAdN6EkdXq9MP6PaJb8HRU1mL45WDCLnVnnCFKqPlJDSGwJbd8tUdvCMisSRK7V2OEROkRPPUyUmH+gjSRRzl7lroSnf+IllSlKNzsQl8FIhzVEmsprJNN/tSHjFavbSh7iiJebIicwlKvObWjTeJlvYzfnJ0oGoLKHfzKkoXU6zi1izZSe5qEdtyvFV/lzkIKk5y3tOspSZZKYf4VbQOw4T/1MK3SRDWUk8gVbUorUE4z45dreI/pGTM+wTLGuIR3WCk4aA/GBKh0nPdh4Oni+lGyRjKkjeWRCfrrvpStEJyi8tVKUyBSf7+DdUmP6Uef6zX017ak13SvWYQQ1UUm0aVZxWVYwj5aFO87dEFtARhrl01zonijGMsnGrZvUmWkWm1mu2FJhuxapYeyfMT351EGFN60Gh6lWfytOufh3nW/UqWLAeVjhxjeRci3dWwsKVre2so++oSgfLYlajoiQpT8s6WH7OMYK/NOzDAgu+KmYUe6UF6NiaitKBbjahsoxnTqOZxtUe1bVSzWY426faZhoykH+9JWpnWsjbZjW5xf/l6ClDC1KmQvCCjJQsNH+b2W0ul7qxtG5nj9tW7u4Vjt0FLFnfSdp6FrWcfa0tUCGrXmMesr3XBW/zKCtf9i42oNidA0tpi1jPnrekz33lbP8r0fq+l3QH1q4+Eztd5eaVlxAmbyj5KyztThi0+X2lbz87WgyG2MDxbe5JH8tZ4w4YueKF5IefKtzq6ja8yn3wdmGLYpI2WLoXfm2Ef2xh3u4YoSK9KoUBfOQN/1PHJe7xiZEcXQVPVpGzbe2NHepYAe/Xx0HGHoin6lHe5pHLOS7obqEsVy17l7/2bSOO0ZzluxK3y2amMZaVbFAqN9nFMB6xicfq3kAH2MpaNe1Ukflk5CgnSoAFBm6Sc4soRg+6ro8eqJxd2mhs9rm3Hb1Sm/ma6IfmU02fzm6oOf0oSR/aPqeFtKBUzWFHq9jShRXqRm+N61zrete87rWvfw1sERQAADs=",
+          },
+        },
+        route: "POST /mpp/qr/scan",
+        desc: "Scan QR codes and barcodes in an image",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { q: "Springfield, IL", limit: 3 } },
+        route: "POST /mpp/geo/search",
+        desc: "Geocode a place name (city-level)",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { lat: 48.8584, lon: 2.2945 } },
+        route: "POST /mpp/geo/reverse",
+        desc: "Reverse geocode lat/lon to nearest places",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { place: "Tokyo", at: "2026-07-01T12:00:00Z" } },
+        route: "POST /mpp/geo/timezone",
+        desc: "Timezone and local time for a place, coordinate or zone",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://wordpress.org/news/" } },
+        route: "POST /mpp/tech/detect",
+        desc: "Detect a website's technology stack",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            exprs: [
+              "r = 6371 km",
+              "circ = 2 pi r",
+              "circ to mi",
+              "det([1,2;3,4])",
+              "combinations(52, 5)",
+              "sqrt(-4)",
+            ],
+          },
+        },
+        route: "POST /mpp/math/eval",
+        desc: "Evaluate math expressions (64-digit precision, units, matrices)",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { value: 72, from: "degF", to: "degC, K" } },
+        route: "POST /mpp/math/convert",
+        desc: "Unit conversion (300+ units)",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            expr: "x^3 * sin(x)",
+            op: "derivative",
+            variable: "x",
+            at: { x: 1 },
+          },
+        },
+        route: "POST /mpp/math/symbolic",
+        desc: "Symbolic algebra: simplify, derivative, rationalize",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "mpp.dev" } },
+        route: "POST /mpp/dns/lookup",
+        desc: "DNS lookup (all record types)",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { email: "support@cloudflare.com" } },
+        route: "POST /mpp/email/verify",
+        desc: "Email address verification (no-send)",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { ip: "8.8.8.8" } },
+        route: "POST /mpp/ip/lookup",
+        desc: "IP geolocation and ASN",
+        amount: "800",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            turns: [
+              { role: "user", content: "Summarize the Q3 report" },
+              { role: "assistant", content: "Q3 revenue grew 12%..." },
+            ],
+            label: "session-42",
+            proofs: true,
+          },
+        },
+        route: "POST /mpp/attest/session",
+        desc: "Attest an agent session (signed timestamped receipt)",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            receipt: {
+              v: 1,
+              type: "fmf.attest.session",
+              id: "863b9f50-453a-4401-ac5a-74b164a619b6",
+              issued_at: "2026-11-24T18:57:50.284Z",
+              issuer: "mpp-tools.fmf-x402.workers.dev",
+              key_id: "d667e0055acf1926",
+              alg: "Ed25519",
+              input_kind: "turns",
+              content_sha256:
+                "04835a65b865aa32be3a31b07a60ec7f4b837726fffab6e8e0ddc5843ca15258",
+              bytes: 109,
+              merkle: {
+                root: "4aa970ae2496c4cc7e5aee3d0a86f49e06bb09c657f269f1c8b7695e4cfdd6a3",
+                leaf_count: 2,
+                scheme: "rfc6962-sha256",
+              },
+              label: "example",
+              drand: {
+                chain: "quicknet",
+                chain_hash:
+                  "52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
+                round: 34247768,
+                randomness:
+                  "bf6a799e885fb101bdc5841dcea047170507bf023fcd9b1d3aed9971e0da058d",
+                signature:
+                  "8be34b431e2bb6ca8f0d51db11e376fd207961e7bc986aa228fc188596db698e3e7dfc554ca3a17429d600d6c8cf81dd",
+                time: "2026-11-24T18:57:48.000Z",
+              },
+              tempo: {
+                chain_id: 4217,
+                block: 50632507,
+                hash: "0x35382f91dca1451a47201afd5834a159fb1c0f54a94d6f2582635f0531907b93",
+                time: "2026-11-24T18:57:49.000Z",
+              },
+            },
+            signature:
+              "CxqV7KMe5A5KRx6U8rIiDTz-HG8m7CLDZ37jm_0IxXVSkEgFzyLeq3eRtxdIiyRZE_k1TaU93kvRPyi3lJBNCw",
+            turns: [
+              { role: "user", content: "Summarize the Q3 report" },
+              { role: "assistant", content: "Q3 revenue grew 12%..." },
+            ],
+          },
+        },
+        route: "POST /mpp/attest/verify",
+        desc: "Verify an attestation receipt",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { ips: ["1.1.1.1", "8.8.8.8"] } },
+        route: "POST /mpp/dns/reverse",
+        desc: "Reverse DNS (PTR) for IPs",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "mpp.dev", type: "A" } },
+        route: "POST /mpp/dns/propagation",
+        desc: "DNS propagation check across 5 public resolvers",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "cloudflare.com" } },
+        route: "POST /mpp/dns/email-auth",
+        desc: "Email auth check: MX, SPF, DMARC, DKIM, MTA-STS, BIMI",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "mpp.dev" } },
+        route: "POST /mpp/domain/rdap",
+        desc: "Domain WHOIS via RDAP: registrar, dates, status, age",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { domains: ["example.com", "fmf-agent-test-zz.dev"] },
+        },
+        route: "POST /mpp/domain/available",
+        desc: "Domain availability check (RDAP + DNS)",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { ip: "8.8.8.8" } },
+        route: "POST /mpp/ip/rdap",
+        desc: "IP network owner via RDAP (RIR allocation)",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { ip: "8.8.8.8" } },
+        route: "POST /mpp/ip/asn",
+        desc: "IP to ASN, network and country (batch 100)",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://mpp.dev" } },
+        route: "POST /mpp/http/headers",
+        desc: "HTTP response headers + security header grade",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "http://github.com" } },
+        route: "POST /mpp/http/redirects",
+        desc: "Redirect chain trace / URL unshortener",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "github.com" } },
+        route: "POST /mpp/ssl/cert",
+        desc: "SSL/TLS certificate check: issuer, expiry, SANs",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "mpp.dev" } },
+        route: "POST /mpp/domain/subdomains",
+        desc: "Subdomain discovery from Certificate Transparency",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://github.com/search" } },
+        route: "POST /mpp/url/robots",
+        desc: "robots.txt check: may this agent fetch this URL?",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            a: "id,name,price\n1,apple,1.00\n2,pear,2.00\n3,plum,3.00",
+            b: "id,name,price\n1,apple,1.10\n3,plum,3.00\n4,kiwi,0.50",
+            key: "id",
+          },
+        },
+        route: "POST /mpp/data/csv-diff",
+        desc: "CSV diff: added, removed and changed rows by key",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            a: '{"name":"widget","price":10,"tags":["a","b"]}',
+            b: '{"name":"widget","price":12,"tags":["a"],"stock":5}',
+          },
+        },
+        route: "POST /mpp/data/json-diff",
+        desc: "JSON diff as an RFC 6902 patch",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            data: '{"name":"widget","price":-1}',
+            schema:
+              '{"type":"object","required":["name","price","sku"],"properties":{"name":{"type":"string"},"price":{"type":"number","minimum":0},"sku":{"type":"string"}}}',
+          },
+        },
+        route: "POST /mpp/data/json-schema",
+        desc: "Validate JSON against a JSON Schema",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            items:
+              '["Acme Inc.","ACME, Inc","acme inc","Globex Corp","globex corp."]',
+          },
+        },
+        route: "POST /mpp/data/dedupe",
+        desc: "Deduplicate records or strings (exact, normalized, fuzzy)",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            input: "name: widget\nprice: 10\ntags:\n  - a\n  - b",
+            from: "yaml",
+            to: "json",
+          },
+        },
+        route: "POST /mpp/data/convert",
+        desc: "Convert data: CSV, TSV, JSON, NDJSON, YAML, XML",
+        amount: "500",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            a: "The quick brown fox\njumps over\nthe lazy dog",
+            b: "The quick red fox\njumps over\nthe lazy dog\nand runs",
+            mode: "unified",
+          },
+        },
+        route: "POST /mpp/text/diff",
+        desc: "Text diff: unified patch or line/word/char changes",
+        amount: "500",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
