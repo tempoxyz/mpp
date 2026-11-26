@@ -2049,6 +2049,140 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── DexPaprika ────────────────────────────────────────────────────────
+  {
+    id: "dexpaprika",
+    name: "DexPaprika",
+    url: "https://dexpaprika.com",
+    serviceUrl: "https://mpp.dexpaprika.com",
+    description:
+      "Onchain DEX data across 35 blockchains: token prices by contract address, liquidity pools, OHLCV candles, swaps, technical indicators and token or pool screening.",
+
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["dex", "defi", "tokens", "prices", "ohlcv"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.dexpaprika.com/ai-integration/mpp",
+      llmsTxt: "https://mpp.dexpaprika.com/llms.txt",
+      apiReference: "https://mpp.dexpaprika.com/openapi.json",
+    },
+    provider: { name: "CoinPaprika", url: "https://coinpaprika.com" },
+    realm: "mpp.dexpaprika.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /networks",
+        desc: "List supported blockchains with 24h volume and pool counts",
+        amount: "5000",
+      },
+      {
+        healthCheck: { path: "/search?query=bonk" },
+        route: "GET /search",
+        desc: "Search tokens, pools and DEXes across all chains",
+        amount: "5000",
+      },
+      {
+        route: "GET /stats",
+        desc: "Coverage of the DEX index: chains, DEXes, pools, tokens",
+        amount: "5000",
+      },
+      {
+        route: "GET /pools/search",
+        desc: "DEX pool screener across chains",
+        amount: "5000",
+      },
+      {
+        route: "GET /tokens/search",
+        desc: "Token screener across chains",
+        amount: "5000",
+      },
+      {
+        healthCheck: { path: "/networks/solana/dexes" },
+        route: "GET /networks/:network/dexes",
+        desc: "List the DEXes on one chain",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/multi/prices?tokens=So11111111111111111111111111111111111111112",
+        },
+        route: "GET /networks/:network/multi/prices",
+        desc: "USD prices for up to 10 tokens in one call",
+        amount: "5000",
+      },
+      {
+        healthCheck: { path: "/networks/solana/pools/search" },
+        route: "GET /networks/:network/pools/search",
+        desc: "Pool screener on one chain, or every pool for a token",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/pools/Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE",
+        },
+        route: "GET /networks/:network/pools/:pool_address",
+        desc: "Full state of one liquidity pool",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/pools/Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE/ohlcv?start=-24h&interval=1h&limit=24",
+        },
+        route: "GET /networks/:network/pools/:pool_address/ohlcv",
+        desc: "OHLCV candles for one pool",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/pools/Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE/transactions",
+        },
+        route: "GET /networks/:network/pools/:pool_address/transactions",
+        desc: "Recent swaps and liquidity events in one pool",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/pools/Czfq3xZZDmsdGdUyrNLtRhGc47cXcZtLG4crryfu44zE/indicators?indicator=rsi&interval=1h",
+        },
+        route: "GET /networks/:network/pools/:pool_address/indicators",
+        desc: "RSI, EMA, MACD, Bollinger Bands or VWAP for one pool",
+        amount: "5000",
+      },
+      {
+        healthCheck: { path: "/networks/solana/tokens/search" },
+        route: "GET /networks/:network/tokens/search",
+        desc: "Token screener on one chain",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/tokens/So11111111111111111111111111111111111111112",
+        },
+        route: "GET /networks/:network/tokens/:token_address",
+        desc: "Token price, liquidity and volume by contract address",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/tokens/So11111111111111111111111111111111111111112/ohlcv?start=-24h&interval=1h&limit=24",
+        },
+        route: "GET /networks/:network/tokens/:token_address/ohlcv",
+        desc: "USD OHLCV candles for a token across its pools",
+        amount: "5000",
+      },
+      {
+        healthCheck: {
+          path: "/networks/solana/tokens/So11111111111111111111111111111111111111112/indicators?indicator=rsi&interval=1h",
+        },
+        route: "GET /networks/:network/tokens/:token_address/indicators",
+        desc: "Technical indicators for a token",
+        amount: "5000",
+      },
+    ],
+  },
+
   // ── Doma ────────────────────────────────────────────────────────────────
   {
     id: "doma",
