@@ -11267,7 +11267,7 @@ export const services: ServiceDef[] = [
         route: "POST /assets/topup/pay",
         desc: "Buy extra credits for the Ludo account the API key belongs to. Send {\"credits\": n}; the 402 challenge carries the price on that account's plan.",
         dynamic: true,
-        amountHint: "Up to $0.06 per credit, depending on the plan and the number of credits",
+        amountHint: "Up to $0.05 per credit, depending on the plan and the number of credits",
         unitType: "request",
         docs: "https://ludo.ai/developers/api",
       },
