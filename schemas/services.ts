@@ -1080,6 +1080,85 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Glyphcall Checks ────────────────────────────────────────────────
+  {
+    id: "glyphcall-checks",
+    name: "Glyphcall Checks",
+    url: "https://glyphcall.com",
+    serviceUrl: "https://api.glyphcall.com",
+    description:
+      "Pre-payment and compliance checks for agents: is this link or shop safe (phishing blocklists, redirects, domain age, HTTPS, merchant trust), and is this EU business real (VIES VAT, EU KYB, Swedish register, OFAC sanctions, e-invoice validation).",
+    icon: "https://glyphcall.com/logo.png",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "url-safety",
+      "phishing",
+      "scam-check",
+      "merchant-trust",
+      "kyb",
+      "vat",
+      "sanctions",
+      "compliance",
+      "e-invoice",
+    ],
+    docs: {
+      homepage: "https://glyphcall.com",
+      llmsTxt: "https://api.glyphcall.com/llms.txt",
+    },
+    provider: { name: "Glyphcall", url: "https://glyphcall.com" },
+    realm: "api.glyphcall.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /pack/url-safety",
+        desc: "Check a link before opening or paying it: phishing blocklists on every hop, redirects, domain age, HTTPS; returns risk, verdict and signals",
+        amount: "10000",
+      },
+      {
+        route: "GET /url/safety-check",
+        desc: "Is this link safe? Blocklists, redirects and domain checks with a clear verdict",
+        amount: "10000",
+      },
+      {
+        route: "GET /phishing/check",
+        desc: "Look a domain or link up in two public phishing blocklists without opening it",
+        amount: "2000",
+      },
+      {
+        route: "GET /merchant/trust",
+        desc: "Is this online shop legit? Domain age, registration, HTTPS, blocklists and store signals as one trust score",
+        amount: "20000",
+      },
+      {
+        route: "GET /vat/validate",
+        desc: "Validate an EU VAT number against the EU VIES service; returns validity, name and address where published",
+        amount: "10000",
+      },
+      {
+        route: "GET /pack/kyb-eu",
+        desc: "EU company verification in one call: VIES VAT, LEI and register lookup for a company",
+        amount: "20000",
+      },
+      {
+        route: "GET /se/company",
+        desc: "Swedish company lookup in the Bolagsverket register by organisation number or name",
+        amount: "10000",
+      },
+      {
+        route: "GET /sanctions/check",
+        desc: "OFAC SDN screening for a crypto wallet or a name; returns block, review or pass",
+        amount: "9000",
+      },
+      {
+        route: "GET /einvoice/validate",
+        desc: "Validate an XRechnung, ZUGFeRD, Factur-X or UBL e-invoice and list the rule violations",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
