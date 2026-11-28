@@ -1080,6 +1080,72 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Control-plane + Tempo data ───────────────────────────────────────
+  {
+    id: "controlplane-tempo-data",
+    name: "Control-plane + Tempo data",
+    url: "https://controlplane-x402.fmf-x402.workers.dev",
+    serviceUrl: "https://controlplane-x402.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call onchain reads. Tempo TIP-20 token facts (name, symbol, decimals, supply, currency, paused flag, supply cap), every nonzero Tempo token-list balance for a wallet with a USD stablecoin total, and who controls a contract on Ethereum, Base or Tempo (proxy implementation, admin/owner, Safe threshold, timelock delay) at a pinned block.",
+
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "tempo",
+      "tip-20",
+      "token-info",
+      "balances",
+      "wallet",
+      "proxy",
+      "contract-admin",
+      "safe",
+      "timelock",
+      "due-diligence",
+    ],
+    docs: {
+      llmsTxt: "https://controlplane-x402.fmf-x402.workers.dev/llms.txt",
+      apiReference:
+        "https://controlplane-x402.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "Control-plane + Tempo data",
+      url: "https://controlplane-x402.fmf-x402.workers.dev",
+    },
+    realm: "controlplane-x402.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/tempo/token",
+        desc: "Tempo TIP-20 token facts: name, symbol, decimals, total supply, currency, paused flag, supply cap (?address=0x...)",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: {
+          path: "/mpp/tempo/token?address=0x20c0000000000000000000000000000000000000",
+        },
+      },
+      {
+        route: "GET /mpp/tempo/balances",
+        desc: "Every nonzero Tempo token-list balance for a wallet, plus a USD stablecoin total (?address=0x...)",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: {
+          path: "/mpp/tempo/balances?address=0x20c0000000000000000000000000000000000000",
+        },
+      },
+      {
+        route: "GET /mpp/controlplane",
+        desc: "Who controls a contract on Ethereum, Base or Tempo: proxy implementation, admin/owner, Safe threshold, timelock delay at a pinned block (?chain=ethereum|base|tempo&address=0x...)",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/mpp/controlplane?chain=base&address=0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+        },
+      },
+    ],
+  },
+
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
