@@ -11229,6 +11229,69 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-ai",
+    name: "Agent AI Tools: chat, translate, embeddings, rerank",
+    url: "https://mpp-ai.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-ai.fmf-x402.workers.dev",
+    description:
+      "Pay-per-call AI primitives for agents: chat completions with small open models (Gemma 4 26B-A4B, Granite 4 Micro, GPT-OSS 20B), machine translation (100 languages), multilingual embeddings and cross-encoder reranking. Open models with commercial-use licences (Apache-2.0, M2M-100 MIT, BGE MIT).",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["chat", "translation", "embeddings", "rerank"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-ai.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-ai.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-ai.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF", url: "https://mpp-ai.fmf-x402.workers.dev" },
+    realm: "mpp-ai.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/chat",
+        desc: "Chat completion (small open models) at $0.002",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://mpp-ai.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/translate",
+        desc: "Translate text (100 languages)",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-ai.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/embeddings",
+        desc: "Text embeddings (multilingual)",
+        amount: "500",
+        unitType: "request",
+        docs: "https://mpp-ai.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/rerank",
+        desc: "Rerank documents for a query",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mpp-ai.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
