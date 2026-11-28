@@ -11229,6 +11229,56 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Ludo.ai ──────────────────────────────────────────────────────────
+  {
+    id: "ludo",
+    name: "Ludo.ai",
+    url: "https://ludo.ai",
+    serviceUrl: "https://api.ludo.ai/api",
+    description:
+      "AI game asset generation for coding agents: sprites and spritesheet animations, images, 3D models with rigging, video, sound effects, music and voices. Agents buy extra credits for a Ludo account over MPP, paid by card or Link: the call carries the account's API key in Authorization, and the credential goes in Payment-Authorization.",
+    icon: "https://ludo.ai/apple-touch-icon.png",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: [
+      "game-assets",
+      "sprites",
+      "animation",
+      "3d",
+      "audio",
+      "image-generation",
+      "credits",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://ludo.ai/developers/api",
+      llmsTxt: "https://ludo.ai/llms.txt",
+      apiReference: "https://api.ludo.ai/api-documentation/openapi.json",
+    },
+    provider: { name: "Ludo.ai", url: "https://ludo.ai" },
+    realm: "api.ludo.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        // Needs the account's API key: an unauthenticated probe gets 403.
+        healthCheck: false,
+        route: "POST /assets/topup/pay",
+        desc: "Buy extra credits for the Ludo account the API key belongs to. Send {\"credits\": n}; the 402 challenge carries the price on that account's plan.",
+        dynamic: true,
+        amountHint: "Up to $0.05 per credit, depending on the plan and the number of credits",
+        unitType: "request",
+        docs: "https://ludo.ai/developers/api",
+      },
+      {
+        healthCheck: false,
+        route: "GET /assets/topup/quote",
+        desc: "Free: the price of a number of credits (?credits=n) on the account's plan, and the allowed range.",
+        docs: "https://ludo.ai/developers/api",
+      },
+    ],
+  },
 ];
 
 export {
