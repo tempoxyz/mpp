@@ -11229,6 +11229,112 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fmf-walletintel",
+    name: "Wallet Intel: x402 seller revenue and wash check, wallet flows, wallet snapshot on Base",
+    url: "https://mpp-walletintel.fmf-x402.workers.dev",
+    serviceUrl: "https://mpp-walletintel.fmf-x402.workers.dev",
+    description:
+      "On-chain wallet analytics for agents, computed from raw Base USDC transfers: x402/MPP seller revenue and wash check (weekly payers, new payers, net of round trips, concentration flags), wallet USDC flows with top counterparties, and a wallet snapshot (ETH, USDC, nonce, contract check). Public chain data only, no labels. Also accepts x402 on Base.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["wallet",  "base",  "x402",  "analytics",  "usdc"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp-walletintel.fmf-x402.workers.dev/",
+      llmsTxt: "https://mpp-walletintel.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mpp-walletintel.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://mpp-walletintel.fmf-x402.workers.dev" },
+    realm: "mpp-walletintel.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /x402/seller-check",
+        desc: "x402 seller revenue and wash check (Base USDC)",
+        amount: "20000",
+        unitType: "request",
+        docs: "https://mpp-walletintel.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /wallet/flows",
+        desc: "Wallet USDC flows and counterparties (Base)",
+        amount: "10000",
+        unitType: "request",
+        docs: "https://mpp-walletintel.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /wallet/snapshot",
+        desc: "Base wallet snapshot: ETH, USDC, nonce, contract check",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mpp-walletintel.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
+  {
+    id: "fmf-mtg-sim",
+    name: "MTG Sim: goldfish and mulligan simulator, draw odds, land count for Magic: The Gathering",
+    url: "https://mtg-sim.fmf-x402.workers.dev",
+    serviceUrl: "https://mtg-sim.fmf-x402.workers.dev",
+    description:
+      "Magic: The Gathering tools for agents: seeded Monte Carlo goldfish and London-mulligan simulation for a pasted decklist, exact hypergeometric draw odds by turn, and land count / colored-source calculator. Sells only its own computation and returns no card data. Unofficial Fan Content, not approved or endorsed by Wizards of the Coast. Also accepts x402 on Base.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["mtg",  "magic",  "simulation",  "probability",  "tcg"],
+    status: "active",
+    docs: {
+      homepage: "https://mtg-sim.fmf-x402.workers.dev/",
+      llmsTxt: "https://mtg-sim.fmf-x402.workers.dev/llms.txt",
+      apiReference: "https://mtg-sim.fmf-x402.workers.dev/openapi.json",
+    },
+    provider: { name: "FMF Tools", url: "https://mtg-sim.fmf-x402.workers.dev" },
+    realm: "mtg-sim.fmf-x402.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/mtg/draw-odds",
+        desc: "MTG draw sim: exact odds to draw your cards by turn N",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mtg-sim.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/mtg/land-count",
+        desc: "MTG mana sim: land count and color sources",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://mtg-sim.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /mpp/mtg/goldfish",
+        desc: "MTG goldfish simulator + mulligan sim for a pasted decklist",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://mtg-sim.fmf-x402.workers.dev/openapi.json",
+        healthCheck: {
+          body: {},
+        },
+      },
+    ],
+  },
 ];
 
 export {
